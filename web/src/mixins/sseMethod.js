@@ -367,12 +367,13 @@ export default {
                 pending: true, 
                 responseLoading: true, 
                 requestFileUrls: this.queryFilePath?[this.queryFilePath]:[],
-                fileName:this.fileList.length > 0 ? this.fileList[0]['name'] : '',
-                fileSize:this.fileList.length > 0 ? this.fileList[0]['size'] : '',
-                fileUrl:this.fileList.length > 0 
-                ? (this.fileList[0].fileUrl ? this.fileList[0].fileUrl:URL.createObjectURL(this.fileList[0].raw))
-                : '',
-                fileType:this.fileList.length > 0 ? this.fileList[0].name.split('.').pop().toLowerCase():'',
+                fileList:this.fileList,
+                // fileName:this.fileList.length > 0 ? this.fileList[0]['name'] : '',
+                // fileSize:this.fileList.length > 0 ? this.fileList[0]['size'] : '',
+                // fileUrl:this.fileList.length > 0 
+                // ? (this.fileList[0].fileUrl ? this.fileList[0].fileUrl:URL.createObjectURL(this.fileList[0].raw))
+                // : '',
+                // fileType:this.fileList.length > 0 ? this.fileList[0].name.split('.').pop().toLowerCase():'',
                 pendingResponse:''
             }
             //正式环境传模型参数
@@ -454,12 +455,13 @@ export default {
                             ...data,
                             ...this.sseParams,
                             "query": prompt,
-                            "fileName":this.fileList.length > 0 ? this.fileList[0]['name'] : '',
-                            "fileSize":this.fileList.length > 0 ? this.fileList[0]['size'] : '',
-                            fileUrl: this.fileList.length > 0 
-                            ? (this.fileList[0].fileUrl ? this.fileList[0].fileUrl:URL.createObjectURL(this.fileList[0].raw))
-                            : '',
-                            fileType:this.fileList.length > 0 ? this.fileList[0].name.split('.').pop().toLowerCase():'',
+                            "fileList":this.fileList,
+                            // "fileName":this.fileList.length > 0 ? this.fileList[0]['name'] : '',
+                            // "fileSize":this.fileList.length > 0 ? this.fileList[0]['size'] : '',
+                            // fileUrl: this.fileList.length > 0 
+                            // ? (this.fileList[0].fileUrl ? this.fileList[0].fileUrl:URL.createObjectURL(this.fileList[0].raw))
+                            // : '',
+                            // fileType:this.fileList.length > 0 ? this.fileList[0].name.split('.').pop().toLowerCase():'',
                             "response": '',
                             "filepath": data.file_url || '',
                             "requestFileUrls": this.queryFilePath?[this.queryFilePath] : data.requestFileUrls,
@@ -654,22 +656,9 @@ export default {
             let history_list = this.$refs['session-com'].getList();
             let _history = history_list[history_list.length - 1];
             let inputVal = _history.query;
-            let fileInfo = null;
-            let fileId = null;
-            if(_history.fileName && _history.fileSize){
-                fileId =  {
-                    fileName:_history.fileName,
-                    fileSize:_history.fileSize,
-                    fileUrl:_history.fileInfo ? _history.fileInfo['fileUrl'] : _history.requestFileUrls[0],
-                }
-                fileInfo = [
-                    { name:_history['fileName'],
-                      size:_history['fileSize'],
-                      fileUrl: _history['filepath'] || _history['fileUrl'] || (_history.requestFileUrls && _history.requestFileUrls[0]) || ''
-                    }
-                ]
-            }
-            this.preSend(inputVal,fileId,fileInfo);
+            let fileInfo = _history.fileInfo ? _history.fileInfo : [];
+            let fileList = _history.fileList ? _history.fileList : [];
+            this.preSend(inputVal,fileList,fileInfo);
         }
     }
 };

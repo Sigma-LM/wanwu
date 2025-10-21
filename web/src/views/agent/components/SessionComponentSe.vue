@@ -46,24 +46,29 @@
                 </el-popover>
                 <div
                   class="echo-doc-box"
-                  v-if="n.fileName && n.fileName !== ''"
+                  v-if="hasFiles(n)"
                 >
-                  <img
-                    :src="n.fileUrl || n.filepath"
-                    class="docIcon"
-                    style="width:auto!important;height:30px!important;"
-                    v-if="(n.fileType && typeof n.fileType === 'string' && n.fileType.includes('image')) || (n.fileName && typeof n.fileName === 'string' && ['jpg','png','jpeg'].includes(n.fileName.split('.').pop().toLowerCase()))"
-                  />
+                 <div v-for="(file,j) in fileDisplayList(n)" :key="`${j}sdsl`">
+                  <div v-if="hasImgs(n)" class="docInfo-img-container">
+                      <img
+                        :src="file.imgUrl || file"
+                        class="docIcon imgIcon" />
+                      <p v-if="n.fileList">
+                      {{file.name}} [ {{getFileSizeDisplay(file.size)}} ]
+                      </p>
+                  </div>
+                  <div v-else class="docInfo-container">
                   <img
                     :src="require('@/assets/imgs/fileicon.png')"
                     class="docIcon"
                     style="width:30px!important;"
-                    v-else
                   />
                   <div class="docInfo">
-                    <p class="docInfo_name">文件名称：{{n.fileName||'...'}}</p>
-                    <p class="docInfo_size">文件大小:{{getFileSizeDisplay(n.fileSize)}}</p>
+                    <p class="docInfo_name">文件名称：{{file.name}}</p>
+                    <p class="docInfo_size">文件大小:{{getFileSizeDisplay(file.size)}}</p>
                   </div>
+                  </div>
+                 </div>
                 </div>
               </div>
 
@@ -398,6 +403,16 @@ export default {
     }
   },
   methods: {
+    hasFiles(n){
+       return (n.fileList && n.fileList.length > 0) ||  (n.filepath && n.filepath.length > 0);
+    },
+    hasImgs(n){
+      console.log(n)
+       return (n.fileList && n.fileList.length > 1) ||  (n.filepath && n.filepath.length > 1);
+    },
+    fileDisplayList(n){
+       return n.fileList || n.filepath || [];
+    },
     handleCitationClick(e) {
       // 调用 common.js 中的通用方法
       this.$handleCitationClick(e, {
@@ -963,16 +978,33 @@ export default {
           margin-top: 10px;
           background: #fff;
           width: auto;
-          border: 1px solid #dcdfe6;
-          border-radius: 5px;
           display: flex;
+          border: 1px solid rgb(235, 236, 238);
+          border-radius: 5px;
           justify-content: space-between;
           align-items: center;
-          padding: 2px 20px 5px 5px;
+          padding: 5px 10px 5px 5px;
+          .docInfo-container{
+            display: flex;
+            align-items: center;
+          }
+          .docInfo-img-container{
+            p{
+              text-align: center;
+              color: #384bf7;
+              font-size: 12px;
+            }
+          }
           .docIcon {
             width: 30px;
             height: 30px;
             margin-right: 10px;
+          }
+          .imgIcon {
+            width:auto!important;
+            height:60px!important;
+            display:block;
+            border-radius:6px;
           }
           .docInfo {
             .docInfo_name {

@@ -3,7 +3,7 @@
     <div class="rl">
         <div class="editable-box">
             <div  v-if="fileType === 'image/*'" class="echo-img-box">
-                <div v-for="file in fileList">
+                <div v-for="file in fileList" class="echo-img-item">
                     <el-image class="echo-img" :src="file.imgUrl" @click="showBigImg(file.imgUrl)"  :preview-src-list="[file.imgUrl]"></el-image>
                     <i class="el-icon-close echo-close" @click="clearFile"></i>
                 </div>
@@ -178,10 +178,9 @@
             },
             setFileId(fileIdList){
                 this.fileIdList = fileIdList;
-                this.fileUrl = fileIdList.fileUrl;
-                this.imgUrl = fileIdList.imgUrl;
-                //解决这里的报错。。。。
-                let fileType = this.fileUrl.split('.')[this.fileUrl.split('.').length-1]
+                this.fileUrl = this.fileIdList[this.fileIdList.length-1].fileUrl;
+                //this.imgUrl = fileIdList.imgUrl;
+                let fileType =  this.fileIdList[this.fileIdList.length-1]['fileName'].split('.').pop() || '';
                 if(["jpeg", "PNG", "png", "JPG", "jpg"].includes(fileType)){//'bmp','webp'
                     this.fileType = 'image/*'
                 }
@@ -195,7 +194,6 @@
             },
             setFile(fileList){
                 this.fileList = fileList;
-                console.log(this.fileList)
                 if(this.fileList.length > 0){
                     this.hasFile = true;
                 }
@@ -231,7 +229,6 @@
               this.clearInput()
               this.promptValue = data
               this.$refs.editor.innerHTML = data.replaceAll('{','<div class="light-input" contenteditable="true">').replaceAll('}','</div>')
-              //  console.log(data,this.getContentInBraces(data))
               // let matchArr = this.getContentInBraces(data)
             },
             getPrompt(){
@@ -338,15 +335,23 @@
         border:1px solid #d3d7dd ;
         .echo-img-box{
             position: absolute;
-            width: 90px;
-            height: 90px;
-            top:-95px;
+            display:flex;
+            top:-70px;
+            justify-content: flex-start;
+            align-items: center;
+            gap:10px;
+            .echo-img-item{
+                height:60px;
+                width:60px;
+                display:flex;
+            }
             .echo-img{
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
                 background: #ffff;
                 box-shadow: 1px 1px 10px #9b9a9a;
+                border-radius: 4px;
             }
             .echo-close{
                 position: absolute;
@@ -378,11 +383,10 @@
             display:flex;
             justify-content: space-between;
             align-items: center;
-            padding:2px 50px 5px 5px;
+            padding:10px 50px 10px 5px;
             .docIcon{
                 width:30px;
                 height:30px;
-                margin-right:10px;
             }
             .docInfo{
                .docInfo_name{
