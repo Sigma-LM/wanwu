@@ -626,7 +626,7 @@ export default {
           height: 100%;
           min-width: 1250px;
           overflow-x: auto;
-          padding-right: 6px;
+          padding-right: 2px;
         }
       }
       /deep/ .el-menu-item {
