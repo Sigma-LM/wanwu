@@ -285,8 +285,8 @@
   .card-img {
     width: 46px;
     height: 46px;
-    object-fit: contain;
-    padding: 10px 5px;
+    object-fit: cover;
+    /*padding: 10px 5px;*/
     background: #FFFFFF;
     box-shadow: 0 1px 4px 0 rgba(0,0,0,0.15);
     border-radius: 8px;

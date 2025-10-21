@@ -190,9 +190,9 @@ export default {
       border-radius:50%;
       background: #F1F4FF;
       box-shadow: none;
-      padding:0 5px!important;
+      padding: 5px !important;
       width: 65px !important;
-      height:65px !important;
+      height: 65px !important;
     }
     .tagList{
       cursor: pointer;
