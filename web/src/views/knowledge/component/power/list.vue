@@ -263,7 +263,7 @@ export default {
         transition: all 0.3s;
         
         &.edit-btn {
-          color: #384BF7;
+          color: $btn_bg;
           
           &:hover {
             color: #5a6cff;

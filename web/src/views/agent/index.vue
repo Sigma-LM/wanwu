@@ -284,7 +284,7 @@ export default {
 .active {
   background-color: $color_opacity !important;
   .appTag {
-    background-color: #384bf7 !important;
+    background-color: $color !important;
   }
 }
 .explore-aside-app {
@@ -303,7 +303,7 @@ export default {
     cursor: pointer;
     position: relative;
     .appDelete {
-      color: #384bf7;
+      color: $color;
       margin-right: -5px;
       cursor: pointer;
     }
@@ -346,7 +346,7 @@ export default {
         border-radius: 6px;
         .root-url {
           background-color: #eceefe;
-          color: #384bf7;
+          color: $color;
           border: none;
         }
       }

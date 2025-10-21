@@ -398,7 +398,7 @@ export default {
         min-width: fit-content;
       }
       .metaValueType{
-        color:#384BF7 ;
+        color:$color ;
       }
       .docItem_data_label {
         margin-right: 5px;
@@ -413,7 +413,7 @@ export default {
       .setBtn {
         font-size: 16px;
         cursor: pointer;
-        color: #384bf7;
+        color: $btn_bg;
       }
     }
     .docItem_data_btn {

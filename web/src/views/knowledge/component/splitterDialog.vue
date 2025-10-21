@@ -189,7 +189,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     .del-icon {
-      color: #384bf7;
+      color: $color;
       cursor: pointer;
       font-size: 16px;
     }

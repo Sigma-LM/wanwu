@@ -46,7 +46,7 @@
                     />
                     <div v-if="appUrlInfo" class="appUrlInfo">
                         <span v-if='appUrlInfo.copyrightEnable'>版权所有: {{appUrlInfo.copyright}}</span>
-                        <span v-if='appUrlInfo.privacyPolicyEnable'>隐私协议: <a :href="appUrlInfo.privacyPolicy" target="_blank" style="color:#384BF7;">{{appUrlInfo.privacyPolicy}}</a></span>
+                        <span v-if='appUrlInfo.privacyPolicyEnable'>隐私协议: <a :href="appUrlInfo.privacyPolicy" target="_blank" style="color:var(--color);">{{appUrlInfo.privacyPolicy}}</a></span>
                         <span v-if="appUrlInfo.disclaimerEnable">免责声明: {{appUrlInfo.disclaimer}}</span>
                     </div>
                 </div>

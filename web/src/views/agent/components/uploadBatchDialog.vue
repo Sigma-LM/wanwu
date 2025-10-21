@@ -65,7 +65,7 @@
                                             max="100"
                                             style="width:360px;margin:0 auto;"
                                         ></el-progress>
-                                        <p>图片类型限制{{maxPicNum}}个文件，其它类型限制1个文件<span style="color:#384BF7;"> {{$t('common.fileUpload.click')}} </span>非图片类型文件会替换已有文件</p>
+                                        <p>图片类型限制{{maxPicNum}}个文件，其它类型限制1个文件<span style="color:var(--color);"> {{$t('common.fileUpload.click')}} </span>非图片类型文件会替换已有文件</p>
                                     </div>
                                 </div>
                                 <div v-else>
@@ -295,7 +295,7 @@
                         margin: 46px 0 10px 0 !important;
                         font-size: 32px !important;
                         line-height: 36px!important;
-                        color: #384BF7;
+                        color: $color;
                     }
                     .el-upload__text{
                         margin-top: -10px;
@@ -336,7 +336,7 @@
                             gap: 5px;
                             justify-content: center;
                             span{
-                                color:#384BF7;
+                                color: $color;
                             }
                         }
                     }

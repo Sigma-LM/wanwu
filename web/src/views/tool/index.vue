@@ -2,7 +2,7 @@
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
       <div class="page-title">
-        <img class="page-title-img" src="@/assets/imgs/mcp_menu.png" alt=""/>
+        <img class="page-title-img" src="@/assets/imgs/tool.svg" alt=""/>
         <span class="page-title-name">{{ $t('menu.tool') }}</span>
       </div>
       <!-- tabs -->
@@ -276,7 +276,7 @@ export default {
           display: inline-block;
           vertical-align: middle;
           font-size: 16px;
-          color: #434C6C;
+          color: $color_title;
           font-weight: bold;
         }
       }

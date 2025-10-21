@@ -143,7 +143,7 @@ export default {
   }
 
   .auto-complete-textarea:focus, .auto-complete-textarea:hover {
-    border-color: #384bf7;
+    border-color: $color;
   }
 
   .suggestions {

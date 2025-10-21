@@ -922,20 +922,20 @@ export default {
 <style scoped lang="scss">
 .serach-list-item {
   .link:hover {
-    color: #384bf7 !important;
+    color: $color !important;
   }
   .search-doc {
     margin-left: 10px;
     cursor: pointer;
-    color: #384bf7 !important;
+    color: $color !important;
   }
   .subTag {
     display: inline-flex;
-    color: #384bf7;
+    color: $color;
     border-radius: 50%;
     width: 18px;
     height: 18px;
-    border: 1px solid #384bf7;
+    border: 1px solid $color;
     line-height: 18px;
     vertical-align: middle;
     margin-left: 2px;
@@ -983,11 +983,11 @@ export default {
    
     .citation {
       display: inline-flex;
-      color: #384bf7;
+      color: $color;
       border-radius: 50%;
       width: 18px;
       height: 18px;
-      border: 1px solid #384bf7;
+      border: 1px solid $color;
       cursor: pointer;
       line-height: 18px;
       vertical-align: middle;
@@ -1008,7 +1008,7 @@ export default {
   }
 }
 .more {
-  color: #384bf7;
+  color: $color;
 }
 .session {
   word-break: break-all;
@@ -1092,7 +1092,7 @@ export default {
             width: auto;  /* 或固定宽度 */
             p{
               text-align: center;
-              color: #384bf7;
+              color: $color;
               font-size: 12px;
             }
           }

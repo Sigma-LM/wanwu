@@ -394,7 +394,7 @@ export default {
     background: #F4F5FF; // rgba(255, 246, 246, 1);
     padding: 10px 15px;
     border-radius: 6px;
-    border: 1px solid #98A6E9; // #f5cbcb;
+    border: 1px solid $border_color;
   }
 
   .params {

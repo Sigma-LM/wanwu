@@ -246,7 +246,7 @@ export default {
     }
 }
 .createTool:hover{
-    color: #384BF7;
+    color: $color;
 }
 .tool-typ{
     display:flex;
@@ -288,8 +288,8 @@ export default {
     }
 }
 .active{
-    border:1px solid #384BF7 !important;
+    border:1px solid $color !important;
     color: #fff;
-    background:#384BF7;
+    background:$color;
 }
 </style>

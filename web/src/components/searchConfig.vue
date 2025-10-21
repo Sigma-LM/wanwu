@@ -400,11 +400,11 @@ export default {
   }
 }
 .active {
-  border: 1px solid #384bf7 !important;
+  border: 1px solid $color !important;
 }
 .searchConfig {
   .searchType-list:hover {
-    border: 1px solid #384bf7;
+    border: 1px solid $color;
   }
   .searchType-list {
     border: 1px solid #c0c4cc;
@@ -419,7 +419,7 @@ export default {
         font-size: 30px;
         text-align: center;
         line-height: 50px;
-        color: #384bf7;
+        color: $color;
         background-color: #fff;
         width: 50px;
         height: 50px;

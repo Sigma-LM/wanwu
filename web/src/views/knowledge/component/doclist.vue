@@ -530,7 +530,7 @@ export default {
   overflow-y: auto;
 }
 .edit-icon{
-  color: #384BF7;
+  color: $color;
   cursor: pointer;
   font-size: 16px;
   margin-left: 5px;
