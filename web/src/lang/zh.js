@@ -56,6 +56,7 @@ export default {
     },
     menu: {
         explore: '应用广场',
+        templateSquare: '模板广场',
         workspace: '工作室',
         tool: '资源库',
         mcp: 'MCP广场',

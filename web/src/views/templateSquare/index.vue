@@ -1,57 +1,59 @@
 <template>
-  <div class="page-wrapper mcp-management">
-    <div class="common_bg">
+  <div class="templateSquare" :style="`background: ${isPublic ? bgColor : 'none'}`">
+    <div class="page-wrapper">
       <div class="page-title">
-        <img class="page-title-img" src="@/assets/imgs/mcp_menu.png" alt=""/>
-        <span class="page-title-name">{{ $t('menu.mcp') }}</span>
+        <img class="page-title-img" :src="require('@/assets/imgs/template_square.svg')" alt="" />
+        <span class="page-title-name">{{$t('menu.templateSquare')}}</span>
       </div>
-      <div class="mcp-content-box mcp-third">
-        <div class="mcp-main">
-          <div class="mcp-content">
-            <div class="mcp-card-box">
-              <div class="card-search card-search-cust">
-                <div>
-              <span
-                  v-for="item in typeList"
-                  :key="item.key"
-                  :class="['tab-span', {'is-active': typeRadio === item.key}]"
-                  @click="changeTab(item.key)"
-              >
-                {{ item.name }}
-              </span>
+      <div class="tempSquare-management">
+        <div class="tempSquare-content-box tempSquare-third">
+          <div class="tempSquare-main">
+            <div class="tempSquare-content">
+              <div class="tempSquare-card-box">
+                <div class="card-search card-search-cust">
+                  <div>
+                    <span
+                      v-for="item in typeList"
+                      :key="item.key"
+                      :class="['tab-span', {'is-active': typeRadio === item.key}]"
+                      @click="changeTab(item.key)"
+                    >
+                      {{ item.name }}
+                    </span>
+                  </div>
+                  <search-input style="margin-right: 2px" placeholder="输入名称搜索" ref="searchInput" @handleSearch="doGetPublicMcpList"/>
                 </div>
-                <search-input style="margin-right: 2px" placeholder="请输入MCP名称进行搜索" ref="searchInput"
-                              @handleSearch="doGetPublicMcpList"/>
-              </div>
 
-              <div class="card-loading-box" v-if="list.length">
-                <div class="card-box" v-loading="loading">
-                  <div
+                <div class="card-loading-box" v-if="list.length">
+                  <div class="card-box" v-loading="loading">
+                    <div
                       class="card"
                       v-for="(item, index) in list"
                       :key="index"
                       @click.stop="handleClick(item)"
-                  >
-                    <div class="card-title">
-                      <img class="card-logo" v-if="item.avatar && item.avatar.path"
-                           :src="basePath + '/user/api/' + item.avatar.path"/>
-                      <div class="mcp_detailBox">
-                        <span class="mcp_name">{{ item.name }}</span>
-                        <span class="mcp_from">
-                      <label>
-                        {{ item.from }}
-                      </label>
-                    </span>
+                    >
+                      <div class="card-title">
+                        <img
+                          class="card-logo"
+                          v-if="item.avatar && item.avatar.path"
+                          :src="basePath + '/user/api/' + item.avatar.path"
+                        />
+                        <div class="mcp_detailBox">
+                          <span class="mcp_name">{{ item.name }}</span>
+                          <span class="mcp_from">
+                            <label>
+                              作者：{{ item.from }}
+                            </label>
+                          </span>
+                        </div>
                       </div>
+                      <div class="card-des">{{ item.desc }}</div>
                     </div>
-                    <div class="card-des">{{ item.desc }}</div>
                   </div>
-                  <!--<p class="loading-tips" v-if="loading"><i class="el-icon-loading"></i></p>
-                  <p class="loading-tips">没有更多了</p>-->
                 </div>
-              </div>
-              <div v-else class="empty">
-                <el-empty description="暂无数据"></el-empty>
+                <div v-else class="empty">
+                  <el-empty description="暂无数据"></el-empty>
+                </div>
               </div>
             </div>
           </div>
@@ -68,7 +70,8 @@ export default {
   data() {
     return {
       basePath: this.$basePath,
-      mcpSquareId: "",
+      isPublic: true,
+      bgColor: '',
       category: '全部',
       list: [],
       loading:false,
@@ -85,8 +88,15 @@ export default {
       ]
     };
   },
+  created() {
+    console.log(this.$route.path.includes('/public/'), this.$store.state.user.commonInfo, '----------------123')
+    this.isPublic = this.$route.path.includes('/public/')
+    /* const {data} = this.$store.state.user.commonInfo || {}
+     const {home = {}} = data || {}
+     this.bgColor = home.backgroundColor*/
+  },
   mounted() {
-    this.doGetPublicMcpList()
+    // this.doGetPublicMcpList()
   },
   methods: {
     changeTab(key) {
@@ -109,29 +119,30 @@ export default {
         .catch(() => this.loading = false)
     },
     handleClick(val) {
-      this.mcpSquareId = val.mcpSquareId;
-      this.$router.push({path:`/mcp/detail/square?mcpSquareId=${val.mcpSquareId}`})
+      const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail?templateSquareId=${val.mcpSquareId}`
+      this.$router.push({path})
     },
   },
 };
 </script>
 
-<style lang="scss">
-.mcp-management {
+<style lang="scss" scoped>
+.templateSquare {
+  width: 100%;
+  height: 100%;
+}
+.tempSquare-management {
   height: calc(100% - 50px);
-  .common_bg{
-    height: 100%;
-  }
-  .mcp-content-box{
+  .tempSquare-content-box {
     height: calc(100% - 145px);
   }
-  .mcp-content {
+  .tempSquare-content {
     padding: 0 20px;
     width: 100%;
     height: 100%;
   }
 
-  .mcp-third{
+  .tempSquare-third{
     min-height: 600px;
     .tab-span {
       display: inline-block;
@@ -146,21 +157,21 @@ export default {
       background: #fff;
       font-weight: bold;
     }
-    .mcp-main{
+    .tempSquare-main{
       display: flex;
       padding: 0 20px;
       height: 100%;
-      .mcp-content{
+      .tempSquare-content{
         display: flex;
         width:100%;
         padding: 0;
         height: 100%;
-        .mcp-menu{
+        .tempSquare-menu{
           margin-top: 10px;
           margin-right: 20px;
           width: 90px;
           height: 450px;
-          border: 1px solid $border_color; //#d0a7a7
+          border: 1px solid $border_color;
           text-align: center;
           border-radius: 6px;
           color: #333;
@@ -172,7 +183,7 @@ export default {
             background: rgba(253, 231, 231, 1);
           }
         }
-        .mcp-card-box{
+        .tempSquare-card-box{
           width: 100%;
           height: 100%;
           .input-with-select {
@@ -259,11 +270,11 @@ export default {
                   color: #5d5d5d;
                   font-weight: 400;
                   overflow: hidden;
-                  -webkit-line-clamp: 3;
+                  -webkit-line-clamp: 2;
                   line-clamp: 2;
                   -webkit-box-orient: vertical;
                   font-size: 13px;
-                  height: 55px;
+                  height: 36px;
                   word-wrap: break-word;
                 }
               }

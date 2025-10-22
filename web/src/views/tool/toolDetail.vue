@@ -123,7 +123,7 @@ export default {
       this.getDetailData()
 
       //滚动到顶部
-      const main = document.querySelector(".el-main")
+      const main = document.querySelector(".el-main > .page-container")
       if (main) main.scrollTop = 0
     },
     getDetailData(){
@@ -176,7 +176,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../mcpManagementPublic/markdown.min.css";
+@import "@/style/markdown.scss";
 .markdown-body{
   font-family: 'Microsoft YaHei', Arial, sans-serif;
   color: #333;

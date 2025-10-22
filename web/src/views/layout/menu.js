@@ -82,4 +82,11 @@ export const menuList = [
         path: '/explore',
         perm: PERMS.EXPLORE
     },
+    {
+        name: i18n.t('menu.templateSquare'),
+        key: 'templateSquare',
+        img: require('@/assets/imgs/template_square.svg'),
+        imgActive: require('@/assets/imgs/template_square_active.svg'),
+        path: '/templateSquare',
+    },
 ]

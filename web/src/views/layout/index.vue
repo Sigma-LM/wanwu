@@ -502,7 +502,7 @@ export default {
     .left-nav {
       width: 70px;
       text-align: center;
-      padding: 1% 0 8px 0;
+      padding: 0.5% 0 8px 0;
       position: fixed;
       height: calc(100% - 16px);
       overflow: scroll;
@@ -513,7 +513,7 @@ export default {
       z-index: 20;
       .left-nav-container {
         position: relative;
-        min-height: 630px;
+        min-height: 650px;
         height: 100%;
       }
       .left-nav-content-wrap {
@@ -540,7 +540,7 @@ export default {
       }
       .nav-item {
         /*margin: calc((100vh - 560px) / 28) 0;*/
-        margin: 0.8vh 0;
+        margin: 0.6vh 0;
         color: #77869E;
         font-weight: bold;
         cursor: pointer;

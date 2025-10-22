@@ -249,7 +249,7 @@ export default {
       })
 
       //滚动到顶部
-      const main = document.querySelector(".el-main")
+      const main = document.querySelector(".el-main > .page-container")
       if (main) main.scrollTop = 0
     },
     fold() {
