@@ -659,8 +659,8 @@ func removeDuplicateMeta(metaDataList []*knowledgebase_doc_service.MetaData) []*
 func buildImportTask(req *knowledgebase_doc_service.ImportDocReq) (*model.KnowledgeImportTask, error) {
 	//是否是自动分段类型
 	if autoSegmentType(req.DocSegment.SegmentType, req.DocSegment.SegmentMethod) {
-		req.DocSegment.Overlap = 0.2
-		req.DocSegment.MaxSplitter = 500
+		req.DocSegment.Overlap = 0.0
+		req.DocSegment.MaxSplitter = 4000
 	}
 	segmentConfig, err := json.Marshal(req.DocSegment)
 	if err != nil {
