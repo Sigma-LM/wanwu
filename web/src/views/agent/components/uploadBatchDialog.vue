@@ -15,7 +15,7 @@
                                 action=""
                                 :show-file-list="false"
                                 :auto-upload="false"
-                                :limit="fileType === 'image/*' ? 6 : 2"
+                                :limit="fileType === 'image/*' ? maxPicNum : 2"
                                 :accept="tipsArr"
                                 :file-list="fileList"
                                 :on-change="uploadOnChange"
@@ -38,8 +38,8 @@
                                         </div>
                                         <div v-if="fileType === 'image/*'" class="type-img-container">
                                             <el-button v-show="canScroll" icon="el-icon-arrow-left " @click="prev($event)" circle class="scroll-btn left" size="mini" type="primary"></el-button>
-                                            <div class="type-img" ref="imgList">
-                                                <div v-for="(f, idx) in fileList" :key="f.uid || idx" style="margin-bottom: 10px;">
+                                            <div class="type-img" ref="imgList" :style="{justifyContent: fileList.length === 1 ? 'center':'unset'}">
+                                                <div v-for="(f, idx) in fileList" :key="f.uid || idx"  class="type-img-item">
                                                     <img :src="f.fileUrl" />
                                                     <p class="type-img-info">
                                                         <el-tooltip class="item" effect="dark" :content="f.name" placement="top-start">
@@ -65,7 +65,7 @@
                                             max="100"
                                             style="width:360px;margin:0 auto;"
                                         ></el-progress>
-                                        <p>图片类型限制6个文件，其它类型限制1个文件<span style="color:#384BF7;"> {{$t('common.fileUpload.click')}} </span>非图片类型文件会替换已有文件</p>
+                                        <p>图片类型限制{{maxPicNum}}个文件，其它类型限制1个文件<span style="color:#384BF7;"> {{$t('common.fileUpload.click')}} </span>非图片类型文件会替换已有文件</p>
                                     </div>
                                 </div>
                                 <div v-else>
@@ -90,6 +90,7 @@
 </template>
 
 <script>
+    import { mapGetters } from "vuex";
     import { batchUpload,confirmPath } from '@/api/chat';
     import uploadChunk from "@/mixins/uploadChunk";
     export default {
@@ -127,6 +128,9 @@
                 },
                 immediate:true
             }
+        },
+        computed: {
+            ...mapGetters("app", ["maxPicNum"]),
         },
         created(){
             this.sessionId = this.sessionId || this.$route.query.sessionId
@@ -318,11 +322,15 @@
                         }
                     .type-img{
                         display: flex;
-                        justify-content: center;
                         gap: 10px;
                         width:100%;
                         overflow-x: hidden;
                         scroll-behavior: smooth;
+                        .type-img-item{
+                            width: auto !important;
+                            flex-shrink: 0;
+                            margin-bottom: 10px;
+                        }
                         .type-img-info{
                             display: flex;
                             gap: 5px;

@@ -121,27 +121,11 @@ export default {
   data() {
     return {
       powerType: POWER_TYPE,
-      tableData: [
-        {
-          userName: '管理员权限',
-          organization: '技术部',
-          permissionType: 20,
-          editing: false
-        },
-        {
-          userName: '用户管理',
-          organization: '产品部',
-          permissionType: 10,
-          editing: false
-        },
-        {
-          userName: '数据查看',
-          organization: '运营部',
-          permissionType: 0,
-          editing: false
-        }
-      ]
+      tableData: []
     }
+  },
+  created() {
+    this.getUserPower()
   },
   methods: {
     getUserPower() {

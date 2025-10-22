@@ -195,12 +195,12 @@
                 >
                   <el-input
                     :min="0"
-                    :max="1"
+                    :max="0.25"
                     :step="0.01"
                     type="number" 
                     v-model.number="ruleForm.docSegment.overlap" 
-                    placeholder="数值范围0-1" 
-                    @change="overlapChange"></el-input>
+                    placeholder="数值范围0-0.25" 
+                    ></el-input>
                 </el-form-item>
               </template>
               <template v-if="this.ruleForm.docSegment.segmentMethod === '1'">
@@ -556,7 +556,7 @@ export default {
       if(val.length === 3){
         this.ruleForm.docAnalyzer = [val[0],val[2]]
       }
-      if (val.includes("ocr")) {
+      if (this.ruleForm.docAnalyzer.includes("ocr")) {
         this.getOcrList();
       } else if (val.includes("model")) {
         this.getParserList();
@@ -570,12 +570,6 @@ export default {
     },
     analyzerDisabled(label) {
       if (label === "text") return true;
-    },
-    overlapChange(val) {
-      if (val > 0.25) {
-        this.ruleForm.docSegment.overlap = 0.25;
-        return;
-      }
     },
     custom() {
       this.$nextTick(() => {

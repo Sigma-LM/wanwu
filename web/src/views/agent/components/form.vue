@@ -342,12 +342,11 @@
                 <span class="el-icon-question question-tips"></span>
               </el-tooltip>
             </span>
-            <span class="common-add">
+            <span class="common-add"  @click="showSafety">
               <span class="el-icon-s-operation"></span>
               <span
                 class="handleBtn"
                 style="margin-right:10px;"
-                @click="showSafety"
               >配置</span>
               <el-switch
                 v-model="editForm.safetyConfig.enable"
@@ -369,12 +368,11 @@
                 <span class="el-icon-question question-tips"></span>
               </el-tooltip>
             </span>
-            <span class="common-add">
+            <span class="common-add" @click="showVisualSet">
               <span class="el-icon-s-operation"></span>
               <span
                 class="handleBtn"
                 style="margin-right:10px;"
-                @click="showVisualSet"
               >配置</span>
             </span>
           </p>
@@ -470,7 +468,7 @@
 <script>
 import { appPublish } from "@/api/appspace";
 import { store } from "@/store/index";
-import { mapGetters } from "vuex";
+import { mapGetters,mapActions } from "vuex";
 import CreateIntelligent from "@/components/createApp/createIntelligent";
 import setSafety from "@/components/setSafety";
 import visualSet from "./visualSet";
@@ -664,6 +662,7 @@ export default {
   },
   mounted() {
     this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
+    this.setMaxPicNum(this.editForm.visionConfig.maxPicNum);
   },
   created() {
     this.getModelData(); //获取模型列表
@@ -687,8 +686,10 @@ export default {
   },
   beforeDestroy() {
     store.dispatch("app/initState");
+    this.clearMaxPicNum();
   },
   methods: {
+    ...mapActions("app", ["setMaxPicNum","clearMaxPicNum"]),
     showVisualSet(){
       this.$refs.visualSet.showDialog(this.editForm.visionConfig);
     },
@@ -1048,6 +1049,7 @@ export default {
           desc: data.desc || "",
           instructions: data.instructions || "", //系统提示词
           rerankParams: data.rerankConfig.modelId || "",
+          visionConfig: data.visionConfig,//图片配置
           modelConfig:
             data.modelConfig.config !== null
               ? data.modelConfig.config
