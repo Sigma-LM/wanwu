@@ -154,13 +154,10 @@
       class="createTotalDialog"
     >
       <div style="margin-top: -20px">
-        <div>
-          <el-radio :label="'private'" v-model="publishType">{{$t('workFlow.publishText')}}</el-radio>
+        <div v-for="item in publishList" :key="item.key" style="margin-bottom: 5px">
+          <el-radio :label="item.key" v-model="publishType">{{item.value}}</el-radio>
         </div>
-        <div style="margin-top: 5px">
-          <el-radio :label="'public'" v-model="publishType">{{$t('workFlow.publicPublishText')}}</el-radio>
-        </div>
-        <div style="text-align: right; margin-top: 20px; margin-bottom: -10px">
+        <div style="text-align: right; margin-top: 15px; margin-bottom: -10px">
           <el-button size="mini" type="primary" @click="doPublish">{{$t('common.button.confirm')}}</el-button>
         </div>
       </div>
@@ -207,7 +204,12 @@ export default {
       listData: [],
       row: {},
       publishType: 'private',
-      dialogVisible: false
+      dialogVisible: false,
+      publishList: [
+        {key: 'private', value: this.$t('workFlow.publishText')},
+        {key: 'organization', value: this.$t('workFlow.publicOrgText')},
+        {key: 'public', value: this.$t('workFlow.publicTotalText')}
+      ]
     };
   },
   methods: {

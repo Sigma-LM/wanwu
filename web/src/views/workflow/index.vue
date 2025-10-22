@@ -274,7 +274,7 @@
             <el-radio :label="'private'" v-model="publishType">{{$t('workFlow.publishText')}}</el-radio>
           </div>
           <div>
-            <el-radio :label="'public'" v-model="publishType">{{$t('workFlow.publicPublishText')}}</el-radio>
+            <el-radio :label="'public'" v-model="publishType">{{$t('workFlow.publicTotalText')}}</el-radio>
           </div>
           <div style="text-align: center; margin-top: 10px">
             <el-button size="mini" type="primary" @click="doPublish">{{$t('workFlow.saveButton')}}</el-button>
