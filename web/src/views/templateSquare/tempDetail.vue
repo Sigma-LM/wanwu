@@ -67,14 +67,16 @@
 </template>
 <script>
 import { md } from '@/mixins/marksown-it'
-import { getRecommendsList, getPublicMcpInfo } from "@/api/mcp"
+import { getWorkflowRecommendsList, getWorkflowTempInfo } from "@/api/templateSquare"
+import { WORKFLOW } from "./constants"
 
 export default {
   data() {
     return {
       basePath: this.$basePath,
       isPublic: true,
-      bgColor: '',
+      bgColor: 'linear-gradient(1deg, rgb(247, 252, 255) 50%, rgb(233, 246, 254) 98%)',
+      type: '',
       md:md,
       isFromSquare: true,
       templateSquareId:'',
@@ -104,23 +106,23 @@ export default {
   },
   methods: {
     initData(){
-      this.templateSquareId = this.$route.query.templateSquareId
+      const { type, templateSquareId } = this.$route.query || {}
+      this.templateSquareId = templateSquareId
+      this.type = type || WORKFLOW
       this.getDetailData()
 
-      //滚动到顶部
+      // 滚动到顶部
       const main = document.querySelector(".el-main > .page-container")
       if (main) main.scrollTop = 0
     },
     getDetailData(){
-      getPublicMcpInfo({mcpSquareId: this.templateSquareId}).then((res) => {
+      getWorkflowTempInfo({mcpSquareId: this.templateSquareId}).then((res) => {
         this.detail = res.data || {}
       })
     },
     getRecommendList() {
-      const params = {
-        mcpSquareId: this.templateSquareId
-      }
-      getRecommendsList(params).then((res) => {
+      const params = { mcpSquareId: this.templateSquareId }
+      getWorkflowRecommendsList(params).then((res) => {
         this.recommendList = res.data.list
       })
     },
@@ -143,7 +145,7 @@ export default {
       this.foldStatus = !this.foldStatus
     },
     back() {
-      this.$router.push({path: this.getPath()})
+      this.$router.push({path: this.getPath(), query: {type: this.type}})
     },
   },
 };
@@ -155,9 +157,8 @@ export default {
   color: #333;
 }
 .tempSquare-detail{
-  padding: 20px;
+  padding: 30px 40px;
   overflow: auto;
-  margin: 20px;
   .back {
     color: $color;
     cursor: pointer;
