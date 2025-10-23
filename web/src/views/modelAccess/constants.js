@@ -72,7 +72,8 @@ export const TYPE_OBJ = {
         [OPENAI_API]: 'sk_7e4*************4s-BpI1l',
         [OLLAMA]: '',
         [QWEN]: 'sk-b************c70d',
-        [HUOSHAN]: 'd8008ac0-****-****-****-**************'
+        [HUOSHAN]: 'd8008ac0-****-****-****-**************',
+        [INFINI]: ''
     },
     inferUrl: {
         [OCR]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
@@ -82,6 +83,7 @@ export const TYPE_OBJ = {
         [OPENAI_API]: 'https://api.siliconflow.cn/v1',
         [OLLAMA]: 'https://192.168.21.100:11434',
         [QWEN]: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        [HUOSHAN]: 'https://ark.cn-beijing.volces.com/api/v3'
+        [HUOSHAN]: 'https://ark.cn-beijing.volces.com/api/v3',
+        [INFINI]: ''
     },
 }
