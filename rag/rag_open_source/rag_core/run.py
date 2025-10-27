@@ -425,7 +425,6 @@ def search_knowledge_base():
         # assert len(user_id) > 0
         # assert len(kb_name) > 0 or len(kb_id) > 0
         assert len(question) > 0
-        assert knowledge_base_info
 
         # if isinstance(kb_name, str):
         #     kb_names = [kb_name]
