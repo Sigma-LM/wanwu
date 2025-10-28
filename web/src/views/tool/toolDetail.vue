@@ -28,7 +28,7 @@
             <div class="tool-item ">
               <p class="title">授权-API Key:</p>
               <div class="sse-url" style="display: flex">
-                <el-input v-model="apiKey" style="margin-right: 20px" />
+                <el-input v-model="apiKey" style="margin-right: 20px" showPassword/>
                 <el-button style="width: 100px" size="mini" type="primary" :disabled="detail.hasCustom" @click="changeApiKey">
                   {{detail.apiKey ? '更新' : '确认'}}
                 </el-button>
