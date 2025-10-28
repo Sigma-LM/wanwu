@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/IBM/sarama v1.43.2
-	github.com/ThinkInAIXYZ/go-mcp v0.2.15
+	github.com/ThinkInAIXYZ/go-mcp v0.2.22
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2

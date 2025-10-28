@@ -38,6 +38,18 @@ service MCPService {
 
     // --- custom & builtin tool ---
     rpc GetToolSelect(GetToolSelectReq) returns (GetToolListResp) {}
+
+    // --- mcp server ---
+    rpc CreateMCPServer(CreateMCPServerReq) returns (CreateMCPServerResp) {}
+    rpc DeleteMCPServer(DeleteMCPServerReq) returns (google.protobuf.Empty) {}
+    rpc UpdateMCPServer(UpdateMCPServerReq) returns (google.protobuf.Empty) {}
+    rpc GetMCPServer(GetMCPServerReq) returns (MCPServerInfo) {}
+    rpc GetMCPServerList(GetMCPServerListReq) returns (GetMCPServerListResp) {}
+    rpc CreateMCPServerTool(CreateMCPServerToolReq) returns (google.protobuf.Empty) {}
+    rpc UpdateMCPServerTool(UpdateMCPServerToolReq) returns (google.protobuf.Empty) {}
+    rpc DeleteMCPServerTool(DeleteMCPServerToolReq) returns (google.protobuf.Empty) {}
+    rpc GetMCPServerTool(GetMCPServerToolReq) returns (MCPServerToolInfo) {}
+    rpc GetMCPServerToolList(GetMCPServerToolListReq) returns (GetMCPServerToolListResp) {}
 }
 
 // --- req ---
@@ -290,4 +302,100 @@ message GetToolItem {
 message GetToolListResp {
     repeated GetToolItem list = 1;
     int32 total = 2;
+}
+
+// mcp server
+
+message MCPServerInfo{
+  string mcpServerId = 1;
+  string name = 2;
+  string desc = 3;
+  int64  toolNum = 4;
+  string avatarPath = 5;
+  string sseUrl = 6;
+  string sseExample = 7;
+  string streamableUrl = 8;
+  string streamableExample = 9;
+}
+
+message CreateMCPServerReq {
+  string name = 1;
+  string desc = 2;
+  string avatarPath = 3;
+  Identity identity = 4;
+}
+
+message CreateMCPServerResp {
+  string mcpServerId = 1;
+}
+
+message UpdateMCPServerReq {
+  string mcpServerId = 1;
+  string name = 2;
+  string desc = 3;
+  string avatarPath = 4;
+}
+
+message GetMCPServerReq {
+  string mcpServerId = 1;
+}
+
+message DeleteMCPServerReq {
+  string mcpServerId = 1;
+}
+
+message GetMCPServerListReq {
+  string name = 1;
+  Identity identity  = 2;
+}
+
+message GetMCPServerListResp {
+  repeated MCPServerInfo list = 1;
+}
+
+message CreateMCPServerToolReq {
+  string mcpServerId = 1;
+  repeated MCPServerToolInfo mcpServiceToolInfos = 2;
+}
+
+message UpdateMCPServerToolReq {
+  string mcpServerToolId = 1;
+  string name = 2;
+  string desc = 3;
+  string schema = 4;
+}
+
+message DeleteMCPServerToolReq {
+  string mcpServerToolId = 1;
+}
+
+message GetMCPServerToolReq {
+  string mcpServerToolId = 1;
+}
+
+message GetMCPServerToolListReq {
+  string mcpServerId = 1;
+}
+
+message GetMCPServerToolListResp {
+  repeated MCPServerToolInfo list = 1;
+}
+
+message ApiAuth {
+  string authType = 1;
+  string authIn = 2;
+  string authName = 3;
+  string authValue = 4;
+}
+
+message MCPServerToolInfo {
+  string mcpServerToolId = 1;
+  string mcpServerId = 2;
+  string name = 3;
+  string desc = 4;
+  string Type = 5;
+  string appToolId = 6;
+  string appToolName = 7;
+  string schema = 8;
+  ApiAuth apiAuth = 9;
 }

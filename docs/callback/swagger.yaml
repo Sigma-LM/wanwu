@@ -971,6 +971,19 @@ definitions:
     type: string
     x-enum-varnames:
     - Object
+  protocol.OutputSchema:
+    properties:
+      properties:
+        additionalProperties:
+          $ref: '#/definitions/protocol.Property'
+        type: object
+      required:
+        items:
+          type: string
+        type: array
+      type:
+        $ref: '#/definitions/protocol.InputSchemaType'
+    type: object
   protocol.Property:
     properties:
       description:
@@ -1015,6 +1028,11 @@ definitions:
       name:
         description: Name is the unique identifier of the tool
         type: string
+      outputSchema:
+        allOf:
+        - $ref: '#/definitions/protocol.OutputSchema'
+        description: OutputSchema defines expected output structure for the tool using
+          Optional JSON Schema
     type: object
   protocol.ToolAnnotations:
     properties:

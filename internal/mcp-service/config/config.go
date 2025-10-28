@@ -19,6 +19,11 @@ type Config struct {
 	Tools   []*ToolConfig `json:"tools" mapstructure:"tools"`
 	McpCfg  McpCfg        `json:"mcp" mapstructure:"mcp"`
 	ToolCfg ToolCfg       `json:"tool" mapstructure:"tool"`
+	App    App           `json:"app" mapstructure:"app"`
+}
+
+type App struct {
+	Host string `mapstructure:"host" json:"host" yaml:"host"`
 }
 
 type McpCfg struct {
@@ -32,6 +37,7 @@ type ToolCfg struct {
 type ServerConfig struct {
 	GrpcEndpoint   string `json:"grpc_endpoint" mapstructure:"grpc_endpoint"`
 	MaxRecvMsgSize int    `json:"max_recv_msg_size" mapstructure:"max_recv_msg_size"`
+	ApiBaseUrl     string `json:"api_base_url" mapstructure:"api_base_url"`
 }
 
 type LogConfig struct {

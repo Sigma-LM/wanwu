@@ -13,6 +13,7 @@ type MCPSelect struct {
 	Description string `json:"description"` // 描述
 	ServerFrom  string `json:"serverFrom"`  // 来源
 	ServerURL   string `json:"serverUrl"`   // sseUrl
+	Type        string `json:"type"`        // mcp类型, 导入mcp: mcp;创建mcp: mcpserver
 }
 
 type MCPToolList struct {

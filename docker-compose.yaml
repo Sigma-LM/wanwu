@@ -354,6 +354,7 @@ services:
     volumes:
       - ${WANWU_PROJECT_DIR}/mcp-service/log:/app/log
     environment:
+      SERVER_API_BASE_URL: ${WANWU_API_BASE_URL}
       DB_NAME: ${WANWU_DB_NAME}
       DB_MYSQL_ADDRESS: ${WANWU_MYSQL_ADDRESS}
       DB_MYSQL_PASSWORD: ${WANWU_MYSQL_PASSWORD}

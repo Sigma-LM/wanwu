@@ -13,6 +13,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	mcp_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/mcp-util"
 	bff_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/gin-gonic/gin"
@@ -139,6 +140,29 @@ func GetMCPSelect(ctx *gin.Context, userID, orgID string, name string) (*respons
 			Description: mcpInfo.Info.Desc,
 			ServerFrom:  mcpInfo.Info.From,
 			ServerURL:   mcpInfo.SseUrl,
+			Type:        "mcp",
+		})
+	}
+	mcpServerList, err := mcp.GetMCPServerList(ctx.Request.Context(), &mcp_service.GetMCPServerListReq{
+		Name: name,
+		Identity: &mcp_service.Identity{
+			OrgId:  orgID,
+			UserId: userID,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, mcpServerInfo := range mcpServerList.List {
+		list = append(list, response.MCPSelect{
+			MCPID:       mcpServerInfo.McpServerId,
+			MCPSquareID: "",
+			UniqueId:    bff_util.ConcatAssistantToolUniqueId(constant.AppTypeMCPServer, mcpServerInfo.McpServerId),
+			Name:        mcpServerInfo.Name,
+			Description: mcpServerInfo.Desc,
+			ServerFrom:  "mcp server",
+			ServerURL:   mcpServerInfo.SseUrl,
+			Type:        "mcpserver",
 		})
 	}
 	return &response.ListResult{

@@ -178,6 +178,69 @@ paths:
       summary: 智能体创建对话OpenAPI
       tags:
       - openapi
+  /mcp/server/message:
+    post:
+      consumes:
+      - application/json
+      description: 获取MCPServer Message
+      parameters:
+      - description: mcpServerId
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取MCPServer Message
+      tags:
+      - openapi
+  /mcp/server/sse:
+    get:
+      consumes:
+      - application/json
+      description: 获取MCPServer SSE
+      parameters:
+      - description: key
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取MCPServer SSE
+      tags:
+      - openapi
+  /mcp/server/streamable:
+    post:
+      consumes:
+      - application/json
+      description: 获取MCPServer streamable 类型消息
+      parameters:
+      - description: key
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取MCPServer streamable 类型消息
+      tags:
+      - openapi
   /rag/chat:
     post:
       consumes:

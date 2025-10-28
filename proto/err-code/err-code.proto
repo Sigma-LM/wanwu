@@ -165,6 +165,16 @@ enum Code {
   MCPUpdateCustomToolErr = 310010; // 更新自定义工具错误
   MCPDeleteCustomToolErr = 310011; // 删除自定义工具错误
   MCPGetSquareToolErr = 310012; // 获取内置工具详情错误
+  MCPCreateMCPServerErr = 310013; // 创建MCP服务错误
+  MCPDeleteMCPServerErr = 310014; // 删除MCP服务错误
+  MCPUpdateMCPServerErr = 310015; // 更新MCP服务错误
+  MCPGetMCPServerInfoErr = 310016; // 获取MCP服务详情错误
+  MCPGetMCPServerListErr = 310017; // 获取MCP服务列表错误
+  MCPCreateMCPServerToolErr = 310018; // 创建MCP服务工具错误
+  MCPUpdateMCPServerToolErr = 310019; // 更新MCP服务工具错误
+  MCPDeleteMCPServerToolErr = 310020; // 删除MCP服务工具错误
+  MCPGetMCPServerToolInfoErr = 310021; // 获取MCP服务工具详情错误
+  MCPGetMCPServerToolListErr = 310022; // 获取MCP服务工具列表错误
   MCPUpdateCustomMCPErr = 310023; // 更新自定义MCP错误
 
   // --- operate-service ---

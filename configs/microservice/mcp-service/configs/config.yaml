@@ -1,6 +1,7 @@
 server:
   grpc_endpoint: 0.0.0.0:9898
   max_recv_msg_size: 4194304 # 1024 * 1024 * 4 = 4M
+  api_base_url: http://localhost:6668
 
 log:
   std: true
@@ -53,6 +54,8 @@ db:
     max_open_conns: 16
     max_idle_conns: 16
     log_mode: true
+app:
+  host: app-service:9988
 
 mcp:
   configPath: configs/microservice/mcp-service/configs/mcp_config.yaml

@@ -5203,6 +5203,394 @@ const docTemplate = `{
                 }
             }
         },
+        "/mcp/server": {
+            "get": {
+                "description": "获取MCP Server详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "获取MCP Server详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mcpServerId",
+                        "name": "mcpServerId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.MCPServerDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "更新MCP Server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "更新MCP Server",
+                "parameters": [
+                    {
+                        "description": "MCP Server信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建MCP Server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "创建MCP Server",
+                "parameters": [
+                    {
+                        "description": "MCP Server信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除MCP Server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "删除MCP Server",
+                "parameters": [
+                    {
+                        "description": "mcpServerId",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerIDReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/list": {
+            "get": {
+                "description": "获取MCP Server列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "获取MCP Server列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mcp server名称",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.MCPServerInfo"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/tool": {
+            "put": {
+                "description": "更新MCP Server工具",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "更新MCP Server工具",
+                "parameters": [
+                    {
+                        "description": "MCP Server工具信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerToolUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建MCP Server工具",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "创建MCP Server工具",
+                "parameters": [
+                    {
+                        "description": "MCP Server工具信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerToolCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除MCP Server工具",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "删除MCP Server工具",
+                "parameters": [
+                    {
+                        "description": "mcpServerToolId",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerToolIDReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/tool/custom/select": {
+            "get": {
+                "description": "获取MCP Server自定义工具列表（用于下拉选择）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "获取MCP Server自定义工具列表（用于下拉选择）",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CustomTool名称",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.MCPServerCustomToolSelect"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/tool/openapi": {
+            "post": {
+                "description": "创建openapi工具",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tool"
+                ],
+                "summary": "创建openapi工具",
+                "parameters": [
+                    {
+                        "description": "openapi工具信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MCPServerOpenAPIToolCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/mcp/square": {
             "get": {
                 "description": "获取广场MCP详情",
@@ -10007,6 +10395,26 @@ const docTemplate = `{
                 "Object"
             ]
         },
+        "protocol.OutputSchema": {
+            "type": "object",
+            "properties": {
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/protocol.Property"
+                    }
+                },
+                "required": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/protocol.InputSchemaType"
+                }
+            }
+        },
         "protocol.Property": {
             "type": "object",
             "properties": {
@@ -10072,6 +10480,14 @@ const docTemplate = `{
                 "name": {
                     "description": "Name is the unique identifier of the tool",
                     "type": "string"
+                },
+                "outputSchema": {
+                    "description": "OutputSchema defines expected output structure for the tool using Optional JSON Schema",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/protocol.OutputSchema"
+                        }
+                    ]
                 }
             }
         },
@@ -12072,6 +12488,176 @@ const docTemplate = `{
             ],
             "properties": {
                 "mcpId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerCreateReq": {
+            "type": "object",
+            "required": [
+                "desc",
+                "name"
+            ],
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerIDReq": {
+            "type": "object",
+            "required": [
+                "mcpServerId"
+            ],
+            "properties": {
+                "mcpServerId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerOpenAPIToolCreate": {
+            "type": "object",
+            "required": [
+                "apiAuth",
+                "mcpServerId",
+                "methodNames",
+                "name",
+                "schema"
+            ],
+            "properties": {
+                "apiAuth": {
+                    "description": "api身份认证",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.CustomToolApiAuthWebRequest"
+                        }
+                    ]
+                },
+                "mcpServerId": {
+                    "description": "mcp server Id",
+                    "type": "string"
+                },
+                "methodNames": {
+                    "description": "API名称列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "privacyPolicy": {
+                    "description": "隐私政策",
+                    "type": "string"
+                },
+                "schema": {
+                    "description": "schema",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerToolCreateReq": {
+            "type": "object",
+            "required": [
+                "id",
+                "mcpServerId",
+                "methodName",
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "description": "应用或工具id",
+                    "type": "string"
+                },
+                "mcpServerId": {
+                    "description": "mcp server Id",
+                    "type": "string"
+                },
+                "methodName": {
+                    "description": "显示名称",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "mcp server tool类型",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerToolIDReq": {
+            "type": "object",
+            "required": [
+                "mcpServerToolId"
+            ],
+            "properties": {
+                "mcpServerToolId": {
+                    "description": "mcp server tool id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerToolUpdateReq": {
+            "type": "object",
+            "required": [
+                "desc",
+                "mcpServerToolId",
+                "methodName"
+            ],
+            "properties": {
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "mcpServerToolId": {
+                    "description": "mcp server tool id",
+                    "type": "string"
+                },
+                "methodName": {
+                    "description": "显示名称",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MCPServerUpdateReq": {
+            "type": "object",
+            "required": [
+                "desc",
+                "mcpServerId",
+                "name"
+            ],
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "mcpServerId": {
+                    "description": "mcp server Id",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
                     "type": "string"
                 }
             }
@@ -14849,8 +15435,155 @@ const docTemplate = `{
                     "description": "sseUrl",
                     "type": "string"
                 },
+                "type": {
+                    "description": "mcp类型, 导入mcp: mcp;创建mcp: mcpserver",
+                    "type": "string"
+                },
                 "uniqueId": {
                     "description": "随机unique id(每次动态生成)",
+                    "type": "string"
+                }
+            }
+        },
+        "response.MCPServerCustomToolApi": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "方法描述",
+                    "type": "string"
+                },
+                "methodName": {
+                    "description": "方法名称",
+                    "type": "string"
+                }
+            }
+        },
+        "response.MCPServerCustomToolSelect": {
+            "type": "object",
+            "properties": {
+                "customToolId": {
+                    "description": "自定义工具id",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "methods": {
+                    "description": "方法",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.MCPServerCustomToolApi"
+                    }
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "uniqueId": {
+                    "description": "统一的id",
+                    "type": "string"
+                }
+            }
+        },
+        "response.MCPServerDetail": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "mcpServerId": {
+                    "description": "mcpServerId",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "sseExample": {
+                    "description": "sse连接示例",
+                    "type": "string"
+                },
+                "sseUrl": {
+                    "description": "sse url",
+                    "type": "string"
+                },
+                "streamableExample": {
+                    "description": "streamable http 连接示例",
+                    "type": "string"
+                },
+                "streamableUrl": {
+                    "description": "streamable http url",
+                    "type": "string"
+                },
+                "tools": {
+                    "description": "绑定工具列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.MCPServerToolInfo"
+                    }
+                }
+            }
+        },
+        "response.MCPServerInfo": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "mcpServerId": {
+                    "description": "mcpServerId",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "toolNum": {
+                    "description": "绑定工具数量",
+                    "type": "integer"
+                }
+            }
+        },
+        "response.MCPServerToolInfo": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "mcpServerToolId": {
+                    "description": "mcpServerToolId",
+                    "type": "string"
+                },
+                "methodName": {
+                    "description": "显示名称",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "应用或工具名称",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "类型",
                     "type": "string"
                 }
             }
@@ -15901,7 +16634,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "AI Agent Productivity Platform API",
-	Description:      "## HTTP Header\n| Header        | 说明      |\n| ------------- | --------- |\n| Authorization | JWT token |\n| X-Language    | 语言Code  |\n| X-Org-Id      | 组织ID    |\n| X-Client-Id   | 客户端标识|\n\n## HTTP Status\n| HTTP Status             | 说明                   |\n| ----------------------- | ---------------------- |\n| 200, StatusOK           | 请求返回成功           |\n| 400, StatusBadRequest   | 请求返回失败，用于业务 |\n| 401, StatusUnauthorized | JWT认证失败            |\n| 403, StatusForbidden    | 没有权限               |\n\n## 权限-菜单对应表\n| 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\n|-------------|-------|------|------|------|------|\n| guest       |       |      | 【访客】 |      |      |\n| common      |       |      | 【通用】 |      |      |\n| permission  |       |      | 权限管理 |      |      |\n| permission  | user  |      | 权限管理 | 用户管理 |      |\n| permission  | org   |      | 权限管理 | 组织管理 |      |\n| permission  | role  |      | 权限管理 | 角色管理 |      |\n\n## `/v1/user/permission`返回用例\n```json\n{\n  \"code\": 0,\n  \"data\": {\n    \"orgPermission\": {\n      \"org\": {\"id\": \"test-org-id\", \"name\": \"test-org-name\"},\n      \"permissions\": [\n        {\"perm\": \"permission\"},\n        {\"perm\": \"permission.user\"},\n        {\"perm\": \"permission.org\"},\n        {\"perm\": \"permission.role\"}\n      ]\n    }\n  },\n  \"msg\": \"操作成功\"\n}\n```",
+	Description:      "## HTTP Header\r\n| Header        | 说明      |\r\n| ------------- | --------- |\r\n| Authorization | JWT token |\r\n| X-Language    | 语言Code  |\r\n| X-Org-Id      | 组织ID    |\r\n| X-Client-Id   | 客户端标识|\r\n\r\n## HTTP Status\r\n| HTTP Status             | 说明                   |\r\n| ----------------------- | ---------------------- |\r\n| 200, StatusOK           | 请求返回成功           |\r\n| 400, StatusBadRequest   | 请求返回失败，用于业务 |\r\n| 401, StatusUnauthorized | JWT认证失败            |\r\n| 403, StatusForbidden    | 没有权限               |\r\n\r\n## 权限-菜单对应表\r\n| 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\r\n|-------------|-------|------|------|------|------|\r\n| guest       |       |      | 【访客】 |      |      |\r\n| common      |       |      | 【通用】 |      |      |\r\n| permission  |       |      | 权限管理 |      |      |\r\n| permission  | user  |      | 权限管理 | 用户管理 |      |\r\n| permission  | org   |      | 权限管理 | 组织管理 |      |\r\n| permission  | role  |      | 权限管理 | 角色管理 |      |\r\n\r\n## `/v1/user/permission`返回用例\r\n```json\r\n{\r\n  \"code\": 0,\r\n  \"data\": {\r\n    \"orgPermission\": {\r\n      \"org\": {\"id\": \"test-org-id\", \"name\": \"test-org-name\"},\r\n      \"permissions\": [\r\n        {\"perm\": \"permission\"},\r\n        {\"perm\": \"permission.user\"},\r\n        {\"perm\": \"permission.org\"},\r\n        {\"perm\": \"permission.role\"}\r\n      ]\r\n    }\r\n  },\r\n  \"msg\": \"操作成功\"\r\n}\r\n```",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

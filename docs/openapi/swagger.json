@@ -93,6 +93,102 @@
                 }
             }
         },
+        "/mcp/server/message": {
+            "post": {
+                "description": "获取MCPServer Message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取MCPServer Message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mcpServerId",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/sse": {
+            "get": {
+                "description": "获取MCPServer SSE",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取MCPServer SSE",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "key",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/server/streamable": {
+            "post": {
+                "description": "获取MCPServer streamable 类型消息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取MCPServer streamable 类型消息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "key",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/rag/chat": {
             "post": {
                 "description": "文本问答OpenAPI",

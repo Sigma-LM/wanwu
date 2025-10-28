@@ -20,6 +20,8 @@ func NewClient(ctx context.Context, db *gorm.DB) (*Client, error) {
 	if err := db.AutoMigrate(
 		model.MCPClient{},
 		model.CustomTool{},
+		model.MCPServer{},
+		model.MCPServerTool{},
 	); err != nil {
 		return nil, err
 	}

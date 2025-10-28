@@ -1982,6 +1982,26 @@ const docTemplate = `{
                 "Object"
             ]
         },
+        "protocol.OutputSchema": {
+            "type": "object",
+            "properties": {
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/protocol.Property"
+                    }
+                },
+                "required": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/protocol.InputSchemaType"
+                }
+            }
+        },
         "protocol.Property": {
             "type": "object",
             "properties": {
@@ -2047,6 +2067,14 @@ const docTemplate = `{
                 "name": {
                     "description": "Name is the unique identifier of the tool",
                     "type": "string"
+                },
+                "outputSchema": {
+                    "description": "OutputSchema defines expected output structure for the tool using Optional JSON Schema",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/protocol.OutputSchema"
+                        }
+                    ]
                 }
             }
         },

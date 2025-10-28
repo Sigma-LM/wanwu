@@ -2,9 +2,10 @@ package constant
 
 // app type
 const (
-	AppTypeAgent    = "agent"    // 智能体
-	AppTypeRag      = "rag"      // 文本问答
-	AppTypeWorkflow = "workflow" // 工作流
+	AppTypeAgent     = "agent"     // 智能体
+	AppTypeRag       = "rag"       // 文本问答
+	AppTypeWorkflow  = "workflow"  // 工作流
+	AppTypeMCPServer = "mcpserver" // mcp server
 )
 
 // app publish type
@@ -18,4 +19,10 @@ const (
 const (
 	ToolTypeBuiltIn = "builtin" // 内置工具
 	ToolTypeCustom  = "custom"  // 自定义工具
+)
+
+// mcp server tool type
+const (
+	MCPServerToolTypeCustomTool = "custom"  // 自定义工具
+	MCPServerToolTypeOpenAPI    = "openapi" // 用户导入的openapi
 )

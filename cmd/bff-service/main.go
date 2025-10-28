@@ -107,6 +107,11 @@ func main() {
 	// start http handler
 	handler.Start(ctx)
 
+	// start mcp server
+	if err := service.StartMCPServer(ctx); err != nil {
+		log.Fatalf("start mcp server err: %v", err)
+	}
+
 	// shutdown
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM)
