@@ -2,7 +2,7 @@
     <div class="metaSet">
         <div class="tool-typ">
             <el-button icon="el-icon-plus" type="primary" @click="addMataItem" size="small">新增条件</el-button>
-            <el-switch v-model="metaDataFilterParams.filterEnable" active-color="#384BF7"></el-switch>
+            <el-switch v-model="metaDataFilterParams.filterEnable" active-color="var(--color)"></el-switch>
         </div>
         <div class="docMetaData">
             <div :class="['docMetaBox',metaDataFilterParams.metaFilterParams.length > 1 ? 'docMetaContainer':'']">
@@ -441,7 +441,7 @@ export default {
             .setBtn {
                 font-size: 16px;
                 cursor: pointer;
-                color: #384bf7;
+                color: $btn_bg;
             }
             }
             .docItem_data_type{

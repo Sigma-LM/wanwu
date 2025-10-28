@@ -66,7 +66,7 @@ export default {
       mcpServerId: "",
       title: '',
       basePath: this.$basePath,
-      defaultAvatar: require("@/assets/imgs/mcp_active.png"),
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       ruleForm: {
         MCPServerId: "",
         avatar: {

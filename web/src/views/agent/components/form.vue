@@ -1148,9 +1148,9 @@ export default {
 }
 /deep/ {
   .apikeyBtn {
-    border: 1px solid #384bf7;
+    border: 1px solid $btn_bg;
     padding: 12px 10px;
-    color: #384bf7;
+    color: $btn_bg;
     display: flex;
     align-items: center;
     img {
@@ -1292,7 +1292,7 @@ export default {
     }
     .header-left-title {
       font-size: 18px;
-      color: #434c6c;
+      color: $color_title;
       font-weight: bold;
     }
   }
@@ -1417,7 +1417,7 @@ export default {
         justify-content: space-between;
         align-items: center;
         .link-text {
-          color: #384bf7;
+          color: $color;
           display: flex;
           align-items: center;
         }
@@ -1457,7 +1457,7 @@ export default {
         padding-right: 10px;
       }
       .operation:hover {
-        color: #384bf7;
+        color: $color;
       }
       .tips {
         display: flex;
@@ -1676,7 +1676,7 @@ export default {
       box-sizing: border-box;
       cursor: pointer;
       .del {
-        color: #384bf7;
+        color: $btn_bg;
         font-size: 16px;
       }
       .bt-switch {
@@ -1767,7 +1767,7 @@ export default {
     margin-top: 4px;
     .model-select-tag {
       background-color: #f0f2ff;
-      color: #384bf7;
+      color: $color;
       border-radius: 4px;
       padding: 2px 8px;
       font-size: 10px;

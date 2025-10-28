@@ -474,14 +474,14 @@ export default {
             }
             
             .selected-icon {
-              color: #384BF7;
+              color: $color;
               font-size: 16px;
               margin-right: 8px;
             }
             
             &.selected-node {
               .node-label {
-                color: #384BF7;
+                color: $color;
               }
             }
           }
@@ -539,7 +539,7 @@ export default {
               .org-name {
                 font-size: 14px;
                 font-weight: 600;
-                color: #384BF7;
+                color: $color;
               }
               
               .user-count {
@@ -568,7 +568,7 @@ export default {
                 
                 &:hover {
                   background-color: #f0f2ff;
-                  border-color: #384BF7;
+                  border-color: $color;
                 }
                 
                 .user-info {
@@ -577,7 +577,7 @@ export default {
                 }
                 
                 .remove-icon {
-                  color: #384BF7;
+                  color: $color;
                   cursor: pointer;
                   font-size: 12px;
                   padding: 2px;

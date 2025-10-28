@@ -258,7 +258,7 @@ export default {
       .recommend-item{
         position: relative;
         border: 1px solid $border_color;
-        background: #F4F5FF;
+        background: $color_opacity;
         margin-bottom: 15px;
         border-radius: 10px;
         padding: 20px 20px 20px 80px;
@@ -293,7 +293,7 @@ export default {
     box-sizing: border-box;
     border-radius: 10px;
     padding: 10px 20px;
-    box-shadow: 2px 2px 15px #F4F5FF;
+    box-shadow: 2px 2px 15px $color_opacity;
   }
   .overview-item .item-desc{
     line-height: 28px;

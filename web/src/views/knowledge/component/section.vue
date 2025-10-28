@@ -110,7 +110,7 @@
                   <el-switch
                     style="padding: 3px 0;"
                     v-model="item.available"
-                    active-color="#384bf7"
+                    active-color="var(--color)"
                     @change="handleStatusChange(item, index)"
                   >
                   </el-switch>
@@ -173,7 +173,7 @@
           @change="handleDetailStatusChange"
           style="float: right; padding: 3px 0"
           v-model="cardObj[0].available"
-          active-color="#384bf7"
+          active-color="var(--color)"
         >
         </el-switch>
       </div>
@@ -663,7 +663,7 @@ export default {
   .section-collapse {
     background-color: #f7f8fa;
     border-radius: 6px;
-    border: 1px solid #384BF7;
+    border: 1px solid $color;
     overflow: hidden;
     
     /deep/ .el-collapse {
@@ -715,7 +715,7 @@ export default {
     }
      
     .segment-badge {
-      color: #384BF7;
+      color: $color;
       font-size: 12px;
       min-width: 40px;
       text-align: center;
@@ -744,7 +744,7 @@ export default {
           }
           
           &.edit-btn {
-            color: #384BF7;
+            color: $btn_bg;
             
             &:hover {
               color: #2a3cc7;
@@ -752,7 +752,7 @@ export default {
           }
           
           &.delete-btn {
-            color: #384BF7;
+            color: $btn_bg;
             
             &:hover {
               color: #2a3cc7;
@@ -760,7 +760,7 @@ export default {
           }
           
           &.save-btn {
-            color: #384BF7;
+            color: $btn_bg;
             
             &:hover {
               color: #2a3cc7;
@@ -787,14 +787,14 @@ export default {
       
       .score-label {
         font-size: 12px;
-        color: #384BF7;
+        color: $color;
         font-weight: bold;
         margin-right: 5px;
       }
       
       .score-value {
         font-size: 14px;
-        color: #384BF7;
+        color: $color;
         font-weight: bold;
         font-family: 'Courier New', monospace;
       }
@@ -812,7 +812,7 @@ export default {
       .content-edit {
         .edit-input {
           /deep/ .el-textarea__inner {
-            border: 1px solid #384BF7;
+            border: 1px solid $color;
             border-radius: 4px;
             resize: vertical;
           }
@@ -861,23 +861,23 @@ export default {
     }
   }
   .tagList > .tagList-item:hover{
-      color:#384BF7;
+      color:$color;
   }
 .showMore{
   margin-left:5px;
-  background:#f4f5ff;
+  background:$color_opacity;
   padding:2px;
   border-radius:4px;
 }
 .metaItem{
   margin-left:5px;
-  background:#f4f5ff;
+  background:$color_opacity;
   padding:2px;
   border-radius:4px;
 }
 .editIcon{
   cursor: pointer;
-  color:#384BF7;
+  color:$color;
   font-size:16px;
   display: inline-block;
   margin-left:5px;

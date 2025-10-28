@@ -541,7 +541,7 @@ export default {
       .nav-item {
         /*margin: calc((100vh - 560px) / 28) 0;*/
         margin: 0.6vh 0;
-        color: #77869E;
+        color: $inactivate_color;
         font-weight: bold;
         cursor: pointer;
         border-radius: 8px;

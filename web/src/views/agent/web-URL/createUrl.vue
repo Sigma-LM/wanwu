@@ -41,7 +41,7 @@
                     <el-switch
                         v-model="scope.row.status"
                         @change="statusChange($event,scope.row)"
-                        active-color="#384BF7"
+                        active-color="var(--color)"
                         >
                     </el-switch>
                 </template>
@@ -93,13 +93,13 @@
             <!-- <el-form-item label="知识库出处详情">
               <el-switch
                 v-model="value"
-                active-color="#384BF7">
+                active-color="var(--color)">
               </el-switch>
             </el-form-item> -->
             <!-- <el-form-item label="工作流详情">
               <el-switch
                 v-model="value"
-                active-color="#384BF7">
+                active-color="var(--color)">
               </el-switch>
             </el-form-item> -->
             <div class="online-item">
@@ -116,7 +116,7 @@
                 <el-switch
                   :disabled="!form.copyright"
                   v-model="form.copyrightEnable"
-                  active-color="#384BF7">
+                  active-color="var(--color)">
                 </el-switch>
               </el-form-item>
             </div>
@@ -134,7 +134,7 @@
                 <el-switch
                   :disabled="!form.privacyPolicy"
                   v-model="form.privacyPolicyEnable"
-                  active-color="#384BF7">
+                  active-color="var(--color)">
                 </el-switch>
               </el-form-item>
             </div>
@@ -152,7 +152,7 @@
                 <el-switch
                   :disabled="!form.disclaimer"
                   v-model="form.disclaimerEnable"
-                  active-color="#384BF7">
+                  active-color="var(--color)">
                 </el-switch>
               </el-form-item>
             </div>
@@ -342,7 +342,7 @@ export default {
 .copy{
   cursor: pointer;
   margin-left:5px;
-  color: #384BF7;
+  color: $color;
 }
 .formUrl{
   .el-date-editor{

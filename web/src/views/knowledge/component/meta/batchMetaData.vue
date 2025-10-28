@@ -352,7 +352,7 @@ export default {
   }
 
   span {
-    color: #384bf7;
+    color: $color;
   }
 }
 
@@ -372,8 +372,8 @@ export default {
     margin-bottom: 20px;
 
     .create-btn {
-      background: #384bf7;
-      border-color: #384bf7;
+      background: $btn_bg;
+      border-color: $btn_bg;
       border-radius: 6px;
       padding: 8px 16px;
 
@@ -459,7 +459,7 @@ export default {
           }
 
           .type-value {
-            color: #384bf7;
+            color: $color;
             font-size: 14px;
             font-weight: 500;
           }
@@ -502,8 +502,8 @@ export default {
       }
 
       /deep/ .el-checkbox__input.is-checked .el-checkbox__inner {
-        background-color: #384bf7;
-        border-color: #384bf7;
+        background-color: $color;
+        border-color: $color;
       }
     }
 
@@ -533,7 +533,7 @@ export default {
     padding: 8px 16px;
 
     &:hover {
-      color: #384bf7;
+      color: $color;
       border-color: #c6e2ff;
       background-color: #ecf5ff;
     }

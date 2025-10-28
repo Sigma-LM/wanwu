@@ -177,15 +177,15 @@ export default {
       border-radius: 6px;
       .root-url {
         background-color: #eceefe;
-        color: #384bf7;
+        color: $color;
         border: none;
       }
     }
     .apikeyBtn{
       margin-left:10px;
-      border:1px solid #384bf7;
+      border:1px solid $btn_bg;
       padding:12px;
-      color: #384bf7;
+      color: $btn_bg;
       display:flex;
       align-items:center;
     }
