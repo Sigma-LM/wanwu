@@ -245,6 +245,7 @@ export default {
   },
   mounted(){
     this.getTableData(this.docQuery)
+    console.log(this.permissionType)
   },
   beforeDestroy(){
     this.clearTimer()

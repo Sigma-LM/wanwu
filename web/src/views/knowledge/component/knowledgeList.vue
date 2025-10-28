@@ -20,12 +20,6 @@
               <img  class="logo" :src="require('@/assets/imgs/knowledgeIcon.png')" />
               <p :class="['smartDate']">{{n.docCount || 0}}个文档</p>
           </div>
-          <span class="tag-app tag-knowledge">{{n.share?'公开':'私密'}}</span>
-          <img
-            class="tag-img"
-            src="@/assets/imgs/rectangle.png"
-            alt=""
-          />
           <div class="info rl">
             <p class="name" :title="n.name">
               {{n.name}}
@@ -49,13 +43,20 @@
             <span v-else @click.stop="addTag(n.knowledgeId)">{{formattedTagNames(n.knowledgeTagList) }}</span>
           </div>
           <div class="editor">
+            <el-tooltip class="item" effect="dark" :content="n.orgName" placement="right-start">
+              <span style="margin-right:52px; color:#88888B;">{{n.orgName.length > 10 ? n.orgName.substring(0, 10) + '...' : n.orgName}}</span>
+            </el-tooltip>
+            <div v-if="n.share" class="publishType" style="right:22px;">
+                <span v-if="n.share" class="publishType-tag"><span class="el-icon-lock"></span> 私密</span>
+                <span v-else class="publishType-tag"><span class="el-icon-unlock"></span> 公开</span>
+            </div>
             <el-dropdown @command="handleClick($event, n)" placement="top">
               <span class="el-dropdown-link">
                 <i class="el-icon-more icon edit-icon" @click.stop></i>
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="edit">{{$t('common.button.edit')}}</el-dropdown-item>
-                <el-dropdown-item command="delete" v-if="n.transfer">{{$t('common.button.delete')}}</el-dropdown-item>
+                <el-dropdown-item command="delete" v-if="[30].includes(n.permissionType)">{{$t('common.button.delete')}}</el-dropdown-item>
                 <el-dropdown-item command="power" v-if="[20,30].includes(n.permissionType)">权限</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -103,7 +104,7 @@ export default {
   },
   
   beforeDestroy() {
-    this.clearPermissionType();
+    //this.clearPermissionType();
   },
   
   methods:{
@@ -173,12 +174,12 @@ export default {
     },
     toDocList(n){
       this.$router.push({path:`/knowledge/doclist/${n.knowledgeId}`,query:{name:n.name}});
+      this.setPermissionType(n.permissionType)
     },
     showPowerManagement(knowledgeItem) {
       this.$refs.powerManagement.knowledgeId = knowledgeItem.knowledgeId;
       this.$refs.powerManagement.knowledgeName = knowledgeItem.knowledgeName;
       this.$refs.powerManagement.permissionType = knowledgeItem.permissionType;
-      this.setPermissionType(knowledgeItem.permissionType)
       this.$refs.powerManagement.showDialog();
     },
   }
