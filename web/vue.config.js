@@ -20,14 +20,14 @@ module.exports = {
   productionSourceMap: false,//源码映射
   chainWebpack(config){
     config.module
-        .rule('md')
-        .test(/\.md$/)
-        .use('html-loader')
-        .loader('html-loader')
-        .end()
-        .use('markdown-loader')
-        .loader('markdown-loader')
-        .end()
+      .rule('md')
+      .test(/\.md$/)
+      .use('html-loader')
+      .loader('html-loader')
+      .end()
+      .use('markdown-loader')
+      .loader('markdown-loader')
+      .end()
 
     config.plugins.delete('prefetch')
     if (isProdOrTest) {
@@ -64,7 +64,7 @@ module.exports = {
       errors: true,
     },
     headers: {
-        'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': '*',
     },
     proxy: {
       "/openAi":{
@@ -180,23 +180,23 @@ module.exports = {
       alias: {
         'vue$': 'vue/dist/vue.esm.js',
         "@": resolve("src"),
-          "@common": resolve("common"),
+        "@common": resolve("common"),
       },
     },
-      output: {
-          // 把子应用打包成 umd 库格式(必须)
-          library: `${name}-[name]`,
-          libraryTarget: 'umd',
-          jsonpFunction: `webpackJsonp_${name}`,
-      },
-      plugins:[
-        new webpack.optimize.LimitChunkCountPlugin({
-            maxChunks: 10, // 来限制 chunk 的最大数量
-          }),
-          new webpack.optimize.MinChunkSizePlugin({
-            minChunkSize: 50000 // Minimum number of characters
-          }),
-          new VersionInfoPlugin()
-      ]
+    output: {
+      // 把子应用打包成 umd 库格式(必须)
+      library: `${name}-[name]`,
+      libraryTarget: 'umd',
+      jsonpFunction: `webpackJsonp_${name}`,
+    },
+    plugins: [
+      new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 10, // 来限制 chunk 的最大数量
+      }),
+      new webpack.optimize.MinChunkSizePlugin({
+        minChunkSize: 50000 // Minimum number of characters
+      }),
+      new VersionInfoPlugin()
+    ]
   },
 };
