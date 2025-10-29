@@ -1145,8 +1145,9 @@ def proper_noun():
         knowledge_base_info = init_info.get("knowledge_base_info", {})
         if knowledge_base_info:  # 整理格式
             for user_id, kb_info_list in knowledge_base_info.items():
-                knowledge_base_info[user_id] = [kb_info["kb_name"] for kb_info in kb_info_list]
-        if msg_id and action and knowledge_base_info:
+                knowledge_base_info[user_id] = [kb_info['kb_id'] if kb_info.get('kb_id') else kb_utils.get_kb_name_id(user_id, kb_info['kb_name']) for kb_info in kb_info_list]
+        logger.info(f"edit knowledge_base_info:{knowledge_base_info}")
+        if msg_id and action and knowledge_base_info:  # 注意 knowledge_base 里是 kb_ids
             for user_id, knowledge_base in knowledge_base_info.items():
                 try:
                     # redis_client = redis_utils.get_redis_connection()
