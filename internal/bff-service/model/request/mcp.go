@@ -33,8 +33,8 @@ func (req *MCPUpdate) Check() error {
 }
 
 type MCPActionListReq struct {
-	ToolId   string `json:"toolId" validate:"required"`
-	ToolType string `json:"toolType" validate:"required,oneof=mcp mcpserver"`
+	ToolId   string `form:"toolId" json:"toolId" validate:"required"`
+	ToolType string `form:"toolType" json:"toolType" validate:"required,oneof=mcp mcpserver"`
 }
 
 func (req *MCPActionListReq) Check() error {
