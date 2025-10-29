@@ -454,6 +454,171 @@ func (x *ToolActionInputSchemaValue) GetDescription() string {
 	return ""
 }
 
+type StatisticChart struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TableName  string                `protobuf:"bytes,1,opt,name=tableName,proto3" json:"tableName,omitempty"`
+	ChartLines []*StatisticChartLine `protobuf:"bytes,2,rep,name=chartLines,proto3" json:"chartLines,omitempty"`
+}
+
+func (x *StatisticChart) Reset() {
+	*x = StatisticChart{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_common_common_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StatisticChart) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatisticChart) ProtoMessage() {}
+
+func (x *StatisticChart) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_common_common_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatisticChart.ProtoReflect.Descriptor instead.
+func (*StatisticChart) Descriptor() ([]byte, []int) {
+	return file_proto_common_common_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *StatisticChart) GetTableName() string {
+	if x != nil {
+		return x.TableName
+	}
+	return ""
+}
+
+func (x *StatisticChart) GetChartLines() []*StatisticChartLine {
+	if x != nil {
+		return x.ChartLines
+	}
+	return nil
+}
+
+type StatisticChartLine struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	LineName string                    `protobuf:"bytes,1,opt,name=lineName,proto3" json:"lineName,omitempty"`
+	Items    []*StatisticChartLineItem `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+}
+
+func (x *StatisticChartLine) Reset() {
+	*x = StatisticChartLine{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_common_common_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StatisticChartLine) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatisticChartLine) ProtoMessage() {}
+
+func (x *StatisticChartLine) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_common_common_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatisticChartLine.ProtoReflect.Descriptor instead.
+func (*StatisticChartLine) Descriptor() ([]byte, []int) {
+	return file_proto_common_common_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *StatisticChartLine) GetLineName() string {
+	if x != nil {
+		return x.LineName
+	}
+	return ""
+}
+
+func (x *StatisticChartLine) GetItems() []*StatisticChartLineItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type StatisticChartLineItem struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Key   string  `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value float32 `protobuf:"fixed32,2,opt,name=value,proto3" json:"value,omitempty"`
+}
+
+func (x *StatisticChartLineItem) Reset() {
+	*x = StatisticChartLineItem{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_proto_common_common_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StatisticChartLineItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatisticChartLineItem) ProtoMessage() {}
+
+func (x *StatisticChartLineItem) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_common_common_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatisticChartLineItem.ProtoReflect.Descriptor instead.
+func (*StatisticChartLineItem) Descriptor() ([]byte, []int) {
+	return file_proto_common_common_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *StatisticChartLineItem) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *StatisticChartLineItem) GetValue() float32 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
 var File_proto_common_common_proto protoreflect.FileDescriptor
 
 var file_proto_common_common_proto_rawDesc = []byte{
@@ -518,10 +683,28 @@ var file_proto_common_common_proto_rawDesc = []byte{
 	0x65, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
 	0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x20, 0x0a, 0x0b, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70,
 	0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x64, 0x65, 0x73, 0x63,
-	0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x2c, 0x5a, 0x2a, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x55, 0x6e, 0x69, 0x63, 0x6f, 0x6d, 0x41, 0x49, 0x2f, 0x77,
-	0x61, 0x6e, 0x77, 0x75, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63,
-	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x6a, 0x0a, 0x0e, 0x53, 0x74, 0x61, 0x74, 0x69,
+	0x73, 0x74, 0x69, 0x63, 0x43, 0x68, 0x61, 0x72, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x61, 0x62,
+	0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x61,
+	0x62, 0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x3a, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x72, 0x74,
+	0x4c, 0x69, 0x6e, 0x65, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x6f,
+	0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x43, 0x68,
+	0x61, 0x72, 0x74, 0x4c, 0x69, 0x6e, 0x65, 0x52, 0x0a, 0x63, 0x68, 0x61, 0x72, 0x74, 0x4c, 0x69,
+	0x6e, 0x65, 0x73, 0x22, 0x66, 0x0a, 0x12, 0x53, 0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63,
+	0x43, 0x68, 0x61, 0x72, 0x74, 0x4c, 0x69, 0x6e, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x6c, 0x69, 0x6e,
+	0x65, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6c, 0x69, 0x6e,
+	0x65, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x34, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x02,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x53, 0x74,
+	0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x43, 0x68, 0x61, 0x72, 0x74, 0x4c, 0x69, 0x6e, 0x65,
+	0x49, 0x74, 0x65, 0x6d, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x22, 0x40, 0x0a, 0x16, 0x53,
+	0x74, 0x61, 0x74, 0x69, 0x73, 0x74, 0x69, 0x63, 0x43, 0x68, 0x61, 0x72, 0x74, 0x4c, 0x69, 0x6e,
+	0x65, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x42, 0x2c, 0x5a,
+	0x2a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x55, 0x6e, 0x69, 0x63,
+	0x6f, 0x6d, 0x41, 0x49, 0x2f, 0x77, 0x61, 0x6e, 0x77, 0x75, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -536,7 +719,7 @@ func file_proto_common_common_proto_rawDescGZIP() []byte {
 	return file_proto_common_common_proto_rawDescData
 }
 
-var file_proto_common_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_proto_common_common_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_proto_common_common_proto_goTypes = []interface{}{
 	(*AppBrief)(nil),                   // 0: common.AppBrief
 	(*AppBriefConfig)(nil),             // 1: common.AppBriefConfig
@@ -544,17 +727,22 @@ var file_proto_common_common_proto_goTypes = []interface{}{
 	(*ToolAction)(nil),                 // 3: common.ToolAction
 	(*ToolActionInputSchema)(nil),      // 4: common.ToolActionInputSchema
 	(*ToolActionInputSchemaValue)(nil), // 5: common.ToolActionInputSchemaValue
-	nil,                                // 6: common.ToolActionInputSchema.PropertiesEntry
+	(*StatisticChart)(nil),             // 6: common.StatisticChart
+	(*StatisticChartLine)(nil),         // 7: common.StatisticChartLine
+	(*StatisticChartLineItem)(nil),     // 8: common.StatisticChartLineItem
+	nil,                                // 9: common.ToolActionInputSchema.PropertiesEntry
 }
 var file_proto_common_common_proto_depIdxs = []int32{
 	4, // 0: common.ToolAction.inputSchema:type_name -> common.ToolActionInputSchema
-	6, // 1: common.ToolActionInputSchema.properties:type_name -> common.ToolActionInputSchema.PropertiesEntry
-	5, // 2: common.ToolActionInputSchema.PropertiesEntry.value:type_name -> common.ToolActionInputSchemaValue
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9, // 1: common.ToolActionInputSchema.properties:type_name -> common.ToolActionInputSchema.PropertiesEntry
+	7, // 2: common.StatisticChart.chartLines:type_name -> common.StatisticChartLine
+	8, // 3: common.StatisticChartLine.items:type_name -> common.StatisticChartLineItem
+	5, // 4: common.ToolActionInputSchema.PropertiesEntry.value:type_name -> common.ToolActionInputSchemaValue
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_proto_common_common_proto_init() }
@@ -635,6 +823,42 @@ func file_proto_common_common_proto_init() {
 				return nil
 			}
 		}
+		file_proto_common_common_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StatisticChart); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_common_common_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StatisticChartLine); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_proto_common_common_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StatisticChartLineItem); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -642,7 +866,7 @@ func file_proto_common_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_common_common_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

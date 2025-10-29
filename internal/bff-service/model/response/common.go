@@ -73,3 +73,18 @@ type DocSearchContent struct {
 	Content string `json:"content"` // 内容
 	Url     string `json:"url"`     // 文档链接
 }
+
+type StatisticChart struct {
+	TableName string               `json:"tableName"` // 统计表名字
+	Lines     []StatisticChartLine `json:"lines"`     // 统计表中线段集合
+}
+
+type StatisticChartLine struct {
+	LineName string                   `json:"lineName"` // 线段名字
+	Items    []StatisticChartLineItem `json:"items"`    // 线段横纵坐标值
+}
+
+type StatisticChartLineItem struct {
+	Key   string  `json:"key"`
+	Value float32 `json:"value"`
+}

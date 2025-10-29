@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/UnicomAI/wanwu/api/proto/common"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
@@ -324,6 +325,32 @@ func calculateResizeParameters(originalWidth, originalHeight, maxSize int) (int,
 		newHeight = 1
 	}
 	return newWidth, newHeight
+}
+
+//nolint:unused
+func convertStatisticChart(pbChart *common.StatisticChart) response.StatisticChart {
+	if pbChart == nil {
+		return response.StatisticChart{}
+	}
+	respChart := response.StatisticChart{
+		TableName: pbChart.TableName,
+		Lines:     make([]response.StatisticChartLine, 0, len(pbChart.ChartLines)),
+	}
+	for _, pbLine := range pbChart.ChartLines {
+		goLine := response.StatisticChartLine{
+			LineName: pbLine.LineName,
+			Items:    make([]response.StatisticChartLineItem, 0, len(pbLine.Items)),
+		}
+
+		for _, pbItem := range pbLine.Items {
+			goLine.Items = append(goLine.Items, response.StatisticChartLineItem{
+				Key:   pbItem.Key,
+				Value: pbItem.Value,
+			})
+		}
+		respChart.Lines = append(respChart.Lines, goLine)
+	}
+	return respChart
 }
 
 func writeSSE(ctx *gin.Context, resp *http.Response) error {

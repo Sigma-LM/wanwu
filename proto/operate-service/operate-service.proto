@@ -3,6 +3,7 @@ syntax = "proto3";
 package operate_service;
 
 import "google/protobuf/empty.proto";
+import "proto/common/common.proto";
 
 option go_package = "github.com/UnicomAI/wanwu/api/proto/operate-service";
 
@@ -11,6 +12,14 @@ service OperateService {
     rpc CreateSystemCustomLogin(CreateSystemCustomLoginReq) returns (google.protobuf.Empty) {}
     rpc CreateSystemCustomHome(CreateSystemCustomHomeReq) returns (google.protobuf.Empty) {}
     rpc GetSystemCustom(GetSystemCustomReq) returns (SystemCustom) {}
+
+    rpc AddClientRecord(AddClientRecordReq) returns (google.protobuf.Empty) {}
+    // 客户端统计总览
+    rpc GetClientOverview(GetClientOverviewReq) returns (ClientOverViewInfo) {}
+    // 客户端统计趋势
+    rpc GetClientTrend(GetClientTrendReq) returns (ClientTrendInfo) {}
+    // 累计客户端统计总览
+    rpc GetCumulativeClient(GetCumulativeClientReq) returns (GetCumulativeClientResp) {}
 }
 
 message CreateSystemCustomTabReq {
@@ -61,3 +70,40 @@ message Home {
     string homeName = 2; // 平台名称
     string homeBgColor = 3; // 平台背景颜色
 }
+
+message AddClientRecordReq {
+    string clientId =1 ;
+}
+
+message GetClientOverviewReq{
+    string startDate = 1;
+    string endDate = 2;
+}
+
+message GetClientTrendReq{
+    string startDate = 1;
+    string endDate = 2;
+}
+
+message GetCumulativeClientReq{
+    int64 endAt = 1;
+}
+
+message GetCumulativeClientResp{
+    int32 total = 1;
+}
+
+message ClientOverviewItem {
+    float value = 1;
+    float periodOverperiod = 2;
+}
+
+message ClientOverViewInfo{
+    ClientOverviewItem activeClient = 1; // 活跃
+    ClientOverviewItem newClient = 2; // 新增
+}
+
+message ClientTrendInfo{
+    common.StatisticChart client = 1;
+}
+

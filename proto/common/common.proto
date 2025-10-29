@@ -46,3 +46,18 @@ message ToolActionInputSchemaValue {
     string type = 1;
     string description = 2;
 }
+
+message StatisticChart {
+    string tableName = 1;
+    repeated StatisticChartLine chartLines = 2;
+}
+
+message StatisticChartLine {
+    string lineName = 1;
+    repeated StatisticChartLineItem items = 2;
+}
+
+message StatisticChartLineItem {
+    string key = 1;
+    float value = 2;
+}
