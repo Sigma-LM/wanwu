@@ -92,7 +92,7 @@ type WorkflowTemplatePathConfig struct {
 
 	GlobalWebListUrl string `json:"global_web_list_url" mapstructure:"global_web_list_url"`
 
-	ListUrl      string `json:"server_url" mapstructure:"server_url"`
+	ListUrl      string `json:"list_url" mapstructure:"list_url"`
 	DownloadUrl  string `json:"download_url" mapstructure:"download_url"`
 	DetailUrl    string `json:"detail_url" mapstructure:"detail_url"`
 	RecommendUrl string `json:"recommend_url" mapstructure:"recommend_url"`
