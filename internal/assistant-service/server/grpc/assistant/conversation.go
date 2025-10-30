@@ -264,7 +264,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 	}
 
 	// plugin参数配置
-	if err := s.setToolAndWorkflowParams(ctx, sseReq, req.AssistantId); err != nil {
+	if err := s.setToolAndWorkflowParams(ctx, sseReq, req.AssistantId, req.Identity); err != nil {
 		SSEError(stream, "智能体plugin配置错误")
 		saveConversation(ctx, req, "智能体plugin配置错误", "")
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "plugin配置错误")
@@ -537,8 +537,8 @@ func (s *Service) setKnowledgebaseParams(ctx context.Context, sseReq *config.Age
 }
 
 // 设置工具（自定义工具、内置工具与工作流）
-func (s *Service) setToolAndWorkflowParams(ctx context.Context, sseReq *config.AgentSSERequest, assistantId string) error {
-	toolPluginList, err := buildToolPluginListAlgParam(ctx, s, assistantId)
+func (s *Service) setToolAndWorkflowParams(ctx context.Context, sseReq *config.AgentSSERequest, assistantId string, identity *assistant_service.Identity) error {
+	toolPluginList, err := buildToolPluginListAlgParam(ctx, s, assistantId, identity)
 	if err != nil {
 		return fmt.Errorf("智能体tool配置错误: %w", err)
 	}
@@ -584,7 +584,6 @@ func (s *Service) setMCPParams(ctx context.Context, sseReq *config.AgentSSEReque
 	if err != nil {
 		return fmt.Errorf("Assistant服务获取MCP信息失败，assistantId: %d, error: %v", assistant.ID, err)
 	}
-
 	mcpTools := make(map[string]config.MCPToolInfo)
 	for _, mcp := range mcpInfos {
 		if !mcp.Enable {
@@ -605,7 +604,7 @@ func (s *Service) setMCPParams(ctx context.Context, sseReq *config.AgentSSEReque
 				Transport: "sse",
 			}
 			sseReq.McpTools = mcpTools
-			sseReq.ToolName = append(sseReq.ToolName, mcpCustom.Info.Name)
+			sseReq.ToolName = append(sseReq.ToolName, mcp.ActionName)
 		case constant.MCPTypeMCPServer:
 			mcpServer, err := MCP.GetMCPServer(ctx, &mcp_service.GetMCPServerReq{
 				McpServerId: mcp.MCPId,
@@ -619,7 +618,7 @@ func (s *Service) setMCPParams(ctx context.Context, sseReq *config.AgentSSEReque
 				Transport: "sse",
 			}
 			sseReq.McpTools = mcpTools
-			sseReq.ToolName = append(sseReq.ToolName, mcpServer.Name)
+			sseReq.ToolName = append(sseReq.ToolName, mcp.ActionName)
 		}
 	}
 
@@ -865,7 +864,7 @@ func buildWorkflowPluginListAlgParam(ctx context.Context, s *Service, assistantI
 	return pluginList, nil
 }
 
-func buildToolPluginListAlgParam(ctx context.Context, s *Service, assistantId string) (pluginList []config.PluginListAlgRequest, err error) {
+func buildToolPluginListAlgParam(ctx context.Context, s *Service, assistantId string, identity *assistant_service.Identity) (pluginList []config.PluginListAlgRequest, err error) {
 	// 转换assistantId
 	assistantIdConv := pkgUtil.MustU32(assistantId)
 	resp, status := s.cli.GetAssistantToolList(ctx, assistantIdConv)
@@ -903,6 +902,10 @@ func buildToolPluginListAlgParam(ctx context.Context, s *Service, assistantId st
 			// 获取内置工具详情
 			builtinTool, err := MCP.GetSquareTool(ctx, &mcp_service.GetSquareToolReq{
 				ToolSquareId: tool.ToolId,
+				Identity: &mcp_service.Identity{
+					UserId: identity.UserId,
+					OrgId:  identity.OrgId,
+				},
 			})
 			if err != nil {
 				log.Infof("获取内置工具信息失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)

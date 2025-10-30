@@ -165,98 +165,98 @@ tools:
               description: "返回格式，b64_json 或者url. 不合法响应格式默认处理为b64_json"
           required:
             - "prompt"
-  - tool_square_id: "yuanjingimg2img12b"
-    name: "元景-图生图-12B"
-    desc: "元景-图生图-12B接口，基于用户上传的图像，生成指定风格的图像"
-    avatar_path: "yuanjingtexttoimage12b/logo.png"
-    detail: "元景-图生图-12B接口，能将输入图片转换成指定风格。可前往 https://maas.ai-yuanjing.com/ 申请API Key"
-    tags: ""
-    need_api_key_input: true
-    type: "API Key"
-    auth_type: "Custom"
-    custom_header_name: "key"
-    api_key: ""
-    schema: "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"元景-图生图-12B\",\"description\":\"元景-图生图-12B接口，基于用户上传的图像，生成指定风格的图像\",\"version\":\"1.0.0\"},\"tags\":[],\"paths\":{\"/openapi/v1/yuanjing_img2img\":{\"post\":{\"summary\":\"元景-图生图-12B接口，能将输入图片转换成指定风格。\",\"operationId\":\"yuanjing_img2img_12b\",\"deprecated\":false,\"description\":\"\",\"tags\":[],\"parameters\":[{\"name\":\"Authorization\",\"in\":\"header\",\"description\":\"Authorization: Bearer {$ACCESS_TOKEN}\",\"required\":true,\"example\":\"\",\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"application/x-www-form-urlencoded\":{\"schema\":{\"type\":\"object\",\"properties\":{\"image\":{\"description\":\"base64编码的图像字符串\",\"example\":\"\",\"type\":\"string\"},\"style\":{\"description\":\"图片风格，目前支持吉卜力\",\"example\":\"\",\"type\":\"string\"},\"prompt\":{\"description\":\"提示信息，预留接口，不生效\",\"example\":\"\",\"type\":\"string\"}},\"required\":[\"image\",\"style\"]},\"examples\":{}}}},\"responses\":{\"200\":{\"description\":\"\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"integer\",\"title\":\"状态码\"},\"message\":{\"type\":\"string\",\"title\":\"错误码描述信息\"},\"prompt\":{\"type\":\"string\",\"title\":\"风格化时使用的提示信息，英文\"},\"result\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"title\":\"算法生成的图片的列表，每张图片都采用base64编码\"},\"usage\":{\"type\":\"object\",\"properties\":{\"total_patches\":{\"type\":\"integer\",\"title\":\"生成图片patch计数\"}},\"required\":[\"total_patches\"]}},\"required\":[\"code\",\"message\",\"prompt\",\"result\",\"usage\"]}}},\"headers\":{}}},\"security\":[]}}},\"components\":{\"schemas\":{},\"securitySchemes\":{}},\"servers\":[{\"url\":\"https://maas-api.ai-yuanjing.com\",\"description\":\"maas\"}]}"
-    tools:
-      - name: "yuanjing_img2img_12b"
-        description: "元景-图生图-12B接口，基于用户上传的图像，生成指定风格的图像。"
-        input_schema:
-          type: object
-          properties:
-            - field: "image"
-              type: "string"
-              description: "base64编码的图像字符串"
-            - field: "style"
-              type: "string"
-              description: "图片风格，目前支持吉卜力"
-            - field: "prompt"
-              type: "string"
-              description: "提示信息，预留接口，不生效"
-          required:
-            - "image"
-            - "style"
-  - tool_square_id: "yuanjingaudiofile2text1p0"
-    name: "元景-文件语音识别1.0"
-    desc: "支持中英文等多种语言长短音频文件的识别。"
-    avatar_path: "yuanjingtexttoimage12b/logo.png"
-    detail: "支持的音频格式： wav、m4a、mp3、mp4、acc等。长音频建议调用异步接口上传音频，再通过查询接口获取转写结果。可前往 https://maas.ai-yuanjing.com/ 申请API Key"
-    tags: "自动语音识别"
-    need_api_key_input: true
-    type: "API Key"
-    auth_type: "Custom"
-    custom_header_name: "key"
-    api_key: ""
-    schema: "{\"openapi\":\"3.0.1\",\"info\":{\"title\":\"元景-文件语音识别1.0\",\"description\":\"支持中英文等多种语言长短音频文件的识别。\",\"version\":\"1.0.0\"},\"tags\":[],\"paths\":{\"/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr\":{\"post\":{\"summary\":\"支持中英文等多种语言长短音频文件的识别。\\n支持的音频格式： wav、m4a、mp3、mp4、acc等。\\n长音频建议调用异步接口上传音频，再通过查询接口获取转写结果。\",\"operationId\":\"yuanjing_audiofile2text_1p0\",\"deprecated\":false,\"description\":\"\",\"tags\":[],\"parameters\":[{\"name\":\"Authorization\",\"in\":\"header\",\"description\":\"\",\"required\":false,\"example\":\"\",\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"multipart/form-data\":{\"schema\":{\"type\":\"object\",\"properties\":{\"file\":{\"format\":\"binary\",\"type\":\"string\",\"description\":\"音频文件\",\"example\":\"\"},\"config\":{\"type\":\"object\",\"properties\":{\"diarization\":{\"type\":\"integer\",\"description\":\"说话人日志开关，0或1, 默认0\"},\"translate\":{\"type\":\"integer\",\"description\":\"是否进行英文翻译，0或1, 默认0（当输入的为中文或英文音频时才起效，其他语言均返回空字符串）\"},\"session_id\":{\"type\":\"string\",\"description\":\"uuid, 会话的唯一标识\"},\"add_punc\":{\"type\":\"integer\",\"description\":\"是否加标点开关，0或1, 默认1\"},\"itn_switch\":{\"type\":\"integer\",\"description\":\"是否反正则化，0或1, 默认0\"},\"vad_switch\":{\"type\":\"integer\",\"description\":\"音频断点检测，0或1，默认1，长音频（时长超过30s）需要开启\"},\"spk_num\":{\"type\":\"integer\",\"description\":\"若能确认音频中的说话人数量，请填写此参数，以增加说话人日志的准确度\"},\"sensitive\":{\"type\":\"integer\",\"description\":\"是否进行敏感词检测，0或1, 默认0\"},\"language\":{\"type\":\"string\",\"description\":\"音频语言，可自动识别（如需指定该参数，可设置\\\"zh\\\"代表中文，\\\"en\\\"代表英文，其他语言映射代码请咨询项目负责人）\"},\"audio_classiﬁcation\\t\":{\"type\":\"integer\",\"description\":\"是否做音频分类，0或1, 默认0\"},\"diarization_mode\":{\"type\":\"integer\",\"description\":\"说话人日志参数，选项0、1或2，默认0。参数越大，说话人区分灵敏度越高\"},\"max_end_sil\":{\"type\":\"integer\",\"description\":\"尾点判停参数：尾部连续检测到多长时间静音进行判停，单位ms，建议参数范围[300,1000]，默认800ms\"},\"max_single_seg\":{\"type\":\"integer\",\"description\":\"强制截断参数：超过多长时间有声段会进行强制截断，单位ms，参数范围[5000,30000]，默认30000ms\"},\"speech_noise_thres\\t\":{\"type\":\"integer\",\"description\":\"取值越大，语音被误判为噪音的概率越大，参数范围[0,1]，默认值0.6\"}},\"required\":[\"session_id\"],\"example\":\"\"}},\"required\":[\"file\",\"config\"]},\"examples\":{}}}},\"responses\":{\"200\":{\"description\":\"\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"status\":{\"type\":\"string\",\"description\":\"ok表示成功\"},\"code\":{\"type\":\"integer\"},\"msg\":{\"type\":\"string\"},\"uuid\":{\"type\":\"string\",\"description\":\"会话的唯一标识\"},\"result\":{\"type\":\"null\",\"description\":\"有两种类型的结果：1.异步请求结果为None；2.同步请求详细字段如下\"}},\"required\":[\"status\",\"code\",\"msg\",\"uuid\",\"result\"]},\"example\":{\"status\":\"ok\",\"code\":0,\"msg\":\"success\",\"uuid\":\"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\"result\":null}}},\"headers\":{}}},\"security\":[]}}},\"components\":{\"schemas\":{},\"securitySchemes\":{}},\"servers\":[{\"url\":\"https://maas-api.ai-yuanjing.com\",\"description\":\"maas\"}]}"
-    tools:
-      - name: "yuanjing_audiofile2text_1p0"
-        description: "支持中英文等多种语言长短音频文件的识别。"
-        input_schema:
-          type: object
-          properties:
-            - field: "config"
-              type: "string"
-              description: "配置数据。"
-            - field: "file"
-              type: "string"
-              description: "音频文件"
-          required:
-            - "config"
-            - "file"
-  - tool_square_id: "yuanjingimgs2video"
-    name: "元景-首尾帧图生视频生成-14B"
-    desc: "元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。"
-    avatar_path: "yuanjingtexttoimage12b/logo.png"
-    detail: "注意服务在接收到请求时，会立即返回视频resourceId，但视频制作需要一定时间。获取视频需要通过返回的resourceId向首尾帧视频获取服务发请求，建议每分钟请求一次。可前往 https://maas.ai-yuanjing.com/ 申请API Key"
-    tags: "图生视频"
-    need_api_key_input: true
-    type: "API Key"
-    auth_type: "Custom"
-    custom_header_name: "key"
-    api_key: ""
-    schema: "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"元景-首尾帧图生视频生成-14B\",\"description\":\"元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。\",\"version\":\"1.0.0\"},\"tags\":[],\"paths\":{\"/openapi/v1/yuanjing_imgs2video\":{\"post\":{\"summary\":\"元景-首尾帧图生视频生成-14B\",\"operationId\":\"yuanjing_imgs2video\",\"deprecated\":false,\"description\":\"\",\"tags\":[],\"parameters\":[{\"name\":\"Authorization\",\"in\":\"header\",\"description\":\"\",\"required\":true,\"example\":\"\",\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"images\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"首帧和尾帧对应的图像字符串，base64编码\"},\"query\":{\"type\":\"string\",\"description\":\"用户提出的问题或提示语。区别于已有的prompt\"},\"session_id\":{\"type\":\"string\",\"description\":\"请求的对话窗口id\"},\"request_id\":{\"type\":\"string\",\"description\":\"用户每轮请求问题对应的唯一id\"},\"userId\":{\"type\":\"string\",\"description\":\"用户id\"},\"prompt\":{\"type\":\"string\",\"description\":\"提示词\"}},\"required\":[\"images\"]},\"examples\":{}}}},\"responses\":{\"200\":{\"description\":\"\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"integer\",\"description\":\"状态码，用于表示请求成功或具体的错误类型。1003表示失败，详见msg，0表示成功\"},\"msg\":{\"type\":\"string\",\"description\":\"提示信息，通常用于提供关于code的详细解释或请求成功的确认信息\"},\"resourceId\":{\"type\":\"string\",\"description\":\"视频名，用于获取视频\"},\"session_id\":{\"type\":\"null\",\"description\":\"请求的对话窗口id\"},\"request_id\":{\"type\":\"null\",\"description\":\"用户每轮请求问题对应的唯一id\"},\"userId\":{\"type\":\"null\",\"description\":\"用户id\"}}}}},\"headers\":{}}},\"security\":[]}}},\"components\":{\"schemas\":{},\"securitySchemes\":{}},\"servers\":[{\"url\":\"https://maas-api.ai-yuanjing.com\",\"description\":\"maas\"}]}"
-    tools:
-      - name: "yuanjing_imgs2video"
-        description: "元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。"
-        input_schema:
-          type: object
-          properties:
-            - field: "images"
-              type: "array"
-              description: "首帧和尾帧对应的图像字符串，base64编码"
-            - field: "query"
-              type: "string"
-              description: "用户提出的问题或提示语。区别于已有的prompt"
-            - field: "session_id"
-              type: "string"
-              description: "请求的对话窗口id"
-            - field: "request_id"
-              type: "string"
-              description: "用户每轮请求问题对应的唯一id"
-            - field: "userId"
-              type: "string"
-              description: "用户id"
-            - field: "prompt"
-              type: "string"
-              description: "提示词"
-          required:
-            - "images"
+#  - tool_square_id: "yuanjingimg2img12b"
+#    name: "元景-图生图-12B"
+#    desc: "元景-图生图-12B接口，基于用户上传的图像，生成指定风格的图像"
+#    avatar_path: "yuanjingtexttoimage12b/logo.png"
+#    detail: "元景-图生图-12B接口，能将输入图片转换成指定风格。可前往 https://maas.ai-yuanjing.com/ 申请API Key"
+#    tags: ""
+#    need_api_key_input: true
+#    type: "API Key"
+#    auth_type: "Custom"
+#    custom_header_name: "key"
+#    api_key: ""
+#    schema: "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"元景-图生图-12B\",\"description\":\"元景-图生图-12B接口，基于用户上传的图像，生成指定风格的图像\",\"version\":\"1.0.0\"},\"tags\":[],\"paths\":{\"/openapi/v1/yuanjing_img2img\":{\"post\":{\"summary\":\"元景-图生图-12B接口，能将输入图片转换成指定风格。\",\"operationId\":\"yuanjing_img2img_12b\",\"deprecated\":false,\"description\":\"\",\"tags\":[],\"parameters\":[{\"name\":\"Authorization\",\"in\":\"header\",\"description\":\"Authorization: Bearer {$ACCESS_TOKEN}\",\"required\":true,\"example\":\"\",\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"application/x-www-form-urlencoded\":{\"schema\":{\"type\":\"object\",\"properties\":{\"image\":{\"description\":\"base64编码的图像字符串\",\"example\":\"\",\"type\":\"string\"},\"style\":{\"description\":\"图片风格，目前支持吉卜力\",\"example\":\"\",\"type\":\"string\"},\"prompt\":{\"description\":\"提示信息，预留接口，不生效\",\"example\":\"\",\"type\":\"string\"}},\"required\":[\"image\",\"style\"]},\"examples\":{}}}},\"responses\":{\"200\":{\"description\":\"\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"integer\",\"title\":\"状态码\"},\"message\":{\"type\":\"string\",\"title\":\"错误码描述信息\"},\"prompt\":{\"type\":\"string\",\"title\":\"风格化时使用的提示信息，英文\"},\"result\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"title\":\"算法生成的图片的列表，每张图片都采用base64编码\"},\"usage\":{\"type\":\"object\",\"properties\":{\"total_patches\":{\"type\":\"integer\",\"title\":\"生成图片patch计数\"}},\"required\":[\"total_patches\"]}},\"required\":[\"code\",\"message\",\"prompt\",\"result\",\"usage\"]}}},\"headers\":{}}},\"security\":[]}}},\"components\":{\"schemas\":{},\"securitySchemes\":{}},\"servers\":[{\"url\":\"https://maas-api.ai-yuanjing.com\",\"description\":\"maas\"}]}"
+#    tools:
+#      - name: "yuanjing_img2img_12b"
+#        description: "元景-图生图-12B接口，基于用户上传的图像，生成指定风格的图像。"
+#        input_schema:
+#          type: object
+#          properties:
+#            - field: "image"
+#              type: "string"
+#              description: "base64编码的图像字符串"
+#            - field: "style"
+#              type: "string"
+#              description: "图片风格，目前支持吉卜力"
+#            - field: "prompt"
+#              type: "string"
+#              description: "提示信息，预留接口，不生效"
+#          required:
+#            - "image"
+#            - "style"
+#  - tool_square_id: "yuanjingaudiofile2text1p0"
+#    name: "元景-文件语音识别1.0"
+#    desc: "支持中英文等多种语言长短音频文件的识别。"
+#    avatar_path: "yuanjingtexttoimage12b/logo.png"
+#    detail: "支持的音频格式： wav、m4a、mp3、mp4、acc等。长音频建议调用异步接口上传音频，再通过查询接口获取转写结果。可前往 https://maas.ai-yuanjing.com/ 申请API Key"
+#    tags: "自动语音识别"
+#    need_api_key_input: true
+#    type: "API Key"
+#    auth_type: "Custom"
+#    custom_header_name: "key"
+#    api_key: ""
+#    schema: "{\"openapi\":\"3.0.1\",\"info\":{\"title\":\"元景-文件语音识别1.0\",\"description\":\"支持中英文等多种语言长短音频文件的识别。\",\"version\":\"1.0.0\"},\"tags\":[],\"paths\":{\"/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr\":{\"post\":{\"summary\":\"支持中英文等多种语言长短音频文件的识别。\\n支持的音频格式： wav、m4a、mp3、mp4、acc等。\\n长音频建议调用异步接口上传音频，再通过查询接口获取转写结果。\",\"operationId\":\"yuanjing_audiofile2text_1p0\",\"deprecated\":false,\"description\":\"\",\"tags\":[],\"parameters\":[{\"name\":\"Authorization\",\"in\":\"header\",\"description\":\"\",\"required\":false,\"example\":\"\",\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"multipart/form-data\":{\"schema\":{\"type\":\"object\",\"properties\":{\"file\":{\"format\":\"binary\",\"type\":\"string\",\"description\":\"音频文件\",\"example\":\"\"},\"config\":{\"type\":\"object\",\"properties\":{\"diarization\":{\"type\":\"integer\",\"description\":\"说话人日志开关，0或1, 默认0\"},\"translate\":{\"type\":\"integer\",\"description\":\"是否进行英文翻译，0或1, 默认0（当输入的为中文或英文音频时才起效，其他语言均返回空字符串）\"},\"session_id\":{\"type\":\"string\",\"description\":\"uuid, 会话的唯一标识\"},\"add_punc\":{\"type\":\"integer\",\"description\":\"是否加标点开关，0或1, 默认1\"},\"itn_switch\":{\"type\":\"integer\",\"description\":\"是否反正则化，0或1, 默认0\"},\"vad_switch\":{\"type\":\"integer\",\"description\":\"音频断点检测，0或1，默认1，长音频（时长超过30s）需要开启\"},\"spk_num\":{\"type\":\"integer\",\"description\":\"若能确认音频中的说话人数量，请填写此参数，以增加说话人日志的准确度\"},\"sensitive\":{\"type\":\"integer\",\"description\":\"是否进行敏感词检测，0或1, 默认0\"},\"language\":{\"type\":\"string\",\"description\":\"音频语言，可自动识别（如需指定该参数，可设置\\\"zh\\\"代表中文，\\\"en\\\"代表英文，其他语言映射代码请咨询项目负责人）\"},\"audio_classiﬁcation\\t\":{\"type\":\"integer\",\"description\":\"是否做音频分类，0或1, 默认0\"},\"diarization_mode\":{\"type\":\"integer\",\"description\":\"说话人日志参数，选项0、1或2，默认0。参数越大，说话人区分灵敏度越高\"},\"max_end_sil\":{\"type\":\"integer\",\"description\":\"尾点判停参数：尾部连续检测到多长时间静音进行判停，单位ms，建议参数范围[300,1000]，默认800ms\"},\"max_single_seg\":{\"type\":\"integer\",\"description\":\"强制截断参数：超过多长时间有声段会进行强制截断，单位ms，参数范围[5000,30000]，默认30000ms\"},\"speech_noise_thres\\t\":{\"type\":\"integer\",\"description\":\"取值越大，语音被误判为噪音的概率越大，参数范围[0,1]，默认值0.6\"}},\"required\":[\"session_id\"],\"example\":\"\"}},\"required\":[\"file\",\"config\"]},\"examples\":{}}}},\"responses\":{\"200\":{\"description\":\"\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"status\":{\"type\":\"string\",\"description\":\"ok表示成功\"},\"code\":{\"type\":\"integer\"},\"msg\":{\"type\":\"string\"},\"uuid\":{\"type\":\"string\",\"description\":\"会话的唯一标识\"},\"result\":{\"type\":\"null\",\"description\":\"有两种类型的结果：1.异步请求结果为None；2.同步请求详细字段如下\"}},\"required\":[\"status\",\"code\",\"msg\",\"uuid\",\"result\"]},\"example\":{\"status\":\"ok\",\"code\":0,\"msg\":\"success\",\"uuid\":\"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\"result\":null}}},\"headers\":{}}},\"security\":[]}}},\"components\":{\"schemas\":{},\"securitySchemes\":{}},\"servers\":[{\"url\":\"https://maas-api.ai-yuanjing.com\",\"description\":\"maas\"}]}"
+#    tools:
+#      - name: "yuanjing_audiofile2text_1p0"
+#        description: "支持中英文等多种语言长短音频文件的识别。"
+#        input_schema:
+#          type: object
+#          properties:
+#            - field: "config"
+#              type: "string"
+#              description: "配置数据。"
+#            - field: "file"
+#              type: "string"
+#              description: "音频文件"
+#          required:
+#            - "config"
+#            - "file"
+#  - tool_square_id: "yuanjingimgs2video"
+#    name: "元景-首尾帧图生视频生成-14B"
+#    desc: "元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。"
+#    avatar_path: "yuanjingtexttoimage12b/logo.png"
+#    detail: "注意服务在接收到请求时，会立即返回视频resourceId，但视频制作需要一定时间。获取视频需要通过返回的resourceId向首尾帧视频获取服务发请求，建议每分钟请求一次。可前往 https://maas.ai-yuanjing.com/ 申请API Key"
+#    tags: "图生视频"
+#    need_api_key_input: true
+#    type: "API Key"
+#    auth_type: "Custom"
+#    custom_header_name: "key"
+#    api_key: ""
+#    schema: "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"元景-首尾帧图生视频生成-14B\",\"description\":\"元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。\",\"version\":\"1.0.0\"},\"tags\":[],\"paths\":{\"/openapi/v1/yuanjing_imgs2video\":{\"post\":{\"summary\":\"元景-首尾帧图生视频生成-14B\",\"operationId\":\"yuanjing_imgs2video\",\"deprecated\":false,\"description\":\"\",\"tags\":[],\"parameters\":[{\"name\":\"Authorization\",\"in\":\"header\",\"description\":\"\",\"required\":true,\"example\":\"\",\"schema\":{\"type\":\"string\"}}],\"requestBody\":{\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"images\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"首帧和尾帧对应的图像字符串，base64编码\"},\"query\":{\"type\":\"string\",\"description\":\"用户提出的问题或提示语。区别于已有的prompt\"},\"session_id\":{\"type\":\"string\",\"description\":\"请求的对话窗口id\"},\"request_id\":{\"type\":\"string\",\"description\":\"用户每轮请求问题对应的唯一id\"},\"userId\":{\"type\":\"string\",\"description\":\"用户id\"},\"prompt\":{\"type\":\"string\",\"description\":\"提示词\"}},\"required\":[\"images\"]},\"examples\":{}}}},\"responses\":{\"200\":{\"description\":\"\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"properties\":{\"code\":{\"type\":\"integer\",\"description\":\"状态码，用于表示请求成功或具体的错误类型。1003表示失败，详见msg，0表示成功\"},\"msg\":{\"type\":\"string\",\"description\":\"提示信息，通常用于提供关于code的详细解释或请求成功的确认信息\"},\"resourceId\":{\"type\":\"string\",\"description\":\"视频名，用于获取视频\"},\"session_id\":{\"type\":\"null\",\"description\":\"请求的对话窗口id\"},\"request_id\":{\"type\":\"null\",\"description\":\"用户每轮请求问题对应的唯一id\"},\"userId\":{\"type\":\"null\",\"description\":\"用户id\"}}}}},\"headers\":{}}},\"security\":[]}}},\"components\":{\"schemas\":{},\"securitySchemes\":{}},\"servers\":[{\"url\":\"https://maas-api.ai-yuanjing.com\",\"description\":\"maas\"}]}"
+#    tools:
+#      - name: "yuanjing_imgs2video"
+#        description: "元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。"
+#        input_schema:
+#          type: object
+#          properties:
+#            - field: "images"
+#              type: "array"
+#              description: "首帧和尾帧对应的图像字符串，base64编码"
+#            - field: "query"
+#              type: "string"
+#              description: "用户提出的问题或提示语。区别于已有的prompt"
+#            - field: "session_id"
+#              type: "string"
+#              description: "请求的对话窗口id"
+#            - field: "request_id"
+#              type: "string"
+#              description: "用户每轮请求问题对应的唯一id"
+#            - field: "userId"
+#              type: "string"
+#              description: "用户id"
+#            - field: "prompt"
+#              type: "string"
+#              description: "提示词"
+#          required:
+#            - "images"

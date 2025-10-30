@@ -86,6 +86,7 @@ func (c *Client) UpdateAssistantMCP(ctx context.Context, mcp *model.AssistantMCP
 		sqlopt.WithAssistantID(mcp.AssistantId),
 		sqlopt.WithMCPID(mcp.MCPId),
 		sqlopt.WithMCPType(mcp.MCPType),
+		sqlopt.WithActionName(mcp.ActionName),
 	).Apply(c.db.WithContext(ctx)).Model(&model.AssistantMCP{}).Updates(map[string]interface{}{
 		"enable": mcp.Enable,
 	})

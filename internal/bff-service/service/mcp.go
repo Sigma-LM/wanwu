@@ -148,7 +148,7 @@ func GetMCPSelect(ctx *gin.Context, userID, orgID string, name string) (*respons
 			Description: mcpInfo.Info.Desc,
 			ServerFrom:  mcpInfo.Info.From,
 			ServerURL:   mcpInfo.SseUrl,
-			Type:        "mcp",
+			Type:        constant.MCPTypeMCP,
 		})
 	}
 	mcpServerList, err := mcp.GetMCPServerList(ctx.Request.Context(), &mcp_service.GetMCPServerListReq{
@@ -170,7 +170,11 @@ func GetMCPSelect(ctx *gin.Context, userID, orgID string, name string) (*respons
 			Description: mcpServerInfo.Desc,
 			ServerFrom:  "mcp server",
 			ServerURL:   mcpServerInfo.SseUrl,
-			Type:        "mcpserver",
+			Type:        constant.MCPTypeMCPServer,
+			// 适用于智能体mcp下拉
+			ToolId:   mcpServerInfo.McpServerId,
+			ToolName: mcpServerInfo.Name,
+			ToolType: constant.MCPTypeMCPServer,
 		})
 	}
 	return &response.ListResult{

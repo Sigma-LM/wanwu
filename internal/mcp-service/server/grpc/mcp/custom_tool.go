@@ -2,8 +2,9 @@ package mcp
 
 import (
 	"context"
-	"github.com/UnicomAI/wanwu/pkg/constant"
 	"strings"
+
+	"github.com/UnicomAI/wanwu/pkg/constant"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
@@ -152,6 +153,11 @@ func (s *Service) GetSquareTool(ctx context.Context, req *mcp_service.GetSquareT
 	if !exist {
 		return nil, errStatus(errs.Code_MCPGetSquareToolErr, toErrStatus("mcp_get_square_tool_err", "toolSquareId not exist"))
 	}
+
+	if req.Identity == nil {
+		return nil, errStatus(errs.Code_MCPGetSquareToolErr, toErrStatus("mcp_get_square_tool_err", "identity is empty"))
+	}
+
 	apiKey := ""
 	if mcpCfg.NeedApiKeyInput {
 		info, _ := s.cli.GetBuiltinTool(ctx, &model.CustomTool{
