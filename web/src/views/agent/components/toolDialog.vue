@@ -38,12 +38,12 @@
                                    <span v-if="item.loading" class="el-icon-loading loading-text"></span>
                                 </template>
                                 <template v-if="item.children && item.children.length">
-                                    <div v-for="tool in item.children" class="tool-action-item">
+                                    <div v-for="(tool,index) in item.children" class="tool-action-item" :key="'tool'+index">
                                         <div style="padding-right:5px;">
                                             <p>
                                              <span>{{tool.name}}</span>
-                                             <el-tooltip class="item" effect="dark" :content="tool.description" placement="top-right">
-                                                <span class="el-icon-info desc-info" v-if="tool.description.length"></span>
+                                             <el-tooltip class="item" effect="dark" :content="tool.description" placement="top-start" v-if="tool.description.length > 0">
+                                                <span class="el-icon-info desc-info"></span>
                                              </el-tooltip>
                                             </p>
                                         </div>
