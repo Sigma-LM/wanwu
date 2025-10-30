@@ -50,7 +50,7 @@ func StartMCPServer(ctx context.Context) error {
 	return nil
 }
 
-func CreateMCPServer(ctx *gin.Context, userID, orgID string, req request.MCPServerCreateReq) error {
+func CreateMCPServer(ctx *gin.Context, userID, orgID string, req request.MCPServerCreateReq) (*response.MCPServerCreateResp, error) {
 	resp, err := mcp.CreateMCPServer(ctx.Request.Context(), &mcp_service.CreateMCPServerReq{
 		Name:       req.Name,
 		Desc:       req.Desc,
@@ -61,7 +61,7 @@ func CreateMCPServer(ctx *gin.Context, userID, orgID string, req request.MCPServ
 		},
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	_, err = app.GenApiKey(ctx.Request.Context(), &app_service.GenApiKeyReq{
 		AppId:   resp.McpServerId,
@@ -70,13 +70,15 @@ func CreateMCPServer(ctx *gin.Context, userID, orgID string, req request.MCPServ
 		OrgId:   orgID,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = mcp_util.StartMCPServer(ctx, resp.McpServerId)
 	if err != nil {
-		return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_mcp_server_start_err", err.Error())
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_mcp_server_start_err", err.Error())
 	}
-	return err
+	return &response.MCPServerCreateResp{
+		MCPServerID: resp.McpServerId,
+	}, err
 }
 
 func UpdateMCPServer(ctx *gin.Context, req request.MCPServerUpdateReq) error {

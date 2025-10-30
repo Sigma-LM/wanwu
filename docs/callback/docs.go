@@ -2333,13 +2333,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/request.HistoryItem"
                     }
                 },
-                "knowledgeBase": {
-                    "description": "知识库名称列表",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "knowledgeIdList": {
                     "description": "知识库id列表",
                     "type": "array",

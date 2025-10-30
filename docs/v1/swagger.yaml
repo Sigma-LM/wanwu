@@ -3962,6 +3962,9 @@ definitions:
       permissionType:
         description: '权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限'
         type: integer
+      ragName:
+        description: rag名称
+        type: string
       share:
         description: 是分享，还是私有
         type: boolean
@@ -4325,6 +4328,12 @@ definitions:
         type: string
     required:
     - toolType
+    type: object
+  response.MCPServerCreateResp:
+    properties:
+      mcpServerId:
+        description: mcpServerId
+        type: string
     type: object
   response.MCPServerCustomToolApi:
     properties:
@@ -8705,7 +8714,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Response'
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.MCPServerCreateResp'
+              type: object
       summary: 创建MCP Server
       tags:
       - tool

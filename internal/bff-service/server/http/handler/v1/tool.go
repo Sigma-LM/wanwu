@@ -234,14 +234,15 @@ func GetToolActionDetail(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body		request.MCPServerCreateReq	true	"MCP Server信息"
-//	@Success		200		{object}	response.Response{}
+//	@Success		200		{object}	response.Response{data=response.MCPServerCreateResp}
 //	@Router			/mcp/server [post]
 func CreateMCPServer(ctx *gin.Context) {
 	var req request.MCPServerCreateReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	gin_util.Response(ctx, nil, service.CreateMCPServer(ctx, getUserID(ctx), getOrgID(ctx), req))
+	resp, err := service.CreateMCPServer(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
 }
 
 // UpdateMCPServer

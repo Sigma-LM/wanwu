@@ -5852,7 +5852,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.MCPServerCreateResp"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -15768,6 +15780,10 @@ const docTemplate = `{
                     "description": "权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限\u003e编辑权限\u003e查看权限",
                     "type": "integer"
                 },
+                "ragName": {
+                    "description": "rag名称",
+                    "type": "string"
+                },
                 "share": {
                     "description": "是分享，还是私有",
                     "type": "boolean"
@@ -16315,6 +16331,15 @@ const docTemplate = `{
                 },
                 "uniqueId": {
                     "description": "随机unique id(每次动态生成)",
+                    "type": "string"
+                }
+            }
+        },
+        "response.MCPServerCreateResp": {
+            "type": "object",
+            "properties": {
+                "mcpServerId": {
+                    "description": "mcpServerId",
                     "type": "string"
                 }
             }

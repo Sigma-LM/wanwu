@@ -1173,11 +1173,6 @@ definitions:
             $ref: '#/definitions/request.RagKnowledgeInfo'
           type: array
         type: object
-      knowledgeBase:
-        description: 知识库名称列表
-        items:
-          type: string
-        type: array
       knowledgeIdList:
         description: 知识库id列表
         items:

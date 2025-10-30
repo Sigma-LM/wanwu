@@ -33,6 +33,11 @@ type MCPServerToolInfo struct {
 	Desc            string `json:"desc"`            // 描述
 }
 
+// MCPServerCreateResp MCP Server ID
+type MCPServerCreateResp struct {
+	MCPServerID string `json:"mcpServerId"` // mcpServerId
+}
+
 // MCPServerCustomToolSelect MCP Server自定义工具选择列表
 type MCPServerCustomToolSelect struct {
 	UniqueId     string                   `json:"uniqueId"`     // 统一的id

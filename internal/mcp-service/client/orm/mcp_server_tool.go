@@ -19,7 +19,7 @@ func (c *Client) GetMCPServerTool(ctx context.Context, mcpServerToolId string) (
 func (c *Client) CreateMCPServerTool(ctx context.Context, mcpServerTools []*model.MCPServerTool) *errs.Status {
 	if len(mcpServerTools) > 0 {
 		if err := c.db.WithContext(ctx).CreateInBatches(mcpServerTools, len(mcpServerTools)).Error; err != nil {
-			return toErrStatus("mcp_create_mcp_server_tool_err")
+			return toErrStatus("mcp_create_mcp_server_tool_err", err.Error())
 		}
 	}
 	return nil

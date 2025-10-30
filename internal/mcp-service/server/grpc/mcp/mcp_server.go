@@ -210,9 +210,14 @@ func getMCPServerExample(ctx context.Context, mcpServerId string) (string, strin
 	if err == nil && apiKeys.Total >= 1 {
 		apiKey = apiKeys.Info[0].ApiKey
 	}
-	sseUrl, _ := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1/mcp/server/sse?key=", apiKey)
+
+	query := url.Values{}
+	query.Add("key", apiKey)
+	sseUrl, _ := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1/mcp/server/sse")
+	sseUrl = sseUrl + "?" + query.Encode()
 	sseExample := strings.ReplaceAll(exampleTemplate, "{{url}}", sseUrl)
-	streamableUrl, _ := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1/mcp/server/streamable?key=", apiKey)
+	streamableUrl, _ := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1/mcp/server/streamable")
+	streamableUrl = streamableUrl + "?" + query.Encode()
 	streamableExample := strings.ReplaceAll(exampleTemplate, "{{url}}", streamableUrl)
 	return sseUrl, sseExample, streamableUrl, streamableExample
 }
