@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <el-button type="text" @click="openTool($event,item)" v-if="!item.checked">添加</el-button>
-                    <el-button type="text" v-else  @click="openTool($event,item)">已添加</el-button>
+                    <el-button type="text" v-else >已添加</el-button>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">

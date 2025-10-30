@@ -337,10 +337,9 @@ export default {
       this.metaSetVisible = false;
     },
     getKnowledgeData(data){
-      //const originalIds = new Set(this.editForm.knowledgebases.map(item => item.id));
-      //const newItems = data.filter(item => !originalIds.has(item.id));
-      //this.editForm.knowledgebases.push(...newItems);
-      this.$set(this.editForm, 'knowledgebases', [...data]);
+      const originalIds = new Set(this.editForm.knowledgebases.map(item => item.id));
+      const newItems = data.filter(item => !originalIds.has(item.id));
+      this.editForm.knowledgebases.push(...newItems);
     },
     showMetaSet(e,index){
       this.currentKnowledgeId = e.id;

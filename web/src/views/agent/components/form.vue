@@ -739,7 +739,9 @@ export default {
       this.editForm.knowledgebases.splice(index, 1);
     },
     getKnowledgeData(data) {
-      this.$set(this.editForm, 'knowledgebases', [...data]);
+      const originalIds = new Set(this.editForm.knowledgebases.map(item => item.id));
+      const newItems = data.filter(item => !originalIds.has(item.id));
+      this.editForm.knowledgebases.push(...newItems);
     },
     handleMetaClose() {
       this.metaSetVisible = false;
