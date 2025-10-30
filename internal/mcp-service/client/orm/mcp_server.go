@@ -65,7 +65,7 @@ func (c *Client) ListMCPServers(ctx context.Context, orgID, userID, name string)
 		sqlopt.WithOrgID(orgID),
 		sqlopt.WithUserID(userID),
 		sqlopt.LikeName(name),
-	).Apply(c.db).WithContext(ctx).Find(&mcpServerInfos).Error; err != nil {
+	).Apply(c.db).WithContext(ctx).Order("updated_at desc").Find(&mcpServerInfos).Error; err != nil {
 		return nil, toErrStatus("mcp_get_mcp_server_list_err", err.Error())
 	}
 	return mcpServerInfos, nil

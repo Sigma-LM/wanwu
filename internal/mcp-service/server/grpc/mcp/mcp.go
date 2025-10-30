@@ -99,44 +99,46 @@ func (s *Service) GetCustomMCPList(ctx context.Context, req *mcp_service.GetCust
 }
 
 func (s *Service) GetMCPByMCPIdList(ctx context.Context, req *mcp_service.GetMCPByMCPIdListReq) (*mcp_service.GetMCPByMCPIdListResp, error) {
-	// 查询自定义MCP列表
-	if len(req.McpIdList) == 0 {
-		return nil, errStatus(errs.Code_MCPGetCustomMCPListErr, toErrStatus("mcp_get_custom_tool_list_err", "mcp id list is empty"))
+
+	var infos []*mcp_service.CustomMCPInfo
+	var serverToolInfos []*mcp_service.MCPServerInfo
+
+	if len(req.McpIdList) != 0 {
+		// 转换为uint32列表
+		mcpIdList := make([]uint32, 0, len(req.McpIdList))
+		for _, mcpId := range req.McpIdList {
+			mcpIdList = append(mcpIdList, util.MustU32(mcpId))
+		}
+		mcps, err := s.cli.ListMCPsByMCPIdList(ctx, mcpIdList)
+		if err != nil {
+			return nil, errStatus(errs.Code_MCPGetCustomMCPListErr, err)
+		}
+		infos = make([]*mcp_service.CustomMCPInfo, 0, len(mcps))
+		for _, mcp := range mcps {
+			infos = append(infos, buildCustomMCPInfo(mcp))
+		}
 	}
 
-	// 转换为uint32列表
-	mcpIdList := make([]uint32, 0, len(req.McpIdList))
-	for _, mcpId := range req.McpIdList {
-		mcpIdList = append(mcpIdList, util.MustU32(mcpId))
-	}
-
-	mcps, err := s.cli.ListMCPsByMCPIdList(ctx, mcpIdList)
-	if err != nil {
-		return nil, errStatus(errs.Code_MCPGetCustomMCPListErr, err)
-	}
-	infos := make([]*mcp_service.CustomMCPInfo, 0, len(mcps))
-	for _, mcp := range mcps {
-		infos = append(infos, buildCustomMCPInfo(mcp))
-	}
-
-	// 查询MCP Server 列表
-	mcpServerList, err := s.cli.ListMCPServerByIdList(ctx, req.McpServerIdList)
-	if err != nil {
-		return nil, errStatus(errs.Code_MCPGetMCPServerListErr, err)
-	}
-	serverToolInfos := make([]*mcp_service.MCPServerInfo, 0, len(mcpServerList))
-	for _, info := range mcpServerList {
-		toolNum, err := s.cli.CountMCPServerTools(ctx, info.MCPServerID)
+	if len(req.McpServerIdList) != 0 {
+		// 查询MCP Server 列表
+		mcpServerList, err := s.cli.ListMCPServerByIdList(ctx, req.McpServerIdList)
 		if err != nil {
 			return nil, errStatus(errs.Code_MCPGetMCPServerListErr, err)
 		}
-		serverToolInfos = append(serverToolInfos, &mcp_service.MCPServerInfo{
-			McpServerId: info.MCPServerID,
-			Name:        info.Name,
-			Desc:        info.Description,
-			AvatarPath:  info.AvatarPath,
-			ToolNum:     toolNum,
-		})
+		serverToolInfos = make([]*mcp_service.MCPServerInfo, 0, len(mcpServerList))
+		for _, info := range mcpServerList {
+			toolNum, err := s.cli.CountMCPServerTools(ctx, info.MCPServerID)
+			if err != nil {
+				return nil, errStatus(errs.Code_MCPGetMCPServerListErr, err)
+			}
+			serverToolInfos = append(serverToolInfos, &mcp_service.MCPServerInfo{
+				McpServerId: info.MCPServerID,
+				Name:        info.Name,
+				Desc:        info.Description,
+				AvatarPath:  info.AvatarPath,
+				ToolNum:     toolNum,
+			})
+		}
 	}
 
 	return &mcp_service.GetMCPByMCPIdListResp{Infos: infos, Servers: serverToolInfos}, nil

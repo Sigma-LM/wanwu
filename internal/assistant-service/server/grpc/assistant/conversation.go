@@ -604,7 +604,7 @@ func (s *Service) setMCPParams(ctx context.Context, sseReq *config.AgentSSEReque
 				Transport: "sse",
 			}
 			sseReq.McpTools = mcpTools
-			sseReq.ToolName = append(sseReq.ToolName, mcp.ActionName)
+			sseReq.ToolsName = append(sseReq.ToolsName, mcp.ActionName)
 		case constant.MCPTypeMCPServer:
 			mcpServer, err := MCP.GetMCPServer(ctx, &mcp_service.GetMCPServerReq{
 				McpServerId: mcp.MCPId,
@@ -618,7 +618,7 @@ func (s *Service) setMCPParams(ctx context.Context, sseReq *config.AgentSSEReque
 				Transport: "sse",
 			}
 			sseReq.McpTools = mcpTools
-			sseReq.ToolName = append(sseReq.ToolName, mcp.ActionName)
+			sseReq.ToolsName = append(sseReq.ToolsName, mcp.ActionName)
 		}
 	}
 

@@ -88,12 +88,17 @@ func (s *Service) GetMCPServerList(ctx context.Context, req *mcp_service.GetMCPS
 		if err != nil {
 			return nil, errStatus(errs.Code_MCPGetMCPServerListErr, err)
 		}
+		sseUrl, sseExample, streamableUrl, streamableExample := getMCPServerExample(ctx, info.MCPServerID)
 		list = append(list, &mcp_service.MCPServerInfo{
-			McpServerId: info.MCPServerID,
-			Name:        info.Name,
-			Desc:        info.Description,
-			AvatarPath:  info.AvatarPath,
-			ToolNum:     toolNum,
+			McpServerId:       info.MCPServerID,
+			Name:              info.Name,
+			Desc:              info.Description,
+			AvatarPath:        info.AvatarPath,
+			ToolNum:           toolNum,
+			SseUrl:            sseUrl,
+			SseExample:        sseExample,
+			StreamableUrl:     streamableUrl,
+			StreamableExample: streamableExample,
 		})
 	}
 	return &mcp_service.GetMCPServerListResp{

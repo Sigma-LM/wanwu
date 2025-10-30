@@ -724,11 +724,6 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 	if err != nil {
 		return nil, err
 	}
-	// 查询该用户所有权限的 Custom
-	//assistantCustomInfos, err := assistantCustomConvert(ctx, resp.CustomToolInfos)
-	//if err != nil {
-	//	return nil, err
-	//}
 	// 查询该用户所有权限的 custom、builtin 工具
 	assistantToolInfos, err := assistantToolsConvert(ctx, resp.ToolInfos)
 	if err != nil {

@@ -67,7 +67,7 @@ type AgentSSERequest struct {
 	ModelId        string                       `json:"model_id,omitempty"`
 	History        []AssistantConversionHistory `json:"history,omitempty"`
 	McpTools       map[string]MCPToolInfo       `json:"mcp_tools,omitempty"`
-	ToolName       []string                     `json:"tool_name,omitempty"`
+	ToolsName      []string                     `json:"tools_name,omitempty"`
 	AutoCitation   bool                         `json:"auto_citation,omitempty"`
 	ModelParams    map[string]interface{}       `json:"-"` // 用于合并动态模型参数，不直接序列化到JSON
 }
