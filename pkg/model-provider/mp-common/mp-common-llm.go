@@ -29,7 +29,7 @@ const (
 	TagRerank        string = "Rerank"
 	TagGui           string = "GUI"
 	TagOcr           string = "OCR"
-	TagPdfParser     string = "PDF解析"
+	TagPdfParser     string = "文档解析"
 	TagVisionSupport string = "图文问答"
 	TagToolCall      string = "工具调用"
 )
