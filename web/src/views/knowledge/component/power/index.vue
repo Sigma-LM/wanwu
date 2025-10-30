@@ -175,7 +175,7 @@ export default {
           if(res.code === 0){
             this.$message.success("转让成功");
             this.showList();
-            this.refreshList();
+            this.dialogVisible = false;
           }
         }).catch(() => {})
       }else{

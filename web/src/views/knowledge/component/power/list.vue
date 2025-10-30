@@ -42,7 +42,7 @@
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
-            <div class="action-buttons" v-if="[20,30].includes(permissionType)">
+            <div class="action-buttons">
               <!-- 系统管理员权限：只显示转让按钮 -->
               <template v-if="scope.row.transfer && !scope.row.editing">
                 <el-button
@@ -78,9 +78,8 @@
                   取消
                 </el-button>
               </template>
-              <template v-if="(scope.row.permissionType === 0 || scope.row.permissionType === 10) || (permissionType === 30 && scope.row.permissionType === 20)">
+              <template v-if="showEdit(scope.row)">
                 <el-button
-                  v-if="!scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-edit"
@@ -90,7 +89,6 @@
                   编辑
                 </el-button>
                 <el-button
-                  v-if="!scope.row.editing"
                   type="text"
                   size="small"
                   icon="el-icon-delete"
@@ -101,7 +99,7 @@
                 </el-button>
               </template>
             </div>
-             <span v-if="showInfo(scope.row)" class="noPower">无权限</span>
+             <span v-if="showInfo(scope.row)" class="noPower">--</span>
           </template>
         </el-table-column>
       </el-table>
@@ -133,12 +131,23 @@ export default {
     }
   },
   methods: {
+    showEdit(row){
+      return (
+        !this.permissionType === 0 ||
+        (this.permissionType === 10 && row.permissionType === 10) ||
+        (this.permissionType === 20 && row.permissionType === 10) ||
+        (this.permissionType === 30 && row.permissionType === 20)
+      );
+    },
     showInfo(row){
+      if (row.editing) return false;
       return (
         row.permissionType === 0 ||
         (this.permissionType === 0 && !row.transfer) ||
         (this.permissionType === 20 && !row.transfer) ||
-        (this.permissionType === 20 && row.permissionType === 20)
+        (this.permissionType === 20 && row.permissionType === 20)||
+        (this.permissionType === 10 && row.permissionType === 30) ||
+        (this.permissionType === 10 && row.permissionType === 20)
       );
     },
     getFilterResult(name) {
