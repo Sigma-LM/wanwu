@@ -2,7 +2,7 @@
   <div class="power-list-container">
     <div class="table-content">
       <el-table
-        :data="tableData"
+        :data="tableData.filter(data => !name || data.userName.toLowerCase().includes(name.toLowerCase()))"
         style="width: 100%"
         class="power-table"
         :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
@@ -125,13 +125,14 @@ export default {
   data() {
     return {
       powerType: POWER_TYPE,
-      tableData: []
+      tableData: [],
+      name:''
     }
   },
-  created() {
-    //this.getUserPower()
-  },
   methods: {
+    getFilterResult(name) {
+      this.name = name;
+    },
     getUserPower() {
       getUserPower({knowledgeId:this.knowledgeId}).then(res => {
         if(res.code === 0){

@@ -19,6 +19,12 @@
         </div>
       </div>
         <div class="list-header" v-if="currentView === 'list'">
+         <el-input placeholder="输入成员名称搜索" v-model="userName" style="width:200px;margin-right:10px;"></el-input>
+           <el-button
+            type="primary"
+            size="small"
+            @click="confirmSearch"
+          >确定</el-button>
           <el-button
             type="primary"
             size="small"
@@ -75,6 +81,7 @@ export default {
       knowledgeName:'',
       permissionType:'',
       currentTransferUser: null,
+      userName:''
     };
   },
   computed: {
@@ -93,6 +100,9 @@ export default {
     this.knowledgeId = this.$route.query.knowledgeId;
   },
   methods: {
+    confirmSearch(){
+      this.$refs.powerList.getFilterResult(this.userName)
+    },
     showDialog() {
       this.currentView = "list";
       this.dialogVisible = true;
@@ -185,7 +195,7 @@ export default {
 .power-management {
   .list-header {
     display: flex;
-    justify-content: space-between;
+    justify-content:flex-start;
     align-items: center;
     .header-left {
       .page-title {
