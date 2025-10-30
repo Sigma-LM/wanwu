@@ -148,10 +148,10 @@ type RagKnowledgeChatReq struct {
 	RerankMod            string                         `json:"rerank_mod"`      // rerank_model:重排序模式，weighted_score：权重搜索
 	RetrieveMethod       string                         `json:"retrieve_method"` // hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
 	Weight               *WeightParams                  `json:"weights"`         // 权重搜索下的权重配置
-	Temperature          float32                        `json:"temperature"`
-	TopP                 float32                        `json:"top_p"`                         // 多样性
-	RepetitionPenalty    float32                        `json:"repetition_penalty"`            // 重复惩罚/频率惩罚
-	ReturnMeta           bool                           `json:"return_meta"`                   // 是否返回元数据
+	Temperature          float32                        `json:"temperature,omitempty"`
+	TopP                 float32                        `json:"top_p,omitempty"`               // 多样性
+	RepetitionPenalty    float32                        `json:"repetition_penalty,omitempty"`  // 重复惩罚/频率惩罚
+	ReturnMeta           bool                           `json:"return_meta,omitempty"`         // 是否返回元数据
 	AutoCitation         bool                           `json:"auto_citation"`                 // 是否自动角标
 	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关

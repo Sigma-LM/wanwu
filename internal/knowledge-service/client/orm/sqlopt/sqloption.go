@@ -189,6 +189,15 @@ func WithName(name string) SQLOption {
 	})
 }
 
+func WithoutID(id uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if id != 0 {
+			return db.Where("id != ?", id)
+		}
+		return db
+	})
+}
+
 func WithValue(value string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if len(value) > 0 {
