@@ -51,23 +51,23 @@ func GetKeywordsById(ctx context.Context, id uint32) (*model.KnowledgeKeywords, 
 }
 
 // CheckRepeatedKeywords 查询用户是否存在同名关键词设置
-func CheckRepeatedKeywords(ctx context.Context, req *knowledgebase_keywords_service.CreateKnowledgeKeywordsReq) error {
+func CheckRepeatedKeywords(ctx context.Context, req *knowledgebase_keywords_service.UpdateKnowledgeKeywordsReq) error {
 	var keywordsList []*model.KnowledgeKeywords
 	// 查找同名关键词列表
-	err := sqlopt.SQLOptions(sqlopt.WithPermit(req.Identity.OrgId, req.Identity.UserId), sqlopt.WithName(req.Name)).
+	err := sqlopt.SQLOptions(sqlopt.WithPermit(req.Detail.Identity.OrgId, req.Detail.Identity.UserId), sqlopt.WithName(req.Detail.Name), sqlopt.WithoutID(req.Id)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeKeywords{}).Find(&keywordsList).Error
 
 	if err != nil {
 		return err
 	}
 	// 已有关键词，检查同名知识库
-	if len(keywordsList) != 0 {
+	if len(keywordsList) > 0 {
 		for _, kw := range keywordsList {
 			dbKnowledgeIds, err := jsonToList(kw.KnowledgeBaseIds)
 			if err != nil {
 				return err
 			}
-			if util.HasIntersection(dbKnowledgeIds, req.KnowledgeBaseIds) {
+			if util.HasIntersection(dbKnowledgeIds, req.Detail.KnowledgeBaseIds) {
 				log.Errorf("有同名关键词")
 				return gorm.ErrDuplicatedKey
 			}

@@ -225,6 +225,17 @@ func (c *DocMetaDataReq) Check() error {
 	if len(c.KnowledgeId) == 0 && len(c.DocId) == 0 {
 		return errors.New("knowledgeId and docId can not all empty")
 	}
+	if len(c.MetaDataList) > 0 {
+		for _, meta := range c.MetaDataList {
+			if meta != nil {
+				if len(meta.MetaKey) > 0 {
+					if !isValidKey(meta.MetaKey) {
+						return grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, "非法key")
+					}
+				}
+			}
+		}
+	}
 	return nil
 }
 
