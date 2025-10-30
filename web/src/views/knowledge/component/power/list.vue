@@ -7,6 +7,7 @@
         class="power-table"
         :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
         border
+        v-loading="loading"
       >
         <el-table-column prop="userName" label="成员" width="200">
           <template slot-scope="scope">
@@ -39,9 +40,9 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" align="center" v-if="[20,30].includes(permissionType)">
+        <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
-            <div class="action-buttons">
+            <div class="action-buttons" v-if="[20,30].includes(permissionType)">
               <!-- 系统管理员权限：只显示转让按钮 -->
               <template v-if="scope.row.transfer && !scope.row.editing">
                 <el-button
@@ -77,7 +78,7 @@
                   取消
                 </el-button>
               </template>
-              <template v-if="(scope.row.permissionType === 0 || scope.row.permissionType === 10) && permissionType === 30">
+              <template v-if="(scope.row.permissionType === 0 || scope.row.permissionType === 10) || (permissionType === 30 && scope.row.permissionType === 20)">
                 <el-button
                   v-if="!scope.row.editing"
                   type="text"
@@ -100,6 +101,7 @@
                 </el-button>
               </template>
             </div>
+             <span v-if="showInfo(scope.row)" class="noPower">无权限</span>
           </template>
         </el-table-column>
       </el-table>
@@ -126,23 +128,36 @@ export default {
     return {
       powerType: POWER_TYPE,
       tableData: [],
-      name:''
+      name:'',
+      loading:false
     }
   },
   methods: {
+    showInfo(row){
+      return (
+        row.permissionType === 0 ||
+        (this.permissionType === 0 && !row.transfer) ||
+        (this.permissionType === 20 && !row.transfer) ||
+        (this.permissionType === 20 && row.permissionType === 20)
+      );
+    },
     getFilterResult(name) {
       this.name = name;
     },
     getUserPower() {
+      this.loading = true;
       getUserPower({knowledgeId:this.knowledgeId}).then(res => {
         if(res.code === 0){
+          this.loading = false;
           var list = res.data.knowledgeUserInfoList || [];
           this.tableData = list.map(function(item) {
             item.editing = false;
             return item;
           });
         }
-      }).catch(() => {})
+      }).catch(() => {
+        this.loading = false;
+      })
     },
     handleEdit(row) {
       row.editing = true
@@ -210,7 +225,10 @@ export default {
     .power-table {
       border: 1px solid #e4e7ed;
       border-radius: 4px;
-      
+      .noPower{
+        color:#ccc;
+        font-size:12px;
+      }
       /deep/ .el-table__header {
         th {
           background-color: #f5f7fa;
