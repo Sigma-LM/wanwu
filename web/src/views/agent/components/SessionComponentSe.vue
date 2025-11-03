@@ -1044,6 +1044,7 @@ export default {
           padding: 8px 10px 8px 20px;
           border-radius: 10px 0 10px 10px;
           margin:0!important;
+          line-height:1.5;
         }
         .session-setting-id {
           color: rgba(98, 98, 98, 0.5);

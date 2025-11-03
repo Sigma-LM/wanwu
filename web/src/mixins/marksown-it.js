@@ -1,6 +1,5 @@
 import MarkdownIt from 'markdown-it'
 import mk from "@ruanyf/markdown-it-katex";
-import katex from 'katex'
 var hljs = require('highlight.js');
 hljs.configure({
     lineNumbers: true
@@ -12,17 +11,6 @@ export const md = MarkdownIt({
     html: true,
     // 如果结果以 <pre ... 开头，内部包装器则会跳过。
     highlight: function(str, lang) {
-        // 处理数学公式
-        if (lang === 'math') {
-            try {
-                return katex.renderToString(str, { 
-                    displayMode: true,
-                    throwOnError: false
-                })
-            } catch (err) {
-                return md.utils.escapeHtml(str);
-            }
-        }
 
         // 经过highlight.js处理后的html
         let preCode = ""
@@ -62,18 +50,4 @@ export const md = MarkdownIt({
     }
 })
 
-md.use(mk, 
-    { "throwOnError": false, 
-      "errorColor": "#000000", 
-      "strict": false,  // 添加这个避免严格模式导致的重复渲染
-      "delimiters": [//解决公式渲染重复问题
-        {left: "$$", right: "$$", display: true},
-        {left: "$", right: "$", display: false},
-        ],// 添加自定义渲染函数避免重复
-        "preProcess": function(math) {
-        return math;
-        },
-        "postProcess": function(html) {
-        return html;
-        }
-    })
+md.use(mk, { "throwOnError": false, "errorColor": "#000000", "output": "mathml"})

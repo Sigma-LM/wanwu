@@ -1,6 +1,5 @@
 import {fetchEventSource} from "../sse/index.js";
 import { store } from '@/store/index'
-//import Print from '@/utils/print.min.js'
 import Print from '../utils/printPlus2.js'
 import {parseSub, convertLatexSyntax} from "@/utils/util.js"
 import {mapActions, mapGetters} from 'vuex'
@@ -41,7 +40,6 @@ export default {
             access_token:'',
             runResponse: "",
             fileList: [],  // 文件列表
-            processedLength: 0,  // 追踪已处理的文本长度
         };
     },
     created() {
@@ -212,7 +210,6 @@ export default {
             }
             this.$refs['session-com'].pushHistory(params)
             let endStr = ''
-            this.processedLength = 0  // 重置处理长度
             this._print = new Print({
                 onPrintEnd: () => {
                     // this.setStoreSessionStatus(-1)
@@ -263,7 +260,7 @@ export default {
                         let data;
                         try {
                             data = JSON.parse(e.data);
-                            // console.log('===>',new Date().getTime(), data);
+                            console.log('===>',new Date().getTime(), data);
                         } catch (error) {
                             return; // 如果解析失败，直接返回，不处理这条消息
                         }
@@ -296,9 +293,9 @@ export default {
                                     commonData,
                                     (worldObj,search_list) => {
                                         this.setStoreSessionStatus(0)
-                                        endStr += worldObj.world
+                                        endStr += worldObj.world  
                                         endStr = convertLatexSyntax(endStr)
-                                        endStr = parseSub(endStr, lastIndex)                        
+                                        endStr = parseSub(endStr, lastIndex)     
                                         let fillData = {
                                             ...commonData,
                                             "response":md.render(endStr),
@@ -376,9 +373,8 @@ export default {
             }
             //正式环境传模型参数
             this.$refs['session-com'].pushHistory(params)
-
+            
             let endStr = ''
-            this.processedLength = 0  // 重置处理长度
             this._print = new Print({
                 onPrintEnd: () => {
                 }
@@ -503,11 +499,9 @@ export default {
                                                 this.$refs['session-com'].replaceLastData(lastIndex, fillData)
                                             }
                                             this.setStoreSessionStatus(-1)
-                                            this.processedLength = 0
                                         }
                                         if(worldObj.isEnd && worldObj.finish === 1){
                                           this.setStoreSessionStatus(-1)
-                                          this.processedLength = 0
                                        }
                                     })
 
