@@ -35,7 +35,7 @@ export default {
       this.$emit('showBatchMeta');
     },
     handleCancel() {
-      this.$emit('cancel');
+      this.$emit('handleMetaCancel');
     }
   }
 };

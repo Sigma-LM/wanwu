@@ -183,7 +183,7 @@
     <!-- 批量编辑元数据值弹窗 -->
     <batchMetaData ref="batchMetaData" :selectedDocIds="selectedDocIds" @reLoadDocList="reLoadDocList" />
     <!-- 批量编辑元数据值操作框 -->
-    <BatchMetatButton ref="BatchMetatButton" :selectedCount="selectedTableData.length" @showBatchMeta="showBatchMeta"/>
+    <BatchMetatButton ref="BatchMetatButton" :selectedCount="selectedTableData.length" @showBatchMeta="showBatchMeta" @handleMetaCancel="handleMetaCancel"/>
   </div>
 </template>
 
@@ -267,6 +267,17 @@ export default {
     this.clearTimer()
   },
   methods: {
+    handleMetaCancel(){
+      this.selectedTableData = []
+      this.selectedDocIds = []
+      // 取消所有表格数据的选中状态
+      this.$nextTick(() => {
+        const table = this.$refs.dataTable
+        if (table) {
+          table.clearSelection()
+        }
+      })
+    },
     reLoadDocList(){
       this.getTableData(this.docQuery)
       this.selectedTableData = []
