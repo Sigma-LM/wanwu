@@ -7,40 +7,44 @@
       </div>
       <!-- tabs -->
       <div class="mcp-tabs">
-        <div :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('tool.mcp') }}</div>
-        <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">{{ $t('tool.tool') }}</div>
+        <div :class="['mcp-tab',{ 'active': ![tool, prompt].includes(tabActive) }]" @click="tabClick(mcp)">{{ $t('tool.mcp') }}</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === tool }]" @click="tabClick(tool)">{{ $t('tool.tool') }}</div>
+        <div :class="['mcp-tab',{ 'active': tabActive === prompt }]" @click="tabClick(prompt)">{{ $t('tool.prompt.title') }}</div>
       </div>
 
-      <mcp ref="mcp" v-if="tabActive === 0"/>
-      <tool ref="tool" v-if="tabActive === 1"/>
+      <mcp ref="mcp" v-if="![tool, prompt].includes(tabActive)"/>
+      <tool ref="tool" v-if="tabActive === tool"/>
+      <prompt ref="prompt" v-if="tabActive === prompt"/>
     </div>
   </div>
 </template>
 <script>
 import mcp from './mcp'
 import tool from './tool'
+import prompt from './prompt'
 
 export default {
   data() {
     return {
-      tabActive: 0
+      tabActive: 0,
+      mcp: 'mcp',
+      tool: 'tool',
+      prompt: 'prompt',
     };
   },
   watch: {
     $route: {
       handler() {
-        if (this.$route.query.type === "mcp") this.tabActive = 0
-        else if (this.$route.query.type === "tool") this.tabActive = 1
-        else this.tabActive = 0
+        const {type} = this.$route.query || {}
+        this.tabActive = type
       },
       // 深度观察监听
       deep: true
     }
   },
   mounted() {
-    if (this.$route.query.type === "mcp") this.tabActive = 0
-    else if (this.$route.query.type === "tool") this.tabActive = 1
-    else this.tabActive = 0
+    const {type} = this.$route.query || {}
+    this.tabActive = type
   },
   methods: {
     tabClick(status) {
@@ -49,7 +53,8 @@ export default {
   },
   components: {
     mcp,
-    tool
+    tool,
+    prompt
   },
 };
 </script>

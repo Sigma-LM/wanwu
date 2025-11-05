@@ -493,17 +493,19 @@ export default {
         createPrompt: '提示词创建',
         editPrompt: '提示词编辑',
         promptDetail: '提示词详情',
-        promptPic: '提示词图标',
-        promptName: '提示词名称',
+        promptPic: '提示词模板图标',
+        promptName: '提示词模板名称',
         promptNameRules: '名称须在30字符以内',
-        promptDesc: '提示词描述',
+        promptDesc: '提示词模板描述',
         namePlaceholder: '输入提示词名称，仅支持中文、英文、数字、下划线、中划线、英文（.）',
         descPlaceholder: '输入提示词描述',
         promptPlaceholder: '输入提示词',
         promptText: '提示词',
         nameRules: '请填写提示词名称',
         descRules: '请填写提示词描述',
+        promptRules: '请填写提示词',
         promptLimitRules: '提示词描述须在50字符以内',
+        copySuccess: '复制成功',
     },
     // 工作流
     list:{
@@ -737,6 +739,12 @@ export default {
     tool:{
         tool:'工具',
         mcp:'MCP服务',
+        prompt: {
+            title: '提示词',
+            create: '创建提示词模板',
+            search: '输入名称搜索',
+            deleteHint: '确定要删除该提示词模板吗？'
+        },
         server:{
             slogan:'可绑定已发布的应用，创建自己的MCP server，并对外提供服务。',
             search:'请输入MCP名称进行搜索',

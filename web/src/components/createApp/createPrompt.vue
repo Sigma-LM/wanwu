@@ -7,12 +7,13 @@
       append-to-body
       :close-on-click-modal="false"
     >
-      <el-form ref="form" :model="form" label-width="120px" :rules="rules">
-        <el-form-item v-if="type !== 'detail'" :label="$t('tempSquare.promptPic') + ':'" prop="avatar">
+      <el-form ref="form" :model="form" label-width="130px" :rules="rules">
+        <el-form-item :label="$t('tempSquare.promptPic') + ':'" prop="avatar">
           <el-upload
             class="avatar-uploader"
             action=""
             name="files"
+            :disabled="type === detail"
             :show-file-list="false"
             :http-request="handleUploadImage"
             :on-error="handleUploadError"
@@ -22,7 +23,7 @@
               class="upload-img"
               :src="form.avatar && form.avatar.path ? basePath + '/user/api/' + form.avatar.path : (defaultIcon || defaultLogo)"
             />
-            <p class="upload-hint">
+            <p class="upload-hint" v-if="type !== detail">
               {{this.$t('common.fileUpload.clickUploadImg')}}
             </p>
           </el-upload>
@@ -30,7 +31,7 @@
         <el-form-item :label="$t('tempSquare.promptName')+':'" prop="name">
           <el-input
             :placeholder="$t('tempSquare.namePlaceholder')"
-            :disabled="type === 'detail'"
+            :disabled="type === detail"
             v-model="form.name"
             maxlength="30"
             show-word-limit
@@ -40,7 +41,7 @@
           <el-input
             type="textarea"
             :placeholder="$t('tempSquare.descPlaceholder')"
-            :disabled="type === 'detail'"
+            :disabled="type === detail"
             v-model="form.desc"
             show-word-limit
             maxlength="50"
@@ -51,12 +52,12 @@
             type="textarea"
             :rows="3"
             :placeholder="$t('tempSquare.promptPlaceholder')"
-            :disabled="type === 'detail'"
+            :disabled="type === detail"
             v-model="form.prompt"
           ></el-input>
         </el-form-item>
       </el-form>
-      <span v-if="type !== 'detail'" slot="footer" class="dialog-footer">
+      <span v-if="type !== detail" slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">{{$t('common.button.cancel')}}</el-button>
         <el-button type="primary" @click="doPublish">{{$t('common.button.confirm')}}</el-button>
       </span>
@@ -65,9 +66,8 @@
 </template>
 
 <script>
-import { createWorkFlow } from "@/api/workflow"
 import { uploadAvatar } from "@/api/user"
-import { copyPromptTemplate } from "@/api/templateSquare"
+import { copyPromptTemplate, createCustomPrompt, editCustomPrompt } from "@/api/templateSquare"
 
 export default {
   props: {
@@ -75,6 +75,7 @@ export default {
       type: String,
       default: "create",
     },
+    isCustom: false
   },
   data() {
     return {
@@ -91,14 +92,15 @@ export default {
         },
         prompt: ''
       },
+      detail: 'detail',
       titleMap: {
         edit: this.$t('tempSquare.editPrompt'),
         create: this.$t('tempSquare.createPrompt'),
         copy: this.$t('tempSquare.copyPrompt'),
         detail: this.$t('tempSquare.promptDetail'),
       },
-      workflowID: "",
       templateId: '',
+      customPromptId: '',
       rules: {
         name: [
           { required: true, message: this.$t('tempSquare.nameRules'), trigger: "change" },
@@ -122,6 +124,9 @@ export default {
           { required: true, message: this.$t('tempSquare.descRules'), trigger: "blur" },
           { max: 50, message: this.$t('tempSquare.promptLimitRules'), trigger: "blur"}
         ],
+        prompt: [
+          { required: true, message: this.$t('tempSquare.promptRules'), trigger: "blur" },
+        ]
       },
     };
   },
@@ -149,9 +154,10 @@ export default {
     },
     openDialog(row) {
       if(row) {
-        const {templateId, desc, avatar, prompt} = row
+        const {templateId, name, desc, avatar, prompt, customPromptId} = row
         this.templateId = templateId
-        this.form = {name: templateId, desc, avatar, prompt}
+        this.customPromptId = customPromptId
+        this.form = {name, desc, avatar, prompt}
       } else {
         this.clearForm()
       }
@@ -174,21 +180,23 @@ export default {
     async doPublish() {
       await this.$refs.form.validate(async (valid) => {
         if (valid) {
-          if (this.type === "copy") {
+          if (this.type === 'copy') {
             const form = {...this.form, templateId: this.templateId}
             delete form.prompt
             const res = await copyPromptTemplate(form)
             if (res.code === 0) {
-              this.$message.success(this.$t('list.copySuccess'))
+              this.$message.success(this.$t('tempSquare.copySuccess'))
               this.dialogVisible = false
-              this.$router.push({ path: '/aibase/tool', query: { type: 'prompt' } })
+              this.$router.push({ path: '/tool', query: { type: 'prompt' } })
             }
             return
           }
 
-          const res = await createWorkFlow(this.form)
+          const res = this.type === 'create'
+            ? await createCustomPrompt(this.form)
+            : await editCustomPrompt({...this.form, customPromptId: this.customPromptId})
           if (res.code === 0) {
-            this.$message.success(this.$t('list.createSuccess'))
+            this.$message.success(this.$t('common.message.success'))
             this.dialogVisible = false
             this.$emit('reload')
           }

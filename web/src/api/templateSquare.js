@@ -55,3 +55,44 @@ export const copyPromptTemplate = (data)=>{
         data
     })
 };
+
+/*---自定义提示词---*/
+export const getCustomPromptList = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/custom/list`,
+        method: 'get',
+        params: data
+    })
+};
+
+export const createCustomPrompt = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/custom`,
+        method: 'post',
+        data
+    })
+};
+
+export const editCustomPrompt = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/custom`,
+        method: 'put',
+        data
+    })
+};
+
+export const copyCustomPrompt = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/custom/copy`,
+        method: 'post',
+        data
+    })
+};
+
+export const deleteCustomPrompt = (data)=>{
+    return request({
+        url: `${BASE_URL}/prompt/custom`,
+        method: 'delete',
+        data
+    })
+};
