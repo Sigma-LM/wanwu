@@ -31,7 +31,7 @@
           @click.stop="handleClick(item.customToolId)"
         >
           <div class="card-title">
-            <img class="card-logo" src="@/assets/imgs/toolImg.png" />
+            <img class="card-logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
             <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
             </div>
@@ -65,11 +65,12 @@
 import addDialog from "./addDialog.vue";
 import SearchInput from "@/components/searchInput.vue"
 import { getCustomList, deleteCustom } from "@/api/mcp";
+import {avatarSrc} from "@/utils/util";
 export default {
   components: { SearchInput, addDialog },
   data() {
     return {
-      basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/toolImg.png"),
       list: [],
     };
   },
@@ -77,6 +78,7 @@ export default {
     this.fetchList()
   },
   methods: {
+    avatarSrc,
     fetchList() {
       const searchInput = this.$refs.searchInput
       const params = {

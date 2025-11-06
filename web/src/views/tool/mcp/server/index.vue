@@ -31,7 +31,7 @@
             @click.stop="handleClick(item.mcpServerId)"
         >
           <div class="card-title">
-            <img class="card-logo" :src="item.avatar.path ? basePath + '/user/api/' + item.avatar.path : defaultAvatar" />
+            <img class="card-logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
             <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
               <span class="mcp_from">
@@ -71,11 +71,11 @@
 import addDialog from "./addDialog.vue";
 import SearchInput from "@/components/searchInput.vue"
 import { getServerList, deleteServer } from "@/api/mcp";
+import {avatarSrc} from "@/utils/util";
 export default {
   components: { SearchInput, addDialog},
   data() {
     return {
-      basePath: this.$basePath,
       defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       list: [],
     };
@@ -84,6 +84,7 @@ export default {
     this.fetchList()
   },
   methods: {
+    avatarSrc,
     fetchList() {
       const searchInput = this.$refs.searchInput
       const params = {

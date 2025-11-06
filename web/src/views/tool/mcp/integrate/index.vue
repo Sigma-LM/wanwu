@@ -33,7 +33,7 @@
           @click.stop="handleClick(item)"
         >
           <div class="card-title">
-            <img class="card-logo" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path" />
+            <img class="card-logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
             <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
               <span class="mcp_from">
@@ -80,11 +80,12 @@ import addDialog from "./addDialog.vue";
 import SearchInput from "@/components/searchInput.vue"
 import { getList, setDelete } from "@/api/mcp";
 import LinkIcon from "@/components/linkIcon.vue"
+import {avatarSrc} from "@/utils/util";
 export default {
   components: { LinkIcon, SearchInput, addDialog },
   data() {
     return {
-      basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       addOpen: false, // 自定义添加mcp开关
       addTitle: "",
       dialogParams: {
@@ -100,6 +101,7 @@ export default {
     this.fetchList()
   },
   methods: {
+    avatarSrc,
     fetchList() {
       const searchInput = this.$refs.searchInput
       const params = {

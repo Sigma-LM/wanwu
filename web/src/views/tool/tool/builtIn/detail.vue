@@ -2,7 +2,7 @@
   <div class="mcp-detail" id="timeScroll">
     <span class="back" @click="back">{{$t('menu.back') + $t('menu.tool')}}</span>
     <div class="mcp-title">
-      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="basePath + '/user/api/' + detail.avatar.path" />
+      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="avatarSrc(detail.avatar.path)" />
       <div :class="['info',{fold:foldStatus}]">
         <p class="name">{{detail.name}}</p>
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
@@ -74,7 +74,7 @@
       <div class="right-recommend">
         <p style="margin: 20px 0;color: #333;">{{ $t('tool.builtIn.recommend') }}</p>
         <div class="recommend-item" v-for="(item ,i) in recommendList" :key="`${i}rc`" @click="handleClick(item)">
-          <img class="logo" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path" />
+          <img class="logo" v-if="item.avatar && item.avatar.path" :src="avatarSrc(item.avatar.path)" />
           <p class="name">{{item.name}}</p>
           <p class="intro">{{item.desc}}</p>
         </div>
@@ -85,12 +85,11 @@
 <script>
 import { md } from '@/mixins/marksown-it'
 import { getRecommendsList, getToolDetail, changeApiKey } from "@/api/mcp"
-import { formatTools } from "@/utils/util"
+import {avatarSrc, formatTools} from "@/utils/util"
 
 export default {
   data() {
     return {
-      basePath: this.$basePath,
       md:md,
       toolSquareId:'',
       detail: {},
@@ -117,6 +116,7 @@ export default {
     this.getRecommendList()
   },
   methods: {
+    avatarSrc,
     initData(){
       this.toolSquareId = this.$route.query.toolSquareId
       this.tabActive = 0

@@ -15,6 +15,13 @@
           label-width="130px"
           class="demo-ruleForm"
         >
+          <el-form-item :label="$t('tool.integrate.avatar')" prop="avatar">
+            <upload-avatar
+              :avatar="ruleForm.avatar"
+              :default-avatar="defaultAvatar"
+              @update-avatar="handleUpdateAvatar"
+            />
+          </el-form-item>
           <el-form-item :label="$t('tool.integrate.name')" prop="name">
             <el-input v-model="ruleForm.name"></el-input>
           </el-form-item>
@@ -54,7 +61,7 @@
           type="primary"
           size="mini"
           :disabled="mcpList.length === 0"
-          @click="submitForm('ruleForm')"
+          @click="submitForm"
           :loading="publishLoading"
         >
           {{$t('tool.integrate.publish')}}
@@ -63,11 +70,14 @@
     </el-dialog>
   </div>
 </template>
+
 <script>
 import { getTools, setCreate, setUpdate } from "@/api/mcp.js";
 import { isValidURL } from "@/utils/util";
+import uploadAvatar from "@/components/uploadAvatar.vue";
 
 export default {
+  components: {uploadAvatar},
   props: {
     title: {
       type: String,
@@ -85,6 +95,10 @@ export default {
         sseUrl: "",
         desc: "",
         mcpId: "",
+        avatar: {
+          key: "",
+          path: ""
+        },
       })
     }
   },
@@ -98,11 +112,16 @@ export default {
     };
     return {
       mcpList: [],
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       ruleForm: {
         name: "",
         from: "",
         sseUrl: "",
         desc: "",
+        avatar: {
+          key: "",
+          path: ""
+        },
       },
       rules: {
         name: [{ required: true, message: this.$t('common.input.placeholder') + this.$t('tool.integrate.name'), trigger: "blur" }],
@@ -144,8 +163,11 @@ export default {
       this.$refs["ruleForm"].resetFields();
       this.mcpList = [];
     },
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    handleUpdateAvatar(avatar) {
+      this.ruleForm = { ...this.ruleForm, avatar: avatar };
+    },
+    submitForm() {
+      this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           this.publishLoading = true
           if (this.initialData.mcpId) {
@@ -182,11 +204,7 @@ export default {
   },
   computed: {
     isGetMCP() {
-      if (!isValidURL(this.ruleForm.sseUrl)) {
-        return true;
-      } else {
-        return false;
-      }
+      return !isValidURL(this.ruleForm.sseUrl);
     },
   },
 };

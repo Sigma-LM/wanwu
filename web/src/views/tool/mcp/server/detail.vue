@@ -226,7 +226,6 @@ export default {
   data() {
     return {
       tabActive: 0,
-      basePath: this.$basePath,
       defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       mcpServerId: '',
       detail: {},

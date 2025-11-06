@@ -2,7 +2,7 @@
   <div class="mcp-detail" id="timeScroll">
     <span class="back" @click="back">{{$t('menu.back') + (isFromSquare ? $t('menu.mcp') : $t('menu.tool'))}}</span>
     <div class="mcp-title">
-      <img class="logo" v-if="detail.avatar && detail.avatar.path" :src="basePath + '/user/api/' + detail.avatar.path" />
+      <img class="logo" :src="(detail.avatar && detail.avatar.path) ? avatarSrc(detail.avatar.path) : defaultAvatar" alt=""/>
       <div :class="['info',{fold:foldStatus}]">
         <p class="name">{{detail.name}}</p>
         <p v-if="detail.desc && detail.desc.length > 260" class="desc">
@@ -18,24 +18,24 @@
       <div class="left-info">
         <!-- tabs -->
         <div class="mcp-tabs">
-          <div v-if="mcpSquareId" :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">介绍概览</div>
+          <div v-if="mcpSquareId" :class="['mcp-tab',{ 'active': tabActive === 0 }]" @click="tabClick(0)">{{ $t('tool.square.info') }}</div>
           <div style="display: inline-block">
-            <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">SSE URL及工具</div>
+            <div :class="['mcp-tab',{ 'active': tabActive === 1 }]" @click="tabClick(1)">{{ $t('tool.square.sseUrl') }}</div>
           </div>
         </div>
 
         <div v-if="tabActive === 0">
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;使用概述</div>
+              <div class="item-title">• &nbsp;{{ $t('tool.square.summary') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.summary)"></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;特性说明</div>
+              <div class="item-title">• &nbsp;{{ $t('tool.square.feature') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.feature)"></div>
             </div>
             <div class="overview-item">
-              <div class="item-title">• &nbsp;应用场景</div>
+              <div class="item-title">• &nbsp;{{ $t('tool.square.scenario') }}</div>
               <div class="item-desc" >
                 <div v-html="parseTxt(detail.scenario)"></div>
               </div>
@@ -43,13 +43,13 @@
           </div>
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;使用说明</div>
+              <div class="item-title">• &nbsp;{{ $t('tool.square.manual') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.manual)"></div>
             </div>
           </div>
           <div class="overview bg-border" >
             <div class="overview-item">
-              <div class="item-title">• &nbsp;详情</div>
+              <div class="item-title">• &nbsp;{{ $t('tool.square.detail') }}</div>
               <div class="item-desc">
                 <div class="readme-content markdown-body mcp-markdown" v-html="md.render(detail.detail || '')"></div>
               </div>
@@ -80,20 +80,20 @@
             <p class="title">SSE URL:</p>
             <div class="sse-url" style="display: flex">
               <div class="tool-item-bg sse-url__input">{{detail.sseUrl}}</div>
-              <el-button v-if="isFromSquare" class="sse-url__bt" type="primary" :disabled="detail.hasCustom" @click="preSendToCustomize">发送到自定义</el-button>
+              <el-button v-if="isFromSquare" class="sse-url__bt" type="primary" :disabled="detail.hasCustom" @click="preSendToCustomize">{{ $t('tool.square.sendButton') }}</el-button>
             </div>
             <p style="line-height: 40px;color: #666;">
-              {{isFromSquare ? '* 将MCP发送到自定义后，您可在工作流或智能体中直接调用。' : '* 您已添加到自定义，可直接在工作流或智能体中直接调用。'}}
+              {{isFromSquare ? $t('tool.square.sendHint1') : $t('tool.square.sendHint2')}}
             </p>
           </div>
           <div class="tool-item" v-if="tools && tools.length">
-            <p class="title">工具介绍:</p>
+            <p class="title">{{ $t('tool.square.tool.info') }}</p>
             <div class="tool-item-bg tool-intro">
               <el-collapse class="mcp-el-collapse">
                 <el-collapse-item v-for="(n,i) in tools" :key="n.name + i" :title="n.name" :name="i">
-                  <div class="desc">描述：<span v-html="parseTxt(n.description)"></span></div>
+                  <div class="desc">{{ $t('tool.square.tool.desc') }}<span v-html="parseTxt(n.description)"></span></div>
                   <div class="params">
-                    <p>参数说明:</p>
+                    <p>{{ $t('tool.square.tool.params') }}</p>
                     <div class="params-table" v-for="(m, j) in n.params" :key="m.name + j">
                       <div class="tr">
                         <div class="td">{{m.name}}</div>
@@ -112,20 +112,20 @@
               <div class="tool-item-bg service-config"></div>
           </div>-->
           <div class="tool-item">
-            <p class="title">安装说明:</p>
+            <p class="title">{{ $t('tool.square.tool.setup') }}</p>
             <div class="tool-item-bg">
               <div class="install-intro-item">
-                <p class="install-intro-title">在 Cursor 中安装</p>
-                <p>1. 点击Cursor右上角'设置'，进入左侧菜单中的'MCP'选项</p>
-                <p>2. 点击页面右上方的'+添加'按钮, 自动打开mcp.json配置文件</p>
-                <p>3. 在文件中粘贴MCP配置并保存（在合适位置插入，无需删除已有内容）</p>
-                <p>4. MCP设置界面显示绿色原点即可使用</p>
+                <p class="install-intro-title">{{ $t('tool.square.tool.cursor.title') }}</p>
+                <p>{{ $t('tool.square.tool.cursor.step1') }}</p>
+                <p>{{ $t('tool.square.tool.cursor.step2') }}</p>
+                <p>{{ $t('tool.square.tool.cursor.step3') }}</p>
+                <p>{{ $t('tool.square.tool.cursor.step4') }}</p>
               </div>
               <div class="install-intro-item">
-                <p class="install-intro-title">在 Claude 中安装</p>
-                <p>1. 在Claude页面左上角打开'设置'，进入'Developer'</p>
-                <p>2. 点击'Edit Config' 定位claude_desktop_config.json配置文件</p>
-                <p>3. 在json文件中粘贴MCP配置并保存（在合适位置插入，无需删除已有内容）</p>
+                <p class="install-intro-title">{{ $t('tool.square.tool.claude.title') }}</p>
+                <p>{{ $t('tool.square.tool.claude.step1') }}</p>
+                <p>{{ $t('tool.square.tool.claude.step2') }}</p>
+                <p>{{ $t('tool.square.tool.claude.step3') }}</p>
               </div>
             </div>
           </div>
@@ -133,9 +133,9 @@
       </div>
 
       <div class="right-recommend">
-        <p style="margin: 20px 0;color: #333;">其他MCP服务查看</p>
+        <p style="margin: 20px 0;color: #333;">{{ $t('tool.square.tool.other') }}</p>
         <div class="recommend-item" v-for="(item ,i) in recommendList" :key="`${i}rc`" @click="handleClick(item)">
-          <img class="logo" v-if="item.avatar && item.avatar.path" :src="basePath + '/user/api/' + item.avatar.path" />
+          <img class="logo" :src="(item.avatar && item.avatar.path) ? avatarSrc(item.avatar.path) : defaultAvatar" alt=""/>
           <p class="name">{{item.name}}</p>
           <p class="intro">{{item.desc}}</p>
         </div>
@@ -155,7 +155,7 @@
 import sendDialog from './sendDialog'
 import { md } from '@/mixins/marksown-it'
 import { getRecommendsList, getPublicMcpInfo, getDetail, getTools } from "@/api/mcp"
-import { formatTools } from "@/utils/util"
+import {avatarSrc, formatTools} from "@/utils/util"
 
 export default {
   props: {
@@ -166,7 +166,7 @@ export default {
   },
   data() {
     return {
-      basePath: this.$basePath,
+      defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       md:md,
       isFromSquare: true,
       mcpSquareId:'',
@@ -193,6 +193,7 @@ export default {
     this.getRecommendList()
   },
   methods: {
+    avatarSrc,
     initData(){
       this.mcpSquareId = this.$route.query.mcpSquareId
       this.mcpId = this.$route.query.mcpId

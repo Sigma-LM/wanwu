@@ -1,7 +1,7 @@
 <template>
   <div class="add-dialog">
     <el-dialog
-      title="添加MCP服务"
+      :title="$t('tool.square.send.title')"
       :visible.sync="dialogVisible"
       width="50%"
       :show-close="false"
@@ -14,13 +14,13 @@
           ref="ruleForm"
           label-width="130px"
         >
-          <el-form-item label="MCP名称">
+          <el-form-item :label="$t('tool.integrate.name')">
             <div>{{detail.name}}</div>
           </el-form-item>
-          <el-form-item label="服务来源">
+          <el-form-item :label="$t('tool.integrate.from')">
             <div>{{detail.from}}</div>
           </el-form-item>
-          <el-form-item label="功能描述" class="description-text">
+          <el-form-item :label="$t('tool.integrate.desc')" class="description-text">
             <div>{{detail.desc}}</div>
           </el-form-item>
           <el-form-item label="MCP ServerURL" prop="serverUrl">
@@ -34,7 +34,7 @@
               :disabled="isGetMCP"
               :loading="toolsLoading"
             >
-              获取MCP工具
+              {{$t('tool.integrate.action')}}
             </el-button>
           </el-form-item>
         </el-form>
@@ -51,9 +51,9 @@
           @click="submitForm('ruleForm')"
           :loading="publishLoading"
         >
-          确定发送
+          {{$t('tool.integrate.publish')}}
         </el-button>
-        <el-button @click="handleCancel" size="mini">取 消</el-button>
+        <el-button @click="handleCancel" size="mini">{{ $t('common.button.cancel') }}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -67,7 +67,7 @@ export default {
   data() {
     const validateUrl = (rule, value, callback) => {
       if (!isValidURL(value)) {
-        callback(new Error("请再次检查Server Url格式"));
+        callback(new Error(this.$t('tool.integrate.serverUrlErr')));
       } else {
         callback();
       }
@@ -81,7 +81,7 @@ export default {
         serverUrl: [
           {
             required: true,
-            message: "请输入服务Server Url",
+            message: this.$t('tool.integrate.serverUrlMsg'),
             trigger: "blur",
           },
           { validator: validateUrl, trigger: "blur" },
@@ -116,7 +116,7 @@ export default {
               // 更新发送按钮状态
               this.$emit("getIsCanSendStatus");
             }
-          })
+          }).finally(() => this.publishLoading = false)
         }
       })
     },
@@ -132,19 +132,14 @@ export default {
             serverUrl: this.ruleForm.serverUrl,
           }).then((res) => {
             this.mcpList = res.data.tools || []
-            this.toolsLoading = false
-          }).catch(() => this.toolsLoading = false)
+          }).finally(() => this.toolsLoading = false)
         }
       });
     },
   },
   computed: {
     isGetMCP() {
-      if (!isValidURL(this.ruleForm.serverUrl)) {
-        return true;
-      } else {
-        return false;
-      }
+      return !isValidURL(this.ruleForm.serverUrl);
     },
   },
 };

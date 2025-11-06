@@ -15,23 +15,11 @@
           label-width="130px"
         >
           <el-form-item :label="$t('tool.server.avatar')" prop="avatar">
-            <div class="avatar">
-              <el-upload
-                class="avatar-uploader"
-                action=""
-                name="files"
-                :show-file-list="false"
-                :multiple="false"
-                :http-request="handleUploadAvatar"
-                :on-error="handleUploadError"
-                accept=".png,.jpg,.jpeg"
-              >
-                <div class="echo-img">
-                  <img :src="ruleForm.avatar.path ? basePath + '/user/api/' + ruleForm.avatar.path : defaultAvatar"
-                       alt=""/>
-                </div>
-              </el-upload>
-            </div>
+            <upload-avatar
+              :avatar="ruleForm.avatar"
+              :default-avatar="defaultAvatar"
+              @update-avatar="handleUpdateAvatar"
+            />
           </el-form-item>
           <el-form-item :label="$t('tool.server.name')" prop="name">
             <el-input v-model="ruleForm.name"></el-input>
@@ -55,17 +43,20 @@
     </el-dialog>
   </div>
 </template>
+
 <script>
 import {addServer, editServer} from "@/api/mcp";
-import {uploadAvatar} from "@/api/user";
+import uploadAvatar from "@/components/uploadAvatar.vue";
 
 export default {
+  components: {
+    uploadAvatar
+  },
   data() {
     return {
       dialogVisible: false,
       mcpServerId: "",
       title: '',
-      basePath: this.$basePath,
       defaultAvatar: require("@/assets/imgs/mcp_active.svg"),
       ruleForm: {
         MCPServerId: "",
@@ -92,20 +83,8 @@ export default {
         this.title = this.$t('tool.server.editTitle')
       } else this.title = this.$t('tool.server.addTitle')
     },
-    handleUploadAvatar(data) {
-      if (data.file) {
-        const formData = new FormData()
-        const config = {headers: {"Content-Type": "multipart/form-data"}}
-        formData.append('avatar', data.file)
-        uploadAvatar(formData, config).then(res => {
-          if (res.code === 0) {
-            this.ruleForm.avatar = res.data
-          }
-        })
-      }
-    },
-    handleUploadError() {
-      this.$message.error(this.$t('common.message.uploadError'))
+    handleUpdateAvatar(avatar) {
+      this.ruleForm = { ...this.ruleForm, avatar: avatar };
     },
     handleClose() {
       this.dialogVisible = false
@@ -152,56 +131,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.required-label::after {
-  content: '*';
-  position: absolute;
-  color: #eb0a0b;
-  font-size: 20px;
-  margin-left: 4px;
-}
-
 .add-dialog {
   .el-button.is-disabled {
     &:active {
       background: transparent !important;
       border-color: #ebeef5 !important;
-    }
-  }
-
-  .avatar {
-    display: flex;
-    align-items: center;
-    margin-top: 4px;
-
-    .avatar-uploader {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
-
-      /deep/ {
-        .el-upload {
-          width: 100%;
-          height: 100%;
-          border-radius: 6px;
-          border: 1px solid #DCDFE6;
-          overflow: hidden;
-        }
-
-        .echo-img {
-          width: 100%;
-          height: 100%;
-          position: relative;
-
-          img {
-            object-fit: cover;
-            height: 100%;
-          }
-        }
-      }
-    }
-
-    .row {
-      flex: 1;
     }
   }
 }

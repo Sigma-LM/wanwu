@@ -20,7 +20,7 @@
                 {{ item.name }}
               </span>
                 </div>
-                <search-input style="margin-right: 2px" placeholder="请输入MCP名称进行搜索" ref="searchInput"
+                <search-input style="margin-right: 2px" :placeholder="$t('tool.square.searchHint')" ref="searchInput"
                               @handleSearch="doGetPublicMcpList"/>
               </div>
 
@@ -51,7 +51,7 @@
                 </div>
               </div>
               <div v-else class="empty">
-                <el-empty description="暂无数据"></el-empty>
+                <el-empty :description="$t('common.noData')"></el-empty>
               </div>
             </div>
           </div>
@@ -69,19 +69,19 @@ export default {
     return {
       basePath: this.$basePath,
       mcpSquareId: "",
-      category: '全部',
+      category: this.$t('tool.square.all'),
       list: [],
       loading:false,
       typeRadio: 'all',
       typeList: [
-        {name: '全部', key: 'all'},
-        {name: '政务', key: 'gov'},
-        {name: '工业', key: 'industry'},
-        {name: '文教', key: 'edu'},
-        {name: '医疗', key: 'medical'},
-        {name: '数据', key: 'data'},
-        {name: '创作', key: 'create'},
-        {name: '搜索', key: 'search'},
+        {name: this.$t('tool.square.all'), key: 'all'},
+        {name: this.$t('tool.square.gov'), key: 'gov'},
+        {name: this.$t('tool.square.industry'), key: 'industry'},
+        {name: this.$t('tool.square.edu'), key: 'edu'},
+        {name: this.$t('tool.square.medical'), key: 'medical'},
+        {name: this.$t('tool.square.data'), key: 'data'},
+        {name: this.$t('tool.square.creator'), key: 'create'},
+        {name: this.$t('tool.square.search'), key: 'search'},
       ]
     };
   },

@@ -11,10 +11,18 @@
         ref="form">
         <el-col :span="24" class="left-col">
           <div class="action-form">
+            <div class="block prompt-box" v-show="!dialogDetailVisible && !dialogToolVisible">
+              <p class="block-title rl">{{ $t('tool.custom.avatar') }}</p>
+              <upload-avatar
+                :avatar="form.avatar"
+                :default-avatar="defaultAvatar"
+                @update-avatar="handleUpdateAvatar"
+              />
+            </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
               <p class="block-title required-label rl">{{ dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool') }}</p>
               <el-form-item prop="name">
-                <el-input class="name-input" v-model="form.name" :placeholder="$t('common.input.placeholder') + $t('tool.custom.tool')"></el-input>
+                <el-input class="name-input" v-model="form.name" :placeholder="$t('common.input.placeholder') + (dialogToolVisible ? $t('tool.custom.app') : $t('tool.custom.tool'))"></el-input>
               </el-form-item>
             </div>
             <div class="block prompt-box" v-show="!dialogToolVisible">
@@ -155,11 +163,14 @@
     </span>
   </el-dialog>
 </template>
+
 <script>
 import {getCustom, addCustom, editCustom, getSchema, addOpenapi} from "@/api/mcp";
 import {schemaConfig} from '@/utils/schema.conf';
+import uploadAvatar from "@/components/uploadAvatar.vue";
 
 export default {
+  components: {uploadAvatar},
   data() {
     const validateApiAuthFields = (rule, value, callback) => {
       if (this.form.apiAuth.type === 'API Key' &&
@@ -182,6 +193,7 @@ export default {
       dialogToolVisible: false,
       title: '',
       apiList: [],
+      defaultAvatar: require("@/assets/imgs/toolImg.png"),
       example: '',
       form: {
         description: '',
@@ -195,7 +207,11 @@ export default {
           authType: 'Custom',
           apiKey: '',
           customHeaderName: '',
-        }
+        },
+        avatar: {
+          key: "",
+          path: ""
+        },
       },
       //认证表单
       dialogAuthVisible: false,
@@ -240,6 +256,9 @@ export default {
       this.dialogToolVisible = true
       this.form.description = ' '
       this.title = this.$t('tool.custom.toolTitle')
+    },
+    handleUpdateAvatar(avatar) {
+      this.form = { ...this.form, avatar: avatar };
     },
     exampleChange(value) {
       this.form.schema = this.schemaConfig[value]
