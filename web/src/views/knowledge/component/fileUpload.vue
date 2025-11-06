@@ -794,6 +794,14 @@ export default {
       return (size / Math.pow(num, 4)).toFixed(2) + "T"; //T
     },
     fileTypeChage() {
+      // 取消所有正在进行的上传请求
+      this.cancelAllRequests();
+      
+      // 重置上传相关状态
+      this.fileIndex = 0;
+      this.file = null;
+      this.resList = [];
+
       this.docInfoList = [];
       this.fileList = [];
     },
