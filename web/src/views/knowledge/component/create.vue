@@ -43,6 +43,32 @@
                     </el-option>
                 </el-select>
             </el-form-item>
+            <el-form-item label="知识图谱:" prop="embeddingModelInfo.modelId">
+                <el-switch v-model="knowledgeGraphEnabled"></el-switch>
+            </el-form-item>
+            <el-form-item label="模型选择:" prop="knowledgeGraphModelId" v-if="knowledgeGraphEnabled">
+                <el-select v-model="knowledgeGraphModelId" :placeholder="$t('common.select.placeholder')" value-key="modelId">
+                    <el-option
+                        v-for="item in knowledgeGraphModelOptions"
+                        :key="item.modelId"
+                        :label="item.displayName"
+                        :value="item.modelId">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="上传图谱Schema:" v-if="knowledgeGraphEnabled">
+                <el-upload
+                    action=""
+                    :auto-upload="false"
+                    :show-file-list="true"
+                    :on-change="handleSchemaFileChange"
+                    :file-list="schemaFileList"
+                    :limit="1"
+                >
+                    <el-button size="small" type="primary">点击上传</el-button>
+                    <div slot="tip" class="el-upload__tip">只能上传单个文件</div>
+                </el-upload>
+            </el-form-item>
         </el-form>
         <span
             slot="footer"
@@ -84,6 +110,10 @@ export default {
                 }
             },
             EmbeddingOptions:[],
+            knowledgeGraphEnabled: false,
+            knowledgeGraphModelId: '',
+            knowledgeGraphModelOptions: [],
+            schemaFileList: [],
             rules: {
                 name: [
                 { required: true, message: this.$t('knowledgeManage.knowledgeNameRules'), trigger: "blur" },
@@ -122,6 +152,10 @@ export default {
             this.knowledgeId = ''
             this.$refs.ruleForm.resetFields()
             this.$refs.ruleForm.clearValidate()
+            this.schemaFileList = []
+        },
+        handleSchemaFileChange(file, fileList) {
+            this.schemaFileList = fileList
         },
         submitForm(formName){
             this.$refs[formName].validate((valid) =>{
