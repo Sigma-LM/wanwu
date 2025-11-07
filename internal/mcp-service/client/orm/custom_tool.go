@@ -90,6 +90,7 @@ func (c *Client) UpdateCustomTool(ctx context.Context, customTool *model.CustomT
 			"schema":         customTool.Schema,
 			"privacy_policy": customTool.PrivacyPolicy,
 			"auth_json":      customTool.AuthJSON,
+			"api_key":        customTool.APIKey,
 		}).Error; err != nil {
 			return toErrStatus("mcp_update_custom_tool_err", err.Error())
 		}
