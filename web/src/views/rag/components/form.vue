@@ -236,7 +236,7 @@ export default {
         knowledgebases:[],
         knowledgeConfig:{
           keywordPriority: 0.8, //关键词权重
-          matchType: "", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+          matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
           priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
           rerankModelId: "", //rerank模型id
           semanticsPriority: 0.2, //语义权重
@@ -385,7 +385,18 @@ export default {
             if(knowledgeData && knowledgeData.length > 0){
               this.editForm.knowledgebases = knowledgeData;
             }
-            this.editForm.knowledgeConfig = res.data.knowledgeBaseConfig.config;//需要后端修改
+            if(res.data.knowledgeBaseConfig.config !== null){
+              this.editForm.knowledgeConfig = res.data.knowledgeBaseConfig.config;
+              const {matchType,priorityMatch} = res.data.knowledgeBaseConfig.config
+              if(matchType === ''){
+                this.editForm.knowledgeConfig = {
+                  ...this.editForm.knowledgeConfig,
+                  matchType:'mix',
+                  priorityMatch:1
+                }
+              }
+            }
+            
             this.editForm.knowledgeConfig.rerankModelId = res.data.rerankConfig.modelId;
             // 使用nextTick确保所有数据设置完成后再重置标志位
             this.$nextTick(() => {
