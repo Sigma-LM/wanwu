@@ -7,9 +7,9 @@
       </div>
       <!-- tabs -->
       <div class="templateSquare-tabs">
-        <div :class="['templateSquare-tab',{ 'active': type === workflow }]" @click="tabClick(workflow)">
+        <!--<div :class="['templateSquare-tab',{ 'active': type === workflow }]" @click="tabClick(workflow)">
           {{$t('tempSquare.workflow')}}
-        </div>
+        </div>-->
         <div :class="['templateSquare-tab',{ 'active': type === prompt }]" @click="tabClick(prompt)">
           {{$t('tempSquare.prompt')}}
         </div>
@@ -33,12 +33,12 @@ export default {
       bgColor: 'linear-gradient(1deg, rgb(247, 252, 255) 50%, rgb(233, 246, 254) 98%)',
       workflow: WORKFLOW,
       prompt: PROMPT,
-      type: WORKFLOW
+      type: ''
     };
   },
   created() {
     this.isPublic = this.$route.path.includes('/public/')
-    this.type = this.$route.query.type || WORKFLOW
+    this.type = this.$route.query.type || PROMPT // WORKFLOW
   },
   methods: {
     tabClick(type) {

@@ -47,14 +47,15 @@ const constantRoutes = [
         path: '/webChat/:id',
         component:resolve =>require(['@/views/agent'],resolve),
     },
-    {
+    /* 暂时去掉模板广场公网的链接 */
+    /*{
         path: '/public/templateSquare',
         component:resolve =>require(['@/views/templateSquare'],resolve),
     },
     {
         path: '/public/templateSquare/detail',
         component: resolve => require(['@/views/templateSquare/tempDetail.vue'],resolve),
-    },
+    },*/
     {
         path: '/portal',
         name: 'portal',
