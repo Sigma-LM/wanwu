@@ -363,6 +363,10 @@
             </span>
           </p>
         </div>
+        <!-- 知识图谱开关 -->
+        <!-- <div class="block prompt-box link-box">
+            <graphSwitch ref="graphSwitch" />
+        </div> -->
       </div>
       <div class="drawer-test">
         <Chat
@@ -476,6 +480,7 @@ import knowledgeSetDialog from "./knowledgeSetDialog";
 import { readWorkFlow } from "@/api/workflow";
 import Chat from "./chat";
 import LinkIcon from "@/components/linkIcon.vue";
+import graphSwitch from "@/components/graphSwitch.vue"
 import promptTemplate from "./prompt/index.vue";
 import createPrompt from "@/components/createApp/createPrompt.vue"
 import knowledgeSelect from "@/components/knowledgeSelect.vue";
@@ -493,7 +498,8 @@ export default {
     metaSet,
     ToolDeatail,
     promptTemplate,
-    createPrompt
+    createPrompt,
+    graphSwitch
   },
   provide() {
     return {

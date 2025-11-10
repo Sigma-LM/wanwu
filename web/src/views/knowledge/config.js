@@ -1,6 +1,8 @@
+import { i18n } from '@/lang'
+
 export const FAT_SON_BLOCK = [
     {
-        title:'父块',
+        title: i18n.t('knowledgeManage.config.parentBlock'),
         level:'parent',
         key:"splitter",
         splitter:'splitter',
@@ -10,7 +12,7 @@ export const FAT_SON_BLOCK = [
         maxSplitterNum:4000,
     },
     {
-        title:'子块',
+        title: i18n.t('knowledgeManage.config.sonBlock'),
         level:'son',
         key:"subSplitter",
         splitter:'subSplitter',
@@ -23,59 +25,73 @@ export const FAT_SON_BLOCK = [
 export const SEGMENT_COMMON_LIST = [
     {
         label:'0',
-        text:'自动分段',
-        desc:'您选择‘自动分段’，系统将按默认方式进行分段'
+        text: i18n.t('knowledgeManage.config.autoChunk'),
+        desc: i18n.t('knowledgeManage.config.autoChunkDesc')
     },
     {
         label:'1',
-        text:'自定义分段',
-        desc:'您选择‘自定义分段’，可进行分段方式配置'
+        text: i18n.t('knowledgeManage.config.customChunk'),
+        desc: i18n.t('knowledgeManage.config.customChunkDesc')
     },
 ]
 export const SEGMENT_LIST = [
     {
         label:'0',
         img:'setting-gear.png',
-        text:'通用分段',
-        desc:'检索和召回的分段内容相同'
+        text: i18n.t('knowledgeManage.config.commonSegment'),
+        desc: i18n.t('knowledgeManage.config.commonSegmentDesc')
     },
     {
         label:'1',
         img:'setting-effect.png',
-        text:'父子分段',
-        desc:'父分段用作上下文，子分段用于检索'
+        text: i18n.t('knowledgeManage.config.parentSonSegment'),
+        desc: i18n.t('knowledgeManage.config.parentSonSegmentDesc')
     },
 ]
 export const DOC_ANALYZER_LIST = [
     {
         label:'text',
-        text:'文本提取',
-        desc:'提取文档文本信息时开启，适用于所有文件'
+        text: i18n.t('knowledgeManage.config.textExtraction'),
+        desc: i18n.t('knowledgeManage.config.textExtractionDesc')
     },
     {
         label:'ocr',
-        text:'启用OCR解析',
-        desc:'解析图片、扫描件文档时开启，仅适用于pdf文件'
+        text: i18n.t('knowledgeManage.OCRAnalysis'),
+        desc: i18n.t('knowledgeManage.config.OCRAnalysisDesc')
     },
     {
         label:'model',
-        text:'模型解析',
-        desc:'提取标题、图表、公式时开启，适用于pdf/word/ppt文件'
+        text: i18n.t('knowledgeManage.config.modelAnalysis'),
+        desc: i18n.t('knowledgeManage.config.modelAnalysisDesc')
     }
 ]
 export const MODEL_TYPE_TIP = {
     ocr:{
-        label:'OCR模型',
-        desc:'若需使用，请前往模型管理-联通元景-添加ocr模型'
+        label: i18n.t('knowledgeManage.config.OCRModel'),
+        desc: i18n.t('knowledgeManage.config.OCRModelDesc')
     },
     model:{
-        label:'文档解析服务',
-        desc:'若需使用，请前往模型管理-联通元景-添加文档解析服务'
+        label: i18n.t('knowledgeManage.config.documentAnalysis'),
+        desc: i18n.t('knowledgeManage.config.documentAnalysisDesc')
     }
 }
 export const POWER_TYPE = {
-    0:'可读',
-    10:'可编辑',
-    20:'管理员',
-    30:'系统管理员'
+    0: i18n.t('knowledgeManage.config.read'),
+    10: i18n.t('knowledgeManage.config.edit'),
+    20: i18n.t('knowledgeManage.config.admin'),
+    30: i18n.t('knowledgeManage.config.systemAdmin')
 }
+export const KNOWLEDGE_GRAPH_TIPS = [
+    {
+        title: i18n.t('knowledgeManage.config.functionDescription'),
+        content: i18n.t('knowledgeManage.config.functionDescriptionContent')
+    },
+    {
+        title: i18n.t('knowledgeManage.config.sceneDescription'),
+        content: i18n.t('knowledgeManage.config.sceneDescriptionContent')
+    },
+    {
+        title: i18n.t('knowledgeManage.config.attentionDescription'),
+        content: i18n.t('knowledgeManage.config.attentionDescriptionContent')
+    }
+]
