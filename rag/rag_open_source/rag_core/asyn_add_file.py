@@ -142,14 +142,14 @@ def kafkal():
                     # ============ 异步添加 =============
                     lock = threading.Lock()
                     thread = threading.Thread(target=add_files, args=(
-                    user_id, kb_name, filename, object_name, file_id, is_enhanced, pre_process, meta_data_rules, split_config))
+                    user_id, kb_name, filename, object_name, file_id, is_enhanced, enable_knowledge_graph, graph_schema_objectname, graph_schema_filename, graph_model_id, pre_process, meta_data_rules, split_config))
                     lock.acquire()
                     thread.start()
                     lock.release()
                     # ============ 异步添加 =============
                 else:
                     # ============ 顺序添加 =============
-                    add_files(user_id, kb_name, filename, object_name, file_id, is_enhanced, pre_process, meta_data_rules, split_config, kb_id=kb_id)
+                    add_files(user_id, kb_name, filename, object_name, file_id, is_enhanced, enable_knowledge_graph, graph_schema_objectname, graph_schema_filename, graph_model_id, pre_process, meta_data_rules, split_config, kb_id=kb_id)
                     # ============ 顺序添加 =============
                 logger.info('----->kafka异步消费完成：user_id=%s,kb_name=%s,filename=%s,file_id=%s,process finished' % (user_id, kb_name,filename,file_id))
                 master_control_logger.info('----->kafka异步消费完成：user_id=%s,kb_name=%s,filename=%s,file_id=%s,process finished' % (user_id, kb_name, filename, file_id))
