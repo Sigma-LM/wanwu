@@ -99,6 +99,7 @@ def kafkal():
             chunk_type = message_value["doc"].get("chunk_type", "default")
             separators = message_value["doc"].get("separators", ['。'])
             is_enhanced = message_value["doc"].get("is_enhanced", 'false')
+            enable_knowledge_graph = message_value["doc"].get("enable_knowledge_graph", "false")
 
             # 文件导入时选择解析方式，默认勾选文字提取，可选光学识别ocr当多选时此参数默认为["text"],当勾选ocr时传：["text","ocr"]
             parser_choices = message_value["doc"]["parser_choices"] if "parser_choices" in message_value["doc"] else [
@@ -137,14 +138,14 @@ def kafkal():
                     # ============ 异步添加 =============
                     lock = threading.Lock()
                     thread = threading.Thread(target=add_files, args=(
-                    user_id, kb_name, filename, object_name, file_id, is_enhanced, pre_process, meta_data_rules, split_config))
+                    user_id, kb_name, filename, object_name, file_id, is_enhanced, enable_knowledge_graph, pre_process, meta_data_rules, split_config))
                     lock.acquire()
                     thread.start()
                     lock.release()
                     # ============ 异步添加 =============
                 else:
                     # ============ 顺序添加 =============
-                    add_files(user_id, kb_name, filename, object_name, file_id, is_enhanced, pre_process, meta_data_rules, split_config, kb_id=kb_id)
+                    add_files(user_id, kb_name, filename, object_name, file_id, is_enhanced, enable_knowledge_graph, pre_process, meta_data_rules, split_config, kb_id=kb_id)
                     # ============ 顺序添加 =============
                 logger.info('----->kafka异步消费完成：user_id=%s,kb_name=%s,filename=%s,file_id=%s,process finished' % (user_id, kb_name,filename,file_id))
                 master_control_logger.info('----->kafka异步消费完成：user_id=%s,kb_name=%s,filename=%s,file_id=%s,process finished' % (user_id, kb_name, filename, file_id))
@@ -271,7 +272,7 @@ def parse_meta_data(docs, parse_rules):
 
 
 def add_files(user_id, kb_name, file_name, object_name, file_id,
-              is_enhanced, pre_process_rules, meta_data_rules, split_config: SplitConfig, kb_id=""):
+              is_enhanced, enable_knowledge_graph, pre_process_rules, meta_data_rules, split_config: SplitConfig, kb_id=""):
     response_info = {'code': 0, "message": "成功"}
     user_data_path = USER_DATA_PATH
     convert_dir = CONVERT_DIR
@@ -527,7 +528,10 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
 
     logger.info("user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name) + '===== 文档上传成功且完成')
     master_control_logger.info("user_id=%s,kb_name=%s,file_name=%s,kb_id=%s" % (user_id, kb_name, file_name, kb_id) + '===== 文档上传成功且完成')
-    mq_rel_utils.update_doc_status(file_id, status=10, meta_datas=meta_parsed)
+    if enable_knowledge_graph == "true":  # 更新知识图谱状态
+        mq_rel_utils.update_doc_status(file_id, status=11)
+    else:
+        mq_rel_utils.update_doc_status(file_id, status=10)
 
 
 if __name__ == "__main__":
