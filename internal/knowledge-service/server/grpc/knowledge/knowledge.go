@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
-	"path/filepath"
 	"time"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
@@ -774,7 +773,7 @@ func storeKnowledgeStoreSchema(knowledgeId string, knowledgeGraph *knowledgebase
 	if knowledgeGraph.Switch && knowledgeGraph.SchemaUrl != "" {
 		go func() {
 			defer pkg_util.PrintPanicStack()
-			copyFile, _, _, err := rag_service.CopyFile(context.Background(), knowledgeGraph.SchemaUrl, util.BuildFilePath("", filepath.Ext(knowledgeGraph.SchemaUrl)))
+			copyFile, _, _, err := rag_service.CopyFile(context.Background(), knowledgeGraph.SchemaUrl, "")
 			if err != nil {
 				log.Errorf("store knowledge copy file (%v) err: %v", knowledgeGraph.SchemaUrl, err)
 				return
