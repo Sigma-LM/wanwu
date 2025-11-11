@@ -75,7 +75,7 @@ def init_kb():
                 uk_data = [
                     {"index_name": index_name, "userId": userId, "kb_name": kb_name,
                      "creat_time": formatted_time, "kb_id": kb_id, "embedding_model_id": embedding_model_id,
-                     "enable_knowledge_graph": enable_knowledge_graph}
+                     "enable_graph": enable_knowledge_graph}
                 ]
                 es_ops.bulk_add_uk_index_data(KBNAME_MAPPING_INDEX, uk_data)
                 # ====== 新建完成，需要获取一下 kb_id,看看是否新建成功 ======

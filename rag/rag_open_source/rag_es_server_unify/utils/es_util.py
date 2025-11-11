@@ -2209,8 +2209,8 @@ def get_uk_kb_enable_graph(userId, kb_name):
     response = es.search(index=KBNAME_MAPPING_INDEX, body=query)
     # 遍历搜索结果，获取 kb_id
     for hit in response["hits"]["hits"]:
-        if "enable_knowledge_graph" in hit['_source']:
-            enable_knowledge_graph = hit['_source']["enable_knowledge_graph"]
+        if "enable_graph" in hit['_source']:
+            enable_knowledge_graph = hit['_source']["enable_graph"]
     logger.info(f"userId:{userId},kb_name:{kb_name} 对应的 enable_knowledge_graph 为:{enable_knowledge_graph}")
     return enable_knowledge_graph
 

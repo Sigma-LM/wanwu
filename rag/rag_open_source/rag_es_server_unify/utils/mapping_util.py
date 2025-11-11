@@ -88,7 +88,7 @@ uk_mappings = {
         "kb_name": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合
         "kb_id": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合
         "embedding_model_id": {"type": "keyword"},  # 指定为 keyword，方便用于排序和聚合"
-        "enable_knowledge_graph": {"type": "boolean"},
+        "enable_graph": {"type": "boolean"},
     }
 }
 # ES 需提前 init_kb 添加 content中控部分索引

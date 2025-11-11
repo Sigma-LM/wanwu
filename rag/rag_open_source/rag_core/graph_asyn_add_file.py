@@ -62,7 +62,7 @@ def kafkal():
             filename = message_value["doc"].get("originalName", "")
             graph_schema_objectname = message_value["doc"].get("graph_schema_objectname", "")
             graph_schema_filename = message_value["doc"].get("graph_schema_filename", "")
-            enable_knowledge_graph = message_value["doc"].get("enable_knowledge_graph", "false")
+            enable_knowledge_graph = message_value["doc"].get("enable_knowledge_graph", False)
             message_type = message_value["doc"].get("message_type", "graph")
             graph_model_id = message_value["doc"].get("graph_model_id", "")
 
@@ -135,7 +135,7 @@ def add_files(user_id, kb_name, file_name, file_id, enable_knowledge_graph, grap
     all_graph_chunks = []
     all_graph_vocabulary_set = set()
     batch_size = 10
-    if enable_knowledge_graph == "true":
+    if enable_knowledge_graph:
         schema = {}
         # 当graph_schema_filename,graph_schema_objectname有值则说明用户自己上传excel，否则schema为空后续会用内置schema抽取
         if graph_schema_filename and graph_schema_objectname:
@@ -159,7 +159,6 @@ def add_files(user_id, kb_name, file_name, file_id, enable_knowledge_graph, grap
                 mq_rel_utils.update_doc_status(file_id, status=104)
                 return
 
-        extracted_graph_datas = []
         for i in range(0, len(all_wait_extrac_chunks), batch_size):
             batch_num = int(i/batch_size) + 1
             temp_chunks = all_wait_extrac_chunks[i:i + batch_size]
@@ -168,8 +167,6 @@ def add_files(user_id, kb_name, file_name, file_id, enable_knowledge_graph, grap
                 graph_chunks = result_data['graph_chunks']
                 all_graph_chunks.extend(graph_chunks)
                 all_graph_vocabulary_set.update(result_data['graph_vocabulary_set'])
-                for data in graph_chunks:
-                    extracted_graph_datas.append(data["graph_data"])
                 logger.info(f'第{batch_num}批文档提取graph数据成功'
                              + "user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name) + str(result_data))
                 master_control_logger.info(f'第{batch_num}批文档提取graph数据成功'
@@ -183,42 +180,9 @@ def add_files(user_id, kb_name, file_name, file_id, enable_knowledge_graph, grap
                 mq_rel_utils.update_doc_status(file_id, status=102)
                 return
 
-        # if extracted_graph_datas:
-        #     try:
-        #         reports_result = knowledge_base_utils.generate_community_reports(kb_name, file_name, extracted_graph_datas)
-        #         reports = reports_result['community_reports']
-        #         old_chunk_total_num = len(chunks)
-        #         chunk_current_num = old_chunk_total_num + 1
-        #         new_chunk_total_num = old_chunk_total_num + len(reports)
-        #         for chunk in chunks:
-        #             meta_data = copy.deepcopy(chunk["meta_data"])
-        #             meta_data["chunk_total_num"] = new_chunk_total_num
-        #             chunk["meta_data"] = meta_data
-        #         # 更新subchunk 会影响
-        #         # for chunk in sub_chunk:
-        #         #     chunk["meta_data"]["chunk_total_num"] = new_chunk_total_num
-        #         for report_data in reports:
-        #             chunks.append({
-        #                "text": report_data["report"],
-        #                 "meta_data": {
-        #                     "file_name": file_name,
-        #                     "entities": report_data["entities"],
-        #                     "chunk_total_num": new_chunk_total_num,
-        #                     "chunk_current_num": chunk_current_num
-        #                 },
-        #                 "chunk_type": "community_report"
-        #             })
-        #             chunk_current_num += 1
-        #         logger.info(f"文档提取社区报告成功, user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name))
-        #         master_control_logger.info(f"文档提取社区报告成功, user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name))
-        #     except Exception as e:
-        #         logger.error(repr(e))
-        #         logger.error(f"文档提取社区报告失败, user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name))
-        #         master_control_logger.error(f"文档提取社区报告失败, user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name) + repr(e))
-
     # --------------  insert es graph_data ----------------
     try:
-        if enable_knowledge_graph == "true" and len(all_graph_chunks) > 0:
+        if enable_knowledge_graph and len(all_graph_chunks) > 0:
             logger.info(f'graph_data 插入es开始,all_graph_chunks len:{len(all_graph_chunks)}')
             master_control_logger.info(f'graph_data 插入es开始,all_graph_chunks len:{len(all_graph_chunks)}')
             insert_es_result = es_utils.add_es(user_id, kb_name, all_graph_chunks, file_name, kb_id=kb_id)
