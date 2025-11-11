@@ -1,5 +1,7 @@
 import os
 import json
+import time
+
 import requests
 import pandas as pd
 from datetime import datetime
@@ -231,19 +233,24 @@ def get_all_extrac_graph_chunks(user_id, kb_name, file_name, kb_id=""):
     """
     获取用户知识库中对应文件的所有chunk
     """
+
     try:
+        time.sleep(10)  # 先等待 10s
+        retry_num = 0
         all_chunks = []
         chunk_total_num = 1
         page_size = 100
         search_after = 0
         complete_flag = True
-
         while len(all_chunks) < chunk_total_num and complete_flag:
             response_info = milvus_utils.get_milvus_file_content_list(user_id, kb_name, file_name, page_size,
                                                                       search_after, kb_id=kb_id)
             temp_content_list = response_info["data"]["content_list"]
-            if not temp_content_list:  # 取不到则直接置完成
-                complete_flag = False
+            if not temp_content_list:  # 取不到则重试或置完成
+                retry_num += 1
+                time.sleep(10)
+                if retry_num >= 5 or len(all_chunks) >= chunk_total_num:
+                    complete_flag = False
             else:
                 if chunk_total_num == 1:
                     chunk_total_num = temp_content_list[0]["meta_data"]["chunk_total_num"]
@@ -254,7 +261,6 @@ def get_all_extrac_graph_chunks(user_id, kb_name, file_name, kb_id=""):
                         "source_type": "RAG_KB",
                         "meta_data": doc["meta_data"]
                     })
-                temp_content_list = []
                 search_after += 100
         # ======== 取完了直接返回 =========
         return all_chunks
