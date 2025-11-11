@@ -342,7 +342,7 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
                     master_control_logger.error(f"{download_path} convert_office_file successfully => {res_filename}")
                 else:
                     master_control_logger.error(f"{download_path} convert_office_file failed")
-                    mq_rel_utils.update_doc_status(file_id, status=53, type=type)
+                    mq_rel_utils.update_doc_status(file_id, status=53)
                     return
             elif file_extension in CONVERT_OFFICE_FORMAT_MAP:
                 target_format = CONVERT_OFFICE_FORMAT_MAP[file_extension]  # 获取目标格式
@@ -528,10 +528,7 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
 
     logger.info("user_id=%s,kb_name=%s,file_name=%s" % (user_id, kb_name, file_name) + '===== 文档上传成功且完成')
     master_control_logger.info("user_id=%s,kb_name=%s,file_name=%s,kb_id=%s" % (user_id, kb_name, file_name, kb_id) + '===== 文档上传成功且完成')
-    if enable_knowledge_graph == "true":  # 更新知识图谱状态
-        mq_rel_utils.update_doc_status(file_id, status=11)
-    else:
-        mq_rel_utils.update_doc_status(file_id, status=10)
+    mq_rel_utils.update_doc_status(file_id, status=10)
 
 
 if __name__ == "__main__":
