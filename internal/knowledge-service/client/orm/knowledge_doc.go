@@ -434,22 +434,18 @@ func CreateKnowledgeUrlDoc(ctx context.Context, doc *model.KnowledgeDoc, importT
 func UpdateDocStatusDocId(ctx context.Context, docId string, status int, metaList []*model.KnowledgeDocMeta) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		//更新文档状态
-		var updateParams = map[string]interface{}{
-			"status":    status,
-			"error_msg": util.BuildDocErrMessage(status),
-		}
+		var updateParams, metaUpdate = buildUpdateParams(status)
 		err := tx.Model(&model.KnowledgeDoc{}).Where("doc_id = ?", docId).Updates(updateParams).Error
 		if err != nil {
 			return err
 		}
 		//更新文档元数据
-		if len(metaList) > 0 {
+		if metaUpdate && len(metaList) > 0 {
 			err := UpdateDocStatusMetaData(ctx, metaList)
 			if err != nil {
 				return err
 			}
 		}
-		//如果返回状态是11，同时开启了知识图谱开关，则发送消息触发知识图谱创建
 		return nil
 	})
 }
@@ -516,4 +512,22 @@ func logicDeleteDocByIdList(tx *gorm.DB, idList []uint32) error {
 // createKnowledgeDoc 插入数据
 func createKnowledgeDoc(tx *gorm.DB, knowledgeDoc *model.KnowledgeDoc) error {
 	return tx.Model(&model.KnowledgeDoc{}).Create(knowledgeDoc).Error
+}
+
+func buildUpdateParams(status int) (map[string]interface{}, bool) {
+	if model.InGraphStatus(status) { //图谱状态
+		return map[string]interface{}{
+			"graph_status": model.GraphStatus(status),
+		}, false
+	}
+	if model.InReportStatus(status) { //社区报告状态
+		return map[string]interface{}{
+			"report_status": model.ReportStatus(status),
+		}, false
+	}
+	//更新文档状态
+	return map[string]interface{}{
+		"status":    status,
+		"error_msg": util.BuildDocErrMessage(status),
+	}, true
 }
