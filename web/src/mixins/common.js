@@ -10,6 +10,91 @@ export default {
 
   methods: {
     /**
+     * 通用拖拽封装
+     * @param {Object} opt
+     * @param {string} [opt.containerSelector='.editable-wp'] - 监听拖拽的容器选择器
+     * @param {(files:Array,ctx:Object)=>void} [opt.onFiles] - 文件落下后的处理回调
+     */
+    $setupDragAndDrop(opt = {}) {
+      const { containerSelector = '.editable-wp', onFiles } = opt
+      const wrap = this.$el && this.$el.querySelector ? this.$el.querySelector(containerSelector) : null
+      if (!wrap) return () => {}
+
+      const prevent = (e) => { e.preventDefault(); e.stopPropagation(); wrap.classList.add('is-dropping'); }
+      const leave = () => { wrap.classList.remove('is-dropping'); }
+      const onDrop = async (e) => {
+        prevent(e)
+        try {
+          const dt = e && e.dataTransfer
+          const fileList = (dt && dt.files) ? dt.files : []
+          const rawFiles = Array.prototype.slice.call(fileList)
+          if (!rawFiles.length) return
+
+          // 安全限制：数量/大小/类型白名单
+          const maxFiles = Number(opt.maxFiles || 3)
+          const maxSizeMB = Number(opt.maxSizeMB || 50) // 单个文件默认 50MB
+          const maxSize = maxSizeMB * 1024 * 1024
+          const allowExt = (opt.acceptExt || ['jpg','jpeg','png','gif','webp','bmp','svg','mp3','wav','ogg','txt','pdf','doc','docx','xlsx','xls','pptx','csv','html']).map(function(s){return String(s).toLowerCase()})
+
+          // 过滤非法/过大文件
+          const safeFiles = []
+          const rejected = []
+          for (var i = 0; i < rawFiles.length && safeFiles.length < maxFiles; i++) {
+            var f = rawFiles[i]
+            var ext = (f.name && f.name.split('.').pop() || '').toLowerCase()
+            var okType = allowExt.indexOf(ext) > -1 || (f.type && (f.type.indexOf('image/') === 0 || f.type.indexOf('audio/') === 0))
+            if (!okType || (typeof f.size === 'number' && f.size > maxSize)) {
+              rejected.push(f)
+              continue
+            }
+            safeFiles.push(f)
+          }
+
+          // 提示被拒文件
+          if (rejected.length && this && this.$message && this.$message.warning) {
+            this.$message.warning('部分文件类型不支持或体积过大，已自动忽略')
+          }
+
+          if (!safeFiles.length) return
+
+          // 覆盖前释放旧的 ObjectURL，避免内存泄漏
+          try {
+            var currentList = this && this.fileList
+            if (currentList && currentList.forEach) {
+              currentList.forEach(function(f){
+                try { if (f && f.fileUrl) URL.revokeObjectURL(f.fileUrl) } catch(e) {}
+                try { if (f && f.imgUrl) URL.revokeObjectURL(f.imgUrl) } catch(e) {}
+              })
+            }
+          } catch(err) {}
+
+          if (typeof onFiles === 'function') {
+            onFiles(safeFiles, { event: e, wrap })
+          }
+        } finally {
+          leave()
+        }
+      }
+
+      wrap.addEventListener('dragenter', prevent)
+      wrap.addEventListener('dragover', prevent)
+      wrap.addEventListener('dragleave', leave)
+      wrap.addEventListener('drop', onDrop)
+
+      const cleanup = () => {
+        wrap.removeEventListener('dragenter', prevent)
+        wrap.removeEventListener('dragover', prevent)
+        wrap.removeEventListener('dragleave', leave)
+        wrap.removeEventListener('drop', onDrop)
+      }
+
+      this.$once('hook:beforeDestroy', () => {
+        try { cleanup() } catch (e) {}
+      })
+
+      return cleanup
+    },
+    /**
      * 格式化日期
      * @param {Date|string|number} date - 日期
      * @param {string} format - 格式字符串

@@ -68,6 +68,7 @@
 </template>
 
 <script>
+    import commonMixin from '@/mixins/common'
     import uploadDialog from './uploadBatchDialog'
     import { getModelList } from '@/api/cubm';
     import {mapGetters} from 'vuex'
@@ -80,6 +81,7 @@
             isModelDisable:{type:Boolean,default:false},
             type:{type:String}
         },
+        mixins: [commonMixin],
         components:{uploadDialog},
         data(){
             return{
@@ -131,6 +133,30 @@
         created(){
             // this.isLink = this.commonInfo.data.useModel.useInternet === 1 ? true : false;
             // this.getModelData()
+        },
+        mounted(){
+            this.$nextTick(() => {
+            this.$setupDragAndDrop({
+            containerSelector: '.editable-wp',
+            onFiles: (files) => {
+                const picked = files.slice(0, 3)
+                const fileObjs = picked.map(f => ({
+                fileName: f.name, name: f.name, size: f.size, type: f.type,
+                fileUrl: URL.createObjectURL(f), imgUrl: URL.createObjectURL(f)
+                }))
+                const ext = (picked[0].name.split('.').pop() || '').toLowerCase()
+                const mime = picked[0].type
+                let ftype = ''
+                if ((mime && mime.indexOf('image/') === 0) || ['jpg','jpeg','png','gif','webp','bmp','svg'].indexOf(ext) > -1) ftype = 'image/*'
+                else if ((mime && mime.indexOf('audio/') === 0) || ['mp3','wav','ogg'].indexOf(ext) > -1) ftype = 'audio/*'
+                else ftype = 'doc/*'
+                this.fileList = fileObjs
+                this.fileType = ftype
+                this.fileUrl = fileObjs[0].fileUrl
+                this.hasFile = true
+                }
+            })
+             }) 
         },
         methods:{
             linkSearch(){
