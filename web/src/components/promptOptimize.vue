@@ -65,7 +65,6 @@
 import { selectModelList } from "@/api/modelAccess"
 import Print from '@/utils/printPlus2.js'
 import { fetchEventSource } from "@/sse/index.js"
-import { getXClientId } from "@/utils/util"
 
 export default {
   data() {
@@ -139,7 +138,6 @@ export default {
           'Authorization': 'Bearer ' + token,
           "x-user-id": userInfo.uid,
           "x-org-id": userInfo.orgId,
-          // 'x-client-id': getXClientId(),
         },
         openWhenHidden: true,
         signal: this.ctrlAbort.signal,
@@ -151,7 +149,7 @@ export default {
             this.loading = false
           }
         },
-        onmessage: (e)=>{
+        onmessage: (e) => {
           if (e && e.data) {
             const data = JSON.parse(e.data) || {}
             let _sentence = data.response
@@ -161,7 +159,7 @@ export default {
             },{},(worldObj) => {
               endStr = endStr + worldObj.world
               this.optimizedPrompt = endStr
-              if (Boolean(data.finish)) this.loading = false
+              if (Boolean(worldObj.finish)) this.loading = false
             })
           }
         },
