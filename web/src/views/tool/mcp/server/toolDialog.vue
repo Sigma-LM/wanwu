@@ -109,7 +109,10 @@ export default {
       return {
         tool: this.customInfos,
       }
-    }
+    },
+    TOOL() {
+      return TOOL
+    },
   },
   created() {
     this.getCustomList('')
@@ -133,7 +136,7 @@ export default {
           this.$set(this.customInfos[index], 'children', res.data.actions)
           this.$set(this.customInfos[index], 'loading', false)
           this.customInfos[index]['children'].forEach(m => {
-            m.checked = this.customList.some(item => item.methodName === m.name)
+            m.checked = this.customList.some(item => item.methodName === m.name && item.id === toolId)
           })
 
         }
@@ -153,6 +156,15 @@ export default {
     showDialog(detail) {
       this.mcpServerId = detail.mcpServerId
       this.customList = detail.tools.filter(tool => tool.type === 'custom' || tool.type === 'builtin');
+
+      this.customInfos.forEach((item, index) => {
+        if (item.children && item.children.length > 0) {
+          const toolId = item.toolId;
+          this.customInfos[index]['children'].forEach(m => {
+            m.checked = this.customList.some(item => item.methodName === m.name && item.id === toolId)
+          });
+        }
+      })
       this.dialogVisible = true
     },
     getCustomList(name) {
