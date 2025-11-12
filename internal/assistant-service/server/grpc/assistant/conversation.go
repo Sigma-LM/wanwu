@@ -524,6 +524,7 @@ func (s *Service) setKnowledgebaseParams(ctx context.Context, sseReq *config.Age
 			TermWeight:           buildTermWeight(knowledgeBaseConfig),
 			MetaFilter:           len(params) > 0,
 			MetaFilterConditions: params,
+			UseGraph:             knowledgeBaseConfig.UseGraph,
 		}
 		sseReq.UseKnow = true
 	}
@@ -735,17 +736,18 @@ type AppKnowledgebaseParams struct {
 
 // RAGKnowledgeBaseConfig 知识库配置结构体
 type RAGKnowledgeBaseConfig struct {
-	KnowledgeBaseIds     []string                `json:"knowledgeBaseIds"`  // 知识库信息
-	MaxHistory           int32                   `json:"maxHistory"`        // 最长上下文
-	Threshold            float32                 `json:"threshold"`         // 过滤阈值
-	TopK                 int32                   `json:"topK"`              // topK
-	MatchType            string                  `json:"matchType"`         // 检索类型：vector（向量检索）、text（文本检索）、mix（混合检索）
-	KeywordPriority      float32                 `json:"keywordPriority"`   // 关键词权重
-	PriorityMatch        int32                   `json:"priorityMatch"`     // 权重匹配，仅混合检索模式下有效，1 表示启用
-	SemanticsPriority    float32                 `json:"semanticsPriority"` // 语义权重
-	TermWeight           float32                 `json:"termWeight"`        // 关键词系数, 默认为1
-	TermWeightEnable     bool                    `json:"termWeightEnable"`  // 关键词系数开关
-	AppKnowledgeBaseList []*AppKnowledgeBaseInfo `json:"AppKnowledgeBaseList"`
+	KnowledgeBaseIds     []string                `json:"knowledgeBaseIds"`     // 知识库信息
+	MaxHistory           int32                   `json:"maxHistory"`           // 最长上下文
+	Threshold            float32                 `json:"threshold"`            // 过滤阈值
+	TopK                 int32                   `json:"topK"`                 // topK
+	MatchType            string                  `json:"matchType"`            // 检索类型：vector（向量检索）、text（文本检索）、mix（混合检索）
+	KeywordPriority      float32                 `json:"keywordPriority"`      // 关键词权重
+	PriorityMatch        int32                   `json:"priorityMatch"`        // 权重匹配，仅混合检索模式下有效，1 表示启用
+	SemanticsPriority    float32                 `json:"semanticsPriority"`    // 语义权重
+	TermWeight           float32                 `json:"termWeight"`           // 关键词系数, 默认为1
+	TermWeightEnable     bool                    `json:"termWeightEnable"`     // 关键词系数开关
+	AppKnowledgeBaseList []*AppKnowledgeBaseInfo `json:"AppKnowledgeBaseList"` // 知识库元数据
+	UseGraph             bool                    `json:"useGraph"`             // 知识图谱开关
 }
 
 type AppKnowledgeBaseInfo struct {

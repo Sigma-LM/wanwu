@@ -157,6 +157,7 @@ func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHi
 			Score:             matchParams.Threshold,
 			TermWeight:        matchParams.TermWeight,
 			TermWeightEnable:  matchParams.TermWeightEnable,
+			UseGraph:          matchParams.UseGraph,
 		},
 	})
 	if err != nil {
@@ -375,6 +376,7 @@ func buildKnowledgeHitResp(resp *knowledgebase_service.KnowledgeHitResp) *respon
 				KnowledgeName:    search.KnowledgeName,
 				ChildContentList: childContentList,
 				ChildScore:       childScore,
+				ContentType:      search.ContentType,
 			})
 		}
 	}
@@ -382,6 +384,7 @@ func buildKnowledgeHitResp(resp *knowledgebase_service.KnowledgeHitResp) *respon
 		Prompt:     resp.Prompt,
 		Score:      resp.Score,
 		SearchList: searchList,
+		UseGraph:   resp.UseGraph,
 	}
 }
 

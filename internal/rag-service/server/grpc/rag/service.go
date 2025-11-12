@@ -195,6 +195,7 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 			TermWeight:        float64(kbGlobalConfig.TermWeight),
 			TermWeightEnable:  kbGlobalConfig.TermWeightEnable,
 			MetaParams:        metaParams,
+			UseGraph:          kbGlobalConfig.UseGraph,
 		},
 		SensitiveConfig: model.SensitiveConfig{
 			Enable:   in.SensitiveConfig.Enable,

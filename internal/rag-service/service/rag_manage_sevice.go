@@ -55,6 +55,7 @@ type RagChatParams struct {
 	TermWeight           float32               `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                  `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	UseGraph             bool                  `json:"use_graph"`                     // 是否启动知识图谱查询
 }
 
 type MetadataFilterItem struct {
@@ -240,7 +241,7 @@ func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, kno
 	ragChatParams.MetaFilter = filterEnable
 	ragChatParams.MetaFilterConditions = metaParams
 	ragChatParams.History = buildHistory(req.History)
-
+	ragChatParams.UseGraph = knowledgeConfig.UseGraph
 	log.Infof("ragparams = %+v", http_client.Convert2LogString(ragChatParams))
 	return ragChatParams, nil
 }

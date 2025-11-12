@@ -778,6 +778,10 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "graphSwitch": {
+                    "description": "知识图谱开关",
+                    "type": "integer"
+                },
                 "id": {
                     "description": "知识库id",
                     "type": "string"
@@ -848,6 +852,10 @@ const docTemplate = `{
                 "topK": {
                     "description": "知识条数",
                     "type": "integer"
+                },
+                "useGraph": {
+                    "description": "知识图谱开关",
+                    "type": "boolean"
                 }
             }
         },

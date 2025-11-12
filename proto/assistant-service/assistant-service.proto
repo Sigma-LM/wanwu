@@ -133,13 +133,14 @@ message AssistantKnowledgeBaseConfig {
   float termWeight = 9; // 关键词系数
   bool termWeightEnable = 10; // 关键词系数开关
   repeated AppKnowledgeBase appKnowledgeBaseList = 11;
-
+  bool useGraph = 12;
 }
 
 message AppKnowledgeBase {
   string knowledgeBaseId = 1;
   string knowledgeBaseName = 2;
-  MetaDataFilterParams metaDataFilterParams = 3;
+  int32 graphSwitch = 3; // 知识图谱开关
+  MetaDataFilterParams metaDataFilterParams = 4;
 }
 
 message MetaDataFilterParams {

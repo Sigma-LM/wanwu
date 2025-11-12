@@ -2413,6 +2413,10 @@ const docTemplate = `{
                     "description": "多样性",
                     "type": "number"
                 },
+                "use_graph": {
+                    "description": "是否启动知识图谱查询",
+                    "type": "boolean"
+                },
                 "userId": {
                     "type": "string"
                 },
@@ -2495,6 +2499,10 @@ const docTemplate = `{
                 },
                 "topK": {
                     "type": "integer"
+                },
+                "use_graph": {
+                    "description": "是否启动知识图谱查询",
+                    "type": "boolean"
                 },
                 "userId": {
                     "type": "string"

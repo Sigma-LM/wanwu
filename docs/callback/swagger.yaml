@@ -1200,6 +1200,9 @@ definitions:
         type: number
       topK:
         type: integer
+      use_graph:
+        description: 是否启动知识图谱查询
+        type: boolean
       userId:
         type: string
       weights:
@@ -1252,6 +1255,9 @@ definitions:
         type: number
       topK:
         type: integer
+      use_graph:
+        description: 是否启动知识图谱查询
+        type: boolean
       userId:
         type: string
       weights:

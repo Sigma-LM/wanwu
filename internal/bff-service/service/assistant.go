@@ -543,6 +543,7 @@ func transKnowledgeParams(paramsList []request.AppKnowledgeBase) []*assistant_se
 		retList = append(retList, &assistant_service.AppKnowledgeBase{
 			KnowledgeBaseId:      base.ID,
 			KnowledgeBaseName:    base.Name,
+			GraphSwitch:          base.GraphSwitch,
 			MetaDataFilterParams: transKnowledgeMetaParams(base.MetaDataFilterParams),
 		})
 	}
@@ -788,6 +789,7 @@ func buildKnowledgeBases(kbInfoList *knowledgeBase_service.KnowledgeDetailSelect
 			knowledgeBases = append(knowledgeBases, request.AppKnowledgeBase{
 				ID:                   kbConfig.KnowledgeBaseId,
 				Name:                 info.Name,
+				GraphSwitch:          info.GraphSwitch,
 				MetaDataFilterParams: params,
 			})
 		}

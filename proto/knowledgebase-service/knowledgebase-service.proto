@@ -73,6 +73,7 @@ message KnowledgeMatchParams{
   float score = 7;//score 过滤分数阈值
   float termWeight = 8; // 关键词系数
   bool termWeightEnable = 9; // 关键词系数开关
+  bool useGraph = 10; // 是否使用知识图谱
 }
 
 message KnowledgeParams{
@@ -184,6 +185,7 @@ message KnowledgeHitResp{
   string prompt = 1;
   repeated double score = 2;
   repeated KnowledgeSearchInfo searchList = 3;
+  bool useGraph = 4;
 }
 
 message KnowledgeSearchInfo{
@@ -192,6 +194,7 @@ message KnowledgeSearchInfo{
   string knowledgeName = 3;
   repeated ChildContent childContentList = 4;
   repeated float childScore = 5;
+  string contentType = 6; // graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
 }
 
 message ChildContent{

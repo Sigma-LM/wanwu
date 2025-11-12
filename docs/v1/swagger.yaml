@@ -848,6 +848,9 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      graphSwitch:
+        description: 知识图谱开关
+        type: integer
       id:
         description: 知识库id
         type: string
@@ -899,6 +902,9 @@ definitions:
       topK:
         description: 知识条数
         type: integer
+      useGraph:
+        description: 知识图谱开关
+        type: boolean
     type: object
   request.AppModelConfig:
     properties:
@@ -2159,6 +2165,9 @@ definitions:
       topK:
         description: topK 获取最高的几行
         type: integer
+      useGraph:
+        description: 是否使用知识图谱
+        type: boolean
     required:
     - matchType
     type: object
@@ -3516,6 +3525,9 @@ definitions:
         items:
           type: number
         type: array
+      contentType:
+        description: graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
+        type: string
       knowledgeName:
         type: string
       snippet:
@@ -4170,6 +4182,9 @@ definitions:
         items:
           $ref: '#/definitions/response.ChunkSearchList'
         type: array
+      useGraph:
+        description: 是否使用知识图谱
+        type: boolean
     type: object
   response.KnowledgeInfo:
     properties:

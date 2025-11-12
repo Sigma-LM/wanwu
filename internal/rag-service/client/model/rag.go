@@ -39,6 +39,7 @@ type KnowledgeBaseConfig struct {
 	TermWeight        float64 `json:"term_weight" gorm:"column:term_weight;type:decimal(10,2);not null;default:1;comment:关键词系数,默认为1"`
 	TermWeightEnable  bool    `json:"term_weight_enable" gorm:"column:term_weight_enable;type:tinyint(1);not null;default:false;comment:是否启用关键词系数"`
 	MetaParams        string  `json:"metaParams" gorm:"column:meta_params;type:text;comment:元数据参数"`
+	UseGraph          bool    `json:"use_graph" gorm:"column:use_graph;type:tinyint(1);not null;default:false;comment:是否使用知识图谱"`
 }
 
 type SensitiveConfig struct {

@@ -383,6 +383,7 @@ func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model
 		TermWeight:           buildTermWeight(matchParams.TermWeight, matchParams.TermWeightEnable),
 		MetaFilter:           filterEnable,
 		MetaFilterConditions: metaParams,
+		UseGraph:             matchParams.UseGraph,
 	}
 	return ret, nil
 }
@@ -684,6 +685,7 @@ func buildKnowledgeBaseHitResp(ragKnowledgeHitResp *rag_service.RagKnowledgeHitR
 				KnowledgeName:    search.KbName,
 				ChildContentList: childContentList,
 				ChildScore:       childScore,
+				ContentType:      search.ContentType,
 			})
 		}
 	}
@@ -691,6 +693,7 @@ func buildKnowledgeBaseHitResp(ragKnowledgeHitResp *rag_service.RagKnowledgeHitR
 		Prompt:     knowledgeHitData.Prompt,
 		Score:      knowledgeHitData.Score,
 		SearchList: searchList,
+		UseGraph:   knowledgeHitData.UseGraph,
 	}
 }
 

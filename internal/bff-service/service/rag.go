@@ -79,6 +79,7 @@ func ragKBConfigToProto(knowledgeConfig request.AppKnowledgebaseConfig) *rag_ser
 		// 初始化单个知识库配置
 		perConfig := &rag_service.RagPerKnowledgeConfig{
 			KnowledgeId: knowledge.ID,
+			GraphSwitch: knowledge.GraphSwitch,
 		}
 		// 构建元数据过滤条件（如果启用）
 		if metaFilter := buildRagMetaFilter(knowledge.MetaDataFilterParams); metaFilter != nil {
@@ -125,6 +126,7 @@ func buildRagGlobalConfig(kbConfig request.AppKnowledgebaseParams) *rag_service.
 		SemanticsPriority: kbConfig.SemanticsPriority,
 		TermWeight:        kbConfig.TermWeight,
 		TermWeightEnable:  kbConfig.TermWeightEnable,
+		UseGraph:          kbConfig.UseGraph,
 	}
 }
 
@@ -224,8 +226,9 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 		}
 		// 基础信息映射
 		knowledge := request.AppKnowledgeBase{
-			ID:   perConfig.KnowledgeId,
-			Name: kbInfo.Name,
+			ID:          perConfig.KnowledgeId,
+			Name:        kbInfo.Name,
+			GraphSwitch: kbInfo.GraphSwitch,
 		}
 		// 转换元数据过滤配置
 		metaFilter := perConfig.RagMetaFilter
@@ -247,6 +250,7 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 		SemanticsPriority: globalConfig.SemanticsPriority,
 		TermWeight:        globalConfig.TermWeight,
 		TermWeightEnable:  globalConfig.TermWeightEnable,
+		UseGraph:          globalConfig.UseGraph,
 	}
 	return request.AppKnowledgebaseConfig{
 		Knowledgebases: knowledgeList,

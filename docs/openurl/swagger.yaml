@@ -261,6 +261,9 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      graphSwitch:
+        description: 知识图谱开关
+        type: integer
       id:
         description: 知识库id
         type: string
@@ -312,6 +315,9 @@ definitions:
       topK:
         description: 知识条数
         type: integer
+      useGraph:
+        description: 知识图谱开关
+        type: boolean
     type: object
   request.AppModelConfig:
     properties:

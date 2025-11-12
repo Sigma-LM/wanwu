@@ -97,7 +97,8 @@ message RagKnowledgeBaseConfig {
 
 message RagPerKnowledgeConfig{
   string knowledgeId = 1;
-  RagMetaFilter ragMetaFilter = 2;
+  int32 graphSwitch = 2;
+  RagMetaFilter ragMetaFilter = 3;
 }
 
 message RagMetaFilter{
@@ -123,6 +124,7 @@ message RagGlobalConfig{
   float semanticsPriority = 7;// 语义权重
   float termWeight = 8; // 关键词系数，默认为1
   bool termWeightEnable = 9; // 关键词系数开关
+  bool useGraph = 10; // 知识图谱开关
 }
 
 message RagSensitiveConfig{

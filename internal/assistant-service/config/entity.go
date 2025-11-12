@@ -33,6 +33,7 @@ type KnParams struct {
 	TermWeight           float32                `json:"term_weight_coefficient"`       // 关键词系数, 默认为1
 	MetaFilter           bool                   `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterParam `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	UseGraph             bool                   `json:"use_graph"`                     // 知识图谱开关
 }
 
 type MetadataFilterParam struct {

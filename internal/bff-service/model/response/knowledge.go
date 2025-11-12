@@ -17,6 +17,7 @@ type KnowledgeHitResp struct {
 	Prompt     string             `json:"prompt"`     //提示词列表
 	SearchList []*ChunkSearchList `json:"searchList"` //种种结果
 	Score      []float64          `json:"score"`      //打分信息
+	UseGraph   bool               `json:"useGraph"`   // 是否使用知识图谱
 }
 
 type RagKnowledgeResp struct {
@@ -64,6 +65,7 @@ type ChunkSearchList struct {
 	KnowledgeName    string          `json:"knowledgeName"`
 	ChildContentList []*ChildContent `json:"childContentList"`
 	ChildScore       []float64       `json:"childScore"`
+	ContentType      string          `json:"contentType"` // graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
 }
 
 type ChildContent struct {

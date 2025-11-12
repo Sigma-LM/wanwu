@@ -57,6 +57,9 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 		PriorityMatch:     knowledgeConfig.PriorityMatch,
 		SemanticsPriority: float32(knowledgeConfig.SemanticsPriority),
 		KeywordPriority:   float32(knowledgeConfig.KeywordPriority),
+		TermWeightEnable:  knowledgeConfig.TermWeightEnable,
+		TermWeight:        float32(knowledgeConfig.TermWeight),
+		UseGraph:          knowledgeConfig.UseGraph,
 	}
 
 	var perKbConfig []*rag_service.RagPerKnowledgeConfig
@@ -260,6 +263,9 @@ func (c *Client) UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_c
 				"kb_semantics_priority": rag.KnowledgeBaseConfig.SemanticsPriority,
 				"kb_keyword_priority":   rag.KnowledgeBaseConfig.KeywordPriority,
 				"kb_meta_params":        rag.KnowledgeBaseConfig.MetaParams,
+				"kb_term_weight":        rag.KnowledgeBaseConfig.TermWeight,
+				"kb_term_weight_enable": rag.KnowledgeBaseConfig.TermWeightEnable,
+				"kb_use_graph":          rag.KnowledgeBaseConfig.UseGraph,
 
 				"sensitive_enable":    rag.SensitiveConfig.Enable,
 				"sensitive_table_ids": rag.SensitiveConfig.TableIds,

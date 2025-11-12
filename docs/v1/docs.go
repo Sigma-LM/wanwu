@@ -11972,6 +11972,10 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "graphSwitch": {
+                    "description": "知识图谱开关",
+                    "type": "integer"
+                },
                 "id": {
                     "description": "知识库id",
                     "type": "string"
@@ -12042,6 +12046,10 @@ const docTemplate = `{
                 "topK": {
                     "description": "知识条数",
                     "type": "integer"
+                },
+                "useGraph": {
+                    "description": "知识图谱开关",
+                    "type": "boolean"
                 }
             }
         },
@@ -13904,6 +13912,10 @@ const docTemplate = `{
                 "topK": {
                     "description": "topK 获取最高的几行",
                     "type": "integer"
+                },
+                "useGraph": {
+                    "description": "是否使用知识图谱",
+                    "type": "boolean"
                 }
             }
         },
@@ -15887,6 +15899,10 @@ const docTemplate = `{
                         "type": "number"
                     }
                 },
+                "contentType": {
+                    "description": "graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）",
+                    "type": "string"
+                },
                 "knowledgeName": {
                     "type": "string"
                 },
@@ -16898,6 +16914,10 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.ChunkSearchList"
                     }
+                },
+                "useGraph": {
+                    "description": "是否使用知识图谱",
+                    "type": "boolean"
                 }
             }
         },

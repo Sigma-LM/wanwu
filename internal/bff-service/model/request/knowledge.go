@@ -50,6 +50,7 @@ type KnowledgeMatchParams struct {
 	Threshold         float32 `json:"threshold"`                      //threshold 过滤分数阈值
 	TermWeight        float32 `json:"termWeight"`                     // 关键词系数
 	TermWeightEnable  bool    `json:"termWeightEnable"`               // 关键词系数开关
+	UseGraph          bool    `json:"useGraph"`                       // 是否使用知识图谱
 	CommonCheck
 }
 
@@ -142,6 +143,7 @@ type RagSearchKnowledgeBaseReq struct {
 	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	UseGraph             bool                           `json:"use_graph"`                     // 是否启动知识图谱查询
 	CommonCheck
 }
 
@@ -170,6 +172,7 @@ type RagKnowledgeChatReq struct {
 	TermWeight           float32                        `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	UseGraph             bool                           `json:"use_graph"`                     // 是否启动知识图谱查询
 	CommonCheck
 }
 

@@ -67,6 +67,7 @@ type KnowledgeHitParams struct {
 	TermWeight           float32               `json:"term_weight_coefficient"`       // 关键词系数
 	MetaFilter           bool                  `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	UseGraph             bool                  `json:"use_graph"`                     // 是否使用知识图谱
 }
 
 type MetadataFilterItem struct {
@@ -97,6 +98,7 @@ type KnowledgeHitData struct {
 	Prompt     string             `json:"prompt"`
 	SearchList []*ChunkSearchList `json:"searchList"`
 	Score      []float64          `json:"score"`
+	UseGraph   bool               `json:"use_graph"`
 }
 
 type ChunkSearchList struct {
@@ -106,6 +108,7 @@ type ChunkSearchList struct {
 	MetaData         interface{}     `json:"meta_data"`
 	ChildContentList []*ChildContent `json:"child_content_list"`
 	ChildScore       []float64       `json:"child_score"`
+	ContentType      string          `json:"content_type"` // graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown）
 }
 
 type ChildContent struct {
