@@ -235,6 +235,34 @@ def search_es(user_id, kb_names, query, top_k, kb_ids=[], filter_file_name_list=
     return search_list
 
 
+def search_graph_es(user_id, kb_names, query, top_k, kb_ids=[], filter_file_name_list=[]):
+    search_list = []
+    for kb_name in kb_names:
+        es_data = {}
+        es_data['user_id'] = user_id
+        es_data['kb_name'] = kb_name
+        es_data['query'] = query
+        es_data['top_k'] = top_k
+        es_data['search_by'] = "graph_data_text"
+        es_data['min_score'] = 0
+        es_data['filter_file_name_list'] = filter_file_name_list[:10]  # 限制最多10个，以免掉蹦
+        es_url = ES_BASE_URL + "/api/v1/rag/es/search"
+        headers = {'Content-Type': 'application/json'}
+        try:
+            response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
+            if response.status_code == 200:
+                tmp_sl = json.loads(response.text)['result']['search_list']
+                for x in range(len(tmp_sl)):
+                    tmp_sl[x]['kb_name'] = kb_name
+                search_list = search_list + tmp_sl
+                logger.info("知识库：" + repr(kb_name) + f" query:{query}" + "graph_es检索请求成功")
+            else:
+                logger.error("知识库：" + repr(kb_name) + f" query:{query}" + "graph_es检索请求失败：" + repr(response.text))
+        except Exception as e:
+            logger.error("知识库：" + repr(kb_name) + f" query:{query}" + "graph_es检索请求异常：" + repr(e))
+    return search_list
+
+
 def search_keyword(user_id, kb_names, keywords, top_k, kb_ids=[], filter_file_name_list=[], metadata_filtering_conditions = []):
     search_list = []
     for kb_name in kb_names:
