@@ -124,43 +124,105 @@ func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.Promp
 	ctx.Header("Connection", "keep-alive")
 	ctx.Header("Content-Type", "text/event-stream; charset=utf-8")
 	var data *mp_common.LLMResp
+	var inThink bool = false // 是否在思考标签内
+
 	for sseResp := range sseCh {
 		data, ok = sseResp.ConvertResp()
 		var dataStr string
+		var shouldSend bool = true // 标记是否应该发送此响应
+
 		if ok && data != nil {
 			currentResponse := "" // 记录当前流式增量内容
 			if len(data.Choices) > 0 && data.Choices[0].Delta != nil {
-				answer = answer + data.Choices[0].Delta.Content
-				delta := data.Choices[0].Delta
-				currentResponse = delta.Content // 当前流式块的响应内容
-			}
+				content := data.Choices[0].Delta.Content
 
-			// 构建目标结构
-			streamData := response.CustomPromptOpt{
-				Code:     data.Code,
-				Message:  "success",
-				Response: currentResponse,
-				Finish:   "",
-				Usage:    &data.Usage,
-			}
-			if len(data.Choices) > 0 {
-				streamData.Finish = data.Choices[0].FinishReason
-				if streamData.Finish == "" {
-					streamData.Finish = "0" // 继续生成
-				} else if streamData.Finish == "stop" {
-					streamData.Finish = "1" // 结束标志
+				// 过滤思考过程
+				if inThink {
+					// 当前在思考标签内，检查是否遇到结束标签
+					if strings.Contains(content, "</think>") {
+						inThink = false
+						parts := strings.SplitN(content, "</think>", 2)
+						// 找到</think>之后的内容
+						if len(parts) > 1 && parts[1] != "" {
+							filteredContent := parts[1]
+							answer = answer + filteredContent
+							currentResponse = filteredContent
+						} else {
+							shouldSend = false
+						}
+					} else {
+						shouldSend = false
+					}
+				} else {
+					// 不在思考标签内，检查是否遇到开始标签
+					if strings.Contains(content, "<think>") {
+						// 检查是否有<think>之前的内容
+						parts := strings.SplitN(content, "<think>", 2)
+						if len(parts) > 0 && parts[0] != "" {
+							filteredContent := parts[0]
+							answer = answer + filteredContent
+							currentResponse = filteredContent
+						} else {
+							shouldSend = false
+						}
+						inThink = true
+
+						if len(parts) > 1 && strings.Contains(parts[1], "</think>") {
+							endParts := strings.SplitN(parts[1], "</think>", 2)
+							if len(endParts) > 1 && endParts[1] != "" {
+								// </think>之后还有内容，需要返回
+								answer = answer + endParts[1]
+								currentResponse = currentResponse + endParts[1]
+							} else if currentResponse == "" {
+								shouldSend = false
+							}
+							inThink = false
+						}
+					} else {
+						// 没有思考标签，直接返回内容
+						answer = answer + content
+						currentResponse = content
+					}
 				}
 			}
 
-			dataByte, _ := json.Marshal(streamData)
-			dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
+			// 发送响应
+			if shouldSend {
+				// 构建目标结构
+				streamData := response.CustomPromptOpt{
+					Code:     data.Code,
+					Message:  "success",
+					Response: currentResponse,
+					Finish:   0,
+					Usage:    &data.Usage,
+				}
+				if len(data.Choices) > 0 {
+					if data.Choices[0].FinishReason == "" {
+						streamData.Finish = 0 // 继续生成
+					} else if data.Choices[0].FinishReason == "stop" {
+						streamData.Finish = 1 // 结束标志
+					}
+				}
+
+				dataByte, _ := json.Marshal(streamData)
+				dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
+			}
 		} else {
 			dataStr = fmt.Sprintf("%v\n", sseResp.String())
 		}
-		if _, err = ctx.Writer.Write([]byte(dataStr)); err != nil {
-			log.Errorf("model %v chat completions sse err: %v", modelInfo.ModelId, err)
+
+		// 写入
+		if dataStr != "" {
+			if _, err = ctx.Writer.Write([]byte(dataStr)); err != nil {
+				log.Errorf("model %v chat completions sse err: %v", modelInfo.ModelId, err)
+			}
+			ctx.Writer.Flush()
 		}
-		ctx.Writer.Flush()
+	}
+
+	if len(answer) == 0 {
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "answer is empty"))
+		return
 	}
 
 	ctx.Set(gin_util.STATUS, http.StatusOK)

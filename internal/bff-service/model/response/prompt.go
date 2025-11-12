@@ -22,6 +22,6 @@ type CustomPromptOpt struct {
 	Code     *int                       `json:"code"`     // 状态码
 	Message  string                     `json:"message"`  // 状态描述
 	Response string                     `json:"response"` // 响应内容
-	Finish   string                     `json:"finish"`   // 结束标志
+	Finish   int                        `json:"finish"`   // 结束标志
 	Usage    *mp_common.OpenAIRespUsage `json:"usage"`    // token使用统计
 }
