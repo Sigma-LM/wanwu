@@ -78,10 +78,7 @@ func (builder *mcpServerBuiltInToolBuilder) GetOpenapiSchema(ctx context.Context
 		return "", nil, err
 	}
 	builder.toolSquareName = toolSquareInfo.Info.Name
-	auth, err := util.ConvertApiAuthWebRequestProto(toolSquareInfo.BuiltInTools.ApiAuth)
-	if err != nil {
-		return "", nil, err
-	}
+	auth := openapi3_util.DefaultAuth(toolSquareInfo.BuiltInTools.ApiKey)
 	return toolSquareInfo.Schema, auth, nil
 }
 
