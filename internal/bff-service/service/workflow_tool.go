@@ -330,7 +330,7 @@ func openaiSchemaType4Workflow(schema *openapi3.Schema) string {
 		} else if schema.Type.Is("string") {
 			return "string"
 		} else if schema.Type.Is("number") {
-			return "number"
+			return "float"
 		} else if schema.Type.Is("integer") {
 			return "integer"
 		} else if schema.Type.Is("boolean") {
