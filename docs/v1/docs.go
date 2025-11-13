@@ -215,10 +215,11 @@ const docTemplate = `{
                         "enum": [
                             "agent",
                             "workflow",
-                            "rag"
+                            "rag",
+                            "chatflow"
                         ],
                         "type": "string",
-                        "description": "应用类型 Enums(agent,workflow,rag)",
+                        "description": "应用类型 Enums(agent,workflow,rag,chatflow)",
                         "name": "appType",
                         "in": "query"
                     }
@@ -606,6 +607,192 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/chatflow": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "创建Chatflow",
+                "parameters": [
+                    {
+                        "description": "创建Chatflow的请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AppBriefConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CozeWorkflowIDData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/chatflow/copy": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "拷贝Chatflow",
+                "parameters": [
+                    {
+                        "description": "拷贝Chatflow的请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowIDReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CozeWorkflowIDData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/chatflow/export": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "导出工作流的json文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "导出Chatflow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "工作流ID",
+                        "name": "workflow_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/chatflow/import": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "通过JSON文件导入工作流",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "导入Chatflow",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "工作流JSON文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CozeWorkflowIDData"
                                         }
                                     }
                                 }
@@ -16262,6 +16449,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "agentIcon": {
+                    "type": "string"
+                },
+                "chatflowIcon": {
                     "type": "string"
                 },
                 "promptIcon": {

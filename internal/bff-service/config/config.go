@@ -257,6 +257,7 @@ type DefaultIconConfig struct {
 	RagIcon       string `json:"rag" mapstructure:"rag"`
 	AgentIcon     string `json:"agent" mapstructure:"agent"`
 	WorkflowIcon  string `json:"workflow" mapstructure:"workflow"`
+	ChatflowIcon  string `json:"chatflow" mapstructure:"chatflow"`
 	McpCustomIcon string `json:"mcpCustom" mapstructure:"mcpCustom"`
 	McpServerIcon string `json:"mcpServer" mapstructure:"mcpServer"`
 	ToolIcon      string `json:"tool" mapstructure:"tool"`

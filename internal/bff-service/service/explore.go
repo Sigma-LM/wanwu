@@ -246,7 +246,7 @@ func explorerationFilterWorkFlow(ctx *gin.Context, apps []*app_service.Explorati
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
 				appInfo.PublishType = expApp.PublishType
 				appInfo.IsFavorite = expApp.IsFavorite
-				appInfo.Avatar = cacheWorkflowAvatar(foundWorkflow.URL)
+				appInfo.Avatar = cacheWorkflowAvatar(foundWorkflow.URL, constant.AppTypeWorkflow)
 				retAppList = append(retAppList, appInfo)
 				appInfo.User.UserId = expApp.UserId
 				break

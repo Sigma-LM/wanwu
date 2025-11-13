@@ -279,12 +279,19 @@ func cacheMCPServiceAvatar(ctx *gin.Context, avatarPath string) request.Avatar {
 
 // cacheWorkflowAvatar 将avatar http请求地址转为前端统一访问的格式，同时在本地缓存avatar
 // 例如 http://IP:port/api/static/abc/def.jpg => /v1/static/avatar/abc/def.png
-func cacheWorkflowAvatar(avatarURL string) request.Avatar {
+func cacheWorkflowAvatar(avatarURL, appType string) request.Avatar {
 	avatar := request.Avatar{}
-
-	if avatarURL == "" {
-		avatar.Path = config.Cfg().DefaultIcon.WorkflowIcon
-		return avatar
+	switch appType {
+	case constant.AppTypeWorkflow:
+		if avatarURL == "" {
+			avatar.Path = config.Cfg().DefaultIcon.WorkflowIcon
+			return avatar
+		}
+	case constant.AppTypeChatflow:
+		if avatarURL == "" {
+			avatar.Path = config.Cfg().DefaultIcon.ChatflowIcon
+			return avatar
+		}
 	}
 
 	avatarCacheMu.Lock()

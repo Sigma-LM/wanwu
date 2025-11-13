@@ -47,6 +47,15 @@ func DeleteAppSpaceApp(ctx *gin.Context, userId, orgId, appId, appType string) e
 
 		// Coze Workflow
 		err = DeleteWorkflow(ctx, orgId, appId)
+	case constant.AppTypeChatflow:
+		_, err = assistant.AssistantWorkFlowDeleteByWorkflowId(ctx.Request.Context(), &assistant_service.AssistantWorkFlowDeleteByWorkflowIdReq{
+			WorkflowId: appId,
+		})
+		if err != nil {
+			return err
+		}
+		// Coze Chatflow 复用工作流的删除接口
+		err = DeleteWorkflow(ctx, orgId, appId)
 	}
 	return err
 }
@@ -94,12 +103,21 @@ func GetAppSpaceAppList(ctx *gin.Context, userId, orgId, name, appType string) (
 		// }
 
 		// Coze Workflow
-		resp, err := ListWorkflow(ctx, orgId, name)
+		resp, err := ListWorkflow(ctx, orgId, name, constant.AppTypeWorkflow)
 		if err != nil {
 			return nil, err
 		}
 		for _, workflowInfo := range resp.Workflows {
 			ret = append(ret, cozeWorkflowInfo2Model(workflowInfo))
+		}
+	}
+	if appType == "" || appType == constant.AppTypeChatflow {
+		resp, err := ListWorkflow(ctx, orgId, name, constant.AppTypeChatflow)
+		if err != nil {
+			return nil, err
+		}
+		for _, chatflowInfo := range resp.Workflows {
+			ret = append(ret, cozeChatflowInfo2Model(chatflowInfo))
 		}
 	}
 	var appIds []string

@@ -3741,6 +3741,8 @@ definitions:
     properties:
       agentIcon:
         type: string
+      chatflowIcon:
+        type: string
       promptIcon:
         type: string
       ragIcon:
@@ -5712,11 +5714,12 @@ paths:
         in: query
         name: name
         type: string
-      - description: 应用类型 Enums(agent,workflow,rag)
+      - description: 应用类型 Enums(agent,workflow,rag,chatflow)
         enum:
         - agent
         - workflow
         - rag
+        - chatflow
         in: query
         name: appType
         type: string
@@ -5958,6 +5961,113 @@ paths:
       summary: 获取Api根地址
       tags:
       - app
+  /appspace/chatflow:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建Chatflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.AppBriefConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建Chatflow
+      tags:
+      - workflow
+  /appspace/chatflow/copy:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 拷贝Chatflow的请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 拷贝Chatflow
+      tags:
+      - workflow
+  /appspace/chatflow/export:
+    get:
+      consumes:
+      - application/json
+      description: 导出工作流的json文件
+      parameters:
+      - description: 工作流ID
+        in: query
+        name: workflow_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 导出Chatflow
+      tags:
+      - workflow
+  /appspace/chatflow/import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 通过JSON文件导入工作流
+      parameters:
+      - description: 工作流JSON文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CozeWorkflowIDData'
+              type: object
+      security:
+      - JWT: []
+      summary: 导入Chatflow
+      tags:
+      - workflow
   /appspace/rag:
     delete:
       consumes:

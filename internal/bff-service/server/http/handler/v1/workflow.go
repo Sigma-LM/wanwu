@@ -6,6 +6,7 @@ import (
 
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	"github.com/gin-gonic/gin"
@@ -104,7 +105,7 @@ func ExportWorkflow(ctx *gin.Context) {
 //	@Success		200		{object}	response.Response{data=response.CozeWorkflowIDData}
 //	@Router			/appspace/workflow/import [post]
 func ImportWorkflow(ctx *gin.Context) {
-	resp, err := service.ImportWorkflow(ctx, getOrgID(ctx))
+	resp, err := service.ImportWorkflow(ctx, getOrgID(ctx), constant.AppTypeWorkflow)
 	gin_util.Response(ctx, resp, err)
 }
 

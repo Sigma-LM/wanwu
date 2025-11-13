@@ -655,7 +655,7 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 					// 找到匹配的工作流，设置名称和描述
 					workFlowInfo.WorkFlowName = info.Name
 					workFlowInfo.WorkFlowDesc = info.Desc
-					workFlowInfo.AvatarPath = cacheWorkflowAvatar(info.URL)
+					workFlowInfo.AvatarPath = cacheWorkflowAvatar(info.URL, constant.AppTypeWorkflow)
 				}
 			}
 

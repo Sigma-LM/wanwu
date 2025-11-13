@@ -5,6 +5,7 @@ const (
 	AppTypeAgent     = "agent"     // 智能体
 	AppTypeRag       = "rag"       // 文本问答
 	AppTypeWorkflow  = "workflow"  // 工作流
+	AppTypeChatflow  = "chatflow"  // 对话流
 	AppTypeMCPServer = "mcpserver" // mcp server
 )
 

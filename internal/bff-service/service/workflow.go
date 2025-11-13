@@ -40,7 +40,13 @@ func ListLlmModelsByWorkflow(ctx *gin.Context, userId, orgId, modelT string) (*r
 }
 
 // ListWorkflow userID/orgID数据隔离，用于【工作流】
-func ListWorkflow(ctx *gin.Context, orgID, name string) (*response.CozeWorkflowListData, error) {
+func ListWorkflow(ctx *gin.Context, orgID, name, appType string) (*response.CozeWorkflowListData, error) {
+	switch appType {
+	case constant.AppTypeWorkflow:
+		appType = "0"
+	case constant.AppTypeChatflow:
+		appType = "3"
+	}
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ListUri)
 	ret := &response.CozeWorkflowListResp{}
 	if resp, err := resty.New().
@@ -55,6 +61,7 @@ func ListWorkflow(ctx *gin.Context, orgID, name string) (*response.CozeWorkflowL
 			"name":              name,
 			"page":              "1",
 			"size":              "99999",
+			"flow_mode":         appType,
 		}).
 		SetResult(ret).
 		Post(url); err != nil {
@@ -210,7 +217,7 @@ func ExportWorkflow(ctx *gin.Context, orgID, workflowID string) ([]byte, error) 
 	return jsonData, nil
 }
 
-func ImportWorkflow(ctx *gin.Context, orgID string) (*response.CozeWorkflowIDData, error) {
+func ImportWorkflow(ctx *gin.Context, orgID, appType string) (*response.CozeWorkflowIDData, error) {
 	fileHeader, err := ctx.FormFile("file")
 	if err != nil {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", fmt.Sprintf("get file err: %v", err))
@@ -232,6 +239,13 @@ func ImportWorkflow(ctx *gin.Context, orgID string) (*response.CozeWorkflowIDDat
 	if rawData.Name == "" || rawData.Desc == "" {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", "name or desc is empty")
 	}
+	switch appType {
+	case constant.AppTypeChatflow:
+		appType = "3"
+	// 默认工作流模式
+	default:
+		appType = "0"
+	}
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ImportUri)
 	ret := &response.CozeWorkflowIDResp{}
 	if resp, err := resty.New().
@@ -241,10 +255,11 @@ func ImportWorkflow(ctx *gin.Context, orgID string) (*response.CozeWorkflowIDDat
 		SetHeader("Accept", "application/json").
 		SetHeaders(workflowHttpReqHeader(ctx)).
 		SetQueryParams(map[string]string{
-			"space_id": orgID,
-			"name":     rawData.Name,
-			"desc":     rawData.Desc,
-			"schema":   rawData.Schema,
+			"space_id":  orgID,
+			"name":      rawData.Name,
+			"desc":      rawData.Desc,
+			"schema":    rawData.Schema,
+			"flow_mode": appType,
 		}).
 		SetResult(ret).
 		Post(url); err != nil {
@@ -280,7 +295,7 @@ func cozeWorkflowInfo2Model(workflowInfo *response.CozeWorkflowListDataWorkflow)
 		AppType:   constant.AppTypeWorkflow,
 		Name:      workflowInfo.Name,
 		Desc:      workflowInfo.Desc,
-		Avatar:    cacheWorkflowAvatar(workflowInfo.URL),
+		Avatar:    cacheWorkflowAvatar(workflowInfo.URL, constant.AppTypeWorkflow),
 		CreatedAt: util.Time2Str(workflowInfo.CreateTime * 1000),
 		UpdatedAt: util.Time2Str(workflowInfo.UpdateTime * 1000),
 	}
