@@ -209,7 +209,7 @@ def delete_kb_graph(user_id, kb_name):
 
 
 @timing.timing_decorator(logger, include_args=False)
-def get_kb_graph_data(user_id, kb_name):
+def get_kb_graph_data(user_id, kb_name, kb_id):
     """获取知识图谱数据"""
     try:
         start_time = datetime.now()
@@ -219,6 +219,7 @@ def get_kb_graph_data(user_id, kb_name):
         data = {
             "user_id": user_id,
             "kb_name": kb_name,
+            "kb_id": kb_id
         }
         # 将JSON数据转换好格式
         json_data = json.dumps(data)
@@ -228,8 +229,10 @@ def get_kb_graph_data(user_id, kb_name):
             result_data = json.loads(response.text)
             finish_time1 = datetime.now()
             time_difference1 = finish_time1 - start_time
+            if not result_data["success"]:
+                raise RuntimeError(result_data["message"])
             logger.info(f"extrac_graph_data -{graph_url}: 请求成功 耗时：{time_difference1}")
-            return result_data
+            return result_data["graph_data"]
         else:
             # 如果不是200，则抛出一个自定义异常
             raise Exception(f"{graph_url} 请求失败，错误信息：" + response.text)
@@ -424,6 +427,11 @@ def get_community_report_list(user_id: str, kb_name: str, page_size: int, search
     file_name = "社区报告"
     response_info = milvus_utils.get_milvus_file_content_list(user_id, kb_name, file_name, page_size, search_after,
                                                               kb_id=kb_id, content_type="community_report")
+    if response_info["code"] == 0:
+        content_list = response_info["data"]["content_list"]
+        for content_info in content_list:
+            content_info["report_title"] = content_info["embedding_content"]
+            content_info.pop("embedding_content")
     logger.info(f"get_community_report_list end: {user_id}, kb_name: {kb_name}, kb_id: {kb_id}, "
                 f"page_size:{page_size}, search_after:{search_after}, response: {response_info}")
     return response_info

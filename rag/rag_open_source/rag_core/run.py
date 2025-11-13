@@ -1298,7 +1298,8 @@ def knowledgeBaseGraph():
         kb_name = data.get("knowledgeBase", "")
         kb_id = data.get("kb_id", "")
 
-        response_info = graph_utils.get_community_report_list(user_id, kb_name, page_size, search_after, kb_id=kb_id)
+        graph_data = graph_utils.get_kb_graph_data(user_id, kb_name, kb_id=kb_id)
+        response_info = {'code': 0, "message": "", "data": graph_data}
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
     except Exception as e:

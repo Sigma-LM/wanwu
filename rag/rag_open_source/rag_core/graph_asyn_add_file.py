@@ -262,8 +262,8 @@ def generate_community_report(user_id, kb_name, enable_knowledge_graph, graph_mo
         reports = reports_result['community_reports']
         if len(reports) == 0:
             raise ValueError("社区报告数量为0，生成失败")
-        logger.info(f"生成社区报告成功, user_id=%s,kb_name=%s % (user_id, kb_name)")
-        master_control_logger.info(f"生成社区报告成功, user_id=%s,kb_name=%s" % (user_id, kb_name))
+        logger.info(f"生成社区报告成功, user_id=%s,kb_name=%s, size=%s" % (user_id, kb_name, len(reports)))
+        master_control_logger.info(f"生成社区报告成功, user_id=%s,kb_name=%s, size=%s" % (user_id, kb_name, len(reports)))
     except Exception as e:
         logger.error(repr(e))
         logger.error(f"生成社区报告失败, user_id=%s,kb_name=%s" % (user_id, kb_name))
