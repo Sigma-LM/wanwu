@@ -231,9 +231,11 @@ func UpdateOauthApp(ctx *gin.Context, req *request.UpdateOauthAppReq) error {
 	return nil
 }
 
-func GetOauthAppList(ctx *gin.Context, userId string) ([]*response.OAuthAppInfo, error) {
+func GetOauthAppList(ctx *gin.Context, userId string, pageNo, pageSize int32) (*response.PageResult, error) {
 	resp, err := iam.GetOauthAppList(ctx, &iam_service.GetOauthAppListReq{
-		UserId: userId,
+		UserId:   userId,
+		PageNo:   pageNo,
+		PageSize: pageSize,
 	})
 	if err != nil {
 		return nil, err
@@ -249,7 +251,12 @@ func GetOauthAppList(ctx *gin.Context, userId string) ([]*response.OAuthAppInfo,
 			Status:       app.Status,
 		})
 	}
-	return retList, nil
+	return &response.PageResult{
+		List:     retList,
+		Total:    resp.Total,
+		PageNo:   int(pageNo),
+		PageSize: int(pageSize),
+	}, nil
 }
 
 func UpdateOauthAppStatus(ctx *gin.Context, req *request.UpdateOauthAppStatusReq) error {

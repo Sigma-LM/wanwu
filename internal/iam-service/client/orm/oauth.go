@@ -65,13 +65,22 @@ func (c *Client) UpdateOauthApp(ctx context.Context, req *model.OauthApp) *errs.
 	})
 }
 
-func (c *Client) GetOauthAppList(ctx context.Context, userID uint32) ([]*model.OauthApp, *errs.Status) {
+func (c *Client) GetOauthAppList(ctx context.Context, userID uint32, offset, limit int32) ([]*model.OauthApp, int64, *errs.Status) {
 	var apps []*model.OauthApp
-	if err := sqlopt.WithUserID(userID).Apply(c.db.WithContext(ctx)).Find(&apps).Error; err != nil {
-		return nil, toErrStatus("oauth_app_list", "get list failed", err.Error())
+	var count int64
+	err := c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
+		if err := sqlopt.WithUserID(userID).Apply(tx).Model(&model.OauthApp{}).Count(&count).Error; err != nil {
+			return toErrStatus("oauth_app_list", "count failed", err.Error())
+		}
+		if err := sqlopt.WithUserID(userID).Apply(tx).Offset(int(offset)).Limit(int(limit)).Order("id DESC").Find(&apps).Error; err != nil {
+			return toErrStatus("oauth_app_list", "get list failed", err.Error())
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, 0, err
 	}
-
-	return apps, nil
+	return apps, count, nil
 }
 
 func (c *Client) UpdateOauthAppStatus(ctx context.Context, clientID string, status bool) *errs.Status {

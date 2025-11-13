@@ -9844,6 +9844,17 @@ paths:
       consumes:
       - application/json
       description: 获取OAuth应用分页列表
+      parameters:
+      - description: 页面编号，从1开始
+        in: query
+        name: pageNo
+        required: true
+        type: integer
+      - description: 单页数量，从1开始
+        in: query
+        name: pageSize
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -9855,7 +9866,7 @@ paths:
             - properties:
                 data:
                   allOf:
-                  - $ref: '#/definitions/response.ListResult'
+                  - $ref: '#/definitions/response.PageResult'
                   - properties:
                       list:
                         items:

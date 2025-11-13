@@ -45,15 +45,18 @@ func (s *Service) UpdateOauthApp(ctx context.Context, req *iam_service.UpdateOau
 }
 
 func (s *Service) GetOauthAppList(ctx context.Context, req *iam_service.GetOauthAppListReq) (*iam_service.OauthAppListResp, error) {
-	apps, err := s.cli.GetOauthAppList(ctx, util.MustU32(req.UserId))
+	apps, total, err := s.cli.GetOauthAppList(ctx, util.MustU32(req.UserId), toOffset(req), req.PageSize)
 	if err != nil {
 		return nil, errStatus(errs.Code_IAMOauth, err)
 	}
-	resp := &iam_service.OauthAppListResp{}
+	resp := &iam_service.OauthAppListResp{
+		Total:    total,
+		PageNo:   req.PageNo,
+		PageSize: req.PageSize,
+	}
 	for _, app := range apps {
 		resp.Apps = append(resp.Apps, toOauthAppProto(app))
 	}
-
 	return resp, nil
 }
 

@@ -111,10 +111,12 @@ func UpdateOauthApp(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	response.Response{data=response.ListResult{list=[]response.OAuthAppInfo}}
+//	@Param			pageNo		query		int	true	"页面编号，从1开始"
+//	@Param			pageSize	query		int	true	"单页数量，从1开始"
+//	@Success		200			{object}	response.Response{data=response.PageResult{list=[]response.OAuthAppInfo}}
 //	@Router			/oauth/app/list [get]
 func GetOauthAppList(ctx *gin.Context) {
-	resp, err := service.GetOauthAppList(ctx, getUserID(ctx))
+	resp, err := service.GetOauthAppList(ctx, getUserID(ctx), getPageNo(ctx), getPageSize(ctx))
 	gin_util.Response(ctx, resp, err)
 
 }

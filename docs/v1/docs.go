@@ -7220,6 +7220,22 @@ const docTemplate = `{
                     "oauth"
                 ],
                 "summary": "获取OAuth应用列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页面编号，从1开始",
+                        "name": "pageNo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "单页数量，从1开始",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7234,7 +7250,7 @@ const docTemplate = `{
                                         "data": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/response.ListResult"
+                                                    "$ref": "#/definitions/response.PageResult"
                                                 },
                                                 {
                                                     "type": "object",
