@@ -115,6 +115,7 @@ async def extrac_graph_data(request: Request):
         llm_model = json_request["llm_model"]
         llm_base_url = json_request["llm_base_url"]
         llm_api_key = json_request["llm_api_key"]
+        temperature = json_request.get("temperature", 0.001)
         for chunk in chunks:
             chunk["old_snippet"] = chunk["snippet"]
             chunk["snippet"] = f"{file_name.split('.')[0]}:" + chunk["snippet"]
@@ -131,6 +132,7 @@ async def extrac_graph_data(request: Request):
         config.construction.LLM_MODEL = llm_model
         config.construction.LLM_BASE_URL = llm_base_url
         config.construction.LLM_API_KEY = llm_api_key
+        config.construction.TEMPERATURE = temperature
         embedding_model = None
         res_data = []
         builder = constructor.KTBuilder(

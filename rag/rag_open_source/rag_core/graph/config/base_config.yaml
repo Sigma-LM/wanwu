@@ -2,6 +2,7 @@ construction:
   LLM_MODEL: ""
   LLM_BASE_URL: ""
   LLM_API_KEY: ""
+  TEMPERATURE: 0.001
   MODEL_PROVIDER_URL: ""
   MODEL_PROVIDER_ACCESS_TOKEN: ""
   chunk_size: 1000

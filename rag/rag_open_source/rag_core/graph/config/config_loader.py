@@ -33,6 +33,7 @@ class ConstructionConfig:
     LLM_MODEL: str = "qwen3-235b-a22b"
     LLM_BASE_URL: str = "https://maas-api.ai-yuanjing.com/openapi/compatible-mode/v1"
     LLM_API_KEY: str = ""
+    TEMPERATURE: float = 0.001
     MODEL_PROVIDER_URL: str = "http://bff-service:6668"
     MODEL_PROVIDER_ACCESS_TOKEN: str = ""
     mode: str = "agent"

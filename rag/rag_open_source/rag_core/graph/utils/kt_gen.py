@@ -33,7 +33,8 @@ class KTBuilder:
         self.lock = threading.Lock()
         self.llm_client = call_llm_api.LLMCompletionCall(config.construction.LLM_MODEL,
                                                          config.construction.LLM_BASE_URL,
-                                                         config.construction.LLM_API_KEY)
+                                                         config.construction.LLM_API_KEY,
+                                                         config.construction.TEMPERATURE)
         self.all_chunks = {}
         self.embedding_model = embedding_model
         self.mode = mode or config.construction.mode

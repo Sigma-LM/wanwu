@@ -12,7 +12,8 @@ from utils.logger import logger
 load_dotenv()
 
 class LLMCompletionCall:
-    def __init__(self, llm_model="", llm_base_url="", llm_api_key=""):
+    def __init__(self, llm_model="", llm_base_url="", llm_api_key="", temperature=0.001):
+        self.temperature = temperature
         if not llm_model or not llm_base_url or not llm_api_key:
             self.llm_model = os.getenv("LLM_MODEL", "deepseek-chat")
             self.llm_base_url = os.getenv("LLM_BASE_URL", "https://api.deepseek.com")
@@ -23,7 +24,7 @@ class LLMCompletionCall:
             self.llm_api_key = llm_api_key
         if not self.llm_api_key:
             raise ValueError("LLM API key not provided")
-        self.client = OpenAI(base_url=self.llm_base_url, api_key=self.llm_api_key)
+        # self.client = OpenAI(base_url=self.llm_base_url, api_key=self.llm_api_key)
 
     def call_api(self, content: str) -> str:
         """
@@ -37,12 +38,23 @@ class LLMCompletionCall:
         """
             
         try:
-            completion = self.client.chat.completions.create(
-                model=self.llm_model,
-                messages=[{"role": "user", "content": content}],
-                temperature=0.3
-            )
-            raw = completion.choices[0].message.content or ""
+            # completion = self.client.chat.completions.create(
+            #     model=self.llm_model,
+            #     messages=[{"role": "user", "content": content}],
+            #     temperature=0.3
+            # )
+            # raw = completion.choices[0].message.content or ""
+
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.llm_api_key}"}
+            llm_data = {
+                "model": self.llm_model,
+                "temperature": self.temperature,
+                "stream": False,
+                "messages": [{"role": "user", "content": content}],
+            }
+            response = requests.post(self.llm_base_url, json=llm_data, headers=headers, verify=False)
+            result_data = json.loads(response.text)
+            raw = result_data["choices"][0]["message"]["content"] or ""
             clean_completion = self._clean_llm_content(raw)
             return clean_completion
             
