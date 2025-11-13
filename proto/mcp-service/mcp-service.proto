@@ -281,7 +281,7 @@ message ToolSquareInfo {
 
 message BuiltInTools {
     repeated common.ToolAction tools = 1;
-    string apiKey = 2;
+    common.ApiAuthWebRequest apiAuth = 2;
     string detail = 3;
     int32 actionSum = 4;
     bool needApiKeyInput = 5;

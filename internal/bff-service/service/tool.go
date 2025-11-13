@@ -100,7 +100,7 @@ func getToolSchema(ctx *gin.Context, userID, orgID, toolID string, toolType stri
 			return "", false, "", err
 		}
 
-		return resp.Schema, resp.BuiltInTools.NeedApiKeyInput, resp.BuiltInTools.ApiKey, nil
+		return resp.Schema, resp.BuiltInTools.NeedApiKeyInput, resp.BuiltInTools.ApiAuth.ApiKeyValue, nil
 	case constant.ToolTypeCustom:
 		// 获取自定义工具详情
 		resp, err := mcp.GetCustomToolInfo(ctx.Request.Context(), &mcp_service.GetCustomToolInfoReq{

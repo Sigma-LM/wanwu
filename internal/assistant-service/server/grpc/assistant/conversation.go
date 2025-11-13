@@ -882,11 +882,12 @@ func (s *Service) buildToolPluginListAlgParam(ctx context.Context, sseReq *confi
 					log.Infof("获取内置工具信息失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
 					continue
 				}
-				if builtinTool.BuiltInTools == nil || builtinTool.BuiltInTools.ApiKey == "" {
+				if builtinTool.BuiltInTools == nil || builtinTool.BuiltInTools.ApiAuth == nil {
 					log.Errorf("获取bocha内置工具apiKey失败，assistantId: %s, toolId: %s", assistantId, tool.ToolId)
 					continue
 				}
-				sseReq.SearchKey = builtinTool.BuiltInTools.ApiKey
+
+				sseReq.SearchKey = builtinTool.BuiltInTools.ApiAuth.ApiKeyValue
 
 				// 计算SearchUrl: 解析schema获取第一个server url和唯一的path url
 				doc, err := openapi3_util.LoadFromData(ctx, []byte(builtinTool.Schema))
@@ -934,7 +935,11 @@ func (s *Service) buildToolPluginListAlgParam(ctx context.Context, sseReq *confi
 			rawSchema = builtinTool.Schema
 
 			// 构建内置工具的API认证
-			apiAuth = openapi3_util.DefaultAuth(builtinTool.BuiltInTools.ApiKey)
+			apiAuth, err = util.ConvertApiAuthWebRequestProto(builtinTool.BuiltInTools.ApiAuth)
+			if err != nil {
+				return nil, err
+			}
+
 		}
 
 		// 处理schema

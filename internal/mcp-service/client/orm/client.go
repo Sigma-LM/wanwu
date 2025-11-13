@@ -25,6 +25,7 @@ func NewClient(ctx context.Context, db *gorm.DB) (*Client, error) {
 		model.CustomTool{},
 		model.MCPServer{},
 		model.MCPServerTool{},
+		model.BuiltinTool{},
 	); err != nil {
 		return nil, err
 	}
@@ -72,6 +73,13 @@ func initCustomToolAuthJson(dbClient *gorm.DB) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// 清理脏数据
+	err = dbClient.Model(&model.CustomTool{}).
+		Where("tool_square_id != ''").Delete(&model.CustomTool{}).Error
+	if err != nil {
+		return err
 	}
 
 	return nil

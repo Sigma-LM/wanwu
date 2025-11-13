@@ -192,6 +192,7 @@ enum Code {
   MCPGetMCPServerToolInfoErr = 310021; // 获取MCP服务工具详情错误
   MCPGetMCPServerToolListErr = 310022; // 获取MCP服务工具列表错误
   MCPUpdateCustomMCPErr = 310023; // 更新自定义MCP错误
+  MCPUpdateBuiltinToolErr = 310024; // 更新内置工具错误
 
   // --- operate-service ---
   // [320000, 329999]

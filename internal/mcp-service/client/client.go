@@ -22,8 +22,10 @@ type IClient interface {
 	ListCustomToolsByCustomToolIDs(ctx context.Context, customToolIDs []uint32) ([]*model.CustomTool, *errs.Status)
 	UpdateCustomTool(ctx context.Context, customTool *model.CustomTool) *errs.Status
 	DeleteCustomTool(ctx context.Context, customToolID uint32) *errs.Status
-	ListBuiltinTools(ctx context.Context, orgID, userID string) ([]*model.CustomTool, *errs.Status)
-	GetBuiltinTool(ctx context.Context, customTool *model.CustomTool) (*model.CustomTool, *errs.Status)
+	ListBuiltinTools(ctx context.Context, orgID, userID string) ([]*model.BuiltinTool, *errs.Status)
+	GetBuiltinTool(ctx context.Context, builtinTool *model.BuiltinTool) (*model.BuiltinTool, *errs.Status)
+	UpdateBuiltinTool(ctx context.Context, builtinTool *model.BuiltinTool) *errs.Status
+	CreateBuiltinTool(ctx context.Context, customTool *model.BuiltinTool) *errs.Status
 
 	GetMCPServer(ctx context.Context, mcpServerId string) (*model.MCPServer, *errs.Status)
 	CreateMCPServer(ctx context.Context, mcpServer *model.MCPServer) *errs.Status

@@ -63,7 +63,7 @@ func toToolSquareDetail(ctx *gin.Context, toolSquare *mcp_service.SquareToolDeta
 		ToolSquareInfo: toToolSquareInfo(ctx, toolSquare.Info),
 		ToolSquareActions: response.ToolSquareActions{
 			NeedApiKeyInput: toolSquare.BuiltInTools.NeedApiKeyInput,
-			APIKey:          toolSquare.BuiltInTools.ApiKey,
+			APIKey:          toolSquare.BuiltInTools.ApiAuth.ApiKeyValue,
 			Detail:          toolSquare.BuiltInTools.Detail,
 			ActionSum:       int64(toolSquare.BuiltInTools.ActionSum),
 		},

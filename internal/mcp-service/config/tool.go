@@ -12,20 +12,21 @@ import (
 )
 
 type ToolConfig struct {
-	ToolSquareId     string          `json:"tool_square_id" mapstructure:"tool_square_id"`
-	Name             string          `json:"name" mapstructure:"name"`
-	Desc             string          `json:"desc" mapstructure:"desc"`
-	AvatarPath       string          `json:"avatar_path" mapstructure:"avatar_path"`
-	Detail           string          `json:"detail" mapstructure:"detail"`
-	Tags             string          `json:"tags" mapstructure:"tags"`
-	Tools            []McpToolConfig `json:"tools" mapstructure:"tools"`
-	Type             string          `json:"type" mapstructure:"type"`
-	AuthType         string          `json:"auth_type" mapstructure:"auth_type"`
-	CustomHeaderName string          `json:"custom_header_name" mapstructure:"custom_header_name"`
-	ApiKey           string          `json:"api_key" mapstructure:"api_key"`
-	Schema           string          `json:"schema" mapstructure:"-"`
-	SchemaPath       string          `json:"schema_path" mapstructure:"schema_path"`
-	NeedApiKeyInput  bool            `json:"need_api_key_input" mapstructure:"need_api_key_input"`
+	ToolSquareId       string          `json:"tool_square_id" mapstructure:"tool_square_id"`
+	Name               string          `json:"name" mapstructure:"name"`
+	Desc               string          `json:"desc" mapstructure:"desc"`
+	AvatarPath         string          `json:"avatar_path" mapstructure:"avatar_path"`
+	Detail             string          `json:"detail" mapstructure:"detail"`
+	Tags               string          `json:"tags" mapstructure:"tags"`
+	Tools              []McpToolConfig `json:"tools" mapstructure:"tools"`
+	AuthType           string          `json:"auth_type" mapstructure:"auth_type"`
+	ApiKeyHeaderPrefix string          `json:"api_key_header_prefix" mapstructure:"api_key_header_prefix"`
+	ApiKeyHeader       string          `json:"api_key_header" mapstructure:"api_key_header"`
+	ApiKeyQueryParam   string          `json:"api_key_query_param" mapstructure:"api_key_query_param"`
+	ApiKeyValue        string          `json:"api_key_value" mapstructure:"api_key_value"`
+	Schema             string          `json:"schema" mapstructure:"-"`
+	SchemaPath         string          `json:"schema_path" mapstructure:"schema_path"`
+	NeedApiKeyInput    bool            `json:"need_api_key_input" mapstructure:"need_api_key_input"`
 }
 
 func (tool *ToolConfig) load() error {
