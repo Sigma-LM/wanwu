@@ -9,13 +9,13 @@ const (
 	DocProcessing       = 3  //文档处理中
 	DocFail             = 5  //文档待处理
 
-	GraphInit        GraphStatus = 0   //图谱未处理
-	GraphSuccess     GraphStatus = 100 //图谱生成成功
-	GraphChunkFail   GraphStatus = 101 //图谱生成chunk文本失败
-	GraphExtractFail GraphStatus = 102 //图谱生成提取失败
-	GraphStoreFail   GraphStatus = 103 //图谱持久化存储失败
-	GraphProcessing  GraphStatus = 110 //图谱开始解析
-	GraphEnd         GraphStatus = 119
+	GraphInit          GraphStatus = 0   //图谱未处理
+	GraphSuccess       GraphStatus = 100 //图谱生成成功
+	GraphChunkFail     GraphStatus = 101 //图谱生成chunk文本失败
+	GraphExtractFail   GraphStatus = 102 //图谱生成提取失败
+	GraphStoreFail     GraphStatus = 103 //图谱持久化存储失败
+	GraphProcessing    GraphStatus = 110 //图谱开始解析
+	GraphInterruptFail GraphStatus = 119
 )
 
 type KnowledgeDoc struct {
@@ -59,7 +59,7 @@ func BuildGraphShowStatus(status GraphStatus) (int, string) {
 	return 3, buildErrorMessage(status)
 }
 
-//todo 多语言没有处理
+// todo 多语言没有处理
 func buildErrorMessage(status GraphStatus) string {
 	switch status {
 	case GraphChunkFail:
@@ -68,11 +68,14 @@ func buildErrorMessage(status GraphStatus) string {
 		return "图谱生成提取失败"
 	case GraphStoreFail:
 		return "图谱持久化存储失败"
+	case GraphInterruptFail:
+		return "图谱中断失败"
+
 	}
 	return ""
 }
 
 func InGraphStatus(status int) bool {
 	graphStatus := GraphStatus(status)
-	return graphStatus >= GraphSuccess && graphStatus <= GraphEnd
+	return graphStatus >= GraphSuccess && graphStatus <= GraphInterruptFail
 }

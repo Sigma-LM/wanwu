@@ -453,18 +453,21 @@ func UpdateDocStatusDocId(ctx context.Context, docId string, status int, metaLis
 
 // InitDocStatus 初始化文档状态
 func InitDocStatus(ctx context.Context, userId, orgId string) error {
-	// 获取所有分析中状态的文档并更新状态
-	updateDoc := map[string]interface{}{
-		"status":    5,
-		"error_msg": "know_doc_parsing_interrupted",
-	}
-	//会锁表风险极高
-	tx := sqlopt.SQLOptions(sqlopt.WithPermit(orgId, userId), sqlopt.WithStatusList(util.BuildAnalyzingStatus())).
-		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{})
-	if err := tx.Updates(updateDoc).Error; err != nil {
-		return err
-	}
-	return nil
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		err := stopDocProcess(tx)
+		if err != nil {
+			return err
+		}
+		err = stopDocGraphProcess(tx)
+		if err != nil {
+			return err
+		}
+		err = stopKnowledgeReport(tx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // DeleteDocByIdList 删除文档
@@ -526,6 +529,35 @@ func buildUpdateParams(status int) (map[string]interface{}, bool) {
 		"status":    status,
 		"error_msg": util.BuildDocErrMessage(status),
 	}, true
+}
+
+func stopDocProcess(tx *gorm.DB) error {
+	// 获取所有分析中状态的文档并更新状态
+	updateDoc := map[string]interface{}{
+		"status":    5,
+		"error_msg": "know_doc_parsing_interrupted",
+	}
+	//会锁表风险极高
+	return sqlopt.SQLOptions(sqlopt.WithStatusList(util.BuildAnalyzingStatus())).
+		Apply(tx, &model.KnowledgeDoc{}).Updates(updateDoc).Error
+}
+
+func stopDocGraphProcess(tx *gorm.DB) error {
+	// 获取所有分析中状态的文档并更新状态
+	updateDoc := map[string]interface{}{
+		"graph_status": model.GraphInterruptFail,
+	}
+	//会锁表风险极高
+	return tx.Model(&model.KnowledgeDoc{}).Where("graph_status = ?", model.GraphProcessing).Updates(updateDoc).Error
+}
+
+func stopKnowledgeReport(tx *gorm.DB) error {
+	// 获取所有分析中状态的文档并更新状态
+	updateKnowledgeMap := map[string]interface{}{
+		"graph_status": model.GraphInterruptFail,
+	}
+	//会锁表风险极高
+	return tx.Model(&model.KnowledgeBase{}).Where("report_status = ?", model.ReportProcessing).Updates(updateKnowledgeMap).Error
 }
 
 // SelectGraphStatus 查询知识图谱状态
