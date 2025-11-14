@@ -137,9 +137,11 @@
                   <span class="el-icon-question question-tips"></span>
               </el-tooltip>
             </span>
-            <span class="common-add" @click="showSafety">
-              <span class="el-icon-s-operation"></span>
-              <span class="handleBtn" style="margin-right:10px;">配置</span>
+            <span class="common-add">
+              <span @click="showSafety">
+                <span class="el-icon-s-operation" ></span>
+                <span class="handleBtn" style="margin-right:10px;">配置</span>
+              </span>
               <el-switch v-model="editForm.safetyConfig.enable" :disabled="!(editForm.safetyConfig.tables || []).length"></el-switch>
             </span>
           </p>

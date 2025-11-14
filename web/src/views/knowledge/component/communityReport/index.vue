@@ -43,14 +43,14 @@
             @click="generateReport"
             size="mini"
             :loading="loading.stop"
-            :disabled="!res.canGenerate"
+            :disabled="!res.canGenerate || permissionType === 0"
             >{{ res.generateLabel === '' ? $t('knowledgeManage.communityReport.generate') : res.generateLabel }}</el-button>
         <el-button
           type="primary"
           @click="createReport"
           size="mini"
           :loading="loading.stop"
-          :disabled="!res.canAddReport"
+          :disabled="!res.canAddReport || permissionType === 0"
           >{{ $t('knowledgeManage.communityReport.addCommunityReport') }}</el-button>
       </div>
 
@@ -68,7 +68,7 @@
                   <span>{{ item.title.length > 10 ? item.title.substring(0, 10) + '...' : item.title }}</span>
                 </el-tooltip>
                 <div>
-                  <el-dropdown @command="handleCommand" placement="bottom">
+                  <el-dropdown @command="handleCommand" placement="bottom" v-if="permissionType !== 0">
                     <span class="el-dropdown-link">
                       <i class="el-icon-more more"></i>
                     </span>
@@ -226,6 +226,7 @@ export default {
         });
     },
     handleClick(item, index) {
+      if(this.permissionType === 0) return;
       // 点击卡片事件，可根据需求添加功能
       this.$refs.createReport.showDialog(this.obj.knowledgeId, 'edit', item)
     },
