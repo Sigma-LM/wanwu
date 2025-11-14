@@ -530,6 +530,9 @@ func transKnowledgebases2Proto(kbConfig request.AppKnowledgebaseConfig) *assista
 		KeywordPriority:      kbConfig.Config.KeywordPriority,
 		PriorityMatch:        kbConfig.Config.PriorityMatch,
 		SemanticsPriority:    kbConfig.Config.SemanticsPriority,
+		TermWeight:           kbConfig.Config.TermWeight,
+		TermWeightEnable:     kbConfig.Config.TermWeightEnable,
+		UseGraph:             kbConfig.Config.UseGraph,
 		AppKnowledgeBaseList: transKnowledgeParams(kbConfig.Knowledgebases),
 	}
 }
@@ -765,6 +768,9 @@ func transKnowledgeBases2Model(ctx *gin.Context, kbConfig *assistant_service.Ass
 			PriorityMatch:     kbConfig.PriorityMatch,
 			SemanticsPriority: kbConfig.SemanticsPriority,
 			KeywordPriority:   kbConfig.KeywordPriority,
+			TermWeight:        kbConfig.TermWeight,
+			TermWeightEnable:  kbConfig.TermWeightEnable,
+			UseGraph:          kbConfig.UseGraph,
 		},
 	}, nil
 
