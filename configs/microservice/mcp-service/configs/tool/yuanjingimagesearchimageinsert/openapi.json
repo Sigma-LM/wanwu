@@ -42,7 +42,7 @@
                   "path_list": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "description": "图片本地路径列表"
                   },
@@ -56,7 +56,7 @@
                   "camera_id": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     },
                     "description": "摄像头id"
                   },
@@ -87,7 +87,33 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "访问状态success/fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "错误信息"
+                    },
+                    "error_id": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "下载失败/预处理失败的图⽚id列表"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message",
+                    "error_id"
+                  ]
+                },
+                "example": {
+                  "status": "success",
+                  "message": "",
+                  "error_id": []
                 }
               }
             },
