@@ -174,15 +174,16 @@
             },
             // 处理拖拽到输入框的文件
             handleDrop(event) {
-                // const dt = event.dataTransfer
-                // if (!dt || !dt.files) return
+                /* const dt = event.dataTransfer
+                if (!dt || !dt.files) return
                 
-                // const fileList = dt.files
-                // const files = Array.prototype.slice.call(fileList)
-                // if (files.length === 0) return
+                const fileList = dt.files
+                const files = Array.prototype.slice.call(fileList)
+                if (files.length === 0) return
                 
-                // // 调用文件处理方法
-                // this.processFiles(files)
+                // 调用文件处理方法
+                this.processFiles(files)
+                */
             },
             linkSearch(){
                 this.isActive = !this.isActive;
