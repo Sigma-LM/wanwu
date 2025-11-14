@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
-	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
 )
 
@@ -39,8 +37,8 @@ func (tool *ToolConfig) load() error {
 	if err != nil {
 		return fmt.Errorf("load tool %v schema path %v err: %v", tool.ToolSquareId, schemaPath, err)
 	}
-	if err := openapi3_util.ValidateSchema(context.Background(), schemaOpenAPI); err != nil {
-		return grpc_util.ErrorStatus(errs.Code_MCPGeneral, err.Error())
+	if err = openapi3_util.ValidateSchema(context.Background(), schemaOpenAPI); err != nil {
+		return fmt.Errorf("validate tool %v schema path %v err: %v", tool.ToolSquareId, schemaPath, err)
 	}
 	tool.Schema = string(schemaOpenAPI)
 	return nil
