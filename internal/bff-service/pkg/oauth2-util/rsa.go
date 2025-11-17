@@ -35,9 +35,14 @@ func toRsaPrivateKey(rsaPrivateKey []byte) (*rsa.PrivateKey, error) {
 		return nil, errors.New("rsa private key pem decode err")
 	}
 
-	privKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	privInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("rsa puprivateblic key parse certificate err: %v", err)
+		return nil, fmt.Errorf("rsa private key parse certificate err: %v", err)
+	}
+
+	privKey, ok := privInterface.(*rsa.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("rsa private key extract error")
 	}
 	return privKey, nil
 }

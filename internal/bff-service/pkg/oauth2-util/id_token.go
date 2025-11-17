@@ -23,7 +23,7 @@ func GenerateIDToken(userID, userName, clientID string, timeout int64) (string, 
 		UserID:   userID,
 		UserName: userName,
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    _issuer, //oidc root path
+			Issuer:    _issuer, // oidc root path
 			Subject:   userID,  // 用途，目前固定user
 			Audience:  clientID,
 			NotBefore: nowTime,           // 生效时间
