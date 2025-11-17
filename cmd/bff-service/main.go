@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime"
@@ -94,7 +95,11 @@ func main() {
 
 	// init oauth2
 	if config.Cfg().OAuth.Switch != 0 {
-		if err := oauth2_util.Init(redis.OP().Cli(), config.Cfg().OAuth.RSA, config.Cfg().Server.WebBaseUrl, config.Cfg().JWT.SigningKey); err != nil {
+		issuer, err := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1")
+		if err != nil {
+			log.Errorf("init oauth issuer err: %v", err)
+		}
+		if err := oauth2_util.Init(redis.OP().Cli(), config.Cfg().OAuth.RSA, issuer, config.Cfg().JWT.SigningKey); err != nil {
 			log.Fatalf("init oauth err: %v", err)
 		}
 	}

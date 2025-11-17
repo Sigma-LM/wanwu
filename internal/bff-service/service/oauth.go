@@ -23,7 +23,11 @@ func OAuthLogin(ctx *gin.Context, req *request.OAuthRequest) (string, error) {
 	if err != nil {
 		return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
-	loginUri := issuer + "/aibase/login"
+	// e.g. "http://localhost:8081/service/api/openapi/v1" + "../../../../aibase/login" => http://localhost:8081/aibase/login
+	loginUri, err := url.JoinPath(issuer, "../../../../aibase/login")
+	if err != nil {
+		return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
+	}
 
 	// 将 []string 转为以空格分隔的字符串
 	scopeStr := strings.Join(req.Scopes, " ")
@@ -162,7 +166,6 @@ func OAuthConfig(ctx *gin.Context) (*response.OAuthConfig, error) {
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
-	issuer = issuer + "/user/api/openapi/v1"
 	return &response.OAuthConfig{
 		Issuer:           issuer,
 		AuthEndpoint:     issuer + "/oauth/login",
@@ -196,7 +199,8 @@ func OAuthGetUserInfo(ctx *gin.Context, userID string) (*response.OAuthGetUserIn
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
 	avatar := cacheUserAvatar(ctx, user.AvatarPath)
-	avatarUri, err := url.JoinPath(issuer, "/user/api", avatar.Path)
+	// e.g. "http://localhost:8081/service/api/openapi/v1" + "../.." + "/v1/static/icon/user-default-icon.png" => http://localhost:8081/service/api/v1/static/icon/user-default-icon.png
+	avatarUri, err := url.JoinPath(issuer, "../..", avatar.Path)
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 	}
