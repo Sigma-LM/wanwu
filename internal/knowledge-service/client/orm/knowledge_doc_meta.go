@@ -69,8 +69,8 @@ func SelectMetaByKnowledgeId(ctx context.Context, userId, orgId string, knowledg
 }
 
 // UpdateDocStatusDocMeta 更新文档元数据
-func UpdateDocStatusDocMeta(ctx context.Context, docId string, addList []*model.KnowledgeDocMeta,
-	updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, ragDocMetaParams *service.RagDocMetaParams) error {
+func UpdateDocStatusDocMeta(ctx context.Context, addList []*model.KnowledgeDocMeta,
+	updateList []*model.KnowledgeDocMeta, deleteDataIdList []string, ragDocMetaParams *service.BatchRagDocMetaParams) error {
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		//todo 文档元数据应该不会特别多，所以先这么做，如果比较多，后续优化
 		if len(deleteDataIdList) > 0 {
@@ -99,8 +99,7 @@ func UpdateDocStatusDocMeta(ctx context.Context, docId string, addList []*model.
 			}
 		}
 		if ragDocMetaParams != nil {
-			//调用rag
-			return service.RagDocMeta(ctx, ragDocMetaParams)
+			return service.BatchRagDocMeta(ctx, ragDocMetaParams)
 		}
 		return nil
 	})

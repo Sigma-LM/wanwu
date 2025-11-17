@@ -103,7 +103,6 @@ rag-server:
   get-child-content-uri: '/rag/get-child-content-list'
   doc-segment-update-status-uri: '/rag/update-content-status'
   doc-delete-uri: '/rag/del-knowledge-file'
-  doc-tag-uri: '/rag/update-file-tags'
   doc-url-analysis-uri: '/url_pra'
   doc-url-import-uri: '/url_insert'
   keywords-uri: '/rag/proper_noun'

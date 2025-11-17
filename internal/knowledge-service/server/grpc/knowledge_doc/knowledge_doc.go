@@ -255,17 +255,17 @@ func updateDocMetaData(ctx context.Context, req *knowledgebase_doc_service.Updat
 		return nil, err1
 	}
 	//6.构造RAG请求参数
-	params, err := buildMetaRagParams(metaDataList)
+	params, err := buildMetaRagParams(fileName, metaDataList)
 	if err != nil {
 		log.Errorf("docId %v update buildMetaRagParams fail %v", req.DocId, err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateMetaFailed)
 	}
 	//7.更新数据库并发送RAG请求
-	err = orm.UpdateDocStatusDocMeta(ctx, req.DocId, addList, updateList, deleteList,
-		&service.RagDocMetaParams{
-			FileName:      fileName,
+	err = orm.UpdateDocStatusDocMeta(ctx, addList, updateList, deleteList,
+		&service.BatchRagDocMetaParams{
 			KnowledgeBase: knowledge.RagName,
 			UserId:        knowledge.UserId,
+			KnowledgeId:   knowledge.KnowledgeId,
 			MetaList:      params,
 		})
 	if err != nil {
@@ -944,11 +944,12 @@ func buildDocMetaModelList(metaDataList []*knowledgebase_doc_service.MetaData, o
 	return
 }
 
-func buildMetaRagParams(metaDataList []*knowledgebase_doc_service.MetaData) ([]*service.MetaData, error) {
+func buildMetaRagParams(fileName string, metaDataList []*knowledgebase_doc_service.MetaData) ([]*service.DocMetaInfo, error) {
 	if len(metaDataList) == 0 {
-		return make([]*service.MetaData, 0), nil
+		return make([]*service.DocMetaInfo, 0), nil
 	}
-	var retList = make([]*service.MetaData, 0)
+	var retList = make([]*service.DocMetaInfo, 0)
+	metaList := make([]*service.MetaData, 0)
 	for _, data := range metaDataList {
 		if data.Option == "delete" {
 			continue
@@ -958,12 +959,16 @@ func buildMetaRagParams(metaDataList []*knowledgebase_doc_service.MetaData) ([]*
 			log.Errorf("buildValueData error %s", err.Error())
 			return nil, err
 		}
-		retList = append(retList, &service.MetaData{
+		metaList = append(metaList, &service.MetaData{
 			Key:       data.Key,
 			Value:     valueData,
 			ValueType: data.ValueType,
 		})
 	}
+	retList = append(retList, &service.DocMetaInfo{
+		FileName:     fileName,
+		MetaDataList: metaList,
+	})
 	return retList, nil
 }
 

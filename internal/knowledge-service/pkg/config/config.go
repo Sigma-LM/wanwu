@@ -139,7 +139,6 @@ type RagServerConfig struct {
 	GetDocChildSegmentUri     string `mapstructure:"get-child-content-uri" json:"get-child-content-uri"`
 	DocSegmentUpdateStatusUri string `mapstructure:"doc-segment-update-status-uri" json:"doc-segment-update-status-uri"`
 	DocDeleteUri              string `mapstructure:"doc-delete-uri" json:"doc-delete-uri"`
-	DocTagUri                 string `mapstructure:"doc-tag-uri" json:"doc-tag-uri"`
 	UpdateFileMetasUri        string `mapstructure:"update-file-metas-uri" json:"update-file-metas-uri"`
 	DocUrlImportUri           string `mapstructure:"doc-url-import-uri" json:"doc-url-import-uri"`
 	DocUrlAnalysisUri         string `mapstructure:"doc-url-analysis-uri" json:"doc-url-analysis-uri"`

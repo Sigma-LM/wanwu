@@ -263,35 +263,6 @@ func RagDeleteDoc(ctx context.Context, ragDeleteDocParams *RagDeleteDocParams) e
 	return nil
 }
 
-// RagDocMeta 更新文档元数据
-func RagDocMeta(ctx context.Context, ragDocTagParams *RagDocMetaParams) error {
-	ragServer := config.GetConfig().RagServer
-	url := ragServer.Endpoint + ragServer.DocTagUri
-	paramsByte, err := json.Marshal(ragDocTagParams)
-	if err != nil {
-		return err
-	}
-	result, err := http.GetClient().PostJson(ctx, &http_client.HttpRequestParams{
-		Url:        url,
-		Body:       paramsByte,
-		Timeout:    time.Duration(ragServer.Timeout) * time.Second,
-		MonitorKey: "rag_doc_tag",
-		LogLevel:   http_client.LogAll,
-	})
-	if err != nil {
-		return err
-	}
-	var resp RagCommonResp
-	if err := json.Unmarshal(result, &resp); err != nil {
-		log.Errorf(err.Error())
-		return err
-	}
-	if resp.Code != successCode {
-		return errors.New(resp.Message)
-	}
-	return nil
-}
-
 // BatchRagDocMeta 更新文档元数据
 func BatchRagDocMeta(ctx context.Context, batchRagDocTagParams *BatchRagDocMetaParams) error {
 	ragServer := config.GetConfig().RagServer
