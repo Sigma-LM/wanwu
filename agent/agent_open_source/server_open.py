@@ -240,7 +240,7 @@ def agent_start():
                 metadata_filtering = kn_params.get('metadata_filtering',True)
                 knowledgeIdList = kn_params.get('knowledgeIdList',[])
                 metadata_filtering_conditions = kn_params.get('metadata_filtering_conditions',[])
-                use_graph = kn_params.get('use_graph',false)
+                use_graph = kn_params.get('use_graph',False)
 
 
 #如果是多模态模型，则进入多模态模式
