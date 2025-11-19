@@ -109,7 +109,7 @@ func (c *Client) GetSensitiveWordTableList(ctx context.Context, userId, orgId st
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(orgId),
 		sqlopt.WithUserID(userId),
-	).Apply(c.db.WithContext(ctx)).Find(&tables).Error; err != nil {
+	).Apply(c.db.WithContext(ctx)).Order("updated_at DESC").Find(&tables).Error; err != nil {
 		return nil, toErrStatus("app_safety_sensitive_table_list_get", err.Error())
 	}
 	return tables, nil

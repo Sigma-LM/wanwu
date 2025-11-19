@@ -92,7 +92,7 @@ func (c *Client) ListMCPs(ctx context.Context, orgID, userID, name string) ([]*m
 		sqlopt.WithOrgID(orgID),
 		sqlopt.WithUserID(userID),
 		sqlopt.LikeName(name),
-	).Apply(c.db).WithContext(ctx).Order("id DESC").Find(&mcpInfos).Error; err != nil {
+	).Apply(c.db).WithContext(ctx).Order("updated_at DESC").Find(&mcpInfos).Error; err != nil {
 		return nil, toErrStatus("mcp_get_custom_tool_list_err", err.Error())
 	}
 	return mcpInfos, nil

@@ -68,7 +68,7 @@ func GetExplorationAppList(ctx *gin.Context, userId, orgId string, req request.G
 	}
 	return &response.ListResult{
 		List:  apps,
-		Total: explorationApp.Total,
+		Total: int64(len(apps)),
 	}, nil
 }
 

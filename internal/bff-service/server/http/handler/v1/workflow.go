@@ -130,6 +130,28 @@ func GetWorkflowToolSelect(ctx *gin.Context) {
 	gin_util.Response(ctx, tools, err)
 }
 
+// GetWorkflowSelect
+//
+//	@Tags		workflow
+//	@Summary	智能体工作流列表
+//	@Description智能体工作流列表
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Param		name	query		string	false	"workflow名称"
+//	@Success	200		{object}	response.Response{data=response.ListResult{list=[]response.ExplorationAppInfo}}
+//	@Router		/workflow/select [get]
+func GetWorkflowSelect(ctx *gin.Context) {
+	req := request.GetExplorationAppListRequest{
+		Name:       ctx.Query("name"),
+		AppType:    constant.AppTypeWorkflow,
+		SearchType: "all",
+	}
+
+	resp, err := service.GetExplorationAppList(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
+}
+
 // GetWorkflowToolDetail
 //
 //	@Tags		workflow

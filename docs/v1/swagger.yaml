@@ -11952,6 +11952,39 @@ paths:
       summary: 修改用户状态
       tags:
       - permission.user
+  /workflow/select:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: workflow名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ExplorationAppInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 智能体工作流列表
+      tags:
+      - workflow
   /workflow/template:
     post:
       consumes:

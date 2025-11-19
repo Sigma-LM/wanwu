@@ -105,7 +105,7 @@ func (c *Client) GetAssistantList(ctx context.Context, userID, orgID string, nam
 			return toErrStatus("assistants_get_list", err.Error())
 		}
 
-		if err := query.Order("created_at DESC").Find(&assistants).Error; err != nil {
+		if err := query.Order("updated_at DESC").Find(&assistants).Error; err != nil {
 			return toErrStatus("assistants_get_list", err.Error())
 		}
 

@@ -111,7 +111,7 @@ func (c *Client) GetRagList(ctx context.Context, req *rag_service.RagListReq) (*
 		sqlopt.WithUserID(req.Identity.UserId),
 		sqlopt.WithOrgID(req.Identity.OrgId),
 		sqlopt.LikeBriefName(req.Name),
-	).Apply(c.db.WithContext(ctx)).Find(&info).Error
+	).Apply(c.db.WithContext(ctx)).Order("updated_at DESC").Find(&info).Error
 
 	if err != nil {
 		return nil, toErrStatus("rag_list_err", err.Error())

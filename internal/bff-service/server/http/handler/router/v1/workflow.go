@@ -18,6 +18,8 @@ func registerWorkflow(apiV1 *gin.RouterGroup) {
 	mid.Sub("workflow").Reg(apiV1, "/workflow/tool/action", http.MethodGet, v1.GetWorkflowToolDetail, "获取Tool具体action")
 	mid.Sub("workflow").Reg(apiV1, "/workflow/tool/select", http.MethodGet, v1.GetWorkflowToolSelect, "获取Tool列表")
 
+	mid.Sub("workflow").Reg(apiV1, "/workflow/select", http.MethodGet, v1.GetWorkflowSelect, "智能体工作流下拉列表接口")
+
 	mid.Sub("workflow").Reg(apiV1, "/workflow/template", http.MethodPost, v1.CreateWorkflowByTemplate, "复制工作流模板")
 	// --- chatflow ---
 	mid.Sub("workflow").Reg(apiV1, "/appspace/chatflow", http.MethodPost, v1.CreateChatflow, "创建chatflow")
