@@ -243,7 +243,10 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		AutoCitation: true,
 	}
 
-	if assistant.Instructions != "" {
+	// 优先使用请求中的系统提示词(提示词评估)
+	if req.SystemPrompt != "" {
+		sseReq.SystemRole = req.SystemPrompt
+	} else if assistant.Instructions != "" {
 		sseReq.SystemRole = assistant.Instructions
 	}
 

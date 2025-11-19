@@ -67,6 +67,7 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 		FileInfo:       transFileInfo(req.FileInfo),
 		Trial:          req.Trial,
 		Prompt:         req.Prompt,
+		SystemPrompt:   req.SystemPrompt,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,

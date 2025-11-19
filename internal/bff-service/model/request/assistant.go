@@ -127,6 +127,7 @@ type ConversionStreamRequest struct {
 	FileInfo       []ConversionStreamFile `json:"fileInfo" form:"fileInfo"`
 	Trial          bool                   `json:"trial" form:"trial"`
 	Prompt         string                 `json:"prompt" form:"prompt"  validate:"required"`
+	SystemPrompt   string                 `json:"systemPrompt" form:"systemPrompt"`
 }
 
 func (c *ConversionStreamRequest) Check() error {

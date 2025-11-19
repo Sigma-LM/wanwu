@@ -13152,6 +13152,9 @@ const docTemplate = `{
                 "prompt": {
                     "type": "string"
                 },
+                "systemPrompt": {
+                    "type": "string"
+                },
                 "trial": {
                     "type": "boolean"
                 }
