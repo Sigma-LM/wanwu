@@ -412,7 +412,8 @@ message AssistantConversionStreamReq {
   repeated ConversionStreamFile fileInfo = 3;
   bool trial = 4;
   string prompt = 5;
-  Identity identity = 6;
+  string systemPrompt = 6;
+  Identity identity = 7;
 }
 
 message ConversionStreamFile{
