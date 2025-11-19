@@ -11,8 +11,8 @@
       </div>
       <div class="search-box">
         <div class="no-border-input">
-          <search-input class="cover-input-icon" :placeholder="$t('knowledgeManage.searchPlaceholder')" ref="searchInput" @handleSearch="getTableData" />
-          <el-select v-model="tagIds" placeholder="请选择标签" multiple @visible-change="tagChange" @remove-tag="removeTag">
+          <search-input class="cover-input-icon" :placeholder="category === 0 ? $t('knowledgeManage.searchPlaceholder') : $t('knowledgeManage.searchPlaceholderQa')" ref="searchInput" @handleSearch="getTableData" />
+          <el-select v-model="tagIds" :placeholder="$t('knowledgeManage.selectTag')" multiple @visible-change="tagChange" @remove-tag="removeTag">
             <el-option
               v-for="item in tagOptions"
               :key="item.tagId"
@@ -29,7 +29,7 @@
         </div>
       </div>
       <knowledgeList :appData="knowledgeData" @editItem="editItem" @reloadData="getTableData" ref="knowledgeList" v-loading="tableLoading" :category="category"/>
-      <createKnowledge ref="createKnowledge" @reloadData="getTableData" />
+      <createKnowledge ref="createKnowledge" @reloadData="getTableData" :category="category"/>
     </div>
   </div>
 </template>
@@ -83,7 +83,7 @@ export default {
         getTableData(){
             const searchInput = this.$refs.searchInput.value
             this.tableLoading = true
-            getKnowledgeList({name:searchInput,tagId:this.tagIds,category:this.tabActive}).then(res => {
+            getKnowledgeList({name:searchInput,tagId:this.tagIds,category:this.category}).then(res => {
                 this.knowledgeData = res.data.knowledgeList || [];
                 this.tableLoading = false
             }).catch((error) =>{

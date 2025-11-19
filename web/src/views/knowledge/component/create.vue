@@ -240,6 +240,12 @@ import { KNOWLEDGE_GRAPH_TIPS } from "../config";
 import uploadChunk from "@/mixins/uploadChunk";
 import { delfile } from "@/api/chunkFile";
 export default {
+  props: {
+    category: {
+      type: Number,
+      default: 0
+    }
+  },
   mixins: [uploadChunk],
   data() {
     let checkName = (rule, value, callback) => {
@@ -549,6 +555,10 @@ export default {
       });
     },
     createKnowledge() {
+      const data = {
+        ...this.ruleForm,
+        category: this.category,
+      };
       createKnowledgeItem(this.ruleForm)
         .then((res) => {
           if (res.code === 0) {

@@ -4,11 +4,11 @@
       <div class="smart rl smart-create">
         <div class="app-card-create" @click="showCreate">
           <div class="create-img-wrap">
-            <img class="create-type" src="@/assets/imgs/create_knowledge.svg" alt="" />
+            <img class="create-type" :src="category === 0 ? require('@/assets/imgs/create_knowledge.svg') : require('@/assets/imgs/create_qa.png')" alt="" />
             <img class="create-img" src="@/assets/imgs/create_icon.png" alt="" />
             <div class="create-filter"></div>
           </div>
-          <span>创建知识库</span>
+          <span>{{ category === 0 ? '创建知识库' : '创建问答库' }}</span>
         </div>
       </div>
       <template v-if="listData && listData.length">
@@ -18,7 +18,7 @@
         @click.stop="toDocList(n)">
           <div>
               <img  class="logo" :src="require('@/assets/imgs/knowledgeIcon.png')" />
-              <p :class="['smartDate']">{{n.docCount || 0}}个文档</p>
+              <p :class="['smartDate']">{{n.docCount || 0}}{{category === 0 ? '个文档' : '个问答对'}}</p>
           </div>
           <div class="info rl">
             <p class="name" :title="n.name">

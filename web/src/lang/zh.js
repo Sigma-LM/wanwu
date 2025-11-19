@@ -624,6 +624,8 @@ export default {
         author:'作者',
         noData:'暂无数据',
         searchPlaceholder:'按照知识库名称搜索',
+        searchPlaceholderQa:'按照问答库名称搜索',
+        selectTag:'请选择标签',
         docPlaceholder:'按照文件名称搜索',
         desc:'描述',
         title:'文档知识库',
