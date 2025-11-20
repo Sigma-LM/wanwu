@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"github.com/ThinkInAIXYZ/go-mcp/protocol"
 	"strings"
 
 	"github.com/UnicomAI/wanwu/api/proto/common"
@@ -109,9 +110,42 @@ func buildSquareToolDetail(toolCfg config.ToolConfig, apiAuth *common.ApiAuthWeb
 			ApiAuth:         apiAuth,
 			Detail:          toolCfg.Detail,
 			ActionSum:       int32(len(toolCfg.Tools)),
-			Tools:           convertMCPTools(toolCfg.Tools),
+			Tools:           convertBuiltInTools(toolCfg.Tools),
 		},
 		Schema: toolCfg.Schema,
+	}
+}
+
+func convertBuiltInTools(tools []*protocol.Tool) []*common.ToolAction {
+	result := make([]*common.ToolAction, 0, len(tools))
+	for _, tool := range tools {
+		result = append(result, &common.ToolAction{
+			Name:        tool.Name,
+			Description: tool.Description,
+			InputSchema: convertBuiltInInputSchema(&tool.InputSchema),
+		})
+	}
+	return result
+}
+
+func convertBuiltInInputSchema(schema *protocol.InputSchema) *common.ToolActionInputSchema {
+	if schema == nil {
+		return nil
+	}
+
+	properties := make(map[string]*common.ToolActionInputSchemaValue)
+
+	for field, prop := range schema.Properties {
+		properties[field] = &common.ToolActionInputSchemaValue{
+			Type:        string(prop.Type),
+			Description: prop.Description,
+		}
+	}
+
+	return &common.ToolActionInputSchema{
+		Type:       string(schema.Type),
+		Required:   schema.Required,
+		Properties: properties,
 	}
 }
 

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/UnicomAI/wanwu/pkg/db"
@@ -47,7 +48,7 @@ type LogConfig struct {
 	Logs  []log.Config `json:"logs" mapstructure:"logs"`
 }
 
-func LoadConfig(in string) error {
+func LoadConfig(ctx context.Context, in string) error {
 	_c = &Config{}
 	if err := util.LoadConfig(in, _c); err != nil {
 		return err
@@ -66,7 +67,7 @@ func LoadConfig(in string) error {
 		}
 	}
 	for _, tool := range _c.Tools {
-		if err := tool.load(); err != nil {
+		if err := tool.load(ctx); err != nil {
 			return err
 		}
 	}
