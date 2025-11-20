@@ -586,7 +586,7 @@ def update_qa_data(user_id, qa_base_name, qa_base_id, qa_pair_id, update_data):
 
 def get_qa_list(user_id, qa_base_name, qa_base_id, page_size, search_after):
     response_info = {'code': 0, "message": "成功"}
-    url = ES_BASE_URL + '/api/v1/rag/es/update_QA'
+    url = ES_BASE_URL + '/api/v1/rag/es/get_QA_list'
     headers = {'Content-Type': 'application/json'}
 
     data = {
@@ -608,11 +608,42 @@ def get_qa_list(user_id, qa_base_name, qa_base_id, page_size, search_after):
             raise RuntimeError(del_response['message'])
 
         logger.info(f"问答对分页请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
-        return response_info
+        return del_response
     except Exception as e:
         response_info['code'] = 1
         response_info['message'] = str(e)
         logger.error(f"问答对分页请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
+        return response_info
+
+def update_qa_metas(user_id, qa_base_name, qa_base_id, metas, update_type):
+    response_info = {'code': 0, "message": "成功"}
+    url = ES_BASE_URL + '/api/v1/rag/es/update_QA_metas'
+    headers = {'Content-Type': 'application/json'}
+
+    data = {
+        "userId": user_id,
+        "QABase": qa_base_name,
+        "QAId": qa_base_id,
+        "metas": metas,
+        "update_type": update_type
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data, ensure_ascii=False).encode('utf-8'), timeout=TIME_OUT)
+        if response.status_code != 200:
+            logger.error(f"更新问答对元数据请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
+            raise RuntimeError(str(response.text))
+
+        del_response = json.loads(response.text)
+        if del_response['code'] != 0:
+            logger.error(f"es更新问答对元数据请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
+            raise RuntimeError(del_response['message'])
+
+        logger.info(f"es更新问答对元数据请求成功, user_id: {user_id}, qa_base_name: {qa_base_name}")
+        return response_info
+    except Exception as e:
+        response_info['code'] = 1
+        response_info['message'] = str(e)
+        logger.error(f"es更新问答对元数据请求异常, user_id: {user_id}, qa_base_name: {qa_base_name}, exception: {repr(e)}")
         return response_info
 
 if __name__ == '__main__':

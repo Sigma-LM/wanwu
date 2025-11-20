@@ -1318,7 +1318,7 @@ def knowledgeBaseGraph():
 @app.route("/rag/init-QA-base", methods=['POST'])
 def init_qa_base():
     """ 创建问答库 """
-    logger.info('---------------init-QA-base---------------')
+    logger.info('---------------初始化问答库---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1341,7 +1341,7 @@ def init_qa_base():
 @app.route("/rag/delete-QA-base", methods=['POST'])
 def delete_qa_base():
     """ 删除问答库 """
-    logger.info('---------------delete-QA-base---------------')
+    logger.info('---------------删除问答库---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1363,7 +1363,7 @@ def delete_qa_base():
 @app.route("/rag/batch-add-QAs", methods=['POST'])
 def batch_add_qas():
     """ 批量新增问答对 """
-    logger.info('---------------batch-add-QAs---------------')
+    logger.info('-------------- 批量删除问答对---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1386,7 +1386,7 @@ def batch_add_qas():
 @app.route("/rag/get-QA-list", methods=['POST'])
 def get_qa_list():
     """ 查看问答对列表 """
-    logger.info('---------------get-QA-list---------------')
+    logger.info('---------------分页获取问答对列表---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1411,7 +1411,7 @@ def get_qa_list():
 @app.route("/rag/update-QA", methods=['POST'])
 def update_qa():
     """ 更新问答对 """
-    logger.info('---------------update-QA---------------')
+    logger.info('---------------更新问答对---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1434,7 +1434,7 @@ def update_qa():
 @app.route("/rag/batch-delete-QAs", methods=['POST'])
 def batch_delete_qas():
     """ 批量删除问答对 """
-    logger.info('---------------batch-delete-QAs---------------')
+    logger.info('---------------批量删除问答对---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1457,7 +1457,7 @@ def batch_delete_qas():
 @app.route("/rag/update-QA-status", methods=['POST'])
 def update_qa_status():
     """ 启停问答对 """
-    logger.info('---------------update-QA-status---------------')
+    logger.info('---------------更新问答对启停状态---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1482,7 +1482,7 @@ def update_qa_status():
 @app.route("/rag/update-QA-metas", methods=['POST'])
 def update_qa_metas():
     """ 批量更新元数据 """
-    logger.info('---------------update-QA-metas---------------')
+    logger.info('---------------更新问答对元数据---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1502,10 +1502,10 @@ def update_qa_metas():
 
 
 # 8.2 批量删除元数据
-@app.route("/rag/delete-meta-by-keys", methods=['POST'])
-def delete_meta_by_keys():
+@app.route("/rag/delete-QA-meta-by-keys", methods=['POST'])
+def delete_qa_meta_by_keys():
     """ 批量删除元数据 """
-    logger.info('---------------delete-meta-by-keys---------------')
+    logger.info('---------------删除问答库元数据key---------------')
     try:
         data = request.get_json()
         user_id = data['userId']
@@ -1525,10 +1525,10 @@ def delete_meta_by_keys():
 
 
 # 8.3 批量重命名元数据 Key
-@app.route("/rag/rename-meta-keys", methods=['POST'])
-def rename_meta_keys():
+@app.route("/rag/rename-QA-meta-keys", methods=['POST'])
+def rename_qa_meta_keys():
     """ 批量重命名元数据 Key """
-    logger.info('---------------rename-meta-keys---------------')
+    logger.info('---------------重命名问答库元数据key name---------------')
     try:
         data = request.get_json()
         user_id = data['userId']

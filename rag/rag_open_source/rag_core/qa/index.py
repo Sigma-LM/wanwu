@@ -54,6 +54,9 @@ def update_qa(user_id: str, qa_base: str, qa_id: str, qa_pair):
     """
     批量更新问答对（全量覆盖）
     """
+    if not user_id or not qa_base or not qa_id:
+        return {"code": 1, "message": "缺失必填参数"}
+
     if not qa_pair or not isinstance(qa_pair, dict):
         raise ValueError("qa_pair must be a dict and not empty")
 
@@ -70,6 +73,9 @@ def batch_delete_qas(user_id: str, qa_base: str, qa_id: str, qa_pair_ids: List[s
     """
     批量删除问答对
     """
+    if not user_id or not qa_base or not qa_id:
+        return {"code": 1, "message": "缺失必填参数"}
+
     if not qa_pair_ids or not isinstance(qa_pair_ids, list):
         raise ValueError("qa_pair_ids must be a list and not empty")
 
@@ -80,6 +86,9 @@ def update_qa_status(user_id: str, qa_base: str, qa_id: str, qa_pair_id: str, st
     """
     启停单个问答对
     """
+    if not user_id or not qa_base or not qa_id or not qa_pair_id:
+        return {"code": 1, "message": "缺失必填参数"}
+
     update_data = {
         "qa_pair_id": qa_pair_id,
         "status": status
@@ -94,18 +103,24 @@ def update_qa_metas(user_id: str, qa_base: str, qa_id: str, metas: List[Dict[str
     全量覆盖更新元数据
     metas: [{"qa_pair_id":"123","metadata_list":[...]}, ...]
     """
-    if not metas:
-        return {"code": 1, "message": "metas 为空"}
-    return {"code": 0, "message": "success"}
+    if not user_id or not qa_base or not qa_id:
+        return {"code": 1, "message": "缺失必填参数"}
+
+    if not metas or not isinstance(metas, list):
+        raise ValueError("metas must be a list and not empty")
+    return es_utils.update_qa_metas(user_id, qa_base, qa_id, metas, "update_metas")
 
 
 def delete_meta_by_keys(user_id: str, qa_base: str, qa_id: str, keys: List[str]) -> Dict[str, Any]:
     """
     批量删除指定 key 的元数据（跨所有问答对）
     """
-    if not keys:
-        return {"code": 1, "message": "keys 为空"}
-    return {"code": 0, "message": "success"}
+    if not user_id or not qa_base or not qa_id:
+        return {"code": 1, "message": "缺失必填参数"}
+
+    if not keys or not isinstance(keys, list):
+        raise ValueError("keys must be a list and not empty")
+    return es_utils.update_qa_metas(user_id, qa_base, qa_id, keys, "delete_keys")
 
 
 def rename_meta_keys(user_id: str, qa_base: str, qa_id: str, mappings: List[Dict[str, str]]) -> Dict[str, Any]:
@@ -113,6 +128,9 @@ def rename_meta_keys(user_id: str, qa_base: str, qa_id: str, mappings: List[Dict
     批量重命名元数据 key
     mappings: [{"old_key":"company","new_key":"organization"}, ...]
     """
-    if not mappings:
-        return {"code": 1, "message": "mappings 为空"}
-    return {"code": 0, "message": "success"}
+    if not user_id or not qa_base or not qa_id:
+        return {"code": 1, "message": "缺失必填参数"}
+
+    if not mappings or not isinstance(mappings, list):
+        raise ValueError("mappings must be a list and not empty")
+    return es_utils.update_qa_metas(user_id, qa_base, qa_id, mappings, "rename_keys")

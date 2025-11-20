@@ -5,6 +5,7 @@ from log.logger import logger
 
 from settings import DELETE_BACTH_SIZE
 from utils.util import validate_index_name
+from utils.meta_util import retype_meta_datas
 
 def delete_data_by_qa_info(index_name: str, qa_name: str, qa_id: str):
     """根据索引名和 qa_name, qa_id字段 精确匹配删除文档，并返回删除操作的状态"""
@@ -229,3 +230,201 @@ def get_qa_list(index_name, qa_base_name, qa_base_id, page_size: int, search_aft
         "qa_list": qa_list,
         "qa_pair_total_num": int(total_hits)
     }
+
+
+def update_meta_datas(index_name, qa_base_name, qa_base_id, metas):
+    """ 更新操作列表 """
+    id2meta = {}
+    qa_pair_ids = []
+
+    for meta in metas:
+        qa_pair_id = meta["qa_pair_id"]
+        qa_pair_ids.append(qa_pair_id)
+        id2meta[qa_pair_id] = meta["metadata_list"]
+
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"term": {"QABase": qa_base_name}},
+                    {"term": {"QAId": qa_base_id}},
+                    {"terms": {"qa_pair_id": qa_pair_ids}},
+                ]
+            }
+        }
+    }
+
+    try:
+        scan_kwargs = {
+            "index": index_name,
+            "query": query,
+            "scroll": "1m",
+            "size": 100
+        }
+
+        actions = []
+        for doc in helpers.scan(es, **scan_kwargs):
+            qa_pair_id = doc["_source"]["qa_pair_id"]
+            data = {
+                "qa_pair_id": qa_pair_id,
+                "meta_data": doc["_source"].get("meta_data", {})
+            }
+
+            nested_doc_meta = retype_meta_datas(id2meta[qa_pair_id])
+            data["meta_data"]["doc_meta"] = nested_doc_meta
+
+            actions.append({
+                "_op_type": "update",
+                "_index": index_name,
+                "_id": qa_pair_id,
+                "doc": data
+            })
+
+        helpers.bulk(es, actions)
+        es.indices.refresh(index=index_name)
+        logger.info(f"索引 '{index_name}' qa_base_name:{qa_base_name} , 更新元数据成功: {metas}")
+        return {"success": True, "error": None}
+    except Exception as e:
+        logger.info(f"索引 '{index_name}' qa_base_name:{qa_base_name} , 更新元数据失败, error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+def delete_meta_by_key(index_name, qa_base_name, qa_base_id, keys):
+
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"term": {"QABase": qa_base_name}},
+                    {"term": {"QAId": qa_base_id}},
+                ],
+                "should": [
+                    {
+                        "nested": {
+                            "path": "meta_data.doc_meta",
+                            "query": {
+                                "terms": {"meta_data.doc_meta.key": keys}
+                            }
+                        }
+                    }
+                ],
+                "minimum_should_match": 1
+            }
+        }
+    }
+
+    scan_kwargs = {
+        "index": index_name,
+        "query": query,
+        "scroll": "1m",
+        "size": 100
+    }
+
+    try:
+        actions = []
+        for doc in helpers.scan(es, **scan_kwargs):
+            qa_pair_id = doc["_source"]["qa_pair_id"]
+            # 获取文档当前的元数据
+            current_meta_data = doc["_source"].get("meta_data", {})
+            current_doc_meta = current_meta_data.get("doc_meta", [])
+
+            # 过滤掉在keys列表中的元数据key
+            filtered_doc_meta = [item for item in current_doc_meta if item.get("key") not in keys]
+
+            if len(filtered_doc_meta) != len(current_doc_meta):
+                data = {
+                    "qa_pair_id": qa_pair_id,
+                    "meta_data": current_meta_data
+                }
+                data["meta_data"]["doc_meta"] = filtered_doc_meta
+                actions.append({
+                    "_op_type": "update",
+                    "_index": index_name,
+                    "_id": qa_pair_id,
+                    "doc": data
+                })
+        helpers.bulk(es, actions)
+        es.indices.refresh(index=index_name)
+        logger.info(f"索引 '{index_name}' qa_base_name:{qa_base_name} , 删除元数据key成功: {keys}")
+        return {"success": True, "error": None}
+    except Exception as e:
+        logger.info(f"索引 '{index_name}' qa_base_name:{qa_base_name} , 删除元数据key失败, error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+
+def rename_metas(index_name, qa_base_name, qa_base_id, key_mappings):
+    old_keys = [mapping["old_key"] for mapping in key_mappings]
+    # 创建key映射快速查找
+    key_map = {mapping["old_key"]: mapping["new_key"] for mapping in key_mappings}
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"term": {"QABase": qa_base_name}},
+                    {"term": {"QAId": qa_base_id}},
+                ],
+                "should": [
+                    {
+                        "nested": {
+                            "path": "meta_data.doc_meta",
+                            "query": {
+                                "terms": {"meta_data.doc_meta.key": old_keys}
+                            }
+                        }
+                    }
+                ],
+                "minimum_should_match": 1
+            }
+        }
+    }
+
+    scan_kwargs = {
+        "index": index_name,
+        "query": query,
+        "scroll": "1m",
+        "size": 100
+    }
+    try:
+        actions = []
+        for doc in helpers.scan(es, **scan_kwargs):
+            qa_pair_id = doc["_source"]["qa_pair_id"]
+            # 获取文档当前的元数据
+            current_meta_data = doc["_source"].get("meta_data", {})
+            current_doc_meta = current_meta_data.get("doc_meta", [])
+
+            # 重命名需要更改的键
+            renamed_doc_meta = []
+            has_changes = False
+
+            for item in current_doc_meta:
+                new_item = item.copy()
+                old_key = item.get("key")
+
+                # 如果当前键需要重命名
+                if old_key in key_map:
+                    new_item["key"] = key_map[old_key]
+                    has_changes = True
+
+                renamed_doc_meta.append(new_item)
+
+            # 只有当key确实有被重命名时才添加到更新列表
+            if has_changes:
+                data = {
+                    "qa_pair_id": qa_pair_id,
+                    "meta_data": current_meta_data
+                }
+                data["meta_data"]["doc_meta"] = renamed_doc_meta
+                actions.append({
+                    "_op_type": "update",
+                    "_index": index_name,
+                    "_id": qa_pair_id,
+                    "doc": data
+                })
+        helpers.bulk(es, actions)
+        es.indices.refresh(index=index_name)
+        logger.info(f"索引 '{index_name}' qa_base_name:{qa_base_name} , rename元数据key成功: {key_mappings}")
+        return {"success": True, "error": None}
+    except Exception as e:
+        logger.info(f"索引 '{index_name}' qa_base_name:{qa_base_name} , rename元数据key失败, error: {str(e)}")
+        return {"success": False, "error": str(e)}

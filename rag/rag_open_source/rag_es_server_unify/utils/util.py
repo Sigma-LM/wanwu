@@ -24,7 +24,7 @@ def get_file_index_name(user_id:str) -> str:
     return 'file_control_' + get_main_index_name(user_id)
 
 def get_qa_index_name(user_id:str) -> str:
-    return 'qa' + settings.INDEX_NAME_PREFIX + user_id
+    return 'qa_' + settings.INDEX_NAME_PREFIX + user_id
 
 
 def validate_index_name(index_name):

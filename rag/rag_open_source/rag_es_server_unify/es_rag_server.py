@@ -1898,11 +1898,11 @@ def update_qa():
     qa_base_name = data.get("QABase")
     qa_base_id = data["QAId"]
     qa_pair_id = data["QAPairId"]
-    data = data["data"]
+    update_data = data["data"]
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
-        logger.info(f"用户:{user_id},问答库:{qa_base_name},qa_base_id:{qa_base_id}, qa_pair_id: {qa_pair_id}, data:{data}")
+        logger.info(f"用户:{user_id},问答库:{qa_base_name},qa_base_id:{qa_base_id}, qa_pair_id: {qa_pair_id}, update_data:{update_data}")
 
         if "question" in data:
             embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, qa_base_name)
@@ -1935,7 +1935,7 @@ def update_qa():
             f"当前用户:{user_id},问答库:{qa_base_name},qa_pair_id:{qa_pair_id}, 更新的接口返回结果为：{jsonarr}")
         return jsonarr
 
-@app.route('/api/v1/rag/es/get_qa_list', methods=['POST'])
+@app.route('/api/v1/rag/es/get_QA_list', methods=['POST'])
 def get_qa_list():
     """ 获取 分页展示 """
     logger.info("--------------------------获取问答对的分页展示---------------------------\n")
@@ -1971,6 +1971,52 @@ def get_qa_list():
         logger.info(
             f"当前用户:{user_id},问答库:{qa_base_name},分页展示的接口返回结果为：{jsonarr}")
         return jsonarr
+
+
+@app.route('/api/v1/rag/es/update_QA_metas', methods=['POST'])
+def update_qa_metas():
+    logger.info("--------------------------更新问答库元数据---------------------------\n")
+    data = request.get_json()
+    user_id = data.get("userId")
+    qa_index_name = get_qa_index_name(user_id)
+    qa_base_name = data.get("QABase")
+    qa_base_id = data["QAId"]
+    metas = data.get("metas")
+    update_type = data["update_type"]
+    try:
+        if not qa_base_id:
+            qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
+        logger.info(f"用户:{user_id},问答库:{qa_base_name},qa_base_id:{qa_base_id}, metas: {metas}")
+
+        es_result = {}
+        if update_type == "update_metas":
+            es_result = qa_ops.update_meta_datas(qa_index_name, qa_base_name, qa_base_id, metas)
+        elif update_type == "delete_keys":
+            es_result = qa_ops.delete_meta_by_key(qa_index_name, qa_base_name, qa_base_id, metas)
+        elif update_type == "rename_keys":
+            es_result = qa_ops.rename_metas(qa_index_name, qa_base_name, qa_base_id, metas)
+        if not es_result["success"]:
+            logger.info(f"当前用户:{user_id},问答库:{qa_base_name}, 问答对更新元数据时发生错误：{es_result}")
+            raise RuntimeError(es_result.get("error", ""))
+
+        result = {
+            "code": 0,
+            "message": "success"
+        }
+        jsonarr = json.dumps(result, ensure_ascii=False)
+        logger.info(
+            f"当前用户:{user_id},问答库:{qa_base_name}, 更新元数据的接口返回结果为：{jsonarr}")
+        return jsonarr
+    except Exception as e:
+        result = {
+            "code": 1,
+            "message": str(e)
+        }
+        jsonarr = json.dumps(result, ensure_ascii=False)
+        logger.info(
+            f"当前用户:{user_id},问答库:{qa_base_name}, 更新元数据的接口返回结果为：{jsonarr}")
+        return jsonarr
+
 
 if __name__ == '__main__':
     app.run()  # debug=True
