@@ -6,7 +6,7 @@
         }}
       </el-button>
       <el-switch v-model="metaDataFilterParams.filterEnable" active-color="var(--color)"
-                 @change="switchChange"></el-switch>
+         @change="switchChange"></el-switch>
     </div>
     <div class="docMetaData">
       <div :class="['docMetaBox',metaDataFilterParams.metaFilterParams.length > 1 ? 'docMetaContainer':'']">
@@ -58,7 +58,7 @@
               v-model="item.value"
               v-if="item.type === 'string' || item.type === ''"
               @blur="metaValueBlur(item)"
-              :placeholder="$t('common.select.placeholder') + 'value'"
+              :placeholder="$t('common.input.placeholder') + 'value'"
               :disabled="item.condition === 'empty' || item.condition === 'not empty'"
             >
               <template #prefix>

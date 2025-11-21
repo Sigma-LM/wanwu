@@ -1,505 +1,313 @@
 <template>
-  <div class="agent-from-content" :class="{ isDisabled: isPublish }">
-    <div class="form-header">
-      <div class="header-left">
-        <span class="el-icon-arrow-left btn" @click="goBack"></span>
-        <div class="basicInfo">
-          <div class="img">
-            <img
-              :src="
+<div class="agent-from-content" :class="{ isDisabled: isPublish }">
+  <div class="form-header">
+    <div class="header-left">
+      <span class="el-icon-arrow-left btn" @click="goBack"></span>
+      <div class="basicInfo">
+        <div class="img">
+          <img :src="
                 editForm.avatar.path
                   ? `/user/api` + editForm.avatar.path
                   : '@/assets/imgs/bg-logo.png'
-              "
-            />
-          </div>
-          <div class="basicInfo-desc">
-            <span class="basicInfo-title">{{
+              " />
+        </div>
+        <div class="basicInfo-desc">
+          <span class="basicInfo-title">{{
               (editForm.name || $t("agent.form.noInfo")).length > 12
                 ? (editForm.name || $t("agent.form.noInfo")).substring(0, 12) +
                   "..."
                 : editForm.name || $t("agent.form.noInfo")
             }}</span>
-            <span
-              class="el-icon-edit-outline editIcon"
-              @click="editAgent"
-            ></span>
-            <LinkIcon type="agent" />
-            <p>{{ editForm.desc || $t("agent.form.noInfo") }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="header-right">
-        <el-button
-          size="small"
-          type="primary"
-          style="padding: 13px 12px"
-          @click="handlePublishSet"
-        >
-          <span class="el-icon-setting"></span>
-          {{ $t("agent.form.publishConfig") }}
-        </el-button>
-        <el-button
-          size="small"
-          type="primary"
-          @click="handlePublish"
-          style="padding: 13px 12px"
-          >{{ $t("agent.form.publish")
-          }}<span class="el-icon-arrow-down" style="margin-left: 5px"></span
-        ></el-button>
-        <div class="popover-operation" v-if="showOperation">
-          <div>
-            <el-radio :label="'private'" v-model="scope">{{
-              $t("agent.form.publishType")
-            }}</el-radio>
-          </div>
-          <div>
-            <el-radio :label="'organization'" v-model="scope">{{
-              $t("agent.form.publishType1")
-            }}</el-radio>
-          </div>
-          <div>
-            <el-radio :label="'public'" v-model="scope">{{
-              $t("agent.form.publishType2")
-            }}</el-radio>
-          </div>
-          <div class="saveBtn">
-            <el-button size="mini" type="primary" @click="savePublish">{{
-              $t("common.button.save")
-            }}</el-button>
-          </div>
+          <span class="el-icon-edit-outline editIcon" @click="editAgent"></span>
+          <LinkIcon type="agent" />
+          <p>{{ editForm.desc || $t("agent.form.noInfo") }}</p>
         </div>
       </div>
     </div>
-    <!-- 智能体配置 -->
-    <div class="agent_form">
-      <div class="block prompt-box drawer-info">
-        <div class="promptTitle">
-          <h3>{{ $t("agent.form.systemPrompt") }}</h3>
-          <div class="prompt-title-icon">
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="$t('agent.form.submitToPrompt')"
-              placement="top-start"
-            >
-              <span class="el-icon-folder-add" @click="handleShowPrompt"></span>
-            </el-tooltip>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="$t('tempSquare.promptOptimize')"
-              placement="top-start"
-            >
-              <span
-                style="margin-left: 5px"
-                class="el-icon-s-help"
-                @click="showPromptOptimize"
-              ></span>
-            </el-tooltip>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="$t('tempSquare.promptCompare')"
-              placement="top-start"
-            >
-              <span class="tool-icon" @click="showPromptCompare"
-                ><img :src="require('@/assets/imgs/temp-compare.png')"
-              /></span>
-            </el-tooltip>
-          </div>
+    <div class="header-right">
+      <el-button size="small" type="primary" style="padding: 13px 12px" @click="handlePublishSet">
+        <span class="el-icon-setting"></span>
+        {{ $t("agent.form.publishConfig") }}
+      </el-button>
+      <el-button size="small" type="primary" @click="handlePublish" style="padding: 13px 12px">{{ $t("agent.form.publish")
+          }}<span class="el-icon-arrow-down" style="margin-left: 5px"></span></el-button>
+      <div class="popover-operation" v-if="showOperation">
+        <div>
+          <el-radio :label="'private'" v-model="scope">{{
+              $t("agent.form.publishType")
+            }}</el-radio>
         </div>
-        <div class="rl" style="padding: 10px">
-          <el-input
-            class="desc-input"
-            v-model="editForm.instructions"
-            :placeholder="$t('agent.form.promptTips')"
-            type="textarea"
-            show-word-limit
-            :rows="12"
-          ></el-input>
+        <div>
+          <el-radio :label="'organization'" v-model="scope">{{
+              $t("agent.form.publishType1")
+            }}</el-radio>
         </div>
-        <promptTemplate ref="promptTemplate" />
+        <div>
+          <el-radio :label="'public'" v-model="scope">{{
+              $t("agent.form.publishType2")
+            }}</el-radio>
+        </div>
+        <div class="saveBtn">
+          <el-button size="mini" type="primary" @click="savePublish">{{
+              $t("common.button.save")
+            }}</el-button>
+        </div>
       </div>
-      <div class="drawer-form">
-        <div class="agnetSet">
-          <h3 class="labelTitle">{{ $t("agent.form.agentConfig") }}</h3>
-          <div class="block prompt-box">
-            <p class="block-title model-title">
-              <span class="label">
-                <img
-                  :src="require('@/assets/imgs/require.png')"
-                  class="required-label"
-                />
-                {{ $t("agent.form.modelSelect") }}
-              </span>
-              <span
-                class="el-icon-s-operation operation"
-                @click="showModelSet"
-              ></span>
-            </p>
-            <div class="rl">
-              <el-select
-                v-model="editForm.modelParams"
-                :placeholder="$t('agent.form.modelSearchPlaceholder')"
-                @visible-change="visibleChange"
-                :loading-text="$t('agent.toolDetail.modelLoadingText')"
-                class="cover-input-icon model-select"
-                :disabled="isPublish"
-                :loading="modelLoading"
-                filterable
-                value-key="modelId"
-                @change="handleModelChange($event)"
-              >
-                <el-option
-                  class="model-option-item"
-                  v-for="item in modleOptions"
-                  :key="item.modelId"
-                  :value="item.modelId"
-                  :label="item.displayName"
-                >
-                  <div class="model-option-content">
-                    <span class="model-name">{{ item.displayName }}</span>
-                    <div
-                      class="model-select-tags"
-                      v-if="item.tags && item.tags.length > 0"
-                    >
-                      <span
-                        v-for="(tag, tagIdx) in item.tags"
-                        :key="tagIdx"
-                        class="model-select-tag"
-                        >{{ tag.text }}</span
-                      >
-                    </div>
-                  </div>
-                </el-option>
-              </el-select>
-              <div
-                class="model-select-tips"
-                v-if="editForm.visionsupport === 'support'"
-              >
-                {{ $t("agent.form.visionModelTips") }}
-              </div>
-            </div>
-          </div>
-          <div class="block prompt-box">
-            <p class="block-title">
-              <img
-                :src="require('@/assets/imgs/require.png')"
-                class="required-label"
-              />
-              {{ $t("agent.form.prologue") }}
-            </p>
-            <div class="rl">
-              <el-input
-                class="desc-input"
-                v-model="editForm.prologue"
-                maxlength="100"
-                :placeholder="$t('agent.form.prologuePlaceholder')"
-                type="textarea"
-              ></el-input>
-              <span class="el-input__count"
-                >{{ editForm.prologue.length }}/100</span
-              >
-            </div>
-          </div>
-          <div class="block recommend-box">
-            <p class="block-title recommend-title">
-              <span>{{ $t("agent.form.recommendQuestion") }}</span>
-              <span @click="addRecommend" class="common-add">
-                <span class="el-icon-plus"></span>
-                <span class="handleBtn">{{ $t("agent.add") }}</span>
-              </span>
-            </p>
-            <div
-              class="recommend-item"
-              v-for="(n, i) in editForm.recommendQuestion"
-              @mouseenter="activeIndex = i"
-              @mouseleave="activeIndex = -1"
-              :key="`${i}rml`"
-            >
-              <el-input
-                class="recommend--input"
-                v-model.lazy="n.value"
-                maxlength="50"
-                :key="`${i}rml`"
-              ></el-input>
-              <span
-                class="el-icon-delete recommend-del"
-                @click="clearRecommend(n, i)"
-                v-if="activeIndex === i"
-              ></span>
-            </div>
-          </div>
+    </div>
+  </div>
+  <!-- 智能体配置 -->
+  <div class="agent_form">
+    <div class="block prompt-box drawer-info">
+      <div class="promptTitle">
+        <h3>{{ $t("agent.form.systemPrompt") }}</h3>
+        <div class="prompt-title-icon">
+          <el-tooltip class="item" effect="dark" :content="$t('agent.form.submitToPrompt')" placement="top-start">
+            <span class="el-icon-folder-add" @click="handleShowPrompt"></span>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" :content="$t('tempSquare.promptOptimize')" placement="top-start">
+            <span style="margin-left: 5px" class="el-icon-s-help" @click="showPromptOptimize"></span>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" :content="$t('tempSquare.promptCompare')" placement="top-start">
+            <span class="tool-icon" @click="showPromptCompare"><img :src="require('@/assets/imgs/temp-compare.png')" /></span>
+          </el-tooltip>
         </div>
-        <div class="common-box">
-          <div class="block recommend-box">
-            <p class="block-title tool-title">
-              <span>{{ $t("agent.form.linkKnowledge") }}</span>
-              <span>
-                <span class="common-add" @click="showKnowledgeDiglog">
-                  <span class="el-icon-plus"></span>
-                  <span class="handleBtn">{{ $t("agent.add") }}</span>
-                </span>
-                <span class="common-add" @click="showKnowledgeSet">
-                  <span class="el-icon-s-operation"></span>
-                  <span class="handleBtn set">{{
-                    $t("agent.form.config")
-                  }}</span>
-                </span>
-              </span>
-            </p>
-            <div class="rl tool-conent">
-              <div class="tool-right tool">
-                <div class="action-list">
-                  <div
-                    v-for="(n, i) in editForm.knowledgebases"
-                    class="action-item"
-                    :key="'knowledge' + i"
-                  >
-                    <div class="name" style="color: #333">
-                      <span>{{ n.name || n.knowledgeName }}</span>
-                    </div>
-                    <div class="bt">
-                      <el-tooltip
-                        class="item"
-                        effect="dark"
-                        :content="$t('agent.form.metaDataFilter')"
-                        placement="top-start"
-                      >
-                        <span
-                          class="el-icon-setting del"
-                          @click="showMetaSet(n, i)"
-                          style="margin-right: 10px"
-                        ></span>
-                      </el-tooltip>
-                      <span
-                        class="el-icon-delete del"
-                        @click="delKnowledge(i)"
-                      ></span>
-                    </div>
+      </div>
+      <div class="rl" style="padding: 10px">
+        <el-input class="desc-input" v-model="editForm.instructions" :placeholder="$t('agent.form.promptTips')" type="textarea" show-word-limit :rows="12"></el-input>
+      </div>
+      <promptTemplate ref="promptTemplate" />
+    </div>
+    <div class="drawer-form">
+      <div class="agnetSet">
+        <h3 class="labelTitle">{{ $t("agent.form.agentConfig") }}</h3>
+        <div class="block prompt-box">
+          <p class="block-title model-title">
+            <span class="label">
+              <img :src="require('@/assets/imgs/require.png')" class="required-label" />
+              {{ $t("agent.form.modelSelect") }}
+            </span>
+            <span class="el-icon-s-operation operation" @click="showModelSet"></span>
+          </p>
+          <div class="rl">
+            <el-select v-model="editForm.modelParams" :placeholder="$t('agent.form.modelSearchPlaceholder')" @visible-change="visibleChange" :loading-text="$t('agent.toolDetail.modelLoadingText')" class="cover-input-icon model-select" :disabled="isPublish" :loading="modelLoading" filterable value-key="modelId" @change="handleModelChange($event)">
+              <el-option class="model-option-item" v-for="item in modleOptions" :key="item.modelId" :value="item.modelId" :label="item.displayName">
+                <div class="model-option-content">
+                  <span class="model-name">{{ item.displayName }}</span>
+                  <div class="model-select-tags" v-if="item.tags && item.tags.length > 0">
+                    <span v-for="(tag, tagIdx) in item.tags" :key="tagIdx" class="model-select-tag">{{ tag.text }}</span>
                   </div>
                 </div>
-              </div>
+              </el-option>
+            </el-select>
+            <div class="model-select-tips" v-if="editForm.visionsupport === 'support'">
+              {{ $t("agent.form.visionModelTips") }}
             </div>
           </div>
         </div>
-
-        <div class="block recommend-box tool-box">
-          <p class="block-title tool-title">
-            <span>{{ $t("agent.form.tool") }}</span>
-            <span @click="addTool" class="common-add">
+        <div class="block prompt-box">
+          <p class="block-title">
+            <img :src="require('@/assets/imgs/require.png')" class="required-label" />
+            {{ $t("agent.form.prologue") }}
+          </p>
+          <div class="rl">
+            <el-input class="desc-input" v-model="editForm.prologue" maxlength="100" :placeholder="$t('agent.form.prologuePlaceholder')" type="textarea"></el-input>
+            <span class="el-input__count">{{ editForm.prologue.length }}/100</span>
+          </div>
+        </div>
+        <div class="block recommend-box">
+          <p class="block-title recommend-title">
+            <span>{{ $t("agent.form.recommendQuestion") }}</span>
+            <span @click="addRecommend" class="common-add">
               <span class="el-icon-plus"></span>
               <span class="handleBtn">{{ $t("agent.add") }}</span>
             </span>
           </p>
+          <div class="recommend-item" v-for="(n, i) in editForm.recommendQuestion" @mouseenter="activeIndex = i" @mouseleave="activeIndex = -1" :key="`${i}rml`">
+            <el-input class="recommend--input" v-model.lazy="n.value" maxlength="50" :key="`${i}rml`"></el-input>
+            <span class="el-icon-delete recommend-del" @click="clearRecommend(n, i)" v-if="activeIndex === i"></span>
+          </div>
+        </div>
+      </div>
+      <div class="common-box">
+        <div class="block recommend-box">
+          <p class="block-title tool-title">
+            <span>{{ $t("agent.form.linkKnowledge") }}</span>
+            <span>
+              <span class="common-add" @click="showKnowledgeDiglog">
+                <span class="el-icon-plus"></span>
+                <span class="handleBtn">{{ $t("agent.add") }}</span>
+              </span>
+              <span class="common-add" @click="showKnowledgeSet">
+                <span class="el-icon-s-operation"></span>
+                <span class="handleBtn set">{{
+                    $t("agent.form.config")
+                  }}</span>
+              </span>
+            </span>
+          </p>
           <div class="rl tool-conent">
-            <div class="tool-right tool" v-show="allTools.length">
+            <div class="tool-right tool">
               <div class="action-list">
-                <div
-                  class="action-item"
-                  v-for="(n, i) in allTools"
-                  :key="`${i}ac`"
-                >
-                  <div class="name">
-                    <div class="toolImg">
-                      <img
-                        :src="'/user/api/' + n.avatar.path"
-                        v-show="n.avatar && n.avatar.path"
-                      />
-                    </div>
-                    <el-tooltip
-                      class="item"
-                      effect="dark"
-                      :content="displayName(n)"
-                      placement="top-start"
-                    >
-                      <span>{{
-                        displayName(n).length > 20
-                          ? displayName(n).substring(0, 20) + "..."
-                          : displayName(n)
-                      }}</span>
-                    </el-tooltip>
-                    <el-tooltip
-                      class="item"
-                      effect="dark"
-                      :content="n.mcpName || n.toolName"
-                      placement="top-start"
-                    >
-                      <span
-                        class="el-icon-info desc-info"
-                        v-if="n.mcpName || n.toolName"
-                      ></span>
-                    </el-tooltip>
+                <div v-for="(n, i) in editForm.knowledgebases" class="action-item" :key="'knowledge' + i">
+                  <div class="name" style="color: #333">
+                    <span>{{ n.name || n.knowledgeName }}</span>
                   </div>
                   <div class="bt">
-                    <span
-                      class="el-icon-s-operation bt-operation"
-                      @click="handleBuiltin(n)"
-                      v-if="
-                        n.type === 'action' &&
-                        n.toolType &&
-                        n.toolType === 'builtin'
-                      "
-                    ></span>
-                    <el-switch
-                      v-model="n.enable"
-                      class="bt-switch"
-                      @change="toolSwitch(n, n.type, n.enable)"
-                    ></el-switch>
-                    <span
-                      @click="toolRemove(n, n.type)"
-                      class="el-icon-delete del"
-                    ></span>
+                    <el-tooltip class="item" effect="dark" :content="$t('agent.form.metaDataFilter')" placement="top-start">
+                      <span class="el-icon-setting del" @click="showMetaSet(n, i)" style="margin-right: 10px"></span>
+                    </el-tooltip>
+                    <span class="el-icon-delete del" @click="delKnowledge(i)"></span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="block prompt-box link-box">
-          <p class="block-title tool-title">
-            <span>
-              {{ $t("agent.form.safetyConfig") }}
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('agent.form.safetyConfigTips')"
-                placement="top"
-              >
-                <span class="el-icon-question question-tips"></span>
-              </el-tooltip>
-            </span>
-            <span class="common-add">
-              <span @click="showSafety">
-                <span class="el-icon-s-operation"></span>
-                <span class="handleBtn" style="margin-right: 10px">{{
-                  $t("agent.form.config")
-                }}</span>
-              </span>
-              <el-switch
-                v-model="editForm.safetyConfig.enable"
-                :disabled="!(editForm.safetyConfig.tables || []).length"
-              ></el-switch>
-            </span>
-          </p>
+      </div>
+
+      <div class="block recommend-box tool-box">
+        <p class="block-title tool-title">
+          <span>{{ $t("agent.form.tool") }}</span>
+          <span @click="addTool" class="common-add">
+            <span class="el-icon-plus"></span>
+            <span class="handleBtn">{{ $t("agent.add") }}</span>
+          </span>
+        </p>
+        <div class="rl tool-conent">
+          <div class="tool-right tool" v-show="allTools.length">
+            <div class="action-list">
+              <div class="action-item" v-for="(n, i) in allTools" :key="`${i}ac`">
+                <div class="name">
+                  <div class="toolImg">
+                    <img :src="'/user/api/' + n.avatar.path" v-show="n.avatar && n.avatar.path" />
+                  </div>
+                  <el-tooltip class="item" effect="dark" :content="displayName(n)" placement="top-start">
+                    <span>{{
+                        displayName(n).length > 20
+                          ? displayName(n).substring(0, 20) + "..."
+                          : displayName(n)
+                      }}</span>
+                  </el-tooltip>
+                  <el-tooltip class="item" effect="dark" :content="n.mcpName || n.toolName" placement="top-start">
+                    <span class="el-icon-info desc-info" v-if="n.mcpName || n.toolName"></span>
+                  </el-tooltip>
+                </div>
+                <div class="bt">
+                  <span class="el-icon-s-operation bt-operation" @click="handleBuiltin(n)" v-if="
+                        n.type === 'action' &&
+                        n.toolType &&
+                        n.toolType === 'builtin'
+                      "></span>
+                  <el-switch v-model="n.enable" class="bt-switch" @change="toolSwitch(n, n.type, n.enable)"></el-switch>
+                  <span @click="toolRemove(n, n.type)" class="el-icon-delete del"></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div
-          class="block prompt-box link-box"
-          v-if="editForm.visionsupport === 'support'"
-        >
-          <p class="block-title tool-title">
-            <span>
-              {{ $t("agent.form.vision") }}
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('agent.form.visionTips')"
-                placement="top"
-              >
-                <span class="el-icon-question question-tips"></span>
-              </el-tooltip>
-            </span>
-            <span class="common-add" @click="showVisualSet">
+      </div>
+      <div class="block prompt-box link-box">
+        <p class="block-title tool-title">
+          <span>
+            {{ $t("agent.form.safetyConfig") }}
+            <el-tooltip class="item" effect="dark" :content="$t('agent.form.safetyConfigTips')" placement="top">
+              <span class="el-icon-question question-tips"></span>
+            </el-tooltip>
+          </span>
+          <span class="common-add">
+            <span @click="showSafety">
               <span class="el-icon-s-operation"></span>
               <span class="handleBtn" style="margin-right: 10px">{{
+                  $t("agent.form.config")
+                }}</span>
+            </span>
+            <el-switch v-model="editForm.safetyConfig.enable" :disabled="!(editForm.safetyConfig.tables || []).length"></el-switch>
+          </span>
+        </p>
+      </div>
+      <div class="block prompt-box link-box" v-if="editForm.visionsupport === 'support'">
+        <p class="block-title tool-title">
+          <span>
+            {{ $t("agent.form.vision") }}
+            <el-tooltip class="item" effect="dark" :content="$t('agent.form.visionTips')" placement="top">
+              <span class="el-icon-question question-tips"></span>
+            </el-tooltip>
+          </span>
+          <span class="common-add" @click="showVisualSet">
+            <span class="el-icon-s-operation"></span>
+            <span class="handleBtn" style="margin-right: 10px">{{
                 $t("agent.form.config")
               }}</span>
-            </span>
-          </p>
-        </div>
-      </div>
-      <div class="drawer-test">
-        <Chat :editForm="editForm" :chatType="'test'" />
+          </span>
+        </p>
       </div>
     </div>
+    <div class="drawer-test">
+      <Chat :editForm="editForm" :chatType="'test'" />
+    </div>
+  </div>
 
-    <!-- 编辑智能体 -->
-    <CreateIntelligent
-      ref="createIntelligentDialog"
-      :type="'edit'"
-      :editForm="editForm"
-      @updateInfo="getAppDetail"
-    />
-    <!-- 模型设置 -->
-    <ModelSet
-      @setModelSet="setModelSet"
-      ref="modelSetDialog"
-      :modelform="editForm.modelConfig"
-      :limitMaxTokens="limitMaxTokens"
-    />
-    <!-- 选择工具类型 -->
-    <ToolDiaglog
-      ref="toolDiaglog"
-      @updateDetail="updateDetail"
-      :assistantId="editForm.assistantId"
-    />
-    <!-- 敏感词设置 -->
-    <setSafety ref="setSafety" @sendSafety="sendSafety" />
-    <!-- 知识库召回参数配置 -->
-    <knowledgeSetDialog
-      ref="knowledgeSetDialog"
-      @setKnowledgeSet="setKnowledgeSet"
-      :showGraphSwitch="showGraphSwitch"
-    />
-    <!-- 知识库选择 -->
-    <knowledgeSelect
-      ref="knowledgeSelect"
-      @getKnowledgeData="getKnowledgeData"
-    />
-    <!-- 视图设置 -->
-    <visualSet ref="visualSet" @sendVisual="sendVisual" />
-    <!-- 内置工具详情 -->
-    <ToolDeatail ref="toolDeatail" @updateDetail="updateDetail" />
-    <!-- 提交至提示词 -->
-    <createPrompt
-      :isCustom="true"
-      :type="promptType"
-      ref="createPrompt"
-      @reload="updatePrompt"
-    />
-    <!-- 提示词优化 -->
-    <PromptOptimize ref="promptOptimize" @promptSubmit="promptSubmit" />
-    <!-- 元数据设置 -->
-    <el-dialog
-      :visible.sync="metaSetVisible"
-      width="1050px"
-      class="metaSetVisible"
-      :before-close="handleMetaClose"
-    >
-      <template #title>
-        <div class="metaHeader">
-          <h3>{{ $t("agent.form.configMetaDataFilter") }}</h3>
-          <span>{{ $t("agent.form.metaDataFilterDesc") }}</span>
-        </div>
-      </template>
-      <metaSet
-        ref="metaSet"
-        :knowledgeId="currentKnowledgeId"
-        :currentMetaData="currentMetaData"
-      />
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="handleMetaClose">{{
+  <!-- 编辑智能体 -->
+  <CreateIntelligent ref="createIntelligentDialog" :type="'edit'" :editForm="editForm" @updateInfo="getAppDetail" />
+  <!-- 模型设置 -->
+  <ModelSet @setModelSet="setModelSet" ref="modelSetDialog" :modelform="editForm.modelConfig" :limitMaxTokens="limitMaxTokens" />
+  <!-- 选择工具类型 -->
+  <ToolDiaglog ref="toolDiaglog" @updateDetail="updateDetail" :assistantId="editForm.assistantId" />
+  <!-- 敏感词设置 -->
+  <setSafety ref="setSafety" @sendSafety="sendSafety" />
+  <!-- 知识库召回参数配置 -->
+  <knowledgeSetDialog ref="knowledgeSetDialog" @setKnowledgeSet="setKnowledgeSet" :showGraphSwitch="showGraphSwitch" />
+  <!-- 知识库选择 -->
+  <knowledgeSelect ref="knowledgeSelect" @getKnowledgeData="getKnowledgeData" />
+  <!-- 视图设置 -->
+  <visualSet ref="visualSet" @sendVisual="sendVisual" />
+  <!-- 内置工具详情 -->
+  <ToolDeatail ref="toolDeatail" @updateDetail="updateDetail" />
+  <!-- 提交至提示词 -->
+  <createPrompt :isCustom="true" :type="promptType" ref="createPrompt" @reload="updatePrompt" />
+  <!-- 提示词优化 -->
+  <PromptOptimize ref="promptOptimize" @promptSubmit="promptSubmit" />
+  <!-- 元数据设置 -->
+  <el-dialog :visible.sync="metaSetVisible" width="1050px" class="metaSetVisible" :before-close="handleMetaClose">
+    <template #title>
+      <div class="metaHeader">
+        <h3>{{ $t("agent.form.configMetaDataFilter") }}</h3>
+        <span>{{ $t("agent.form.metaDataFilterDesc") }}</span>
+      </div>
+    </template>
+    <metaSet ref="metaSet" :knowledgeId="currentKnowledgeId" :currentMetaData="currentMetaData" />
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="handleMetaClose">{{
           $t("common.button.cancel")
         }}</el-button>
-        <el-button type="primary" @click="submitMeta">{{
+      <el-button type="primary" @click="submitMeta">{{
           $t("common.button.confirm")
         }}</el-button>
-      </span>
-    </el-dialog>
-  </div>
+    </span>
+  </el-dialog>
+</div>
 </template>
 
 <script>
-import { appPublish } from "@/api/appspace";
-import { store } from "@/store/index";
-import { mapGetters, mapActions } from "vuex";
+import {
+  appPublish
+} from "@/api/appspace";
+import {
+  store
+} from "@/store/index";
+import {
+  mapGetters,
+  mapActions
+} from "vuex";
 import CreateIntelligent from "@/components/createApp/createIntelligent";
 import setSafety from "@/components/setSafety";
 import visualSet from "./visualSet";
 import metaSet from "@/components/metaSet";
 import ModelSet from "./modelSetDialog";
-import { selectModelList, getRerankList } from "@/api/modelAccess";
+import {
+  selectModelList,
+  getRerankList
+} from "@/api/modelAccess";
 import {
   deleteMcp,
   enableMcp,
@@ -515,7 +323,9 @@ import {
 import ToolDiaglog from "./toolDialog";
 import ToolDeatail from "./toolDetail";
 import knowledgeSetDialog from "./knowledgeSetDialog";
-import { readWorkFlow } from "@/api/workflow";
+import {
+  readWorkFlow
+} from "@/api/workflow";
 import Chat from "./chat";
 import LinkIcon from "@/components/linkIcon.vue";
 import promptTemplate from "./prompt/index.vue";
@@ -628,7 +438,9 @@ export default {
           maxHistory: 0, //最长上下文
           useGraph: false,
         },
-        recommendQuestion: [{ value: "" }],
+        recommendQuestion: [{
+          value: ""
+        }],
         modelConfig: {
           temperature: 0.7,
           topP: 1,
@@ -718,9 +530,9 @@ export default {
     }
     //判断是否有插件管理的权限
     const accessCert = localStorage.getItem("access_cert");
-    const permission = accessCert
-      ? JSON.parse(accessCert).user.permission.orgPermission
-      : "";
+    const permission = accessCert ?
+      JSON.parse(accessCert).user.permission.orgPermission :
+      "";
     this.hasPluginPermission = permission.indexOf("plugin") !== -1;
   },
   beforeDestroy() {
@@ -848,14 +660,19 @@ export default {
       this.$refs.setSafety.showDialog(this.editForm.safetyConfig.tables);
     },
     sendSafety(data) {
-      const tablesData = data.map(({ tableId, tableName }) => ({
+      const tablesData = data.map(({
+        tableId,
+        tableName
+      }) => ({
         tableId,
         tableName,
       }));
       this.editForm.safetyConfig.tables = tablesData;
     },
     actionSwitch(id) {
-      enableAction({ actionId: id }).then((res) => {
+      enableAction({
+        actionId: id
+      }).then((res) => {
         if (res.code === 0) {
           this.getAppDetail();
         }
@@ -872,12 +689,12 @@ export default {
     },
     customSwitch(n, enable) {
       switchCustomBuiltIn({
-        assistantId: this.editForm.assistantId,
-        actionName: n.actionName,
-        toolId: n.toolId,
-        toolType: n.toolType,
-        enable,
-      })
+          assistantId: this.editForm.assistantId,
+          actionName: n.actionName,
+          toolId: n.toolId,
+          toolType: n.toolType,
+          enable,
+        })
         .then((res) => {
           if (res.code === 0) {
             this.getAppDetail();
@@ -887,12 +704,12 @@ export default {
     },
     mcpSwitch(n, enable) {
       enableMcp({
-        assistantId: this.editForm.assistantId,
-        actionName: n.actionName,
-        enable,
-        mcpId: n.mcpId,
-        mcpType: n.mcpType,
-      })
+          assistantId: this.editForm.assistantId,
+          actionName: n.actionName,
+          enable,
+          mcpId: n.mcpId,
+          mcpType: n.mcpType,
+        })
         .then((res) => {
           if (res.code === 0) {
             this.getAppDetail();
@@ -902,10 +719,10 @@ export default {
     },
     workflowSwitch(id, enable) {
       enableWorkFlow({
-        assistantId: this.editForm.assistantId,
-        workFlowId: id,
-        enable,
-      })
+          assistantId: this.editForm.assistantId,
+          workFlowId: id,
+          enable,
+        })
         .then((res) => {
           if (res.code === 0) {
             this.getAppDetail();
@@ -934,7 +751,9 @@ export default {
       });
     },
     goBack() {
-      this.$router.push({ path: "/appSpace/agent" });
+      this.$router.push({
+        path: "/appSpace/agent"
+      });
     },
     handlePublish() {
       this.showOperation = !this.showOperation;
@@ -955,7 +774,9 @@ export default {
       };
       appPublish(data).then((res) => {
         if (res.code === 0) {
-          this.$router.push({ path: "/explore" });
+          this.$router.push({
+            path: "/explore"
+          });
         }
       });
     },
@@ -991,11 +812,11 @@ export default {
     },
     customRemove(n) {
       delCustomBuiltIn({
-        assistantId: this.editForm.assistantId,
-        toolId: n.toolId,
-        toolType: n.toolType,
-        actionName: n.actionName,
-      })
+          assistantId: this.editForm.assistantId,
+          toolId: n.toolId,
+          toolType: n.toolType,
+          actionName: n.actionName,
+        })
         .then((res) => {
           if (res.code === 0) {
             this.$message.success(this.$t("agent.form.deleteSuccess"));
@@ -1006,11 +827,11 @@ export default {
     },
     mcpRemove(n) {
       deleteMcp({
-        assistantId: this.editForm.assistantId,
-        actionName: n.actionName,
-        mcpId: n.mcpId,
-        mcpType: n.mcpType,
-      })
+          assistantId: this.editForm.assistantId,
+          actionName: n.actionName,
+          mcpId: n.mcpId,
+          mcpType: n.mcpType,
+        })
         .then((res) => {
           if (res.code === 0) {
             this.$message.success(this.$t("agent.form.deleteSuccess"));
@@ -1056,10 +877,8 @@ export default {
       const params = {
         assistantId: this.editForm.assistantId,
         prologue: this.editForm.prologue,
-        recommendQuestion:
-          recommendQuestion.length > 0 && recommendQuestion[0] !== ""
-            ? recommendQuestion
-            : [],
+        recommendQuestion: recommendQuestion.length > 0 && recommendQuestion[0] !== "" ?
+          recommendQuestion : [],
         instructions: this.editForm.instructions,
         knowledgeBaseConfig: {
           config: this.editForm.knowledgeConfig,
@@ -1074,16 +893,16 @@ export default {
           provider: modeInfo.provider,
         },
         safetyConfig: this.editForm.safetyConfig,
-        visionConfig: { picNum: this.editForm.visionConfig.picNum },
-        rerankConfig: rerankInfo
-          ? {
-              displayName: rerankInfo.displayName,
-              model: rerankInfo.model,
-              modelId: rerankInfo.modelId,
-              modelType: rerankInfo.modelType,
-              provider: rerankInfo.provider,
-            }
-          : {},
+        visionConfig: {
+          picNum: this.editForm.visionConfig.picNum
+        },
+        rerankConfig: rerankInfo ? {
+          displayName: rerankInfo.displayName,
+          model: rerankInfo.model,
+          modelId: rerankInfo.modelId,
+          modelType: rerankInfo.modelType,
+          provider: rerankInfo.provider,
+        } : {},
       };
       let res = await putAgentInfo(params);
       if (res.code === 0) {
@@ -1111,9 +930,9 @@ export default {
         this.startLoading(100);
         let data = res.data;
         this.editForm.knowledgeConfig =
-          res.data.knowledgeBaseConfig.config.matchType === ""
-            ? this.editForm.knowledgeConfig
-            : res.data.knowledgeBaseConfig.config;
+          res.data.knowledgeBaseConfig.config.matchType === "" ?
+          this.editForm.knowledgeConfig :
+          res.data.knowledgeBaseConfig.config;
         this.editForm.knowledgeConfig.rerankModelId =
           res.data.rerankConfig.modelId;
         const knowledgeData = res.data.knowledgeBaseConfig.knowledgebases;
@@ -1129,23 +948,17 @@ export default {
           instructions: data.instructions || "", //系统提示词
           rerankParams: data.rerankConfig.modelId || "",
           visionConfig: data.visionConfig, //图片配置
-          modelConfig:
-            data.modelConfig.config !== null
-              ? data.modelConfig.config
-              : this.editForm.modelConfig,
+          modelConfig: data.modelConfig.config !== null ?
+            data.modelConfig.config : this.editForm.modelConfig,
           modelParams: data.modelConfig.modelId || "",
-          recommendQuestion:
-            data.recommendQuestion && data.recommendQuestion.length > 0
-              ? data.recommendQuestion.map((n, index) => {
-                  return {
-                    value: n,
-                  };
-                })
-              : [],
-          safetyConfig:
-            data.safetyConfig !== null
-              ? data.safetyConfig
-              : this.editForm.safetyConfig,
+          recommendQuestion: data.recommendQuestion && data.recommendQuestion.length > 0 ?
+            data.recommendQuestion.map((n, index) => {
+              return {
+                value: n,
+              };
+            }) : [],
+          safetyConfig: data.safetyConfig !== null ?
+            data.safetyConfig : this.editForm.safetyConfig,
         };
 
         //设置模型信息
@@ -1156,9 +969,18 @@ export default {
         this.mcpInfos = data.mcpInfos || [];
         this.actionInfos = data.toolInfos || [];
         this.allTools = [
-          ...this.workFlowInfos.map((item) => ({ ...item, type: "workflow" })),
-          ...this.mcpInfos.map((item) => ({ ...item, type: "mcp" })),
-          ...this.actionInfos.map((item) => ({ ...item, type: "action" })),
+          ...this.workFlowInfos.map((item) => ({
+            ...item,
+            type: "workflow"
+          })),
+          ...this.mcpInfos.map((item) => ({
+            ...item,
+            type: "mcp"
+          })),
+          ...this.actionInfos.map((item) => ({
+            ...item,
+            type: "action"
+          })),
         ];
 
         this.setMaxPicNum(this.editForm.visionConfig.picNum);
@@ -1189,7 +1011,9 @@ export default {
       if (this.editForm.recommendQuestion.length > 3) {
         return;
       }
-      this.editForm.recommendQuestion.push({ value: "" });
+      this.editForm.recommendQuestion.push({
+        value: ""
+      });
     },
     clearRecommend(n, index) {
       if (this.editForm.recommendQuestion.length === 1) return;
@@ -1198,16 +1022,17 @@ export default {
     },
     async preDelAction(actionId) {
       this.$confirm(
-        this.$t("createApp.delActionTips"),
-        this.$t("knowledgeManage.tip"),
-        {
-          confirmButtonText: this.$t("createApp.save"),
-          cancelButtonText: this.$t("createApp.cancel"),
-          type: "warning",
-        }
-      )
+          this.$t("createApp.delActionTips"),
+          this.$t("knowledgeManage.tip"), {
+            confirmButtonText: this.$t("createApp.save"),
+            cancelButtonText: this.$t("createApp.cancel"),
+            type: "warning",
+          }
+        )
         .then(async () => {
-          let res = await delActionInfo({ actionId });
+          let res = await delActionInfo({
+            actionId
+          });
           if (res.code === 0) {
             this.$message.success(this.$t("createApp.delSuccess"));
             this.getAppDetail();
@@ -1221,10 +1046,11 @@ export default {
 
 <style lang="scss" scoped>
 .isDisabled .header-right,
-.isDisabled .drawer-form > div {
+.isDisabled .drawer-form>div {
   user-select: none;
   pointer-events: none !important;
 }
+
 /deep/ {
   .apikeyBtn {
     border: 1px solid $btn_bg;
@@ -1232,26 +1058,32 @@ export default {
     color: $btn_bg;
     display: flex;
     align-items: center;
+
     img {
       height: 14px;
     }
   }
+
   .metaSetVisible {
     .el-dialog__header {
       border-bottom: 1px solid #dbdbdb;
     }
+
     .el-dialog__body {
       max-height: 400px;
       overflow-y: auto;
     }
   }
 }
+
 .metaHeader {
   display: flex;
   justify-content: flex-start;
+
   h3 {
     font-size: 18px;
   }
+
   span {
     margin-left: 10px;
     color: #666;
@@ -1259,54 +1091,66 @@ export default {
     padding-top: 5px;
   }
 }
+
 //通用添加按钮
 .common-add {
   color: #595959;
   cursor: pointer;
   margin-left: 10px;
+
   .handleBtn,
   .el-icon-plus {
     font-size: 13px !important;
     padding: 0 2px;
   }
+
   .set {
     margin-left: 1px;
   }
+
   .el-icon-plus {
     font-weight: bold;
   }
 }
+
 .model-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .label {
     display: flex;
     align-items: center;
     font-size: 15px;
   }
 }
+
 .question {
   cursor: pointer;
   color: #999;
   margin-left: 8px;
 }
+
 ::selection {
   color: #1a2029;
   background: #c8deff;
 }
+
 .question {
   cursor: pointer;
   color: #ccc;
   margin-left: 6px;
 }
+
 .basicInfo {
   display: flex;
   align-items: center;
   border-radius: 12px;
   padding: 16px;
+
   .img {
     margin-right: 10px;
+
     img {
       border-radius: 6px;
       width: 32px;
@@ -1315,21 +1159,25 @@ export default {
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
     }
   }
+
   .basicInfo-desc {
     flex: 1;
   }
+
   .basicInfo-title {
     display: inline-block;
     font-weight: 600;
     font-size: 14px;
     color: #1f2937;
   }
+
   .editIcon {
     font-size: 16px;
     margin-left: 5px;
     cursor: pointer;
     color: #6b7280;
   }
+
   p {
     color: #6b7280;
     font-size: 12px;
@@ -1337,6 +1185,7 @@ export default {
     line-height: 1.2;
   }
 }
+
 .form-header {
   width: 100%;
   height: 60px;
@@ -1346,6 +1195,7 @@ export default {
   padding: 0 20px;
   position: relative;
   border-bottom: 1px solid #dbdbdb;
+
   .popover-operation {
     position: absolute;
     bottom: -122px;
@@ -1355,42 +1205,50 @@ export default {
     padding: 10px 20px;
     border-radius: 6px;
     z-index: 999;
+
     .saveBtn {
       display: flex;
       justify-content: center;
       padding: 10px 0;
     }
   }
+
   .header-left {
     display: flex;
     align-items: center;
+
     .btn {
       margin-right: 10px;
       font-size: 18px;
       cursor: pointer;
     }
+
     .header-left-title {
       font-size: 18px;
       color: $color_title;
       font-weight: bold;
     }
   }
+
   .header-right {
     display: flex;
     align-items: center;
   }
 }
+
 .agent-from-content {
   height: 100%;
   width: 100%;
   overflow: hidden !important;
 }
+
 .agent_form {
   padding: 0 10px;
   display: flex;
   justify-content: space-between;
   gap: 10px;
   height: calc(100% - 60px);
+
   .drawer-info {
     position: relative;
     width: 30%;
@@ -1400,24 +1258,29 @@ export default {
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
     // padding: 10px;
   }
+
   .labelTitle {
     font-size: 18px;
     font-weight: 800;
     padding: 10px 20px;
   }
+
   .promptTitle {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 10px 0 10px;
+
     .prompt-title-icon {
       display: flex;
       align-items: center;
     }
+
     h3 {
       font-size: 18px;
       font-weight: 800;
     }
+
     span {
       margin-left: 5px;
       font-size: 16px;
@@ -1428,11 +1291,13 @@ export default {
       border-radius: 50%;
       background: #e0e7ff;
     }
+
     .tool-icon {
       display: inline-block;
       width: 32px;
       height: 32px;
       cursor: pointer;
+
       img {
         width: 100%;
         height: 100%;
@@ -1440,11 +1305,13 @@ export default {
       }
     }
   }
+
   .actionConfig {
     overflow-y: auto;
     width: 60%;
     padding: 0 40px;
   }
+
   .drawer-form {
     width: 30%;
     margin: 10px 0;
@@ -1455,6 +1322,7 @@ export default {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+
     /deep/.el-input__inner,
     /deep/.el-textarea__inner {
       background-color: transparent !important;
@@ -1462,27 +1330,32 @@ export default {
       font-family: "Microsoft YaHei", Arial, sans-serif;
       padding: 15px;
     }
+
     .flex {
       width: 100%;
       display: flex;
       justify-content: space-between;
     }
+
     .link-box {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       padding: 10px 20px;
     }
+
     .common-box {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       padding: 5px 20px;
       margin-bottom: 15px;
+
       .block {
         margin-bottom: 10px;
       }
     }
+
     .tool-box {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
@@ -1495,36 +1368,44 @@ export default {
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;
       margin-bottom: 15px;
+
       .block {
         padding: 5px 20px;
         margin-bottom: 0px !important;
       }
     }
+
     /*通用*/
     .block {
       margin-bottom: 15px;
+
       .tool-title {
         display: flex;
         justify-content: space-between;
+
         span {
           font-size: 15px;
         }
       }
+
       .block-title {
         line-height: 30px;
         font-size: 15px;
         font-weight: bold;
         display: flex;
         align-items: center;
+
         .title_tips {
           color: #999;
           margin-left: 20px;
           font-weight: normal;
         }
+
         .question-tips {
           margin-left: 5px;
         }
       }
+
       .block-link {
         border: 1px solid #ddd;
         padding: 6px 10px;
@@ -1532,11 +1413,13 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .link-text {
           color: $color;
           display: flex;
           align-items: center;
         }
+
         .link-operation {
           cursor: pointer;
           margin-right: 5px;
@@ -1544,56 +1427,69 @@ export default {
           line-height: 20px;
         }
       }
+
       .tool-conent {
         display: flex;
         justify-content: space-between;
         gap: 10px;
+
         .tool {
           width: 100%;
           max-height: 300px;
           overflow-y: auto;
+
           .action-list {
             width: 100%;
           }
         }
       }
+
       .model-select {
         width: 100%;
       }
+
       .model-select-tips {
         margin-top: 10px;
         color: #dc6803;
       }
+
       .operation {
         text-align: center;
         cursor: pointer;
         font-size: 16px;
         padding-right: 10px;
       }
+
       .operation:hover {
         color: $color;
       }
+
       .tips {
         display: flex;
         align-items: center;
         margin-bottom: 5px;
+
         .block-title-tips {
           color: #ccc;
           margin-right: 10px;
         }
       }
+
       .paramsSet {
         padding: 10px;
       }
+
       .required-label {
         width: 18px;
         height: 18px;
         margin-right: 4px;
       }
+
       .block-tip {
         color: #919eac;
       }
     }
+
     .el-input__count {
       color: #909399;
       background: #fafafa;
@@ -1602,17 +1498,21 @@ export default {
       bottom: 5px;
       right: 10px;
     }
+
     /*新建应用*/
     .name-box {
       height: 90px;
       line-height: 90px;
       font-size: 22px;
       display: flex;
+
       .name-input {
         width: 100%;
       }
+
       .input-echo {
         font-size: 22px;
+
         .name-edit {
           margin-left: 20px;
           cursor: pointer;
@@ -1620,31 +1520,38 @@ export default {
         }
       }
     }
+
     .logo-box {
       margin-top: 20px;
+
       .right-input-box {
         flex: 1;
         width: 0;
         margin-left: 20px;
       }
+
       .instructions-input {
         margin-top: 10px;
       }
     }
+
     .logo-upload {
       width: 120px;
       height: 120px;
       margin-top: 3px;
+
       /deep/ {
         .el-upload {
           width: 100%;
           height: 100%;
         }
+
         .echo-img {
           img {
             object-fit: cover;
             height: 100%;
           }
+
           .echo-img-tip {
             position: absolute;
             width: 100%;
@@ -1658,11 +1565,13 @@ export default {
         }
       }
     }
+
     /deep/.desc-input {
       .el-textarea__inner {
         height: 90px !important;
       }
     }
+
     .systemPrompt-tip {
       background-color: #f1f1f1;
       border-radius: 6px;
@@ -1671,24 +1580,29 @@ export default {
       margin-top: 10px;
       padding: 8px 20px;
     }
+
     /*推荐问题*/
     .recommend-box {
       .recommend-title {
         display: flex;
         justify-content: space-between;
+
         span {
           font-size: 15px;
         }
       }
+
       .recommend-item {
         margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         position: relative;
+
         .recommend--input {
           width: calc(100% - 30px);
           margin-right: 30px;
         }
+
         .recommend-del {
           position: absolute;
           right: 10px;
@@ -1696,6 +1610,7 @@ export default {
           color: #595959;
           cursor: pointer;
         }
+
         .close--icon {
           display: inline-block;
           width: 60px;
@@ -1703,6 +1618,7 @@ export default {
           text-align: center;
           cursor: pointer;
           color: #333;
+
           &:hover {
             font-weight: bold;
           }
@@ -1725,6 +1641,7 @@ export default {
       .el-checkbox-group {
         margin-top: 10px;
       }
+
       .plugin-checkbox /deep/.el-checkbox__inner.is-checked.el-checkbox__inner {
         background-color: #409eff;
         border-color: #409eff;
@@ -1743,6 +1660,7 @@ export default {
       border-top: 1px solid #d3d7dd;
     }
   }
+
   .drawer-test {
     width: calc((100% - 320px - 20px) / 2);
     background: #f7f8fa;
@@ -1760,9 +1678,11 @@ export default {
   left: -2px;
   right: -2px;
 }
+
 .action-list {
   margin: 10px 0 15px 0;
   width: 100%;
+
   .action-item {
     display: flex;
     justify-content: space-between;
@@ -1771,6 +1691,7 @@ export default {
     border-radius: 6px;
     margin-bottom: 5px;
     width: 100%;
+
     .name {
       width: 80%;
       box-sizing: border-box;
@@ -1779,16 +1700,19 @@ export default {
       display: flex;
       align-items: center;
       color: #333;
+
       .desc-info {
         color: #ccc;
         margin-left: 4px;
       }
+
       .toolImg {
         width: 30px;
         height: 30px;
         border-radius: 50%;
         background: #eee;
         margin-right: 5px;
+
         img {
           width: 100%;
           height: 100%;
@@ -1797,6 +1721,7 @@ export default {
         }
       }
     }
+
     .bt {
       text-align: center;
       width: 30%;
@@ -1806,14 +1731,17 @@ export default {
       padding-right: 10px;
       box-sizing: border-box;
       cursor: pointer;
+
       .del {
         color: $btn_bg;
         font-size: 16px;
         line-height: 20px;
       }
+
       .bt-switch {
         margin: 0 6px 0 6px;
       }
+
       .bt-operation {
         font-size: 16px;
         line-height: 20px;
@@ -1821,25 +1749,32 @@ export default {
     }
   }
 }
-</style>
-<style lang="scss">
+</style><style lang="scss">
 .vue-treeselect .vue-treeselect__menu-container {
   z-index: 9999 !important;
 }
+
 .custom-tooltip.is-light {
-  border-color: #ccc; /* 设置边框颜色 */
-  background-color: #fff; /* 设置背景颜色 */
-  color: #666; /* 设置文字颜色 */
+  border-color: #ccc;
+  /* 设置边框颜色 */
+  background-color: #fff;
+  /* 设置背景颜色 */
+  color: #666;
+  /* 设置文字颜色 */
 }
+
 .custom-tooltip.el-tooltip__popper[x-placement^="top"] .popper__arrow::after {
   border-top-color: #fff !important;
 }
+
 .custom-tooltip.el-tooltip__popper.is-light[x-placement^="top"] .popper__arrow {
   border-top-color: #ccc !important;
 }
+
 .drawer-test .echo .session-item {
   width: 30vw !important;
 }
+
 .model-option-content {
   display: flex;
   justify-content: space-between;
@@ -1857,6 +1792,7 @@ export default {
     gap: 4px;
     flex-shrink: 0;
     margin-top: 4px;
+
     .model-select-tag {
       background-color: #f0f2ff;
       color: $color;
@@ -1868,4 +1804,3 @@ export default {
   }
 }
 </style>
-
