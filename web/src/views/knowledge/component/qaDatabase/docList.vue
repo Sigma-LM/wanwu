@@ -43,8 +43,9 @@
                   type="primary"
                   icon="el-icon-refresh"
                   @click="reload"
-                  >{{ $t("common.gpuDialog.reload") }}</el-button
                 >
+                  {{ $t("common.gpuDialog.reload") }}
+                </el-button>
                 <el-button
                   size="mini"
                   type="primary"
@@ -54,8 +55,9 @@
                     )
                   "
                   v-if="showGraphReport"
-                  >{{ $t("knowledgeManage.hitTest.graph") }}</el-button
                 >
+                  {{ $t("knowledgeManage.hitTest.graph") }}
+                </el-button>
                 <el-button
                   size="mini"
                   type="primary"
@@ -66,9 +68,9 @@
                   "
                   v-if="showGraphReport"
                 >
-                  <span>{{
-                    $t("knowledgeManage.hitTest.communityReport")
-                  }}</span>
+                  <span>
+                    {{ $t("knowledgeManage.hitTest.communityReport") }}
+                  </span>
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -83,10 +85,9 @@
                   type="primary"
                   @click="showMeta"
                   v-if="[10, 20, 30].includes(permissionType)"
-                  >{{
-                    $t("knowledgeManage.docList.metaDataManagement")
-                  }}</el-button
                 >
+                  {{ $t("knowledgeManage.docList.metaDataManagement") }}
+                </el-button>
                 <el-button
                   size="mini"
                   type="primary"
@@ -95,16 +96,18 @@
                       `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&graphSwitch=${graphSwitch}`
                     )
                   "
-                  >{{ $t("knowledgeManage.hitTest.name") }}</el-button
                 >
+                  {{ $t("knowledgeManage.hitTest.name") }}
+                </el-button>
                 <el-button
                   size="mini"
                   type="primary"
                   :underline="false"
                   @click="handleUpload"
                   v-if="[10, 20, 30].includes(permissionType)"
-                  >{{ $t("knowledgeManage.fileUpload") }}</el-button
                 >
+                  {{ $t("knowledgeManage.fileUpload") }}
+                </el-button>
               </div>
             </el-header>
             <el-main class="noPadding" v-loading="tableLoading">
@@ -142,11 +145,13 @@
                       trigger="hover"
                       width="300"
                     >
-                      <span slot="reference">{{
-                        scope.row.docName.length > 20
-                          ? scope.row.docName.slice(0, 20) + "..."
-                          : scope.row.docName
-                      }}</span>
+                      <span slot="reference">
+                        {{
+                          scope.row.docName.length > 20
+                            ? scope.row.docName.slice(0, 20) + "..."
+                            : scope.row.docName
+                        }}
+                      </span>
                     </el-popover>
                   </template>
                 </el-table-column>
@@ -160,9 +165,9 @@
                   :label="$t('knowledgeManage.qaDatabase.metaData')"
                 >
                   <template slot-scope="scope">
-                    <span>{{
-                      getSegmentMethodText(scope.row.segmentMethod)
-                    }}</span>
+                    <span>
+                      {{ getSegmentMethodText(scope.row.segmentMethod) }}
+                    </span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -180,8 +185,9 @@
                       :class="[
                         [4, 5].includes(scope.row.status) ? 'error' : '',
                       ]"
-                      >{{ filterStatus(scope.row.status) }}</span
                     >
+                      {{ filterStatus(scope.row.status) }}
+                    </span>
                     <el-tooltip
                       class="item"
                       effect="light"
@@ -209,9 +215,9 @@
                   :label="$t('knowledgeManage.graph.graphStatus')"
                 >
                   <template slot-scope="scope">
-                    <span>{{
-                      knowledgeGraphStatus[scope.row.graphStatus]
-                    }}</span>
+                    <span>
+                      {{ knowledgeGraphStatus[scope.row.graphStatus] }}
+                    </span>
                     <el-tooltip
                       class="item"
                       effect="light"
@@ -243,8 +249,9 @@
                       :type="
                         [2, 3].includes(Number(scope.row.status)) ? 'info' : ''
                       "
-                      >{{ $t("common.button.delete") }}</el-button
                     >
+                      {{ $t("common.button.delete") }}
+                    </el-button>
                     <el-button
                       size="mini"
                       round
@@ -255,8 +262,9 @@
                       "
                       :disabled="[0, 3, 5].includes(Number(scope.row.status))"
                       @click="handleView(scope.row)"
-                      >{{ $t("knowledgeManage.view") }}</el-button
                     >
+                      {{ $t("knowledgeManage.view") }}
+                    </el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -288,15 +296,15 @@
         class="mataData"
       />
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">{{
-          $t("common.button.cancel")
-        }}</el-button>
-        <el-button type="primary" @click="createMeta">{{
-          $t("common.button.create")
-        }}</el-button>
-        <el-button type="primary" @click="submitMeta" :disabled="isDisabled">{{
-          $t("common.button.confirm")
-        }}</el-button>
+        <el-button @click="handleClose">
+          {{ $t("common.button.cancel") }}
+        </el-button>
+        <el-button type="primary" @click="createMeta">
+          {{ $t("common.button.create") }}
+        </el-button>
+        <el-button type="primary" @click="submitMeta" :disabled="isDisabled">
+          {{ $t("common.button.confirm") }}
+        </el-button>
       </span>
     </el-dialog>
 
