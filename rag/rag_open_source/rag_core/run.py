@@ -1292,7 +1292,7 @@ def getReportsList():
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
     return response
 
-
+@app.route("/rag/knowledgeBase-graph", methods=['POST'])
 def knowledgeBaseGraph():
     logger.info('---------------获取知识库知识图谱---------------')
     try:

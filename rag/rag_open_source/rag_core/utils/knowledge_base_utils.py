@@ -656,7 +656,7 @@ def get_knowledge_based_answer(user_id, kb_names, question, rate, top_k, chunk_c
             if use_graph:  # 如果使用图检索
                 # ======== 将graph检索的结果 和 两路检索的结果进行融合，并重新再过一遍rerank ========
                 temp_graph_search_list, temp_graph_dat_list = graph_utils.get_graph_search_list(user_id, kb_names, question, top_k,
-                                                                             kb_ids=[],
+                                                                             kb_ids=[], threshold=rate,
                                                                              filter_file_name_list=filter_file_name_list)
                 graph_search_list.extend(temp_graph_search_list)  # 直接放进去先
                 graph_data_list.extend(temp_graph_dat_list)  # 直接放进去先
