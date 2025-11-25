@@ -29,16 +29,17 @@
                     @click="queryCopy(n.query)"
                     style="cursor: pointer"
                   >
-                    <i class="el-icon-s-order"></i>&nbsp;{{
-                      $t("agent.copyToInput")
-                    }}
+                    <i class="el-icon-s-order"></i>
+                    &nbsp;
+                    {{ $t("agent.copyToInput") }}
                   </p>
                   <span
                     slot="reference"
                     class="answer-text"
                     style="display: inline-block; margin-top: 5px"
-                    >{{ n.query }}</span
                   >
+                    {{ n.query }}
+                  </span>
                 </el-popover>
                 <div class="echo-doc-box" v-if="hasFiles(n)">
                   <el-button
@@ -196,25 +197,27 @@
                 class="serach-list-item"
                 v-if="showSearchList(j, n.qa_type, n.citations)"
               >
-                <span @click="collapseClick(n, m, j)"
-                  ><i
+                <span @click="collapseClick(n, m, j)">
+                  <i
                     :class="[
                       '',
                       m.collapse
                         ? 'el-icon-caret-bottom'
                         : 'el-icon-caret-right',
                     ]"
-                  ></i
-                  >出处：</span
-                >
+                  >
+                  </i>
+                  出处：
+                </span>
                 <a
                   v-if="m.link"
                   :href="m.link"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="link"
-                  >{{ m.link }}</a
                 >
+                  {{ m.link }}
+                </a>
                 <span v-if="m.title">
                   <sub
                     class="subTag"
@@ -306,10 +309,11 @@
           <div class="answer-operation">
             <div class="opera-left">
               <span v-if="i === session_data.history.length - 1" class="restart"
-                ><i class="el-icon-refresh" @click="refresh"
-                  >&nbsp;{{ $t("agent.refresh") }}</i
-                ></span
-              >
+                ><i class="el-icon-refresh" @click="refresh">
+                  &nbsp;
+                  {{ $t("agent.refresh") }}
+                </i>
+              </span>
             </div>
           </div>
         </div>

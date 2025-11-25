@@ -287,7 +287,9 @@ export default {
         }
 
         if (Object.keys(val).length > 0) {
-          this.metaDataFilterParams = JSON.parse(JSON.stringify(val));
+          const copy = JSON.parse(JSON.stringify(val));
+          copy.metaFilterParams = copy.metaFilterParams || [];
+          this.metaDataFilterParams = copy;
         }
       },
       immediate: true,
