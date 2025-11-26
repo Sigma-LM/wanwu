@@ -450,6 +450,16 @@ export default {
   modelAccess: {
     title: "模型管理",
     import: "模型导入",
+    support: '支持',
+    noSupport: '不支持',
+    type: {
+      yuanjing: '联通元景',
+      qwen: '通义千问',
+      huoshan: '火山引擎',
+      infini: '无问芯穹',
+      pdfParser: '文档解析服务',
+      asr: '语音识别模型'
+    },
     table: {
       modelName: "模型名称",
       modelDisplayName: "模型显示名称",
@@ -462,8 +472,7 @@ export default {
       apiKey: "API Key",
       inferUrl: "推理URL",
       modelType: "模型类型",
-      embeddingTip:
-        "您所申请的token默认会受调用次数限制(1分钟调用5次) 知识库会自动重试直至文档解析完成，由此会导致文档解析耗时较长请耐心等待，如要提升文档解析效率可申请联系管理员申请不限流的token",
+      embeddingTip: "您所申请的token默认会受调用次数限制(1分钟调用5次) 知识库会自动重试直至文档解析完成，由此会导致文档解析耗时较长请耐心等待，如要提升文档解析效率可申请联系管理员申请不限流的token",
       apiType: "API类型",
       publisher: "供应商",
       publishTime: "模型发布时间",
@@ -1427,6 +1436,8 @@ export default {
   },
   app: {
     modelTips: "暂不支持选择图文问答类模型",
+    selectRerank: "请选rerank择模型！",
+    selectKnowledge: "请选择关联知识库！",
     publishType: {
       private: "私密发布为应用：仅自己可见",
       organization: "公开发布为应用：组织内可见",
