@@ -37,6 +37,7 @@
             multiple
             @visible-change="tagChange"
             @remove-tag="removeTag"
+            v-if="category === 0"
           >
             <el-option
               v-for="item in tagOptions"

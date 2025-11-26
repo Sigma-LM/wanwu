@@ -65,16 +65,18 @@
             </el-tooltip>
           </div>
           <div class="tags">
-            <span
-              :class="['smartDate', 'tagList']"
-              v-if="formattedTagNames(n.knowledgeTagList).length === 0"
-              @click.stop="addTag(n.knowledgeId, n)"
-            >
-              <span class="el-icon-price-tag icon-tag"></span>
-              {{ $t("knowledgeManage.addTag") }}
-            </span>
-            <span v-else @click.stop="addTag(n.knowledgeId, n)">
-              {{ formattedTagNames(n.knowledgeTagList) }}
+            <span v-if="category === 0">
+              <span
+                :class="['smartDate', 'tagList']"
+                v-if="formattedTagNames(n.knowledgeTagList).length === 0"
+                @click.stop="addTag(n.knowledgeId, n)"
+              >
+                <span class="el-icon-price-tag icon-tag"></span>
+                {{ $t("knowledgeManage.addTag") }}
+              </span>
+              <span v-else @click.stop="addTag(n.knowledgeId, n)">
+                {{ formattedTagNames(n.knowledgeTagList) }}
+              </span>
             </span>
           </div>
           <div class="editor">

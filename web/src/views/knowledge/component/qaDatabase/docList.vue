@@ -18,6 +18,7 @@
                 <el-select
                   @change="changeOption($event)"
                   v-model="docQuery.status"
+                  clearable
                   :placeholder="$t('knowledgeManage.please')"
                   style="width: 150px"
                   class="marginRight no-border-select cover-input-icon"
@@ -49,36 +50,29 @@
                 <el-button
                   size="mini"
                   type="primary"
-                  @click="
-                    $router.push(
-                      `/knowledge/graphMap/${docQuery.knowledgeId}?name=${knowledgeName}`
-                    )
-                  "
-                  v-if="showGraphReport"
+                  @click="exportData"
+                  icon="el-icon-download"
                 >
-                  {{ $t("knowledgeManage.hitTest.graph") }}
+                  {{ $t("knowledgeManage.qaDatabase.exportData") }}
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="exportRecord"
+                  icon="el-icon-download"
+                >
+                  {{ $t("knowledgeManage.qaDatabase.exportRecord") }}
                 </el-button>
                 <el-button
                   size="mini"
                   type="primary"
                   @click="
                     $router.push(
-                      `/knowledge/communityReport?knowledgeId=${docQuery.knowledgeId} &name=${knowledgeName}`
+                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}`
                     )
                   "
-                  v-if="showGraphReport"
                 >
-                  <span>
-                    {{ $t("knowledgeManage.hitTest.communityReport") }}
-                  </span>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    :content="$t('knowledgeManage.docList.communityReportTips')"
-                    placement="top"
-                  >
-                    <i class="el-icon-question" style="margin-left: 2px"></i>
-                  </el-tooltip>
+                  {{ $t("knowledgeManage.hitTest.name") }}
                 </el-button>
                 <el-button
                   size="mini"
@@ -91,13 +85,11 @@
                 <el-button
                   size="mini"
                   type="primary"
-                  @click="
-                    $router.push(
-                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&graphSwitch=${graphSwitch}`
-                    )
-                  "
+                  :underline="false"
+                  @click="handleCreateQaPair"
+                  v-if="[10, 20, 30].includes(permissionType)"
                 >
-                  {{ $t("knowledgeManage.hitTest.name") }}
+                  {{ $t("knowledgeManage.qaDatabase.createQaPair") }}
                 </el-button>
                 <el-button
                   size="mini"
@@ -122,7 +114,7 @@
                 ref="dataTable"
                 :data="tableData"
                 style="width: 100%"
-                :row-key="'docId'"
+                :row-key="'qaPairId'"
                 :header-cell-style="{ background: '#F9F9F9', color: '#999999' }"
                 @selection-change="handleSelectionChange"
               >
@@ -134,40 +126,44 @@
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="docName"
+                  prop="question"
                   :label="$t('knowledgeManage.qaDatabase.question')"
                   min-width="180"
                 >
                   <template slot-scope="scope">
                     <el-popover
                       placement="bottom-start"
-                      :content="scope.row.docName"
+                      :content="scope.row.question"
                       trigger="hover"
                       width="300"
                     >
                       <span slot="reference">
                         {{
-                          scope.row.docName.length > 20
-                            ? scope.row.docName.slice(0, 20) + "..."
-                            : scope.row.docName
+                          scope.row.question.length > 20
+                            ? scope.row.question.slice(0, 20) + "..."
+                            : scope.row.question
                         }}
                       </span>
                     </el-popover>
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="docType"
+                  prop="answer"
                   :label="$t('knowledgeManage.qaDatabase.answer')"
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="segmentMethod"
+                  prop="metaDataList"
                   :label="$t('knowledgeManage.qaDatabase.metaData')"
                 >
                   <template slot-scope="scope">
                     <span>
-                      {{ getSegmentMethodText(scope.row.segmentMethod) }}
+                      {{ getMetaDataText(scope.row.metaDataList) }}
                     </span>
+                    <span
+                      class="el-icon-edit-outline edit-icon"
+                      @click="handleEditMetaData(scope.row)"
+                    ></span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -176,31 +172,34 @@
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="status"
+                  prop="switch"
                   :label="$t('user.table.status')"
                   width="150"
                 >
                   <template slot-scope="scope">
-                    <span
-                      :class="[
-                        [4, 5].includes(scope.row.status) ? 'error' : '',
-                      ]"
-                    >
-                      {{ filterStatus(scope.row.status) }}
+                    <el-switch
+                      v-model="scope.row.switch"
+                      :active-value="true"
+                      :inactive-value="false"
+                      @change="handleSwitch(scope.row)"
+                    ></el-switch>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="status"
+                  :label="$t('knowledgeManage.importStatus')"
+                  width="200"
+                >
+                  <template slot-scope="scope">
+                    <span>
+                      {{
+                        qaImportStatus &&
+                        scope.row &&
+                        scope.row.status !== undefined
+                          ? qaImportStatus[Number(scope.row.status)]
+                          : "--"
+                      }}
                     </span>
-                    <el-tooltip
-                      class="item"
-                      effect="light"
-                      :content="scope.row.errorMsg ? scope.row.errorMsg : ''"
-                      placement="top"
-                      v-if="scope.row.status === 5"
-                      popper-class="custom-tooltip"
-                    >
-                      <span
-                        class="el-icon-warning"
-                        style="margin-left: 5px; color: #e6a23c"
-                      ></span>
-                    </el-tooltip>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -210,32 +209,6 @@
                 >
                 </el-table-column>
                 <el-table-column
-                  v-if="graphSwitch"
-                  prop="graphStatus"
-                  :label="$t('knowledgeManage.graph.graphStatus')"
-                >
-                  <template slot-scope="scope">
-                    <span>
-                      {{ knowledgeGraphStatus[scope.row.graphStatus] }}
-                    </span>
-                    <el-tooltip
-                      class="item"
-                      effect="light"
-                      :content="
-                        scope.row.graphErrMsg ? scope.row.graphErrMsg : ''
-                      "
-                      placement="top"
-                      v-if="scope.row.graphStatus === 3"
-                      popper-class="custom-tooltip"
-                    >
-                      <span
-                        class="el-icon-warning"
-                        style="margin-left: 5px; color: #e6a23c"
-                      ></span>
-                    </el-tooltip>
-                  </template>
-                </el-table-column>
-                <el-table-column
                   :label="$t('knowledgeManage.operate')"
                   width="260"
                 >
@@ -243,27 +216,41 @@
                     <el-button
                       size="mini"
                       round
-                      @click="handleDel(scope.row)"
-                      :disabled="[2, 3].includes(Number(scope.row.status))"
-                      v-if="[10, 20, 30].includes(permissionType)"
                       :type="
-                        [2, 3].includes(Number(scope.row.status)) ? 'info' : ''
+                        scope.row &&
+                        scope.row.status &&
+                        [0, 1, 3].includes(Number(scope.row.status))
+                          ? 'info'
+                          : ''
                       "
+                      :disabled="
+                        scope.row &&
+                        scope.row.status &&
+                        [0, 1, 3].includes(Number(scope.row.status))
+                      "
+                      @click="handleEdit(scope.row)"
                     >
-                      {{ $t("common.button.delete") }}
+                      {{ $t("common.button.edit") }}
                     </el-button>
                     <el-button
                       size="mini"
                       round
+                      @click="handleDel(scope.row)"
+                      :disabled="
+                        scope.row &&
+                        scope.row.status &&
+                        [0, 1, 3].includes(Number(scope.row.status))
+                      "
+                      v-if="[10, 20, 30].includes(permissionType)"
                       :type="
-                        [0, 3, 5].includes(Number(scope.row.status))
+                        scope.row &&
+                        scope.row.status &&
+                        [0, 1, 3].includes(Number(scope.row.status))
                           ? 'info'
                           : ''
                       "
-                      :disabled="[0, 3, 5].includes(Number(scope.row.status))"
-                      @click="handleView(scope.row)"
                     >
-                      {{ $t("knowledgeManage.view") }}
+                      {{ $t("common.button.delete") }}
                     </el-button>
                   </template>
                 </el-table-column>
@@ -313,6 +300,7 @@
       ref="batchMetaData"
       :selectedDocIds="selectedDocIds"
       @reLoadDocList="reLoadDocList"
+      :type="batchMetaType"
     />
     <!-- 批量编辑元数据值操作框 -->
     <BatchMetatButton
@@ -320,7 +308,22 @@
       :selectedCount="selectedTableData.length"
       @showBatchMeta="showBatchMeta"
       @handleMetaCancel="handleMetaCancel"
+      :type="batchMetaType"
     />
+    <!-- 新建/编辑问答对 -->
+    <createQa
+      ref="createQa"
+      @updateData="updateData"
+      :knowledgeId="docQuery.knowledgeId"
+    />
+    <!-- 文件上传 -->
+    <fileUpload
+      ref="fileUpload"
+      @updateData="updateData"
+      :knowledgeId="docQuery.knowledgeId"
+    />
+    <!-- 导出记录 -->
+    <exportRecord ref="exportRecord" :knowledgeId="docQuery.knowledgeId" />
   </div>
 </template>
 
@@ -330,14 +333,18 @@ import SearchInput from "@/components/searchInput.vue";
 import mataData from "../metadata.vue";
 import batchMetaData from "../meta/batchMetaData.vue";
 import BatchMetatButton from "../meta/batchMetatButton.vue";
+import createQa from "./createQa.vue";
+import fileUpload from "./fileUpload.vue";
+import exportRecord from "./exportRecord.vue";
+import { uploadFileTips, updateDocMeta } from "@/api/knowledge";
 import {
-  getDocList,
-  delDocItem,
-  uploadFileTips,
-  updateDocMeta,
-} from "@/api/knowledge";
+  getQaPairList,
+  delQaPair,
+  switchQaPair,
+  qaDocExport,
+} from "@/api/qaDatabase";
 import { mapGetters } from "vuex";
-import { KNOWLEDGE_GRAPH_STATUS } from "../../config";
+import { COMMUNITY_IMPORT_STATUS } from "../../config";
 export default {
   components: {
     Pagination,
@@ -345,19 +352,23 @@ export default {
     mataData,
     batchMetaData,
     BatchMetatButton,
+    createQa,
+    fileUpload,
+    exportRecord,
   },
   data() {
     return {
+      batchMetaType: "single",
       knowledgeName: "",
       loading: false,
       tableLoading: false,
       docQuery: {
-        docName: "",
+        name: "",
         knowledgeId: this.$route.params.id,
         status: -1,
       },
       fileList: [],
-      listApi: getDocList,
+      listApi: getQaPairList,
       title_tips: "",
       showTips: false,
       tableData: [],
@@ -372,9 +383,7 @@ export default {
       isDisabled: false,
       selectedTableData: [],
       selectedDocIds: [],
-      graphSwitch: false,
-      showGraphReport: false,
-      knowledgeGraphStatus: KNOWLEDGE_GRAPH_STATUS,
+      qaImportStatus: COMMUNITY_IMPORT_STATUS,
     };
   },
   watch: {
@@ -426,6 +435,70 @@ export default {
     this.clearTimer();
   },
   methods: {
+    exportRecord() {
+      this.$refs.exportRecord.showDialog();
+    },
+    updateData() {
+      this.getTableData(this.docQuery);
+    },
+    exportData() {
+      if (!this.docQuery.knowledgeId) {
+        this.$message.warning(this.$t("common.noData"));
+        return;
+      }
+      if (this.loading) return;
+      const params = {
+        knowledgeId: this.docQuery.knowledgeId,
+      };
+      if (
+        this.docQuery.status !== undefined &&
+        this.docQuery.status !== null &&
+        this.docQuery.status !== "" &&
+        this.docQuery.status !== -1
+      ) {
+        params.status = this.docQuery.status;
+      }
+      if (this.docQuery.name) {
+        params.name = this.docQuery.name.trim();
+      }
+      this.loading = true;
+      qaDocExport(params)
+        .then((res) => {
+          if (res.code === 0) {
+            this.$message.success(this.$t("common.message.success"));
+            const data = res.data || {};
+            const url = data.fileUrl || data.downloadUrl;
+            if (url) {
+              window.open(url, "_blank");
+            } else if (data.recordCreated) {
+              this.exportRecord();
+            }
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    handleCreateQaPair() {
+      this.$refs.createQa.showDialog();
+    },
+    handleEditMetaData(row) {
+      this.$refs.batchMetaData.showDialog();
+      this.batchMetaType = "single";
+      this.selectedTableData = [row];
+      this.selectedDocIds = [row.qaPairId];
+    },
+    handleSwitch(row) {
+      switchQaPair({ qaPairId: row.qaPairId, switch: row.switch }).then(
+        (res) => {
+          if (res.code === 0) {
+            this.$message.success(this.$t("common.message.success"));
+            this.getTableData(this.docQuery);
+          }
+        }
+      );
+    },
     handleMetaCancel() {
       this.selectedTableData = [];
       this.selectedDocIds = [];
@@ -467,17 +540,14 @@ export default {
         return;
       }
       this.selectedTableData = val;
-      this.selectedDocIds = val.map((item) => item.docId);
+      this.batchMetaType = "multiple";
+      this.selectedDocIds = val.map((item) => item.qaPairId);
     },
-    getSegmentMethodText(value) {
-      switch (value) {
-        case "0":
-          return this.$t("knowledgeManage.config.commonSegment");
-        case "1":
-          return this.$t("knowledgeManage.config.parentSonSegment");
-        default:
-          return this.$t("knowledgeManage.docList.unknown");
+    getMetaDataText(list) {
+      if (!list || !Array.isArray(list) || list.length === 0) {
+        return "";
       }
+      return list.map((item) => item.metaKey).join(", ");
     },
     createMeta() {
       this.$refs.mataData.createMetaData();
@@ -553,71 +623,30 @@ export default {
       this.getTableData(this.docQuery);
     },
     handleSearch(val) {
-      this.docQuery.docName = val;
+      this.docQuery.name = val;
       this.getTableData(this.docQuery);
     },
     getKnowOptions() {
       const commonOptions = [
         { label: this.$t("knowledgeManage.all"), value: -1 },
-        { label: this.$t("knowledgeManage.finish"), value: 1 },
-        { label: this.$t("knowledgeManage.fail"), value: 5 },
-        { label: this.$t("knowledgeManage.analysising"), value: 3 },
-        { label: this.$t("knowledgeManage.checkFail"), value: 4 },
-        { label: this.$t("knowledgeManage.pendingProcessing"), value: 0 },
-        { label: this.$t("knowledgeManage.checking"), value: 2 },
+        {
+          label: this.$t("knowledgeManage.communityReport.taskPending"),
+          value: 0,
+        },
+        {
+          label: this.$t("knowledgeManage.communityReport.taskProcessing"),
+          value: 1,
+        },
+        {
+          label: this.$t("knowledgeManage.communityReport.taskFinished"),
+          value: 2,
+        },
+        {
+          label: this.$t("knowledgeManage.communityReport.taskFailed"),
+          value: 3,
+        },
       ];
       return commonOptions;
-    },
-    handleRemove(item) {
-      this.fileList = this.fileList.filter((files) => files.name !== item.name);
-    },
-    handelText(data) {
-      if (data.length > 0) {
-        return data.join(",");
-      }
-    },
-    handleHit() {
-      //跳转到命中预测页面
-      if (this.$route.path.includes("rag")) {
-        this.$router.push({ path: "/rag/knowledge/hitTest" });
-      } else {
-        this.$router.push({ path: "/knowledge/hitTest" });
-      }
-    },
-    normalizeOptions(node) {
-      if (node.children == null || node.children == "null") {
-        delete node.children;
-      }
-      return {
-        id: node.id,
-        label: node.categoryName,
-        children: node.children,
-      };
-    },
-    submitDocname(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.modifyDoc({
-            id: this.currentDocdata.id,
-            docName: this.ruleForm.docName,
-          });
-        }
-      });
-    },
-    async modifyDoc(data) {
-      this.loading = true;
-      const res = await modifyDoc(data);
-      if (res.code === 0) {
-        this.$message.success(this.$t("knowledgeManage.operateSuccess"));
-        this.docListVisible = false;
-        this.getTableData(this.docQuery);
-      }
-      this.loading = false;
-    },
-    handleEdit(data) {
-      this.ruleForm.docName = data.docName;
-      this.docListVisible = true;
-      this.currentDocdata = data;
     },
     handleDel(data) {
       this.$confirm(
@@ -630,12 +659,8 @@ export default {
         }
       )
         .then(async () => {
-          let jsondata = {
-            docIdList: [data.docId],
-            knowledgeId: this.docQuery.knowledgeId,
-          };
           this.loading = true;
-          let res = await delDocItem(jsondata);
+          let res = await delQaPair({ qaPairId: data.qaPairId });
           if (res.code === 0) {
             this.$message.success(this.$t("common.info.delete"));
             this.getTableData(this.docQuery); //获取知识分类数据
@@ -673,71 +698,17 @@ export default {
       this.docQuery.status = data;
       this.getTableData({ ...this.docQuery, pageNo: 1 });
     },
-    filterStatus(status) {
-      switch (status) {
-        case 0:
-          return this.$t("knowledgeManage.pendingProcessing");
-          break;
-        case 1:
-          return this.$t("knowledgeManage.finish");
-          break;
-        case 2:
-          return this.$t("knowledgeManage.checking");
-          break;
-        case 3:
-          return this.$t("knowledgeManage.analysising");
-          break;
-        case 4:
-          return this.$t("knowledgeManage.checkFail");
-          break;
-        case 5:
-          return this.$t("knowledgeManage.fail");
-          break;
-        case -2:
-          return this.$t("knowledgeManage.beUploaded");
-          break;
-        default:
-          return this.$t("knowledgeManage.noStatus");
-      }
-    },
 
-    handleView(row) {
-      this.$router.push({
-        path: "/knowledge/section",
-        query: {
-          id: row.docId,
-          type: row.docType,
-          name: row.docName,
-          knowledgeId: row.knowledgeId,
-          knowledgeName: this.knowledgeName,
-        },
-      });
-    },
-    async download(url, name) {
-      const res = await downDoc(url);
-      const blobUrl = window.URL.createObjectURL(res); // 将blob对象转为一个URL
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = name;
-      link.click(); // 启动下载
-      window.URL.revokeObjectURL(link.href); // 下载完毕删除a标签
+    handleEdit(row) {
+      this.$refs.createQa.showDialog(row);
     },
     handleUpload() {
-      this.$router.push({
-        path: "/knowledge/fileUpload",
-        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
-      });
+      this.$refs.fileUpload.showDialog();
     },
     refreshData(data, tableInfo) {
       this.tableData = data;
-      if (tableInfo && tableInfo.docKnowledgeInfo) {
-        this.graphSwitch =
-          tableInfo.docKnowledgeInfo.graphSwitch === 1 ? true : false;
-        this.showGraphReport = tableInfo.docKnowledgeInfo.showGraphReport;
-        this.knowledgeName = tableInfo.docKnowledgeInfo.knowledgeName;
-      } else {
-        this.graphSwitch = false;
-        this.showGraphReport = false;
+      if (tableInfo && tableInfo.qaKnowledgeInfo) {
+        this.knowledgeName = tableInfo.qaKnowledgeInfo.knowledgeName;
       }
     },
   },

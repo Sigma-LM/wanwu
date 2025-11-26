@@ -5,22 +5,17 @@
     :before-close="handleClose"
     class="batch-meta-dialog"
   >
-    <div
-      slot="title"
-      class="custom-title"
-    >
-      <h1>{{$t('metaData.batchEdit')}}</h1>
-      <span>[ {{$t('metaData.selected')}} {{ selectedDocIds.length }} ]</span>
+    <div slot="title" class="custom-title">
+      <h1>{{ $t("metaData.batchEdit") }}</h1>
+      <span v-if="type !== 'single'">
+        [ {{ $t("metaData.selected") }} {{ selectedDocIds.length }} ]
+      </span>
     </div>
     <div class="dialog-content">
       <div class="create-section">
-        <el-button
-          type="primary"
-          @click="addMetaData"
-          class="create-btn"
-        >
+        <el-button type="primary" @click="addMetaData" class="create-btn">
           <i class="el-icon-plus"></i>
-          {{$t('common.button.add')}}
+          {{ $t("common.button.add") }}
         </el-button>
       </div>
 
@@ -42,7 +37,7 @@
                 :placeholder="$t('common.select.placeholder')"
                 class="field-select"
                 :disabled="item.metaId && item.metaId !== '' ? true : false"
-                @change="handleMetaKeyChange($event,item)"
+                @change="handleMetaKeyChange($event, item)"
               >
                 <el-option
                   v-for="meta in keyOptions"
@@ -54,14 +49,13 @@
             </div>
 
             <div class="field-group type-group">
-              <span class="type-label">{{$t('knowledgeManage.meta.type')}}:</span>
+              <span class="type-label">
+                {{ $t("knowledgeManage.meta.type") }}:
+              </span>
               <span class="type-value">[{{ item.metaValueType }}]</span>
             </div>
 
-            <el-divider
-              direction="vertical"
-              class="field-divider"
-            />
+            <el-divider direction="vertical" class="field-divider" />
 
             <div class="field-group">
               <label class="field-label">Value:</label>
@@ -71,7 +65,7 @@
                 closable
                 @close="handleCloseArray(item)"
               >
-                {{$t('knowledgeManage.meta.multipleValue')}}
+                {{ $t("knowledgeManage.meta.multipleValue") }}
               </el-tag>
               <template v-else>
                 <el-input
@@ -102,15 +96,12 @@
               </template>
             </div>
 
-            <el-divider
-              direction="vertical"
-              class="field-divider"
-            />
+            <el-divider direction="vertical" class="field-divider" />
 
             <div class="field-group delete-group">
               <el-button
                 type="text"
-                @click="removeMetaData(item,index)"
+                @click="removeMetaData(item, index)"
                 class="delete-btn"
                 icon="el-icon-delete"
               />
@@ -119,12 +110,9 @@
         </div>
       </div>
 
-      <div class="apply-section">
-        <el-checkbox
-          v-model="applyToSelected"
-          class="apply-checkbox"
-        >
-          {{$t('knowledgeManage.meta.applyAll')}}
+      <div class="apply-section" v-if="type !== 'single'">
+        <el-checkbox v-model="applyToSelected" class="apply-checkbox">
+          {{ $t("knowledgeManage.meta.applyAll") }}
         </el-checkbox>
         <el-tooltip
           :content="$t('knowledgeManage.meta.applyAllTips')"
@@ -135,21 +123,17 @@
       </div>
     </div>
 
-    <span
-      slot="footer"
-      class="dialog-footer"
-    >
-      <el-button
-        @click="handleClose"
-        class="cancel-btn"
-      >{{ $t('common.confirm.cancel') }}</el-button>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="handleClose" class="cancel-btn">
+        {{ $t("common.confirm.cancel") }}
+      </el-button>
       <el-button
         type="primary"
         @click="handleConfirm"
         class="confirm-btn"
         :loading="loading"
       >
-        {{ $t('common.confirm.confirm') }}
+        {{ $t("common.confirm.confirm") }}
       </el-button>
     </span>
   </el-dialog>
@@ -159,7 +143,7 @@
 import { metaSelect, getDocMetaList, updateMetaData } from "@/api/knowledge";
 export default {
   name: "BatchMetaData",
-  props: ["selectedDocIds"],
+  props: ["selectedDocIds", "type"],
   data() {
     return {
       dialogVisible: false,
@@ -194,7 +178,10 @@ export default {
     },
     getMetaList() {
       this.docLoading = true;
-      getDocMetaList({ docIdList: this.selectedDocIds,knowledgeId: this.$route.params.id })
+      getDocMetaList({
+        docIdList: this.selectedDocIds,
+        knowledgeId: this.$route.params.id,
+      })
         .then((res) => {
           if (res.code === 0) {
             this.metaDataList = (res.data.knowledgeMetaValues || []).map(
@@ -248,11 +235,15 @@ export default {
     },
 
     removeMetaData(item, index) {
-      this.$confirm(this.$t('knowledgeManage.deleteTips'), this.$t('common.confirm.title'), {
-        confirmButtonText: this.$t('common.confirm.confirm'),
-        cancelButtonText: this.$t('common.confirm.cancel'),
-        type: "warning",
-      })
+      this.$confirm(
+        this.$t("knowledgeManage.deleteTips"),
+        this.$t("common.confirm.title"),
+        {
+          confirmButtonText: this.$t("common.confirm.confirm"),
+          cancelButtonText: this.$t("common.confirm.cancel"),
+          type: "warning",
+        }
+      )
         .then(() => {
           this.metaDataList.splice(index, 1);
           const data = {
@@ -270,7 +261,7 @@ export default {
           this.unpdateMetaApi(data, "delete");
         })
         .catch(() => {
-          this.$message.info(this.$t('common.noData'))
+          this.$message.info(this.$t("common.noData"));
         });
     },
     unpdateMetaApi(data, type) {
@@ -278,7 +269,7 @@ export default {
       updateMetaData(data)
         .then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t('common.message.success'));
+            this.$message.success(this.$t("common.message.success"));
             this.getMetaList();
             if (type === "submit") {
               this.handleClose();
@@ -290,18 +281,26 @@ export default {
     },
     handleConfirm() {
       if (this.metaDataList.length === 0) {
-        this.$message.warning(this.$t('common.noData'))
+        this.$message.warning(this.$t("common.noData"));
         return;
       }
 
       for (let i = 0; i < this.metaDataList.length; i++) {
         const item = this.metaDataList[i];
         if (!item.metaKey) {
-          this.$message.warning(`${this.$t('knowledgeManage.meta.rowKey')} ${i + 1} ${this.$t('knowledgeManage.meta.rowKeyTips')}`)
+          this.$message.warning(
+            `${this.$t("knowledgeManage.meta.rowKey")} ${i + 1} ${this.$t(
+              "knowledgeManage.meta.rowKeyTips"
+            )}`
+          );
           return;
         }
         if (!item.metaValue) {
-          this.$message.warning(`${this.$t('knowledgeManage.meta.rowKey')} ${i + 1} ${this.$t('knowledgeManage.meta.rowValueTips')}`)
+          this.$message.warning(
+            `${this.$t("knowledgeManage.meta.rowKey")} ${i + 1} ${this.$t(
+              "knowledgeManage.meta.rowValueTips"
+            )}`
+          );
           return;
         }
       }
@@ -311,7 +310,7 @@ export default {
       );
 
       if (updateData.length === 0) {
-        this.$message.info(this.$t('common.noData'))
+        this.$message.info(this.$t("common.noData"));
         return;
       }
       const processedUpdateData = updateData.map((item) => ({
