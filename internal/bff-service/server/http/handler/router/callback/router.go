@@ -25,6 +25,8 @@ func Register(callbackAPI *gin.RouterGroup) {
 	mid.Sub("callback").Reg(callbackAPI, "/workflow/tool/custom", http.MethodGet, callback.GetWorkflowCustomTool, "获取自定义工具详情")
 	mid.Sub("callback").Reg(callbackAPI, "/workflow/upload/file", http.MethodPost, callback.WorkflowUploadFile, "通过二进制上传文件")
 	mid.Sub("callback").Reg(callbackAPI, "/workflow/upload/file/base64", http.MethodPost, callback.WorkflowUploadFileByBase64, "通过base64上传文件")
+	// chatflow
+	mid.Sub("callback").Reg(callbackAPI, "/chatflow/list", http.MethodGet, callback.GetChatflowList, "根据userId和spaceId获取Chatflow")
 	// rag bff proxy
 	mid.Sub("callback").Reg(callbackAPI, "/rag/search-knowledge-base", http.MethodPost, callback.SearchKnowledgeBase, "查询知识库列表（命中测试）")
 	mid.Sub("callback").Reg(callbackAPI, "/rag/knowledge/stream/search", http.MethodPost, callback.KnowledgeStreamSearch, "根据知识库id 和当前用户id 获取有权限的知识库列表信息")

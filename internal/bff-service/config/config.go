@@ -145,6 +145,7 @@ type WorkflowServiceConfig struct {
 	CopyUri                       string               `json:"copy_uri" mapstructure:"copy_uri"`
 	ExportUri                     string               `json:"export_uri" mapstructure:"export_uri"`
 	ImportUri                     string               `json:"import_uri" mapstructure:"import_uri"`
+	ConvertUri                    string               `json:"convert_uri" mapstructure:"convert_uri"`
 	TestRunUri                    string               `json:"test_run_uri" mapstructure:"test_run_uri"`
 	CreateChatflowConversationUri string               `json:"create_chatflow_conversation_uri" mapstructure:"create_chatflow_conversation_uri"`
 	ChatflowRunUri                string               `json:"chatflow_run_uri" mapstructure:"chatflow_run_uri"`

@@ -193,3 +193,22 @@ func CreateWorkflowByTemplate(ctx *gin.Context) {
 	resp, err := service.CreateWorkflowByTemplate(ctx, getOrgID(ctx), getClientID(ctx), req)
 	gin_util.Response(ctx, resp, err)
 }
+
+// WorkflowConvert
+//
+//	@Tags			workflow
+//	@Summary		workflow转为chatflow
+//	@Description	workflow转为chatflow
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.WorkflowConvertReq	true	"对话流工作流转换参数"
+//	@Success		200		{object}	response.Response{}
+//	@Router			/appspace/workflow/convert [post]
+func WorkflowConvert(ctx *gin.Context) {
+	var req request.WorkflowConvertReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	gin_util.Response(ctx, nil, service.WorkflowConvert(ctx, getOrgID(ctx), req.WorkflowID, constant.AppTypeChatflow))
+}

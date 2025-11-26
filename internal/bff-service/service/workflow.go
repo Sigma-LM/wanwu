@@ -272,6 +272,36 @@ func ImportWorkflow(ctx *gin.Context, orgID, appType string) (*response.CozeWork
 	return ret.Data, nil
 }
 
+func WorkflowConvert(ctx *gin.Context, orgId, workflowId, flowMode string) error {
+	switch flowMode {
+	case constant.AppTypeChatflow:
+		flowMode = "3"
+	case constant.AppTypeWorkflow:
+		flowMode = "0"
+	default:
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_convert", "invalid flow mode")
+	}
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ConvertUri)
+	resp, err := resty.New().
+		R().
+		SetContext(ctx.Request.Context()).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetBody(map[string]any{
+			"workflow_id": workflowId,
+			"flow_mode":   util.MustI64(flowMode),
+			"space_id":    orgId,
+		}).
+		Post(url)
+	if err != nil {
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_convert", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_convert", fmt.Sprintf("[%v] %v", resp.StatusCode(), resp.String()))
+	}
+	return nil
+}
+
 // --- internal ---
 
 type workflowImportData struct {

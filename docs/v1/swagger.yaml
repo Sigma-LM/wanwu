@@ -862,6 +862,9 @@ definitions:
     type: object
   request.AppKnowledgebaseParams:
     properties:
+      chiChat:
+        description: 闲聊开关
+        type: boolean
       keywordPriority:
         description: 关键词权重
         type: number
@@ -3175,6 +3178,13 @@ definitions:
       picNum:
         description: 视觉配置图片数量
         type: integer
+    type: object
+  request.WorkflowConvertReq:
+    properties:
+      workflow_id:
+        type: string
+    required:
+    - workflow_id
     type: object
   request.WorkflowIDReq:
     properties:
@@ -6082,6 +6092,30 @@ paths:
       summary: 创建Chatflow
       tags:
       - chatflow
+  /appspace/chatflow/convert:
+    post:
+      consumes:
+      - application/json
+      description: chatflow转为workflow
+      parameters:
+      - description: 对话流工作流转换参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowConvertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: chatflow转为workflow
+      tags:
+      - chatflow
   /appspace/chatflow/copy:
     post:
       consumes:
@@ -6335,6 +6369,30 @@ paths:
       security:
       - JWT: []
       summary: 创建Workflow
+      tags:
+      - workflow
+  /appspace/workflow/convert:
+    post:
+      consumes:
+      - application/json
+      description: workflow转为chatflow
+      parameters:
+      - description: 对话流工作流转换参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WorkflowConvertReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: workflow转为chatflow
       tags:
       - workflow
   /appspace/workflow/copy:

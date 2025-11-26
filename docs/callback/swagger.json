@@ -155,6 +155,45 @@
                 }
             }
         },
+        "/chatflow/list": {
+            "get": {
+                "description": "根据userId和spaceId获取Chatflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "根据userId和spaceId获取Chatflow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "获取工作流参数userId",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "获取工作流参数orgId",
+                        "name": "orgId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/file/url/base64": {
             "post": {
                 "consumes": [

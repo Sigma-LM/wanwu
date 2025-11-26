@@ -69,6 +69,7 @@
 {"code":110000,"key":"bff_chatflow_apps_list","langs":{"en":"get chatflow app list err: %v","zh":"获取对话流应用列表错误：%v"}}
 {"code":110000,"key":"bff_chatflow_conversation_create","langs":{"zh":"创建对话流会话错误: %v"}}
 {"code":110000,"key":"bff_chatflow_chat","langs":{"zh":"对话流运行错误: %v"}}
+{"code":110000,"key":"bff_workflow_convert","langs":{"zh":"对话流工作流转换错误: %v"}}
 {"code":0,"key":"------ doc ------","langs":{}}
 {"code":110000,"key":"bff_doc_center_file_unescape","langs":{"en":"path unescape error: %v","zh":"路径去除转义错误: %v"}}
 {"code":110000,"key":"bff_doc_center_file_md","langs":{"en":"no markdown files found: %v","zh":"未含有md文件: %v"}}

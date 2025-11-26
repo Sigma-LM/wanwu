@@ -1595,6 +1595,32 @@ paths:
       summary: 更新知识库状态
       tags:
       - callback
+  /chatflow/list:
+    get:
+      consumes:
+      - application/json
+      description: 根据userId和spaceId获取Chatflow
+      parameters:
+      - description: 获取工作流参数userId
+        in: query
+        name: userId
+        required: true
+        type: string
+      - description: 获取工作流参数orgId
+        in: query
+        name: orgId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 根据userId和spaceId获取Chatflow
+      tags:
+      - callback
   /file/url/base64:
     post:
       consumes:

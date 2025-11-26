@@ -666,6 +666,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/appspace/chatflow/convert": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "chatflow转为workflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chatflow"
+                ],
+                "summary": "chatflow转为workflow",
+                "parameters": [
+                    {
+                        "description": "对话流工作流转换参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowConvertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/appspace/chatflow/copy": {
             "post": {
                 "security": [
@@ -1102,6 +1141,45 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/workflow/convert": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "workflow转为chatflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "workflow转为chatflow",
+                "parameters": [
+                    {
+                        "description": "对话流工作流转换参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WorkflowConvertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -12314,6 +12392,10 @@ const docTemplate = `{
         "request.AppKnowledgebaseParams": {
             "type": "object",
             "properties": {
+                "chiChat": {
+                    "description": "闲聊开关",
+                    "type": "boolean"
+                },
                 "keywordPriority": {
                     "description": "关键词权重",
                     "type": "number"
@@ -15702,6 +15784,17 @@ const docTemplate = `{
                 "picNum": {
                     "description": "视觉配置图片数量",
                     "type": "integer"
+                }
+            }
+        },
+        "request.WorkflowConvertReq": {
+            "type": "object",
+            "required": [
+                "workflow_id"
+            ],
+            "properties": {
+                "workflow_id": {
+                    "type": "string"
                 }
             }
         },
