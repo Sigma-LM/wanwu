@@ -3,6 +3,7 @@ package service
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -92,8 +93,12 @@ func CreateChatflowConversation(ctx *gin.Context, userId, orgId, workflowId, con
 	}, nil
 }
 
-func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, message string) error {
+func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, message string, parameters map[string]any) error {
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ChatflowRunUri)
+	p, err := json.Marshal(parameters)
+	if err != nil {
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_chat", err.Error())
+	}
 	cvInfo, err := app.GetConversationByID(ctx, &app_service.GetConversationByIDReq{
 		ConversionId: conversationId,
 	})
@@ -121,6 +126,7 @@ func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, m
 					"content":      message,
 				},
 			},
+			"parameters":      string(p),
 			"connector_id":    "1024",
 			"workflow_id":     workflowId,
 			"execute_mode":    "DEBUG",

@@ -71,9 +71,37 @@ definitions:
       providerYuanJing:
         $ref: '#/definitions/mp.ProviderModelByYuanjing'
     type: object
-  mp_common.Document:
+  mp_common.AsrResp:
     properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      result:
+        $ref: '#/definitions/mp_common.AsrResult'
+      status:
+        type: string
+      uuid:
+        type: string
+    type: object
+  mp_common.AsrResult:
+    properties:
+      diarization:
+        items:
+          $ref: '#/definitions/mp_common.DiarizationObj'
+        type: array
+    type: object
+  mp_common.DiarizationObj:
+    properties:
+      end:
+        type: number
+      speaker:
+        type: integer
+      start:
+        type: number
       text:
+        type: string
+      trans:
         type: string
     type: object
   mp_common.EmbeddingData:
@@ -561,8 +589,7 @@ definitions:
     type: object
   mp_common.Result:
     properties:
-      document:
-        $ref: '#/definitions/mp_common.Document'
+      document: {}
       index:
         type: integer
       relevance_score:
@@ -577,10 +604,46 @@ definitions:
       include_usage:
         type: boolean
     type: object
+  mp_common.T2IUsage:
+    properties:
+      total_patches:
+        type: integer
+    type: object
   mp_common.Tag:
     properties:
       text:
         type: string
+    type: object
+  mp_common.Text2ImageReq:
+    properties:
+      advanced_opt:
+        description: '高级选项参数 json, {"height": 512, "width": 512, "num_images_per_prompt":
+          1, "style": "摄影"}'
+        type: string
+      prompt:
+        description: 提示词
+        type: string
+      report_url:
+        description: 参考
+        type: string
+      response_format:
+        description: “url” or “b64_json”,默认b64_json
+        type: string
+    required:
+    - prompt
+    type: object
+  mp_common.Text2ImageResp:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      result:
+        items:
+          type: string
+        type: array
+      usage:
+        $ref: '#/definitions/mp_common.T2IUsage'
     type: object
   mp_common.Thinking:
     properties:
@@ -1139,6 +1202,17 @@ definitions:
       logical_operator:
         type: string
     type: object
+  request.QAMetadataFilterItem:
+    properties:
+      conditions:
+        items:
+          $ref: '#/definitions/request.MetaItem'
+        type: array
+      filtering_qa_base_name:
+        type: string
+      logical_operator:
+        type: string
+    type: object
   request.RagKnowledgeChatReq:
     properties:
       auto_citation:
@@ -1227,9 +1301,9 @@ definitions:
     type: object
   request.RagQaInfo:
     properties:
-      qa_base_id:
+      QABase:
         type: string
-      qa_base_name:
+      QAId:
         type: string
     type: object
   request.RagSearchKnowledgeBaseReq:
@@ -1286,38 +1360,32 @@ definitions:
     type: object
   request.RagSearchQABaseReq:
     properties:
-      knowledgeIdList:
-        items:
-          type: string
-        type: array
-      metadata_filtering:
-        description: 元数据过滤开关
-        type: boolean
-      metadata_filtering_conditions:
-        description: 元数据过滤条件
-        items:
-          $ref: '#/definitions/request.MetadataFilterItem'
-        type: array
-      qa_base_info:
+      QABaseInfo:
         additionalProperties:
           items:
             $ref: '#/definitions/request.RagQaInfo'
           type: array
         type: object
+      knowledgeIdList:
+        items:
+          type: string
+        type: array
+      metadataFiltering:
+        type: boolean
+      metadataFilteringConditions:
+        items:
+          $ref: '#/definitions/request.QAMetadataFilterItem'
+        type: array
       question:
         type: string
-      rerank_mod:
-        description: rerank_model:重排序模式，weighted_score：权重搜索
+      rerankMod:
         type: string
-      rerank_model_id:
-        description: rerankId
+      rerankModelId:
         type: string
-      retrieve_method:
-        description: hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
+      retrieveMethod:
         type: string
-      term_weight_coefficient:
-        description: 关键词系数
-        type: number
+      returnMeta:
+        type: boolean
       threshold:
         type: number
       topK:
@@ -1325,12 +1393,9 @@ definitions:
       userId:
         type: string
       weights:
-        allOf:
-        - $ref: '#/definitions/request.WeightParams'
-        description: 权重搜索下的权重配置
+        $ref: '#/definitions/request.WeightParams'
     required:
     - knowledgeIdList
-    - question
     - userId
     type: object
   request.SearchKnowledgeInfoReq:
@@ -1728,6 +1793,36 @@ paths:
       summary: 根据ModelId获取模型
       tags:
       - callback
+  /model/{modelId}/asr:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 模型ID
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: 语音文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 请求参数
+        in: formData
+        name: config
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mp_common.AsrResp'
+      summary: Model Asr
+      tags:
+      - callback
   /model/{modelId}/chat/completions:
     post:
       consumes:
@@ -1887,6 +1982,33 @@ paths:
       summary: Model Rerank
       tags:
       - callback
+  /model/{modelId}/text2image:
+    post:
+      consumes:
+      - multipart/form-data
+      - application/json
+      parameters:
+      - description: 模型ID
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/mp_common.Text2ImageReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mp_common.Text2ImageResp'
+      summary: Model Text-to-Image
+      tags:
+      - callback
   /rag/knowledge/stream/search:
     post:
       consumes:
@@ -1951,6 +2073,41 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 查询问答列表（命中测试）
+      tags:
+      - callback
+  /tool/builtin/asr:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 语音文件 base64
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 请求参数
+        in: formData
+        name: config
+        required: true
+        type: string
+      - description: api token
+        in: formData
+        name: apiKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 语音文件（base64格式）转文本内置工具服务
       tags:
       - callback
   /workflow/list:

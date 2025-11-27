@@ -920,6 +920,54 @@ definitions:
         description: 模型供应商
         type: string
     type: object
+  request.AppQAKnowledgeBase:
+    properties:
+      id:
+        description: 知识库id
+        type: string
+      metaDataFilterParams:
+        $ref: '#/definitions/request.MetaDataFilterParams'
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  request.AppQAKnowledgebaseConfig:
+    properties:
+      config:
+        allOf:
+        - $ref: '#/definitions/request.AppQAKnowledgebaseParams'
+        description: 问答库参数
+      knowledgebases:
+        description: 问答库id、名字
+        items:
+          $ref: '#/definitions/request.AppQAKnowledgeBase'
+        type: array
+    type: object
+  request.AppQAKnowledgebaseParams:
+    properties:
+      keywordPriority:
+        description: 关键词权重
+        type: number
+      matchType:
+        description: matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+        type: string
+      maxHistory:
+        description: 最长上下文
+        type: integer
+      priorityMatch:
+        description: 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+        type: integer
+      semanticsPriority:
+        description: 语义权重
+        type: number
+      threshold:
+        description: 过滤阈值
+        type: number
+      topK:
+        description: 知识条数
+        type: integer
+    type: object
   request.AppSafetyConfig:
     properties:
       enable:
@@ -1520,7 +1568,6 @@ definitions:
       name:
         type: string
     required:
-    - category
     - embeddingModelInfo
     - name
     type: object
@@ -1833,10 +1880,14 @@ definitions:
     type: object
   request.DeleteKnowledgeQAExportRecordReq:
     properties:
+      knowledgeId:
+        description: 问答库id
+        type: string
       qaExportRecordId:
         description: 问答库导出记录id
         type: string
     required:
+    - knowledgeId
     - qaExportRecordId
     type: object
   request.DeleteKnowledgeQAPairReq:
@@ -2734,7 +2785,7 @@ definitions:
         description: 模型
       qaKnowledgeBaseConfig:
         allOf:
-        - $ref: '#/definitions/request.AppKnowledgebaseConfig'
+        - $ref: '#/definitions/request.AppQAKnowledgebaseConfig'
         description: 问答库（不用传知识图谱开关）
       qaRerankConfig:
         allOf:
@@ -5333,7 +5384,7 @@ definitions:
         type: string
       qaKnowledgeBaseConfig:
         allOf:
-        - $ref: '#/definitions/request.AppKnowledgebaseConfig'
+        - $ref: '#/definitions/request.AppQAKnowledgebaseConfig'
         description: 问答库
       qaRerankConfig:
         allOf:
@@ -9083,6 +9134,9 @@ paths:
         name: pageSize
         required: true
         type: integer
+      - in: query
+        name: status
+        type: integer
       produces:
       - application/json
       responses:
@@ -10388,6 +10442,32 @@ paths:
       summary: 导入模型列表
       tags:
       - model
+  /model/select/asr:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: asr语音识别模型列表展示
+      tags:
+      - model
   /model/select/embedding:
     get:
       consumes:
@@ -10542,6 +10622,32 @@ paths:
       security:
       - JWT: []
       summary: rerank模型列表
+      tags:
+      - model
+  /model/select/text2image:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 文生图模型列表展示
       tags:
       - model
   /model/status:

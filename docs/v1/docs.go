@@ -5341,6 +5341,11 @@ const docTemplate = `{
                         "name": "pageSize",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -7515,6 +7520,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/model/select/asr": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "summary": "asr语音识别模型列表展示",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "$ref": "#/definitions/response.ModelInfo"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/model/select/embedding": {
             "get": {
                 "security": [
@@ -7787,6 +7843,57 @@ const docTemplate = `{
                     "model"
                 ],
                 "summary": "rerank模型列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "$ref": "#/definitions/response.ModelInfo"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/model/select/text2image": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "summary": "文生图模型列表展示",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -12869,6 +12976,77 @@ const docTemplate = `{
                 }
             }
         },
+        "request.AppQAKnowledgeBase": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "metaDataFilterParams": {
+                    "$ref": "#/definitions/request.MetaDataFilterParams"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.AppQAKnowledgebaseConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "description": "问答库参数",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppQAKnowledgebaseParams"
+                        }
+                    ]
+                },
+                "knowledgebases": {
+                    "description": "问答库id、名字",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.AppQAKnowledgeBase"
+                    }
+                }
+            }
+        },
+        "request.AppQAKnowledgebaseParams": {
+            "type": "object",
+            "properties": {
+                "keywordPriority": {
+                    "description": "关键词权重",
+                    "type": "number"
+                },
+                "matchType": {
+                    "description": "matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）",
+                    "type": "string"
+                },
+                "maxHistory": {
+                    "description": "最长上下文",
+                    "type": "integer"
+                },
+                "priorityMatch": {
+                    "description": "权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1",
+                    "type": "integer"
+                },
+                "semanticsPriority": {
+                    "description": "语义权重",
+                    "type": "number"
+                },
+                "threshold": {
+                    "description": "过滤阈值",
+                    "type": "number"
+                },
+                "topK": {
+                    "description": "知识条数",
+                    "type": "integer"
+                }
+            }
+        },
         "request.AppSafetyConfig": {
             "type": "object",
             "properties": {
@@ -13731,7 +13909,6 @@ const docTemplate = `{
         "request.CreateKnowledgeReq": {
             "type": "object",
             "required": [
-                "category",
                 "embeddingModelInfo",
                 "name"
             ],
@@ -14224,9 +14401,14 @@ const docTemplate = `{
         "request.DeleteKnowledgeQAExportRecordReq": {
             "type": "object",
             "required": [
+                "knowledgeId",
                 "qaExportRecordId"
             ],
             "properties": {
+                "knowledgeId": {
+                    "description": "问答库id",
+                    "type": "string"
+                },
                 "qaExportRecordId": {
                     "description": "问答库导出记录id",
                     "type": "string"
@@ -15548,7 +15730,7 @@ const docTemplate = `{
                     "description": "问答库（不用传知识图谱开关）",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/request.AppKnowledgebaseConfig"
+                            "$ref": "#/definitions/request.AppQAKnowledgebaseConfig"
                         }
                     ]
                 },
@@ -19440,7 +19622,7 @@ const docTemplate = `{
                     "description": "问答库",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/request.AppKnowledgebaseConfig"
+                            "$ref": "#/definitions/request.AppQAKnowledgebaseConfig"
                         }
                     ]
                 },

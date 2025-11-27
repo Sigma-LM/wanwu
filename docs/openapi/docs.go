@@ -744,9 +744,17 @@ const docTemplate = `{
         },
         "request.OpenAPIChatflowChatRequest": {
             "type": "object",
+            "required": [
+                "conversation_id",
+                "query"
+            ],
             "properties": {
                 "conversation_id": {
                     "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
                 },
                 "query": {
                     "type": "string"

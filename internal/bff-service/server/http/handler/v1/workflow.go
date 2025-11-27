@@ -165,12 +165,9 @@ func GetWorkflowToolDetail(ctx *gin.Context) {
 //	@Router		/workflow/select [get]
 func GetWorkflowSelect(ctx *gin.Context) {
 	req := request.GetExplorationAppListRequest{
-		Name:       ctx.Query("name"),
-		AppType:    constant.AppTypeWorkflow,
-		SearchType: "all",
+		Name: ctx.Query("name"),
 	}
-
-	resp, err := service.GetExplorationAppList(ctx, getUserID(ctx), getOrgID(ctx), req)
+	resp, err := service.GetWorkflowSelect(ctx, getUserID(ctx), getOrgID(ctx), req)
 	gin_util.Response(ctx, resp, err)
 }
 
