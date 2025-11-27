@@ -4,18 +4,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	rag_service "github.com/UnicomAI/wanwu/api/proto/rag-service"
 	"github.com/UnicomAI/wanwu/internal/rag-service/client"
 	"github.com/UnicomAI/wanwu/internal/rag-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/rag-service/pkg/generator"
-	"github.com/UnicomAI/wanwu/internal/rag-service/service"
+	message_builder "github.com/UnicomAI/wanwu/internal/rag-service/service/message-builder"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
+)
+
+const (
+	QACategory int32 = 1 // 问答库类型
 )
 
 type Service struct {
@@ -44,10 +47,9 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 	// 校验知识库是否存在
 	log.Infof("check know: userid = %s, orgId = %s, knowid = %s", rag.UserID, rag.UserID, rag.KnowledgeBaseConfig.KnowId)
 	// 反序列化字符串
-	var knowledgeIds []string
-	errU := json.Unmarshal([]byte(rag.KnowledgeBaseConfig.KnowId), &knowledgeIds)
-	if errU != nil {
-		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errU.Error())
+	knowledgeIds, err1 := buildKnowledgeIdList(rag)
+	if err1 != nil {
+		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", err1.Error())
 	}
 	knowledgeInfoList, errk := Knowledge.SelectKnowledgeDetailByIdList(ctx, &knowledgebase_service.KnowledgeDetailSelectListReq{
 		UserId:       rag.UserID,
@@ -58,30 +60,38 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 		log.Errorf("errk = %s", errk.Error())
 		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errk.Error())
 	}
-	if knowledgeInfoList == nil {
+	if knowledgeInfoList == nil || len(knowledgeInfoList.List) == 0 {
 		log.Errorf("knowledgeInfoList = nil")
 		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", "check knowledgeInfoList err: knowledgeInfoList is nil")
 	}
-
+	knowledgeIds, qaIds, knowledgeIDToName := splitKnowledgeIdList(knowledgeInfoList)
+	return message_builder.BuildMessage(ctx, &message_builder.RagContext{
+		MessageId:         generator.GetGenerator().NewID(),
+		Req:               req,
+		Rag:               rag,
+		KnowledgeIDToName: knowledgeIDToName,
+		KnowledgeIds:      knowledgeIds,
+		QAIds:             qaIds,
+	}, stream)
 	//  请求rag
-	buildParams, errk := service.BuildChatConsultParams(req, rag, knowledgeInfoList, knowledgeIds)
-	if errk != nil {
-		log.Errorf("errk = %s", errk.Error())
-		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errk.Error())
-	}
-	chatChan, errg := service.RagStreamChat(ctx, rag.UserID, buildParams)
-	if errg != nil {
-		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errg.Error())
-	}
-	for text := range chatChan {
-		resp := &rag_service.ChatRagResp{
-			Content: text,
-		}
-		if err := stream.Send(resp); err != nil {
-			return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", err.Error())
-		}
-	}
-	return nil
+	//buildParams, errk := rag_manage_service.BuildChatConsultParams(req, rag, knowledgeInfoList, knowledgeIds)
+	//if errk != nil {
+	//	log.Errorf("errk = %s", errk.Error())
+	//	return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errk.Error())
+	//}
+	//chatChan, errg := rag_manage_service.RagStreamChat(ctx, rag.UserID, buildParams)
+	//if errg != nil {
+	//	return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", errg.Error())
+	//}
+	//for text := range chatChan {
+	//	resp := &rag_service.ChatRagResp{
+	//		Content: text,
+	//	}
+	//	if err := stream.Send(resp); err != nil {
+	//		return grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_chat_err", err.Error())
+	//	}
+	//}
+	//return nil
 }
 
 func (s *Service) CreateRag(ctx context.Context, in *rag_service.CreateRagReq) (*rag_service.CreateRagResp, error) {
@@ -144,7 +154,6 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 		}
 		sensitiveIds = string(sensitiveIdBytes)
 	}
-
 	var knowledgeIdList []string
 	for _, perKbConfig := range in.KnowledgeBaseConfig.PerKnowledgeConfigs {
 		knowledgeIdList = append(knowledgeIdList, perKbConfig.KnowledgeId)
@@ -156,7 +165,6 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 		}
 		knowledgeIds = string(knowledgeIdBytes)
 	}
-
 	var metaParams string
 	perConfig := in.KnowledgeBaseConfig.PerKnowledgeConfigs
 	if perConfig != nil {
@@ -167,6 +175,17 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 		metaParams = string(kbConfigBytes)
 	}
 	kbGlobalConfig := in.KnowledgeBaseConfig.GlobalConfig
+
+	// 序列化QAknowledgeBaseConfig
+	var qaKnowledgeConfig string
+	if in.QAknowledgeBaseConfig != nil {
+		knowledgeBaseConfigBytes, err := json.Marshal(in.QAknowledgeBaseConfig)
+		if err != nil {
+			return nil, grpc_util.ErrorStatusWithKey(errs.Code_RagChatErr, "rag_update_err", "marshal err:", err.Error())
+		}
+		qaKnowledgeConfig = string(knowledgeBaseConfigBytes)
+		log.Debugf("knowConfig = %s", qaKnowledgeConfig)
+	}
 	if err := s.cli.UpdateRagConfig(ctx, &model.RagInfo{
 		RagID: in.RagId,
 		ModelConfig: model.AppModelConfig{
@@ -183,6 +202,13 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 			ModelType: in.RerankConfig.ModelType,
 			Config:    in.RerankConfig.Config,
 		},
+		QARerankConfig: model.AppModelConfig{
+			Provider:  in.QArerankConfig.Provider,
+			Model:     in.QArerankConfig.Model,
+			ModelId:   in.QArerankConfig.ModelId,
+			ModelType: in.QArerankConfig.ModelType,
+			Config:    in.QArerankConfig.Config,
+		},
 		KnowledgeBaseConfig: model.KnowledgeBaseConfig{
 			KnowId:            knowledgeIds,
 			MaxHistory:        int64(kbGlobalConfig.MaxHistory),
@@ -198,6 +224,7 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 			UseGraph:          kbGlobalConfig.UseGraph,
 			ChiChat:           kbGlobalConfig.ChiChat,
 		},
+		QAKnowledgebaseConfig: qaKnowledgeConfig,
 		SensitiveConfig: model.SensitiveConfig{
 			Enable:   in.SensitiveConfig.Enable,
 			TableIds: sensitiveIds,
@@ -260,11 +287,13 @@ func (s *Service) CopyRag(ctx context.Context, in *rag_service.CopyRagReq) (*rag
 			Desc:       info.BriefConfig.Desc,
 			AvatarPath: info.BriefConfig.AvatarPath,
 		},
-		ModelConfig:         info.ModelConfig,
-		RerankConfig:        info.RerankConfig,
-		KnowledgeBaseConfig: info.KnowledgeBaseConfig,
-		SensitiveConfig:     info.SensitiveConfig,
-		PublicModel:         info.PublicModel,
+		ModelConfig:           info.ModelConfig,
+		RerankConfig:          info.RerankConfig,
+		QARerankConfig:        info.QARerankConfig,
+		KnowledgeBaseConfig:   info.KnowledgeBaseConfig,
+		QAKnowledgebaseConfig: info.QAKnowledgebaseConfig,
+		SensitiveConfig:       info.SensitiveConfig,
+		PublicModel:           info.PublicModel,
 	})
 	if err != nil {
 		return nil, errStatus(errs.Code_RagCreateErr, err)
@@ -272,4 +301,43 @@ func (s *Service) CopyRag(ctx context.Context, in *rag_service.CopyRagReq) (*rag
 	return &rag_service.CreateRagResp{
 		RagId: replicaId,
 	}, nil
+}
+
+func buildKnowledgeIdList(rag *model.RagInfo) ([]string, error) {
+	// 反序列化字符串
+	var knowledgeIds []string
+	if len(rag.KnowledgeBaseConfig.KnowId) > 0 {
+		errU := json.Unmarshal([]byte(rag.KnowledgeBaseConfig.KnowId), &knowledgeIds)
+		if errU != nil {
+			return nil, errU
+		}
+	}
+	if len(rag.QAKnowledgebaseConfig) > 0 {
+		// 反序列化qaKnowledgeBaseConfig
+		qaKnowledgeBaseConfig := &rag_service.RagQAKnowledgeBaseConfig{}
+		err := json.Unmarshal([]byte(rag.QAKnowledgebaseConfig), qaKnowledgeBaseConfig)
+		if err != nil {
+			return nil, err
+		}
+		for _, qaConfig := range qaKnowledgeBaseConfig.PerKnowledgeConfigs {
+			knowledgeIds = append(knowledgeIds, qaConfig.KnowledgeId)
+		}
+	}
+	return knowledgeIds, nil
+}
+
+// 拆分知识库列表
+func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSelectListResp) (knowledgeIds []string, qaIds []string, knowledgeIDToName map[string]string) {
+	knowledgeIDToName = make(map[string]string)
+	for _, info := range knowledgeList.List {
+		if info.Category == QACategory {
+			qaIds = append(qaIds, info.KnowledgeId)
+		} else {
+			knowledgeIds = append(knowledgeIds, info.KnowledgeId)
+		}
+		if _, exists := knowledgeIDToName[info.KnowledgeId]; !exists {
+			knowledgeIDToName[info.KnowledgeId] = info.RagName
+		}
+	}
+	return
 }

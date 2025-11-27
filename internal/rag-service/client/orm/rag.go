@@ -71,6 +71,14 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 		}
 	}
 
+	// 反序列化qaKnowledgeBaseConfig
+	qaKnowledgeBaseConfig := &rag_service.RagQAKnowledgeBaseConfig{}
+	if info.QAKnowledgebaseConfig != "" {
+		if err := json.Unmarshal([]byte(info.QAKnowledgebaseConfig), qaKnowledgeBaseConfig); err != nil {
+			return nil, toErrStatus("rag_get_err", "kb_qa "+err.Error())
+		}
+	}
+
 	// 填充 rag 的信息
 	resp := &rag_service.RagInfo{
 		RagId: info.RagID,
@@ -93,10 +101,18 @@ func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*ra
 			ModelType: info.RerankConfig.ModelType,
 			Config:    info.RerankConfig.Config,
 		},
+		QArerankConfig: &common.AppModelConfig{
+			Model:     info.QARerankConfig.Model,
+			ModelId:   info.QARerankConfig.ModelId,
+			Provider:  info.QARerankConfig.Provider,
+			ModelType: info.QARerankConfig.ModelType,
+			Config:    info.QARerankConfig.Config,
+		},
 		KnowledgeBaseConfig: &rag_service.RagKnowledgeBaseConfig{
 			PerKnowledgeConfigs: perKbConfig,
 			GlobalConfig:        kbGlobalConfig,
 		},
+		QAknowledgeBaseConfig: qaKnowledgeBaseConfig,
 		SensitiveConfig: &rag_service.RagSensitiveConfig{
 			Enable:   info.SensitiveConfig.Enable,
 			TableIds: sensitiveIds,
@@ -254,6 +270,12 @@ func (c *Client) UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_c
 				"rerank_model_type": rag.RerankConfig.ModelType,
 				"rerank_config":     rag.RerankConfig.Config,
 
+				"qa_rerank_provider":   rag.QARerankConfig.Provider,
+				"qa_rerank_model":      rag.QARerankConfig.Model,
+				"qa_rerank_model_id":   rag.QARerankConfig.ModelId,
+				"qa_rerank_model_type": rag.QARerankConfig.ModelType,
+				"qa_rerank_config":     rag.QARerankConfig.Config,
+
 				"kb_know_id":     rag.KnowledgeBaseConfig.KnowId,
 				"kb_max_history": rag.KnowledgeBaseConfig.MaxHistory,
 				"kb_threshold":   rag.KnowledgeBaseConfig.Threshold,
@@ -268,6 +290,8 @@ func (c *Client) UpdateRagConfig(ctx context.Context, rag *model.RagInfo) *err_c
 				"kb_term_weight_enable": rag.KnowledgeBaseConfig.TermWeightEnable,
 				"kb_use_graph":          rag.KnowledgeBaseConfig.UseGraph,
 				"kb_chi_chat":           rag.KnowledgeBaseConfig.ChiChat,
+
+				"qa_knowledgebase_config": rag.QAKnowledgebaseConfig,
 
 				"sensitive_enable":    rag.SensitiveConfig.Enable,
 				"sensitive_table_ids": rag.SensitiveConfig.TableIds,

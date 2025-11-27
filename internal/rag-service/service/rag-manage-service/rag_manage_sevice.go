@@ -1,4 +1,4 @@
-package service
+package rag_manage_service
 
 import (
 	"bufio"
@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	knowledgeBase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	rag_service "github.com/UnicomAI/wanwu/api/proto/rag-service"
 	"github.com/UnicomAI/wanwu/internal/rag-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/rag-service/config"
@@ -32,7 +31,6 @@ const (
 )
 
 type RagChatParams struct {
-	KnowledgeBase        []string              `json:"knowledgeBase"`   // 知识库名字列表
 	KnowledgeIdList      []string              `json:"knowledgeIdList"` // 知识库ID列表
 	Question             string                `json:"question"`
 	Threshold            float32               `json:"threshold"` // Score阈值
@@ -173,7 +171,7 @@ func buildHttpParams(userId string, req *RagChatParams) (*http_client.HttpReques
 }
 
 // BuildChatConsultParams 构造rag 会话参数
-func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeInfoList *knowledgeBase_service.KnowledgeDetailSelectListResp, knowledgeIds []string) (*RagChatParams, error) {
+func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeIDToName map[string]string, knowledgeIds []string) (*RagChatParams, error) {
 	// 知识库参数
 	ragChatParams := &RagChatParams{}
 	knowledgeConfig := rag.KnowledgeBaseConfig
@@ -183,15 +181,6 @@ func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, kno
 	ragChatParams.RetrieveMethod = buildRetrieveMethod(knowledgeConfig.MatchType)
 	ragChatParams.RerankMod = buildRerankMod(knowledgeConfig.PriorityMatch)
 	ragChatParams.Weight = buildWeight(knowledgeConfig)
-	var kbNameList []string
-	knowledgeIDToName := make(map[string]string)
-	for _, v := range knowledgeInfoList.List {
-		kbNameList = append(kbNameList, v.RagName)
-		if _, exists := knowledgeIDToName[v.KnowledgeId]; !exists {
-			knowledgeIDToName[v.KnowledgeId] = v.RagName
-		}
-	}
-	ragChatParams.KnowledgeBase = kbNameList
 	ragChatParams.KnowledgeIdList = knowledgeIds
 	ragChatParams.RerankModelId = buildRerankId(knowledgeConfig.PriorityMatch, rag.RerankConfig.ModelId)
 	if rag.KnowledgeBaseConfig.TermWeightEnable {

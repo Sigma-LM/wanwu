@@ -84,6 +84,28 @@ type AppKnowledgebaseParams struct {
 	ChiChat           bool    `json:"chiChat"`           // 闲聊开关
 }
 
+type AppQAKnowledgebaseConfig struct {
+	Knowledgebases []AppQAKnowledgeBase     `json:"knowledgebases"` // 问答库id、名字
+	Config         AppQAKnowledgebaseParams `json:"config"`         // 问答库参数
+}
+
+type AppQAKnowledgeBase struct {
+	ID                   string                `json:"id" validate:"required"` // 知识库id
+	Name                 string                `json:"name"`
+	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
+}
+
+type AppQAKnowledgebaseParams struct {
+	MaxHistory int32   `json:"maxHistory"` // 最长上下文
+	Threshold  float32 `json:"threshold"`  // 过滤阈值
+	TopK       int32   `json:"topK"`       // 知识条数
+
+	MatchType         string  `json:"matchType"`         //matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+	PriorityMatch     int32   `json:"priorityMatch"`     // 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+	SemanticsPriority float32 `json:"semanticsPriority"` // 语义权重
+	KeywordPriority   float32 `json:"keywordPriority"`   // 关键词权重
+}
+
 type MetaDataFilterParams struct {
 	FilterEnable     bool                `json:"filterEnable"`     // 元数据过滤开关
 	MetaFilterParams []*MetaFilterParams `json:"metaFilterParams"` // 元数据过滤参数列表

@@ -15522,6 +15522,8 @@ const docTemplate = `{
             "required": [
                 "knowledgeBaseConfig",
                 "modelConfig",
+                "qaKnowledgeBaseConfig",
+                "qaRerankConfig",
                 "ragId",
                 "rerankConfig"
             ],
@@ -15542,11 +15544,27 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "qaKnowledgeBaseConfig": {
+                    "description": "问答库（不用传知识图谱开关）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppKnowledgebaseConfig"
+                        }
+                    ]
+                },
+                "qaRerankConfig": {
+                    "description": "问答库Rerank模型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
+                },
                 "ragId": {
                     "type": "string"
                 },
                 "rerankConfig": {
-                    "description": "Rerank模型",
+                    "description": "知识库Rerank模型",
                     "allOf": [
                         {
                             "$ref": "#/definitions/request.AppModelConfig"
@@ -19380,6 +19398,8 @@ const docTemplate = `{
                 "knowledgeBaseConfig",
                 "modelConfig",
                 "name",
+                "qaKnowledgeBaseConfig",
+                "qaRerankConfig",
                 "ragId",
                 "rerankConfig"
             ],
@@ -19415,6 +19435,22 @@ const docTemplate = `{
                 "name": {
                     "description": "名称",
                     "type": "string"
+                },
+                "qaKnowledgeBaseConfig": {
+                    "description": "问答库",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppKnowledgebaseConfig"
+                        }
+                    ]
+                },
+                "qaRerankConfig": {
+                    "description": "问答库Rerank模型",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
                 },
                 "ragId": {
                     "type": "string"
