@@ -457,13 +457,13 @@ def search_knowledge_base():
                 else:
                     logger.info("未启用或维护转名词表,query未改写,按原问题:%s 进行召回" % question)
 
-        response_info = kb_utils.get_knowledge_based_answer("", "", question, rate, top_k, chunk_conent, chunk_size,
+        response_info = kb_utils.get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk_conent, chunk_size,
                                                    return_meta, prompt_template, search_field, default_answer,
-                                                   auto_citation, retrieve_method = retrieve_method, kb_ids=[],
+                                                   auto_citation, retrieve_method = retrieve_method,
                                                    filter_file_name_list=filter_file_name_list,
                                                    rerank_model_id=rerank_model_id, rerank_mod=rerank_mod,
                                                    weights=weights, metadata_filtering_conditions=metadata_filtering_conditions,
-                                                   knowledge_base_info=knowledge_base_info, use_graph=use_graph)
+                                                   use_graph=use_graph)
         json_str = json.dumps(response_info, ensure_ascii=False)
 
         response = make_response(json_str)

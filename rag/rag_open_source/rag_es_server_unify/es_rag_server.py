@@ -1362,28 +1362,13 @@ def snippet_rescore():
     data = request.get_json()
     logger.info('rescore request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
 
-    user_id = data.get('user_id')
-    user_id = user_id.replace('-', '_')
-    index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
+    search_by = data.get('search_by', "snippet")
+    search_list_infos = data.get("search_list_infos")
     query = data.get('query')
     weights = data.get('weights')
-    search_by = data.get('search_by', "snippet")
-    search_list = data.get('search_list', [])
-    display_kb_names = data.get("kb_names")
-    embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, display_kb_names[0])
-    logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names},embedding_model_id:{embedding_model_id}")
-    kb_id_2_kb_name = {}
-    try:
-        for kb_name in display_kb_names:
-            kb_id = kb_info_ops.get_uk_kb_id(data.get('user_id'), kb_name)
-            kb_id_2_kb_name[kb_id] = kb_name
-        result = es_ops.rescore_bm25_score(index_name, query, search_by, search_list)
-        search_list = result["search_list"]
-        bm25_scores = result["scores"]
-        contents = [item["snippet"] for item in search_list]
-        cosine_scores = emb_util.calculate_cosine(query, contents, embedding_model_id)
-        logger.info(f"rescore bm25_scores: {bm25_scores}, cosine_scores: {cosine_scores}")
 
+    logger.info(f"query: {query}, weights: {weights}, search_list_infos:{search_list_infos}")
+    try:
         def normalize_to_01(scores):
             if len(scores) == 1:
                 return [1.0]  # 单个分数归一化为1
@@ -1393,6 +1378,33 @@ def snippet_rescore():
                 return [1.0 for _ in scores]  # 所有分数相同，统一设为1
             return [(score - min_score) / (max_score - min_score) for score in scores]
 
+        search_list = []
+        bm25_scores = []
+        cosine_scores = []
+        for user_id, search_list_info in search_list_infos.items():
+            kb_id_2_kb_name = {}
+            index_name = SNIPPET_INDEX_NAME_PREFIX + user_id.replace('-', '_')
+            display_kb_names = search_list_info["base_names"]
+            temp_search_list = search_list_info["search_list"]
+            embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, display_kb_names[0])
+            logger.info(
+                f"用户:{user_id},请求查询的kb_names为:{display_kb_names},embedding_model_id:{embedding_model_id}")
+
+            for kb_name in display_kb_names:
+                kb_id = kb_info_ops.get_uk_kb_id(user_id, kb_name)
+                kb_id_2_kb_name[kb_id] = kb_name
+            result = es_ops.rescore_bm25_score(index_name, query, search_by, temp_search_list)
+            temp_search_list = result["search_list"]
+            for item in temp_search_list:
+                item["kb_name"] = kb_id_2_kb_name[item["kb_name"]]
+                item["user_id"] = user_id
+
+            search_list.extend(temp_search_list)
+            bm25_scores = result["scores"]
+            contents = [item["snippet"] for item in search_list]
+            cosine_scores.extend(emb_util.calculate_cosine(query, contents, embedding_model_id))
+            logger.info(f"rescore bm25_scores: {bm25_scores}, cosine_scores: {cosine_scores}")
+
         bm25_normalized = normalize_to_01(bm25_scores)
         cosine_normalized = normalize_to_01(cosine_scores)
 
@@ -1400,7 +1412,6 @@ def snippet_rescore():
         for item, text_score, vector_score in zip(search_list, bm25_normalized, cosine_normalized):
             score = weights["vector_weight"] * vector_score + weights["text_weight"] * text_score
             item["score"] = score
-            item["kb_name"] = kb_id_2_kb_name[item["kb_name"]]
             final_search_list.append(item)
 
         final_search_list.sort(key=lambda x: x["score"], reverse=True)
@@ -2041,11 +2052,11 @@ def qa_rescore():
 
             result = qa_ops.qa_rescore_bm25_score(qa_index_name, query, temp_search_list)
             temp_search_list = result["search_list"]
-            bm25_scores = result["scores"]
-            contents = [item["question"] for item in temp_search_list]
-            cosine_scores = emb_util.calculate_cosine(query, contents, embedding_model_id)
-            logger.info(f"rescore bm25_scores: {bm25_scores}, cosine_scores: {cosine_scores}")
             search_list.extend(temp_search_list)
+            bm25_scores.extend(result["scores"])
+            contents = [item["question"] for item in temp_search_list]
+            cosine_scores.extend(emb_util.calculate_cosine(query, contents, embedding_model_id))
+            logger.info(f"rescore bm25_scores: {bm25_scores}, cosine_scores: {cosine_scores}")
 
         def normalize_to_01(scores):
             if len(scores) == 1:

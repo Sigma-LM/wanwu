@@ -162,33 +162,27 @@ def add_es(user_id, kb_name, docs, file_name, kb_id=""):
     return response_info
 
 
-def get_weighted_rerank(user_id, kb_names, query, weights, milvus_list, es_list, top_k):
-    raw_search_list = []
-    tmp_content = []
+def get_weighted_rerank(query, weights, search_list, top_k):
+    search_list_infos = {}
+    for item in search_list:
+        base_name = item["kb_name"]
+        user_id = item["user_id"]
 
-    for i in milvus_list:
-        if i["content"] in tmp_content: continue
-        raw_search_list.append(
-            {"title": i["file_name"], "snippet": i["content"], "kb_name": i["kb_name"], "content_id": i["content_id"],"meta_data": i["meta_data"]})
-        tmp_content.append(i["content"])
+        if user_id not in search_list_infos:
+            search_list_infos[user_id] = {
+                "base_names": [],
+                "search_list": []
+            }
 
-    for i in es_list:
-        if i["snippet"] in tmp_content: continue
-        raw_search_list.append(i)
-        tmp_content.append(i["snippet"])
+        search_list_infos[user_id]["base_names"].append(item)
+        search_list_infos[user_id]["search_list"].append(base_name)
 
-    return combine_rescore_es(user_id, kb_names, query, weights, top_k, raw_search_list)
-
-
-def combine_rescore_es(user_id, kb_names, query, weights, top_k, search_list = []):
     rescored_search_list = []
     sorted_score_list = []
     es_data = {}
-    es_data['user_id'] = user_id
     es_data['query'] = query
-    es_data['search_list'] = search_list
     es_data["weights"] = weights
-    es_data["kb_names"] = kb_names
+    es_data["search_list_infos"] = search_list_infos
     es_url = ES_BASE_URL + "/api/v1/rag/es/rescore"
     headers = {'Content-Type': 'application/json'}
     try:
@@ -199,11 +193,11 @@ def combine_rescore_es(user_id, kb_names, query, weights, top_k, search_list = [
             result_data = json.loads(response.text)
             rescored_search_list = result_data['result']['search_list'][:top_k]
             sorted_score_list = result_data['result']['scores'][:top_k]
-            logger.info("user_id：" + repr(user_id) + ", query：" + repr(query) + ", es重评分请求成功")
+            logger.info("query：" + repr(query) + ", es重评分请求成功")
         else:
-            logger.error("user_id：" + repr(user_id) + ", query：" + repr(query) + ", es重评分请求失败" + repr(response.text))
+            logger.error("query：" + repr(query) + ", es重评分请求失败" + repr(response.text))
     except Exception as e:
-        logger.error("user_id：" + repr(user_id) + ", query：" + repr(query) + ", es重评分请求异常：" + repr(e))
+        logger.error(" query：" + repr(query) + ", es重评分请求异常：" + repr(e))
     return sorted_score_list, rescored_search_list
 
 
