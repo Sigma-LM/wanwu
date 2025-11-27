@@ -68,6 +68,7 @@ type SearchData struct {
 func BuildQaHitParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeIDToName map[string]string, qaIds []string) (*QAHitParams, error) {
 	// 知识库参数
 	ragChatParams := &QAHitParams{}
+	ragChatParams.UserId = req.Identity.UserId
 	ragQAConfigData := rag_service.RagQAKnowledgeBaseConfig{}
 	err := json.Unmarshal([]byte(rag.QAKnowledgebaseConfig), &ragQAConfigData)
 	if err != nil {

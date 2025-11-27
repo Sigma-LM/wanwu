@@ -20,7 +20,7 @@ func (KnowledgeStartBuilder) Build(ctx context.Context, ragContext *RagContext) 
 		MsgType: KnowledgeStart,
 		History: make([]*RagHistory, 0),
 		Data: &RagData{
-			Output:     "知识库搜索中",
+			Output:     "",
 			SearchList: make([]interface{}, 0),
 		},
 	}

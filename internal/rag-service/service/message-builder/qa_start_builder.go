@@ -23,7 +23,7 @@ func (QAStartBuilder) Build(ctx context.Context, ragContext *RagContext) *RagEve
 		MsgType: QAStart,
 		History: make([]*RagHistory, 0),
 		Data: &RagData{
-			Output:     "问答库搜索中",
+			Output:     "",
 			SearchList: make([]interface{}, 0),
 		},
 	}
