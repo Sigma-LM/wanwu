@@ -115,7 +115,7 @@ export default {
       qaDocImport(data)
         .then((res) => {
           if (res.code === 0) {
-            this.$message.success(this.$t("common.message.success"));
+            this.$message.success(this.$t("app.qaUplodFileTips"));
             this.handleClose();
             this.$emit("reloadData");
           }

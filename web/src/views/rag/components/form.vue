@@ -136,7 +136,8 @@
             @updateMetaData="updateMetaData"
             :setType="'rag'"
             :labelText="$t('app.linkQaDatabase')"
-            :type="'qaKnowledgeBaseConfig'"/>
+            :type="'qaKnowledgeBaseConfig'"
+          />
         </div>
         <!-- 知识库库配置 -->
          <div class="block safety-box">
@@ -148,9 +149,9 @@
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
             :setType="'rag'"
-            :required="true"
             :labelText="$t('agent.form.linkKnowledge')"
-            :type="'knowledgeBaseConfig'"/>
+            :type="'knowledgeBaseConfig'"
+          />
         </div>
         <div class="block prompt-box safety-box">
           <p class="block-title tool-title">
@@ -399,8 +400,11 @@ export default {
     },
     //设置知识库或问答库召回参数
     knowledgeRecallSet(data,type){
-      console.log(data)
-      this.editForm[type]['config'] = data;
+      if(data){
+        this.editForm[type]['config'] = data;
+      }else{
+        this.editForm[type]['config'] = this.editForm[type]['config'];
+      }
     },
     chiSwitchChange(value) {
       this.$set(this.editForm.knowledgeBaseConfig.config, 'chiChat', value);

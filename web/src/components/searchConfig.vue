@@ -199,7 +199,7 @@ export default {
       formInline: {
         knowledgeMatchParams: {
           keywordPriority: 0.8, //关键词权重
-          matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+          matchType: "", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
           priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
           rerankModelId: "", //rerank模型id
           threshold: 0.4, //过滤分数阈值
@@ -333,9 +333,6 @@ export default {
       item.mixTypeValue = n.value;
       const { knowledgeMatchParams } = this.formInline;
       knowledgeMatchParams.priorityMatch = n.value === "weight" ? 1 : 0;
-      // if(n.value === 'weight'){
-      //   knowledgeMatchParams.rerankModelId = '';
-      // }
     },
     showRerank(n) {
       return (

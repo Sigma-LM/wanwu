@@ -32,7 +32,7 @@
                 </el-select>
                 <search-input
                   class="cover-input-icon"
-                  :placeholder="$t('knowledgeManage.docPlaceholder')"
+                  :placeholder="$t('knowledgeManage.questionPlaceholder')"
                   ref="searchInput"
                   @handleSearch="handleSearch"
                 />

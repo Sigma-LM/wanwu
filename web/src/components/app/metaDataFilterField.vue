@@ -1,30 +1,30 @@
 <template>
-<el-dialog
-      :visible.sync="metaSetVisible"
-      width="80%"
-      class="metaSetVisible"
-      :before-close="handleMetaClose"
-    >
-      <template #title>
-        <div class="metaHeader">
-          <h3>{{ $t("agent.form.configMetaDataFilter") }}</h3>
-          <span>{{ category === 0 ? $t("agent.form.metaDataFilterDesc") : $t("agent.form.metaDataQaFilterDesc")  }}</span>
-        </div>
-      </template>
-      <metaSet
-        ref="metaSet"
-        :knowledgeId="knowledgeId"
-        :currentMetaData="metaData"
-      />
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="handleMetaClose">
-          {{ $t("common.button.cancel") }}
-        </el-button>
-        <el-button type="primary" @click="submitMeta">
-          {{ $t("common.button.confirm") }}
-        </el-button>
-      </span>
-    </el-dialog>
+  <el-dialog
+    :visible.sync="metaSetVisible"
+    width="80%"
+    class="metaSetVisible"
+    :before-close="handleMetaClose"
+  >
+    <template #title>
+      <div class="metaHeader">
+        <h3>{{ $t("agent.form.configMetaDataFilter") }}</h3>
+        <span>{{ category === 0 ? $t("agent.form.metaDataFilterDesc") : $t("agent.form.metaDataQaFilterDesc") }}</span>
+      </div>
+    </template>
+    <metaSet
+      ref="metaSet"
+      :knowledgeId="knowledgeId"
+      :currentMetaData="metaData"
+    />
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="handleMetaClose">
+        {{ $t("common.button.cancel") }}
+      </el-button>
+      <el-button type="primary" @click="submitMeta">
+        {{ $t("common.button.confirm") }}
+      </el-button>
+    </span>
+  </el-dialog>
 </template>
 
 <script>
@@ -43,9 +43,9 @@ export default {
       type: Object,
       default: () => {},
     },
-    category:{
-      type:Number,
-      default:0
+    category: {
+      type: Number,
+      default: 0
     }
   },
   data() {

@@ -82,7 +82,7 @@
                       @click="showSectionDetail(index)"
                     >
                       {{
-                        $t("knowledgeManage.childSegmentCount", {
+                        $t("knowledgeManage.hitTest.childSegmentCount", {
                           count: item.childContentList.length || 0,
                         })
                       }}
@@ -126,7 +126,7 @@
                       <template slot="title">
                         <span class="sub-badge">
                           {{
-                            $t("knowledgeManage.hitChildSegments", {
+                            $t("knowledgeManage.hitTest.hitChildSegment", {
                               count: item.childContentList.length,
                             })
                           }}
@@ -243,6 +243,7 @@ export default {
         );
         return;
       }
+      
       const { matchType, priorityMatch, rerankModelId } =
         this.formInline.knowledgeMatchParams;
       if ((matchType !== "mix" || priorityMatch !== 1) && !rerankModelId) {

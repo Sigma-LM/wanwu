@@ -45,7 +45,7 @@
                 <!-- <span class="session-setting-id" v-if="$route.params && $route.params.id">ragID: {{$route.params.id}}</span> -->
                 <el-popover
                   placement="bottom-start"
-                  trigger="hover"
+                  trigger="click"
                   :visible-arrow="false"
                   popper-class="query-copy-popover"
                   content=""
@@ -122,17 +122,19 @@
                 {{getTitle(n.msg_type)}}
               </div>
               <template v-else>
+                <img
+                  :src="require('@/assets/imgs/think-icon.png')"
+                  class="think_icon"
+                  />
                 <div
                   v-if="showDSBtn(n.response)"
                   class="deepseek"
                   @click="toggle($event,i)"
                 >
-                  <img
-                    :src="require('@/assets/imgs/think-icon.png')"
-                    class="think_icon"
-                  />{{n.thinkText}}
+                  {{n.thinkText}}
                   <i v-bind:class="{'el-icon-arrow-down': !n.isOpen,'el-icon-arrow-up': n.isOpen}"></i>
                 </div>
+                <span v-else class="deepseek">{{$t('menu.knowledge')}}</span>
               </template>
               <!--内容-->
               <div
@@ -155,14 +157,14 @@
                 v-if="n.searchList && n.searchList.length && n.finish === 1"
                 class="search-list"
               >
+                <h2 class="recommended-question-title" v-if="n.msg_type && ['qa_finish'].includes(n.msg_type)">{{$t('app.recommendedQuestion')}}</h2>
                 <div
                   v-for="(m,j) in n.searchList"
                   :key="`${j}sdsl`"
                   class="search-list-item"
                 >
-                 <div v-if="m.content_type && m.content_type === 'qa'" class="qa_content">
-                    <span>{{m.question}}</span>
-                    <span>{{m.answer}}</span>
+                 <div v-if="m.content_type && m.content_type === 'qa'" class="qa_content" @click="handleRecommendedQuestion(m)">
+                    <span>{{j+1}}. {{m.question}}</span>
                  </div>
                  <template v-else>
                   <div
@@ -299,7 +301,10 @@ export default {
     clearTimeout(this.scrollTimeout);
   },
   methods: {
-      handleCitationClick(e) {
+    handleRecommendedQuestion(m){
+      this.$emit("handleRecommendedQuestion", m.question);
+    },
+    handleCitationClick(e) {
       // 调用 common.js 中的通用方法
       this.$handleCitationClick(e, {
         sessionStatus: this.sessionStatus,
@@ -422,8 +427,10 @@ export default {
         return this.$t('app.qaSearching')
       }else if(type === 'knowledge_start'){
         return this.$t('app.knowledgeSearch')
-      }else{
+      }else if(type === 'qa_finish'){
         return this.$t('knowledgeManage.qaDatabase.name')
+      }else{
+        return this.$t('menu.knowledge')
       }
     },
     replaceHTML(data, n) {
@@ -965,12 +972,10 @@ img.failed::after {
         display: flex;
         gap: 10px;
         margin-top:5px;
-        span{
-          padding: 10px 15px;
-          border-radius: 8px;
-          background: #f3f2f2;
-          color: $color;
-        }
+      }
+      .recommended-question-title{
+        border-bottom: 1px solid #e5e5e5;
+        padding: 5px 0;
       }
       .search-list-item {
         margin-bottom: 5px;
