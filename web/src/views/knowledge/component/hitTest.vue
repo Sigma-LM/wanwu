@@ -246,6 +246,12 @@ export default {
       
       const { matchType, priorityMatch, rerankModelId } =
         this.formInline.knowledgeMatchParams;
+      if(matchType === ''){
+        this.$message.warning(
+          this.$t("knowledgeManage.hitTest.selectSearchType")
+        );
+        return;
+      }
       if ((matchType !== "mix" || priorityMatch !== 1) && !rerankModelId) {
         this.$message.warning(
           this.$t("knowledgeManage.hitTest.selectRerankModel")
