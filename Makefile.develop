@@ -227,3 +227,16 @@ stop-agent:
 # 		--env-file .env.image.${WANWU_ARCH} \
 # 		--env-file .env \
 # 		down agentscope
+
+
+run-callback:
+	docker compose -f docker-compose-develop.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up -d callback-service
+
+stop-callback:
+	docker compose -f docker-compose-develop.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down callback-service

@@ -447,6 +447,26 @@ services:
       retries: 99
       start_period: 10s
 
+  callback-service:
+    restart: always
+    image: ${WANWU_CALLBACK_BASE_IMAGE}
+    container_name: callback-wanwu
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 8669:8669
+    volumes:
+      - ./callback:/callback
+    environment:
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      URL_RAG: http://rag-wanwu
+
+
 networks:
   wanwu-net:
     external: true
