@@ -54,11 +54,16 @@
                     class="query-copy"
                     @click="queryCopy(n.query)"
                     style="cursor: pointer"
-                  ><i class="el-icon-s-order"></i>&nbsp;{{$t('agent.copyToInput')}}</p>
+                  >
+                    <i class="el-icon-s-order"></i>
+                    &nbsp;{{$t('agent.copyToInput')}}
+                  </p>
                   <span
                     slot="reference"
                     class="answer-text"
-                  >{{n.query}}</span>
+                  >
+                    {{n.query}}
+                  </span>
                 </el-popover>
               </div>
             </div>
@@ -90,18 +95,23 @@
             <div
               class="answer-content"
               style="padding:0 10px;color:#E6A23C;"
-            >{{n.pendingResponse}}</div>
+            >
+              {{n.pendingResponse}}
+            </div>
           </div>
         </div>
         <!-- 回答故障  code:7-->
         <div
           class="session-error"
           v-if="n.error"
-        ><i class="el-icon-warning"></i>&nbsp;{{n.response}}</div>
+        >
+          <i class="el-icon-warning"></i>
+          &nbsp;{{n.response}}
+        </div>
 
         <!--回答 文字+图片-->
         <div
-          v-if="(n.response && !n.error)"
+          v-if="(!n.error) && (n.response || n.msg_type)"
           class="session-answer"
           :id="'message-container'+i"
         >
@@ -119,7 +129,7 @@
                   :src="require('@/assets/imgs/think-icon.png')"
                   class="think_icon"
                 />
-                {{getTitle(n.msg_type)}}
+                {{getTitle(n.msg_type) }}
               </div>
               <template v-else>
                 <img
@@ -163,40 +173,40 @@
                   :key="`${j}sdsl`"
                   class="search-list-item"
                 >
-                 <div v-if="m.content_type && m.content_type === 'qa'" class="qa_content" @click="handleRecommendedQuestion(m)">
+                  <div v-if="m.content_type && m.content_type === 'qa'" class="qa_content" @click="handleRecommendedQuestion(m)">
                     <span>{{j+1}}. {{m.question}}</span>
-                 </div>
-                 <template v-else>
-                  <div
-                    class="serach-list-item"
-                    v-if="n.citations && n.citations.includes(j+1)"
-                  >
-                    <span @click="collapseClick(n,m,j)"><i :class="['',m.collapse?'el-icon-caret-bottom':'el-icon-caret-right']"></i>出处：</span>
-                    <a
-                      v-if="m.link"
-                      :href="m.link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="link"
-                    >{{m.link}}</a>
-                    <span v-if="m.title">
-                      <sub
-                        class="subTag"
-                        :data-parents-index="i"
-                        :data-collapse="m.collapse?'true':'false'"
-                      >{{j + 1}}</sub> {{m.title}}
-                    </span>
-                    <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
                   </div>
-                  <el-collapse-transition>
+                  <template v-else>
                     <div
-                      v-show="m.collapse?true:false"
-                      class="snippet"
+                      class="serach-list-item"
+                      v-if="n.citations && n.citations.includes(j+1)"
                     >
-                      <p v-html="m.snippet"></p>
+                      <span @click="collapseClick(n,m,j)"><i :class="['',m.collapse?'el-icon-caret-bottom':'el-icon-caret-right']"></i>出处：</span>
+                      <a
+                        v-if="m.link"
+                        :href="m.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="link"
+                      >{{m.link}}</a>
+                      <span v-if="m.title">
+                        <sub
+                          class="subTag"
+                          :data-parents-index="i"
+                          :data-collapse="m.collapse?'true':'false'"
+                        >{{j + 1}}</sub> {{m.title}}
+                      </span>
+                      <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
                     </div>
-                  </el-collapse-transition>
-                 </template>
+                    <el-collapse-transition>
+                      <div
+                        v-show="m.collapse?true:false"
+                        class="snippet"
+                      >
+                        <p v-html="m.snippet"></p>
+                      </div>
+                    </el-collapse-transition>
+                  </template>
                 </div>
               </div>
             </div>

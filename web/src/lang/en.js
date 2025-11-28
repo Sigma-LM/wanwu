@@ -1446,7 +1446,7 @@ export default {
     linkQaDatabase:'关联问答库',
     selectQAdatabase:'选择问答库',
     qaSearchPlaceholder:'输入问答库名称搜索',
-    qaSearching:'问题库搜索中...',
+    qaSearching:'问答库搜索中...',
     knowledgeSearch:'知识库搜索中...',
     noResponse:'无响应数据',
     stopStream:'本次回答已被终止',
