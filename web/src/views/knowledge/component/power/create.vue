@@ -195,6 +195,7 @@ export default {
       // 如果清空了组织选择，同时清空用户名搜索
       if (!orgId) {
         this.searchKeyword = '';
+        this.treeData = [];
       }
     },
     getOrgUser(orgId){
