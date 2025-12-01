@@ -76,8 +76,7 @@ export default {
           { max:30, message: this.$t('list.chatNameLimit'), trigger: "change" },
           {
             validator: (rule, value, callback) => {
-              // 对其新版工作流名称规则
-              if (/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/.test(value)) {
+              if (/^[A-Za-z0-9.\u4e00-\u9fa5_-]+$/.test(value)) {
                 callback();
               } else {
                 callback(
