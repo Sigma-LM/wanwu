@@ -17999,7 +17999,9 @@ const docTemplate = `{
                 "code": {
                     "type": "integer"
                 },
-                "data": {},
+                "data": {
+                    "type": "string"
+                },
                 "msg": {
                     "type": "string"
                 },
