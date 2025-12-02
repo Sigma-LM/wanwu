@@ -244,16 +244,41 @@ func ExplorationWorkflowRun(ctx *gin.Context) {
 		return
 	}
 
-	ewrResp := &response.ExplorationWorkflowRunResp{
-		Code: int64(codes.OK),
-		Data: string(resp),
-		Msg:  "",
+	// Step 1: 先解析 resp 为任意 JSON 值
+	var value any
+	if err := json.Unmarshal(resp, &value); err != nil {
+		// 不是合法 JSON → 直接当作文本
+		ewrResp := &response.ExplorationWorkflowRunResp{
+			Code:          int64(codes.OK),
+			Data:          string(resp),
+			Msg:           "",
+			TerminatePlan: "useAnswerContent",
+		}
+		b, _ := json.Marshal(ewrResp)
+		gin_util.ResponseRawByte(ctx, http.StatusOK, b)
+		return
 	}
-	// 判断 resp 是否为 JSON 对象
-	if err := json.Unmarshal(resp, &map[string]any{}); err != nil {
-		ewrResp.TerminatePlan = "useAnswerContent"
+
+	// Step 2: 判断是字符串（文本）还是对象（变量）
+	var finalData string
+	var terminatePlan string
+
+	if str, ok := value.(string); ok {
+		// 是字符串 → 文本回答
+		finalData = str
+		terminatePlan = "useAnswerContent"
 	} else {
-		ewrResp.TerminatePlan = "returnVariables"
+		// 其他类型（数组、number 等）→ 按变量处理
+		cleanBytes, _ := json.Marshal(value)
+		finalData = string(cleanBytes)
+		terminatePlan = "returnVariables"
+	}
+
+	ewrResp := &response.ExplorationWorkflowRunResp{
+		Code:          int64(codes.OK),
+		Data:          finalData,
+		Msg:           "",
+		TerminatePlan: terminatePlan,
 	}
 
 	b, err := json.Marshal(ewrResp)
