@@ -12,6 +12,13 @@
     <div class="block table-wrap list-common wrap-fullheight">
       <el-container class="konw_container">
         <el-main class="noPadding">
+          <el-alert
+            :title="title_tips"
+            type="warning"
+            show-icon
+            style="margin-bottom: 10px"
+            v-if="showTips"
+          ></el-alert>
           <el-container>
             <el-header class="classifyTitle">
               <div class="searchInfo">
@@ -101,7 +108,7 @@
                 <el-table-column
                   type="selection"
                   reserve-selection
-                  v-show="hasManagePerm"
+                  v-if="hasManagePerm"
                   width="55"
                 >
                 </el-table-column>
@@ -150,7 +157,7 @@
                 <el-table-column
                   prop="metaDataList"
                   :label="$t('knowledgeManage.qaDatabase.metaData')"
-                  v-show="hasManagePerm"
+                  v-if="hasManagePerm"
                 >
                   <template slot-scope="scope">
                     <span>
@@ -170,7 +177,7 @@
                 <el-table-column
                   prop="switch"
                   :label="$t('user.table.status')"
-                  v-show="hasManagePerm"
+                  v-if="hasManagePerm"
                 >
                   <template slot-scope="scope">
                     <el-switch
@@ -206,7 +213,7 @@
                 <el-table-column
                   :label="$t('knowledgeManage.operate')"
                   width="200"
-                  v-show="hasManagePerm"
+                  v-if="hasManagePerm"
                 >
                   <template slot-scope="scope">
                     <el-button
@@ -338,6 +345,7 @@ import {
   delQaPair,
   switchQaPair,
   qaDocExport,
+  qaTips
 } from "@/api/qaDatabase";
 import { mapGetters } from "vuex";
 import { COMMUNITY_IMPORT_STATUS, DROPDOWN_GROUPS } from "../../config";
@@ -354,6 +362,8 @@ export default {
   },
   data() {
     return {
+      title_tips:'',
+      showTips:false,
       batchMetaType: "single",
       knowledgeName: "",
       loading: false,
@@ -379,17 +389,11 @@ export default {
       selectedDocIds: [],
       qaImportStatus: COMMUNITY_IMPORT_STATUS,
       dropdownGroups: DROPDOWN_GROUPS,
+      refreshCount:0,
+      timer:null,
     };
   },
   watch: {
-    $route: {
-      handler(val) {
-        if (val.query.done) {
-          this.startTimer();
-        }
-      },
-      immediate: true,
-    },
     metaData: {
       handler(val) {
         if (
@@ -445,8 +449,12 @@ export default {
     exportRecord() {
       this.$refs.exportRecord.showDialog();
     },
-    updateData() {
-      this.getTableData(this.docQuery);
+    updateData(type='') {
+      if(type !== ''){
+        this.startTimer()
+      }else{
+        this.getTableData(this.docQuery);
+      }
     },
     exportData() {
       if (!this.docQuery.knowledgeId) {
@@ -700,9 +708,25 @@ export default {
       this.tableLoading = true;
       this.tableData = await this.$refs["pagination"].getTableData(data);
       this.tableLoading = false;
+      this.getTips();
+    },
+    getTips() {
+      qaTips({ knowledgeId: this.docQuery.knowledgeId }).then((res) => {
+        if (res.code === 0) {
+          if (res.data.uploadstatus === 1) {
+            this.showTips = true;
+            this.title_tips = this.$t("knowledgeManage.refreshTips");
+          } else if (res.data.uploadstatus === 2) {
+            this.showTips = false;
+            this.title_tips = "";
+          } else {
+            this.showTips = true;
+            this.title_tips = res.data.msg;
+          }
+        }
+      });
     },
     changeOption(data) {
-      //通过文档状态查找
       this.docQuery.status = data;
       this.getTableData({ ...this.docQuery, pageNo: 1 });
     },
