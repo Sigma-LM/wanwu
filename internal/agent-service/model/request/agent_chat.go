@@ -27,8 +27,9 @@ type AgentBaseParams struct {
 }
 
 type ModelParams struct {
-	ModelId string                       `json:"modelId" validate:"required"`
-	History []AssistantConversionHistory `json:"history,omitempty"`
+	ModelId    string                       `json:"modelId" validate:"required"`
+	History    []AssistantConversionHistory `json:"history,omitempty"`
+	MaxHistory int                          `json:"maxHistory"`
 }
 
 type KnowledgeParams struct {

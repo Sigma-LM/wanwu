@@ -51,7 +51,7 @@ func (p *PromptVariables) AssemblePromptVariables(ctx context.Context, reqContex
 	// Handling conversation history
 	if len(req.ModelParams.History) > 0 {
 		// Add chat history to variable
-		variables[placeholderOfChatHistory] = buildHistory(req.ModelParams.History)
+		variables[placeholderOfChatHistory] = buildHistory(req.ModelParams.History, req.ModelParams.MaxHistory)
 	}
 
 	if p.Avs != nil {
@@ -66,10 +66,19 @@ func (p *PromptVariables) AssemblePromptVariables(ctx context.Context, reqContex
 	return variables, nil
 }
 
-func buildHistory(history []request.AssistantConversionHistory) []*schema.Message {
+func buildHistory(history []request.AssistantConversionHistory, maxHistory int) []*schema.Message {
 	var historyList []*schema.Message
+
+	// 处理所有历史记录
 	for _, conversionHistory := range history {
 		historyList = append(historyList, schema.UserMessage(conversionHistory.Query))
+	}
+	if maxHistory <= 0 {
+		return historyList
+	}
+	// 只返回最后maxHistory条
+	if len(historyList) > maxHistory {
+		return historyList[len(historyList)-maxHistory:]
 	}
 	return historyList
 }

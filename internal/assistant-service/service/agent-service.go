@@ -5,6 +5,10 @@ import (
 	"github.com/UnicomAI/wanwu/internal/assistant-service/config"
 )
 
+const (
+	maxHistory = 5
+)
+
 type AgentChatReq struct {
 	Input      string   `json:"input"`
 	Stream     bool     `json:"stream"`
@@ -23,8 +27,9 @@ type AgentBaseParams struct {
 }
 
 type ModelParams struct {
-	ModelId string                              `json:"modelId"`
-	History []config.AssistantConversionHistory `json:"history,omitempty"`
+	ModelId    string                              `json:"modelId"`
+	History    []config.AssistantConversionHistory `json:"history,omitempty"`
+	MaxHistory int                                 `json:"maxHistory"`
 }
 
 type KnowledgeParams struct {
@@ -97,8 +102,9 @@ func buildAgentBaseParams(assistant *model.Assistant) *AgentBaseParams {
 
 func buildAgentModelParams(sseRequest *config.AgentSSERequest) *ModelParams {
 	return &ModelParams{
-		ModelId: sseRequest.ModelId,
-		History: sseRequest.History,
+		ModelId:    sseRequest.ModelId,
+		History:    sseRequest.History,
+		MaxHistory: maxHistory,
 	}
 }
 
