@@ -13,6 +13,7 @@ RUN make build-mcp-$WANWU_ARCH
 RUN make build-knowledge-$WANWU_ARCH
 RUN make build-rag-$WANWU_ARCH
 RUN make build-assistant-$WANWU_ARCH
+RUN make build-agent-$WANWU_ARCH
 RUN make build-app-$WANWU_ARCH
 RUN make build-operate-$WANWU_ARCH
 
