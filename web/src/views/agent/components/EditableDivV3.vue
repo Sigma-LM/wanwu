@@ -70,9 +70,9 @@
             @drop.prevent.stop="handleDrop"
             contenteditable="true"
           ></div>
-          <span class="editable--placeholder" v-if="!promptValue">{{
-            placeholder
-          }}</span>
+          <span class="editable--placeholder" v-if="!promptValue">
+            {{ placeholder }}
+          </span>
           <i
             v-if="promptValue"
             class="el-icon-close editable--close"
@@ -84,13 +84,15 @@
               :class="{ btnActive: isActive, btnAnactive: !isActive }"
               @click="linkSearch"
               v-if="showModelSelect && !isPower && isLink"
-              >{{ $t("agent.connectInternect") }}</el-button
             >
+              {{ $t("agent.connectInternect") }}
+            </el-button>
             <!-- <img class="editable--send" :src="require('@/assets/imgs/send.png')" @click="preSend" /> -->
-            <el-button type="primary" class="editable--send" @click="preSend"
-              ><span>{{$t('agent.send')}}</span>
+            <el-button type="primary" class="editable--send" @click="preSend">
+              <span>{{$t('agent.send')}}</span>
               <img :src="require('@/assets/imgs/sendIcon.png')"
-            /></el-button>
+            />
+            </el-button>
           </div>
         </div>
         <!-- 覆盖层，模型下线禁止点击 -->
@@ -111,23 +113,21 @@
             :visible-arrow="false"
             trigger="hover"
             :open-delay="500"
-            :content="
-              n.prompt && n.prompt.replaceAll('{', '').replaceAll('}', '')
-            "
+            :content="n.prompt && n.prompt.replaceAll('{', '').replaceAll('}', '')"
           >
             <span
               style="font-size: 15px"
               slot="reference"
               @click="setRandomReminder(n)"
-              >{{ n.title }}</span
             >
+              {{ n.title }}
+            </span>
           </el-popover>
         </div>
-        <span class="refresh" @click="getReminderList"
-          ><i class="el-icon-loading" v-show="refreshLoading"></i>&nbsp;{{
-            $t("agent.next")
-          }}</span
-        >
+        <span class="refresh" @click="getReminderList">
+          <i class="el-icon-loading" v-show="refreshLoading"></i>&nbsp;
+          {{ $t("agent.next")}}
+        </span>
       </div>
     </transition>
 
@@ -259,7 +259,6 @@ export default {
     // 处理文件的方法，提取出来供 handleDrop 和 onFiles 使用
     processFiles(files) {
       if (!files || files.length === 0) return;
-
       const picked = files;
       const fileObjs = picked.map((f) => ({
         raw: f,
@@ -280,12 +279,12 @@ export default {
         (mime && mime.indexOf("image/") === 0) ||
         ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].indexOf(ext) > -1
       )
-        ftype = "image/*";
+      ftype = "image/*";
       else if (
         (mime && mime.indexOf("audio/") === 0) ||
         ["mp3", "wav", "ogg"].indexOf(ext) > -1
       )
-        ftype = "audio/*";
+      ftype = "audio/*";
       else ftype = "doc/*";
       this.fileType = ftype;
       this.fileList = fileObjs;
@@ -370,9 +369,6 @@ export default {
       this.imgUrl = "";
       this.hasFile = false;
     },
-    /*showFileUpload(status){
-              this.hasFile = status
-            },*/
     preUpload() {
       this.$refs["upload"].openDialog();
     },
@@ -398,7 +394,6 @@ export default {
       ) {
         this.fileType = "doc/*";
       }
-      //this.$emit('setSessionStatus',0)   //上传图片后，算法自动返回结果，此时将status设置为0
     },
     setFile(fileList) {
       this.fileList = fileList;
@@ -439,7 +434,6 @@ export default {
       this.$refs.editor.innerHTML = data
         .replaceAll("{", '<div class="light-input" contenteditable="true">')
         .replaceAll("}", "</div>");
-      // let matchArr = this.getContentInBraces(data)
     },
     getPrompt() {
       if (this.source === "perfectReminder") {
@@ -770,4 +764,4 @@ export default {
   }
 }
 </style>
-    
+  

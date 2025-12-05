@@ -16,7 +16,6 @@
         {{ $t('agent.promptTemplate.custom')}}
       </div>
     </div>
-
     <div class="cards-wrapper">
       <div v-if="showEmptyState" class="empty-state">
         <div class="empty-icon">
@@ -30,7 +29,6 @@
         </div>
         <div class="empty-text">{{$t('agent.promptTemplate.emptyText')}}</div>
       </div>
-      
       <div 
         v-else
         class="cards-container" 
@@ -371,7 +369,6 @@ export default {
         const scrollLeft = container.scrollLeft;
         const scrollWidth = container.scrollWidth;
         const clientWidth = container.clientWidth;
-        
         const isAtStart = scrollLeft <= 10;
         const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10;
         
@@ -440,11 +437,9 @@ export default {
     border: none;
     white-space: nowrap;
     border-radius: 4px 4px 0 0;
-    
     &:hover {
       color: $color;
     }
-    
     &.active {
       color: $color;
       background: #E0E7FF;
@@ -472,16 +467,13 @@ export default {
   width: 100%;
   height: 100%;
   padding: 10px 0;
-  
   .empty-icon {
     margin-bottom: 16px;
     opacity: 0.6;
-    
     svg {
       display: block;
     }
   }
-  
   .empty-text {
     font-size: 14px;
     color: #606266;
@@ -501,7 +493,6 @@ export default {
   align-items: stretch;
   width: 100%;
   max-width: 100%;
-  
   &::-webkit-scrollbar {
     display: none;
   }
@@ -533,7 +524,6 @@ export default {
     border-top: 8px solid #fff;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   }
-  
   &.panel-below {
     &::after {
       bottom: auto;
@@ -572,7 +562,6 @@ export default {
       white-space: normal;
       max-width: 100%;
       box-sizing: border-box;
-      
       /deep/ {
         * {
           max-width: 100%;
@@ -580,7 +569,6 @@ export default {
           overflow-wrap: break-word;
           word-break: break-word;
         }
-        
         strong {
           background-color: #F2F0FF;
           padding: 2px 6px;

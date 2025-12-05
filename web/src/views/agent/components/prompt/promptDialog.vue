@@ -56,7 +56,6 @@
             </div>
           </div>
         </div>
-
         <div class="template-detail" v-if="selectedTemplate">
           <div class="detail-content markdown-body" v-html="formatTemplateContent(selectedTemplate.prompt)"></div>
         </div>
@@ -79,7 +78,6 @@
 
 <script>
 import { md } from "@/mixins/marksown-it.js";
-
 export default {
   name: 'PromptDialog',
   inject: ['getPrompt'],
@@ -162,7 +160,6 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/style/markdown.scss";
-
 .prompt-dialog {
   /deep/ .el-dialog__body {
     padding: 5px 20px 20px 20px;

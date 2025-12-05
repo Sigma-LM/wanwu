@@ -138,13 +138,15 @@
                   <img
                     :src="require('@/assets/imgs/tool-icon.png')"
                     class="think_icon"
-                  />{{ n.toolText }}
+                  />
+                  {{ n.toolText }}
                 </template>
                 <template v-else>
                   <img
                     :src="require('@/assets/imgs/think-icon.png')"
                     class="think_icon"
-                  />{{ n.thinkText }}
+                  />
+                  {{ n.thinkText }}
                 </template>
                 <i
                   v-bind:class="{

@@ -47,7 +47,7 @@
           clearable
       >
           <el-option
-          v-for="(item,index) in rerankOptions"
+          v-for="item in rerankOptions"
           :key="item.modelId"
           :label="item.displayName"
           :value="item.modelId"

@@ -49,24 +49,24 @@
         ></el-button>
         <div class="popover-operation" v-if="showOperation">
           <div>
-            <el-radio :label="'private'" v-model="scope">{{
-              $t("agent.form.publishType")
-            }}</el-radio>
+            <el-radio :label="'private'" v-model="scope">
+              {{ $t("agent.form.publishType")}}
+            </el-radio>
           </div>
           <div>
-            <el-radio :label="'organization'" v-model="scope">{{
-              $t("agent.form.publishType1")
-            }}</el-radio>
+            <el-radio :label="'organization'" v-model="scope">
+              {{ $t("agent.form.publishType1") }}
+            </el-radio>
           </div>
           <div>
-            <el-radio :label="'public'" v-model="scope">{{
-              $t("agent.form.publishType2")
-            }}</el-radio>
+            <el-radio :label="'public'" v-model="scope">
+              {{ $t("agent.form.publishType2") }}
+            </el-radio>
           </div>
           <div class="saveBtn">
-            <el-button size="mini" type="primary" @click="savePublish">{{
-              $t("common.button.save")
-            }}</el-button>
+            <el-button size="mini" type="primary" @click="savePublish">
+              {{ $t("common.button.save") }}
+            </el-button>
           </div>
         </div>
       </div>
@@ -103,8 +103,8 @@
               :content="$t('tempSquare.promptCompare')"
               placement="top-start"
             >
-              <span class="tool-icon" @click="showPromptCompare"
-                ><img :src="require('@/assets/imgs/temp-compare.png')"
+              <span class="tool-icon" @click="showPromptCompare">
+                <img :src="require('@/assets/imgs/temp-compare.png')"
               /></span>
             </el-tooltip>
           </div>
@@ -278,11 +278,13 @@
                       :content="displayName(n)"
                       placement="top-start"
                     >
-                      <span>{{
-                        displayName(n).length > 20
-                          ? displayName(n).substring(0, 20) + "..."
-                          : displayName(n)
-                      }}</span>
+                      <span>
+                        {{
+                          displayName(n).length > 20
+                            ? displayName(n).substring(0, 20) + "..."
+                            : displayName(n)
+                        }}
+                      </span>
                     </el-tooltip>
                     <el-tooltip
                       class="item"
@@ -366,9 +368,9 @@
             </span>
             <span class="common-add" @click="showVisualSet">
               <span class="el-icon-s-operation"></span>
-              <span class="handleBtn" style="margin-right: 10px">{{
-                $t("agent.form.config")
-              }}</span>
+              <span class="handleBtn" style="margin-right: 10px">
+                {{ $t("agent.form.config") }}
+              </span>
             </span>
           </p>
         </div>
@@ -432,12 +434,12 @@
         :currentMetaData="currentMetaData"
       />
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleMetaClose">{{
-          $t("common.button.cancel")
-        }}</el-button>
-        <el-button type="primary" @click="submitMeta">{{
-          $t("common.button.confirm")
-        }}</el-button>
+        <el-button @click="handleMetaClose">
+          {{ $t("common.button.cancel") }}
+        </el-button>
+        <el-button type="primary" @click="submitMeta">
+          {{ $t("common.button.confirm") }}
+        </el-button>
       </span>
     </el-dialog>
   </div>
@@ -1174,8 +1176,7 @@ export default {
           cancelButtonText: this.$t("createApp.cancel"),
           type: "warning",
         }
-      )
-        .then(async () => {
+      ).then(async () => {
           let res = await delActionInfo({
             actionId,
           });

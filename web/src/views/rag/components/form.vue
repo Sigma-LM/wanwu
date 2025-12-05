@@ -47,7 +47,7 @@
         <div class="popover-operation" v-if="showOperation">
           <div>
             <el-radio :label="'private'" v-model="scope">
-              {{  $t("agent.form.publishType") }}
+              {{ $t("agent.form.publishType") }}
             </el-radio>
           </div>
           <div>
@@ -127,10 +127,10 @@
         </div>
         <!-- 问答库配置 -->
         <div class="block safety-box">
-          <knowledgeDataField 
-            :knowledgeConfig="editForm.qaKnowledgeBaseConfig" 
-            :category="1" 
-            @getSelectKnowledge="getSelectKnowledge" 
+          <knowledgeDataField
+            :knowledgeConfig="editForm.qaKnowledgeBaseConfig"
+            :category="1"
+            @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
@@ -139,11 +139,11 @@
           />
         </div>
         <!-- 知识库库配置 -->
-         <div class="block safety-box">
-          <knowledgeDataField 
-            :knowledgeConfig="editForm.knowledgeBaseConfig" 
-            :category="0" 
-            @getSelectKnowledge="getSelectKnowledge" 
+        <div class="block safety-box">
+          <knowledgeDataField
+            :knowledgeConfig="editForm.knowledgeBaseConfig"
+            :category="0"
+            @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
             @updateMetaData="updateMetaData"
@@ -210,21 +210,21 @@
 </template>
 
 <script>
-import { getApiKeyRoot, appPublish } from "@/api/appspace";
-import CreateTxtQues from "@/components/createApp/createRag.vue";
-import ModelSet from "./modelSetDialog.vue";
-import metaSet from "@/components/metaSet";
-import knowledgeSet from "./knowledgeSetDialog.vue";
-import ApiKeyDialog from "./ApiKeyDialog";
-import setSafety from "@/components/setSafety";
-import { getRerankList, selectModelList } from "@/api/modelAccess";
-import { getRagInfo, updateRagConfig } from "@/api/rag";
-import Chat from "./chat";
-import searchConfig from "@/components/searchConfig.vue";
-import chiChat from "@/components/app/chiChat.vue";
-import LinkIcon from "@/components/linkIcon.vue";
-import knowledgeSelect from "@/components/knowledgeSelect.vue";
-import knowledgeDataField from "@/components/app/knowledgeDataField.vue";
+import { getApiKeyRoot, appPublish } from "@/api/appspace"
+import CreateTxtQues from "@/components/createApp/createRag.vue"
+import ModelSet from "./modelSetDialog.vue"
+import metaSet from "@/components/metaSet"
+import knowledgeSet from "./knowledgeSetDialog.vue"
+import ApiKeyDialog from "./ApiKeyDialog"
+import setSafety from "@/components/setSafety"
+import { getRerankList, selectModelList } from "@/api/modelAccess"
+import { getRagInfo, updateRagConfig } from "@/api/rag"
+import Chat from "./chat"
+import searchConfig from "@/components/searchConfig.vue"
+import chiChat from "@/components/app/chiChat.vue"
+import LinkIcon from "@/components/linkIcon.vue"
+import knowledgeSelect from "@/components/knowledgeSelect.vue"
+import knowledgeDataField from "@/components/app/knowledgeDataField.vue"
 export default {
   components: {
     LinkIcon,
@@ -238,7 +238,7 @@ export default {
     knowledgeSelect,
     metaSet,
     chiChat,
-    knowledgeDataField
+    knowledgeDataField,
   },
   data() {
     return {
@@ -261,7 +261,7 @@ export default {
           frequencyPenaltyEnable: true,
         },
         knowledgeBaseConfig: {
-          config:{
+          config: {
             keywordPriority: 0.8, //关键词权重
             matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
             priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
@@ -273,12 +273,12 @@ export default {
             useGraph: false,
             chiChat: false,
           },
-          knowledgebases: []
+          knowledgebases: [],
         },
-        knowledgeConfig:{},
-        qaKnowledgeBaseConfig:{
-          knowledgebases:[],
-          config:{
+        knowledgeConfig: {},
+        qaKnowledgeBaseConfig: {
+          knowledgebases: [],
+          config: {
             keywordPriority: 0.8, //关键词权重
             matchType: "mix", //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
             priorityMatch: 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
@@ -289,7 +289,7 @@ export default {
             maxHistory: 0, //
             useGraph: false,
             chiChat: false,
-          }
+          },
         },
         safetyConfig: {
           enable: false,
@@ -316,18 +316,18 @@ export default {
       debounceTimer: null, //防抖计时器
       isUpdating: false, // 防止重复更新标记
       isSettingFromDetail: false, // 防止详情数据触发更新标记
-    };
+    }
   },
   watch: {
     editForm: {
       handler(newVal) {
         // 如果是从详情设置的数据，不触发更新逻辑
         if (this.isSettingFromDetail) {
-          return;
+          return
         }
 
         if (this.debounceTimer) {
-          clearTimeout(this.debounceTimer);
+          clearTimeout(this.debounceTimer)
         }
         this.debounceTimer = setTimeout(() => {
           const props = [
@@ -335,244 +335,274 @@ export default {
             "modelConfig",
             "knowledgeBaseConfig",
             "safetyConfig",
-            "qaKnowledgeBaseConfig"
-          ];
+            "qaKnowledgeBaseConfig",
+          ]
           const changed = props.some((prop) => {
             return (
               JSON.stringify(newVal[prop]) !==
               JSON.stringify((this.initialEditForm || {})[prop])
-            );
-          });
+            )
+          })
           if (changed && !this.isUpdating) {
             const isMixPriorityMatch =
-              newVal["knowledgeBaseConfig"]['config']["matchType"] === "mix" &&
-              newVal["knowledgeBaseConfig"]['config']["priorityMatch"];
+              newVal["knowledgeBaseConfig"]["config"]["matchType"] === "mix" &&
+              newVal["knowledgeBaseConfig"]["config"]["priorityMatch"]
             if (
               newVal["modelParams"] !== "" ||
               (isMixPriorityMatch &&
-                !newVal["knowledgeBaseConfig"]['config']["rerankModelId"])
+                !newVal["knowledgeBaseConfig"]["config"]["rerankModelId"])
             ) {
-              this.updateInfo();
+              this.updateInfo()
             }
           }
-        }, 500);
+        }, 500)
       },
       deep: true,
     },
   },
   mounted() {
-    this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
+    this.initialEditForm = JSON.parse(JSON.stringify(this.editForm))
   },
   created() {
-    this.getModelData(); //获取模型列表
-    this.getRerankData(); //获取rerank模型
+    this.getModelData() //获取模型列表
+    this.getRerankData() //获取rerank模型
     if (this.$route.query.id) {
-      this.editForm.appId = this.$route.query.id;
+      this.editForm.appId = this.$route.query.id
       setTimeout(() => {
-        this.getDetail(); //获取详情
-        this.apiKeyRootUrl(); //获取api跟地址
-      }, 500);
+        this.getDetail() //获取详情
+        this.apiKeyRootUrl() //获取api跟地址
+      }, 500)
     }
     //判断是否发布
     if (this.$route.query.publish) {
-      this.isPublish = true;
+      this.isPublish = true
     }
   },
   methods: {
     //获取知识库或问答库选中数据
-    getSelectKnowledge(data,type){
-      this.editForm[type]['knowledgebases'] = data;
+    getSelectKnowledge(data, type) {
+      this.editForm[type]["knowledgebases"] = data
     },
     //删除知识库或问答库
-    knowledgeDelete(index,type){
-      this.editForm[type]['knowledgebases'].splice(index,1);
+    knowledgeDelete(index, type) {
+      this.editForm[type]["knowledgebases"].splice(index, 1)
     },
     //设置知识库或问答库召回参数
-    knowledgeRecallSet(data,type){
-      if(data){
-        this.editForm[type]['config'] = data;
-      }else{
-        this.editForm[type]['config'] = this.editForm[type]['config'];
+    knowledgeRecallSet(data, type) {
+      if (data) {
+        this.editForm[type]["config"] = data
+      } else {
+        this.editForm[type]["config"] = this.editForm[type]["config"]
       }
     },
     chiSwitchChange(value) {
-      this.$set(this.editForm.knowledgeBaseConfig.config, 'chiChat', value);
+      this.$set(this.editForm.knowledgeBaseConfig.config, "chiChat", value)
     },
     //更新知识库元数据
-    updateMetaData(data,index,type){
-      this.$set(this.editForm[type]['knowledgebases'], index, {
-        ...this.editForm[type]['knowledgebases'][index],
+    updateMetaData(data, index, type) {
+      this.$set(this.editForm[type]["knowledgebases"], index, {
+        ...this.editForm[type]["knowledgebases"][index],
         ...data,
-      });
+      })
     },
     sendSafety(data) {
       const tablesData = data.map(({ tableId, tableName }) => ({
         tableId,
         tableName,
-      }));
-      this.editForm.safetyConfig.tables = tablesData;
+      }))
+      this.editForm.safetyConfig.tables = tablesData
     },
     showSafety() {
-      this.$refs.setSafety.showDialog(this.editForm.safetyConfig.tables);
+      this.$refs.setSafety.showDialog(this.editForm.safetyConfig.tables)
     },
     goBack() {
-      this.$router.go(-1);
+      this.$router.go(-1)
     },
     getDetail() {
       //获取详情
-      this.isSettingFromDetail = true; // 设置标志位，防止触发更新逻辑
+      this.isSettingFromDetail = true // 设置标志位，防止触发更新逻辑
       getRagInfo({ ragId: this.editForm.appId })
         .then((res) => {
           if (res.code === 0) {
-            this.editForm.avatar = res.data.avatar;
-            this.editForm.name = res.data.name;
-            this.editForm.desc = res.data.desc;
-            this.editForm.modelParams = res.data.modelConfig.modelId;
+            this.editForm.avatar = res.data.avatar
+            this.editForm.name = res.data.name
+            this.editForm.desc = res.data.desc
+            this.editForm.modelParams = res.data.modelConfig.modelId
 
-            if(res.data.qaKnowledgeBaseConfig && res.data.qaKnowledgeBaseConfig !== null){
-              this.editForm.qaKnowledgeBaseConfig.knowledgebases = res.data.qaKnowledgeBaseConfig.knowledgebases;
-              this.editForm.qaKnowledgeBaseConfig.config = 
-              res.data.qaKnowledgeBaseConfig.config !== null ? res.data.qaKnowledgeBaseConfig.config : this.editForm.qaKnowledgeBaseConfig.config;
+            if (
+              res.data.qaKnowledgeBaseConfig &&
+              res.data.qaKnowledgeBaseConfig !== null
+            ) {
+              this.editForm.qaKnowledgeBaseConfig.knowledgebases =
+                res.data.qaKnowledgeBaseConfig.knowledgebases
+              this.editForm.qaKnowledgeBaseConfig.config =
+                res.data.qaKnowledgeBaseConfig.config !== null
+                  ? res.data.qaKnowledgeBaseConfig.config
+                  : this.editForm.qaKnowledgeBaseConfig.config
             }
 
-            if(res.data.knowledgeBaseConfig && res.data.knowledgeBaseConfig !== null){
-              this.editForm.knowledgeBaseConfig.knowledgebases = res.data.knowledgeBaseConfig.knowledgebases;
-              this.editForm.knowledgeBaseConfig.config = 
-              res.data.knowledgeBaseConfig.config !== null ? res.data.knowledgeBaseConfig.config : this.editForm.knowledgeBaseConfig.config;
+            if (
+              res.data.knowledgeBaseConfig &&
+              res.data.knowledgeBaseConfig !== null
+            ) {
+              this.editForm.knowledgeBaseConfig.knowledgebases =
+                res.data.knowledgeBaseConfig.knowledgebases
+              this.editForm.knowledgeBaseConfig.config =
+                res.data.knowledgeBaseConfig.config !== null
+                  ? res.data.knowledgeBaseConfig.config
+                  : this.editForm.knowledgeBaseConfig.config
             }
 
             if (res.data.safetyConfig && res.data.safetyConfig !== null) {
-              this.editForm.safetyConfig = res.data.safetyConfig;
+              this.editForm.safetyConfig = res.data.safetyConfig
             }
 
             if (res.data.modelConfig.config !== null) {
-              this.editForm.modelConfig = res.data.modelConfig.config;
+              this.editForm.modelConfig = res.data.modelConfig.config
             }
 
-            this.editForm.knowledgeBaseConfig.config.rerankModelId = res.data.rerankConfig.modelId;
-            this.editForm.qaKnowledgeBaseConfig.config.rerankModelId = res.data.qaRerankConfig.modelId;
-            
+            this.editForm.knowledgeBaseConfig.config.rerankModelId =
+              res.data.rerankConfig.modelId
+            this.editForm.qaKnowledgeBaseConfig.config.rerankModelId =
+              res.data.qaRerankConfig.modelId
+
             this.$nextTick(() => {
-              this.isSettingFromDetail = false;
-            });
+              this.isSettingFromDetail = false
+            })
           } else {
-            this.isSettingFromDetail = false;
+            this.isSettingFromDetail = false
           }
         })
         .catch(() => {
-          this.isSettingFromDetail = false;
-        });
+          this.isSettingFromDetail = false
+        })
     },
     getRerankData() {
       getRerankList().then((res) => {
         if (res.code === 0) {
-          this.rerankOptions = res.data.list || [];
+          this.rerankOptions = res.data.list || []
         }
-      });
+      })
     },
     handlePublish() {
-      this.showOperation = !this.showOperation;
+      this.showOperation = !this.showOperation
     },
     savePublish() {
       const { matchType, priorityMatch, rerankModelId } =
-        this.editForm.qaKnowledgeBaseConfig.config;
-      const isMixPriorityMatch = matchType === "mix" && priorityMatch;
+        this.editForm.qaKnowledgeBaseConfig.config
+      const isMixPriorityMatch = matchType === "mix" && priorityMatch
 
       if (this.editForm.modelParams === "") {
-        this.$message.warning(this.$t("agent.form.selectModel"));
-        return false;
+        this.$message.warning(this.$t("agent.form.selectModel"))
+        return false
       }
-      if (this.editForm.knowledgeBaseConfig.knowledgebases.length === 0 && this.editForm.qaKnowledgeBaseConfig.knowledgebases.length === 0) {
-        this.$message.warning(this.$t("app.selectKnowledge"));
-        return false;
+      if (
+        this.editForm.knowledgeBaseConfig.knowledgebases.length === 0 &&
+        this.editForm.qaKnowledgeBaseConfig.knowledgebases.length === 0
+      ) {
+        this.$message.warning(this.$t("app.selectKnowledge"))
+        return false
       }
-      if(!this.editForm.knowledgeBaseConfig.knowledgebases.length && this.editForm.qaKnowledgeBaseConfig.knowledgebases.length > 0){
+      if (
+        !this.editForm.knowledgeBaseConfig.knowledgebases.length &&
+        this.editForm.qaKnowledgeBaseConfig.knowledgebases.length > 0
+      ) {
         if (!isMixPriorityMatch && !rerankModelId) {
-          this.$message.warning(this.$t("app.selectRerank"));
-          return false;
+          this.$message.warning(this.$t("app.selectRerank"))
+          return false
         }
       }
       const data = {
         appId: this.editForm.appId,
         appType: "rag",
         publishType: this.scope,
-      };
+      }
       appPublish(data).then((res) => {
         if (res.code === 0) {
-          this.$router.push({ path: "/explore" });
+          this.$router.push({ path: "/explore" })
         }
-      });
+      })
     },
     apiKeyRootUrl() {
-      const data = { appId: this.editForm.appId, appType: "rag" };
+      const data = { appId: this.editForm.appId, appType: "rag" }
       getApiKeyRoot(data).then((res) => {
         if (res.code === 0) {
-          this.apiURL = res.data || "";
+          this.apiURL = res.data || ""
         }
-      });
+      })
     },
     openApiDialog() {
-      this.$refs.apiKeyDialog.showDialog();
+      this.$refs.apiKeyDialog.showDialog()
     },
     setModelSet(data) {
-      this.editForm.modelConfig = data;
+      this.editForm.modelConfig = data
     },
     showModelSet() {
-      this.$refs.modelSetDialog.showDialog();
+      this.$refs.modelSetDialog.showDialog()
     },
     showKnowledgeSet() {
-      this.$refs.knowledgeSetDialog.showDialog();
+      this.$refs.knowledgeSetDialog.showDialog()
     },
     editAgent() {
-      this.$refs.createTxtQues.openDialog();
+      this.$refs.createTxtQues.openDialog()
     },
     visibleChange(val) {
       if (val) {
-        this.getModelData();
+        this.getModelData()
       }
     },
     rerankVisible(val) {
       if (val) {
-        this.getRerankData();
+        this.getRerankData()
       }
     },
     async getModelData() {
-      this.modelLoading = true;
-      const res = await selectModelList();
+      this.modelLoading = true
+      const res = await selectModelList()
       if (res.code === 0) {
         this.modleOptions = (res.data.list || []).filter((item) => {
-          return item.config && item.config.visionSupport !== "support";
-        });
+          return item.config && item.config.visionSupport !== "support"
+        })
 
-        this.modelLoading = false;
+        this.modelLoading = false
       }
-      this.modelLoading = false;
+      this.modelLoading = false
     },
     async updateInfo() {
-      if (this.isUpdating) return; // 防止重复调用
+      if (this.isUpdating) return // 防止重复调用
 
-      this.isUpdating = true;
+      this.isUpdating = true
       try {
         //模型数据
         const modeInfo = this.modleOptions.find(
           (item) => item.modelId === this.editForm.modelParams
-        );
+        )
         if (
           this.editForm.knowledgeBaseConfig.config.matchType === "mix" &&
           this.editForm.knowledgeBaseConfig.config.priorityMatch === 1
         ) {
-          this.editForm.knowledgeBaseConfig.config.rerankModelId = "";
+          this.editForm.knowledgeBaseConfig.config.rerankModelId = ""
         }
-        const rerankInfo = this.editForm.knowledgeBaseConfig.knowledgebases.length ? this.rerankOptions.find(
-          (item) => item.modelId === this.editForm.knowledgeBaseConfig.config.rerankModelId
-        ):{};
-        const qaRerankInfo = this.editForm.qaKnowledgeBaseConfig.knowledgebases.length ? this.rerankOptions.find(
-          (item) => item.modelId === this.editForm.qaKnowledgeBaseConfig.config.rerankModelId
-        ):{};
+        const rerankInfo = this.editForm.knowledgeBaseConfig.knowledgebases
+          .length
+          ? this.rerankOptions.find(
+              (item) =>
+                item.modelId ===
+                this.editForm.knowledgeBaseConfig.config.rerankModelId
+            )
+          : {}
+        const qaRerankInfo = this.editForm.qaKnowledgeBaseConfig.knowledgebases
+          .length
+          ? this.rerankOptions.find(
+              (item) =>
+                item.modelId ===
+                this.editForm.qaKnowledgeBaseConfig.config.rerankModelId
+            )
+          : {}
         let fromParams = {
           ragId: this.editForm.appId,
-          knowledgeBaseConfig:this.editForm.knowledgeBaseConfig,
-          qaKnowledgeBaseConfig:this.editForm.qaKnowledgeBaseConfig,
+          knowledgeBaseConfig: this.editForm.knowledgeBaseConfig,
+          qaKnowledgeBaseConfig: this.editForm.qaKnowledgeBaseConfig,
           modelConfig: {
             config: this.editForm.modelConfig,
             displayName: modeInfo.displayName,
@@ -588,7 +618,7 @@ export default {
             modelType: rerankInfo ? rerankInfo.modelType : "",
             provider: rerankInfo ? rerankInfo.provider : "",
           },
-          qaRerankConfig:{
+          qaRerankConfig: {
             displayName: qaRerankInfo ? qaRerankInfo.displayName : "",
             model: qaRerankInfo ? qaRerankInfo.model : "",
             modelId: qaRerankInfo ? qaRerankInfo.modelId : "",
@@ -596,22 +626,22 @@ export default {
             provider: qaRerankInfo ? qaRerankInfo.provider : "",
           },
           safetyConfig: this.editForm.safetyConfig,
-        };
-        const res = await updateRagConfig(fromParams);
+        }
+        const res = await updateRagConfig(fromParams)
 
         // 更新成功后，更新 initialEditForm 避免重复触发
         if (res.code === 0) {
-          this.initialEditForm = JSON.parse(JSON.stringify(this.editForm));
-          this.getDetail(); //获取详情
+          this.initialEditForm = JSON.parse(JSON.stringify(this.editForm))
+          this.getDetail() //获取详情
         }
       } catch (error) {
-        console.error(error);
+        console.error(error)
       } finally {
-        this.isUpdating = false;
+        this.isUpdating = false
       }
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
