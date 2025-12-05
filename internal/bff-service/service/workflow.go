@@ -257,7 +257,7 @@ func ImportWorkflow(ctx *gin.Context, orgID, appType string) (*response.CozeWork
 		SetHeader("Content-Type", "application/json").
 		SetHeader("Accept", "application/json").
 		SetHeaders(workflowHttpReqHeader(ctx)).
-		SetQueryParams(map[string]string{
+		SetBody(map[string]string{
 			"space_id":  orgID,
 			"name":      rawData.Name,
 			"desc":      rawData.Desc,
