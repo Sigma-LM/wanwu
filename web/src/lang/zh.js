@@ -112,6 +112,9 @@ export default {
       typeFileTip1: "按照插件要求，支持",
       imgUploading: "图片上传中",
       clickUploadImg: "点击上传图片",
+      fileSizeLimit: "文件大小不能超过10MB",
+      fileFormatError: "文件格式错误",
+      fileFormatLimit: "文件格式支持",
     },
     datePicker: {
       placeholder: "选择日期时间",
@@ -1007,7 +1010,7 @@ export default {
           "您可单独或者批量上传以下格式的文档：pdf/docx/pptx/doc/wps/ofd文件最大为200MB，xlsx/xls/csv/txt/html/md/文件最大为20MB。zip/tar.gz格式内的文档需符合各自文件格式上传大小限制",
         uploadTips2: "如文件页数多，文档解析时间较长，平均3秒/页，请您耐心等待",
         uploadTips3:
-          "批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过15mb ",
+          "批量上传支持.xlsx格式，仅可上传1个。文档最多可添加100条url，文件不超过20MB ",
         uploadTips4: "当前内容不自动更新",
         segmentSetting: "分段设置",
         segmentTips: "分段标识",

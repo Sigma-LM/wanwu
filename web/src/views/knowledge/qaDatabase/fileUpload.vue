@@ -17,7 +17,9 @@
         <fileUpload
           ref="fileUpload"
           :templateUrl="templateUrl"
-          accept=".csv"
+          :accept="'.csv'"
+          :maxSize="10"
+          :maxFileCount="1"
           @uploadFile="handleUploadFile"
         >
           <template #upload-tips>

@@ -56,8 +56,9 @@ export default {
       this.dialogVisible = false;
     },
     submit(){
-      // 验证模型选择
-      const { matchType, priorityMatch, rerankModelId } = this.knowledgeConfig;
+      // 验证模型选择，直接从子组件获取最新数据
+      const latestConfig = this.$refs.searchConfig.formInline.knowledgeMatchParams;
+      const { matchType, priorityMatch, rerankModelId } = latestConfig;
       const needRerankModel = matchType === 'vector' || 
                                matchType === 'text' || 
                                (matchType === 'mix' && priorityMatch === 0);
@@ -68,8 +69,10 @@ export default {
       }
       
       if(matchType === 'mix' && priorityMatch === 1){
-        this.knowledgeConfig.rerankModelId = '';
+        latestConfig.rerankModelId = '';
       }
+      // 更新本地配置并提交
+      this.knowledgeConfig = { ...latestConfig };
       this.dialogVisible = false;
       this.$emit('setKnowledgeSet',this.knowledgeConfig)
     }

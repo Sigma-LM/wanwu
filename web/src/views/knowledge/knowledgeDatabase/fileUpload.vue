@@ -206,7 +206,7 @@
                 prop="docSegment.overlap"
                 :rules="[
                     { required: true, message:$t('knowledgeManage.overLapNumTips'),trigger:'blur'},
-                    { type:'number',min:0,max:1,message:$t('knowledgeManage.overLapNumTipsMsg'),trigger: 'blur'}
+                    { type:'number',min:0,max:1,message:$t('knowledgeManage.overLapNumMsg'),trigger: 'blur'}
                   ]"
               >
                 <el-input
@@ -563,7 +563,7 @@ export default {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
         if (sonMaxValue > parentMaxValue) {
           this.ruleForm.docSegment.subMaxSplitter = parentMaxValue;
-          this.$message.warning(this.$t('knowledgeManage.childSegmentMaxExceeded', {parentMaxValue}));
+          this.$message.warning(this.$t('knowledgeManage.childSegmentMaxAdjustedTips', {parentMaxValue}));
         }
       }
     },
@@ -834,47 +834,51 @@ export default {
     },
     submitInfo() {
       const {segmentMethod, segmentType, splitter, subSplitter} = this.ruleForm.docSegment;
-      if (
-        (segmentMethod === '1' && (splitter.length === 0 || subSplitter.length === 0)) ||
-        (segmentMethod !== '1' && segmentType === '1' && splitter.length === 0)
-      ) {
-        this.$refs.ruleForm.validate();
-        return false;
-      }
-      this.$refs.ruleForm.clearValidate(["docSegment.splitter", "docSegment.subSplitter"]);
-
-      if (!this.validateMetaData()) {
-        return;
-      }
-
-      this.ruleForm.docMetaData.forEach((item) => {
-        delete item.metadataType;
-      });
-
-      if (this.fileType === "file") {
-        this.ruleForm.docImportType = 0;
-      } else if (this.fileType === "fileUrl") {
-        this.ruleForm.docImportType = 2;
-      } else {
-        this.ruleForm.docImportType = 1;
-      }
-      this.ruleForm.docInfoList = this.docInfoList;
-      let data = null;
-      if (this.ruleForm.docSegment.segmentType == "0" && this.ruleForm.docSegment.segmentMethod !== "1") {
-        data = this.ruleForm;
-        delete data.docSegment.splitter;
-        delete data.docSegment.maxSplitter;
-        delete data.docSegment.overlap;
-      } else {
-        data = this.ruleForm;
-      }
-      docImport(data).then((res) => {
-        if (res.code === 0) {
-          this.$router.push({
-            path: `/knowledge/doclist/${this.knowledgeId}`,
-            query: {name: this.knowledgeName, done: "fileUpload"},
-          });
+      this.$refs.ruleForm.validate((valid) => {
+        if (!valid) {
+          return false;
         }
+        if (
+          (segmentMethod === '1' && (splitter.length === 0 || subSplitter.length === 0)) ||
+          (segmentMethod !== '1' && segmentType === '1' && splitter.length === 0)
+        ) {
+          this.$refs.ruleForm.validate();
+          return false;
+        }
+        this.$refs.ruleForm.clearValidate(["docSegment.splitter", "docSegment.subSplitter"]);
+          if (!this.validateMetaData()) {
+            return false;
+        }
+        this.ruleForm.docMetaData.forEach((item) => {
+          delete item.metadataType;
+        });
+
+        if (this.fileType === "file") {
+          this.ruleForm.docImportType = 0;
+        } else if (this.fileType === "fileUrl") {
+          this.ruleForm.docImportType = 2;
+        } else {
+          this.ruleForm.docImportType = 1;
+        }
+
+        this.ruleForm.docInfoList = this.docInfoList;
+        let data = null;
+        if (this.ruleForm.docSegment.segmentType == "0" && this.ruleForm.docSegment.segmentMethod !== "1") {
+          data = this.ruleForm;
+          delete data.docSegment.splitter;
+          delete data.docSegment.maxSplitter;
+          delete data.docSegment.overlap;
+        } else {
+          data = this.ruleForm;
+        }
+        docImport(data).then((res) => {
+          if (res.code === 0) {
+            this.$router.push({
+              path: `/knowledge/doclist/${this.knowledgeId}`,
+              query: {name: this.knowledgeName, done: "fileUpload"},
+            });
+          }
+        });
       });
     },
     formReset() {

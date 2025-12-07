@@ -68,8 +68,15 @@ service.interceptors.response.use(
     /**
      * 接口异常处理：
      * 1. 401: 没有权限返回，会重定向到 login
-     * 2. 其他异常报错：errMessage 中
+     * 2. 取消请求：不显示错误提示
+     * 3. 其他异常报错：errMessage 中
     **/
+    // 检查是否是取消请求
+    if (axios.isCancel(error) || (error.message && error.message.includes('canceled'))) {
+      // 取消请求不显示错误提示，直接返回
+      return Promise.resolve(error)
+    }
+    
     const errRes = error.response || {}
     const { status, statusText } = errRes
     const { msg } = errRes.data || {}

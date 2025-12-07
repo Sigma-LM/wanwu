@@ -22,7 +22,7 @@ export default {
       failChunk: [], //上传失败切片
       cancelSources: [], // 存储每个请求的取消令牌源
       resList: [], //记录返回成功的文件name
-      uuid: "", //生成当前文件的uuid
+      uuid: "" //生成当前文件的uuid
     }
   },
   created() {
@@ -56,11 +56,7 @@ export default {
       //获取切片
       this.chunks = this.createFileChunks(this.file)
       // 启动初始的MAX_CONCURRENT个请求
-      for (
-        let i = 0;
-        i < Math.min(this.MAX_CONCURRENT, this.chunks.length);
-        i++
-      ) {
+      for (let i = 0; i < Math.min(this.MAX_CONCURRENT, this.chunks.length); i++) {
         this.processNextChunk()
       }
     },
@@ -75,7 +71,7 @@ export default {
         chunks.push({
           index: chunks.length,
           group: groupNumber,
-          chunk: file.raw.slice(start, start + this.chunkSize),
+          chunk: file.raw.slice(start, start + this.chunkSize)
         })
         start += this.chunkSize
       }
@@ -106,13 +102,9 @@ export default {
 
       this.uploadQueue.push(uploadPromise)
       // 等待队列中的任意一个请求完成,忽略已完成或失败的请求错误
-      await Promise.race(
-        this.uploadQueue.map((promise) => promise.catch(() => {}))
-      )
+      await Promise.race(this.uploadQueue.map((promise) => promise.catch(() => {})))
       // 移除已完成的请求
-      this.uploadQueue = this.uploadQueue.filter(
-        (promise) => !promise.isFulfilled
-      )
+      this.uploadQueue = this.uploadQueue.filter((promise) => !promise.isFulfilled)
     },
     clearFile(index) {
       //清除文件
@@ -123,7 +115,7 @@ export default {
       // formData.append('version', 0);//前端uuid+文件后缀,标识一次上传批次
       const formData = {
         chunkName: hash,
-        version: 0,
+        version: 0
       }
       clearChunks(formData).then((res) => {
         if (res.code === 0 && res.data.status === 1) {
@@ -156,14 +148,10 @@ export default {
         const res = await uploadChunks(formData, config) // 传递 AbortSigna
         if (res.code === 0 && res.data.status === 1) {
           this.uploadedChunks++ //用来判断执行成功的切片的数量
-          if (
-            Math.floor((this.uploadedChunks * 100) / this.totalChunks) >= 100
-          ) {
+          if (Math.floor((this.uploadedChunks * 100) / this.totalChunks) >= 100) {
             this.fileList[this.fileIndex].percentage = 99
           } else {
-            this.fileList[this.fileIndex].percentage = Math.floor(
-              (this.uploadedChunks * 100) / this.totalChunks
-            )
+            this.fileList[this.fileIndex].percentage = Math.floor((this.uploadedChunks * 100) / this.totalChunks)
           }
           if (this.uploadedChunks === this.totalChunks) {
             //如果都已上传完成，合并文件
@@ -180,6 +168,9 @@ export default {
           throw new Error(`Upload failed with status ${res.data.status}`)
         }
       } catch (error) {
+        if (this.isStop ||  (error && error.name === 'CanceledError')) {
+          return
+        }
         throw error
       }
     },
@@ -208,14 +199,12 @@ export default {
           chunkTotal: this.totalChunks,
           fileName: this.file.name,
           fileSize: this.file.size,
-          isExpired: false,
+          isExpired: false
         }
 
         await mergeChunks(formData).then((res) => {
           if (res.code === 0) {
-            this.$message.success(
-              `${this.file.name}` + i18n.t("fileChunk.uploadFinish")
-            )
+            this.$message.success(`${this.file.name}` + i18n.t("fileChunk.uploadFinish"))
             this.fileList[this.fileIndex].percentage = 100
             this.fileList[this.fileIndex]["progressStatus"] = "success"
             this.fileList[this.fileIndex]["showRetry"] = "false"
@@ -223,22 +212,14 @@ export default {
             this.fileListSize += (file_size / 1024 / 1024).toFixed(5)
             this.resList.push({ name: res.data.fileName })
             //接片合并完之后走上传接口
-            this.uploadFile(
-              res.data.fileName,
-              this.file.name,
-              res.data.filePath
-            )
+            this.uploadFile(res.data.fileName, this.file.name, res.data.filePath)
           } else {
-            this.$message.error(
-              `${this.file.name}` + i18n.t("fileChunk.uploadFail")
-            )
+            this.$message.error(`${this.file.name}` + i18n.t("fileChunk.uploadFail"))
             this.fileList[this.fileIndex]["showRemerge"] = "true"
           }
         })
       } catch (error) {
-        this.$message.error(
-          `${this.file.name}` + i18n.t("fileChunk.uploadFail")
-        )
+        this.$message.error(`${this.file.name}` + i18n.t("fileChunk.uploadFail"))
         this.fileList[this.fileIndex]["showRemerge"] = "true"
       }
     },
@@ -247,10 +228,14 @@ export default {
       this.isStop = true
       if (this.cancelSources.length > 0) {
         for (let i = 0; i < this.cancelSources.length; i++) {
-          this.cancelSources[i].cancel()
+          try{
+            this.cancelSources[i].cancel()
+          }catch(error){
+          }
         }
       }
       this.cancelSources = []
-    },
-  },
+      this.failChunk = []
+    }
+  }
 }

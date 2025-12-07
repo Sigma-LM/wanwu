@@ -345,6 +345,7 @@ export default {
       item.mixTypeValue = n.value;
       const { knowledgeMatchParams } = this.formInline;
       knowledgeMatchParams.priorityMatch = n.value === "weight" ? 1 : 0;
+      console.log(this.formInline.knowledgeMatchParams)
     },
     showRerank(n) {
       return (
