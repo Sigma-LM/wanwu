@@ -459,6 +459,27 @@ services:
       URL_RAG_STREAM: http://bff-service:6668/callback/v1/rag/knowledge/stream/search
     working_dir: /agent/agent_open_source
     command: bash -c "./start_all.sh && tail -f /dev/null"
+  
+  callback-service:
+    restart: always
+    image: ${WANWU_CALLBACK_BASE_IMAGE}
+    container_name: callback-wanwu
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 8669:8669
+    volumes:
+      - ./callback:/callback
+      - ${WANWU_PROJECT_DIR}/callback-wanwu/log:/callback/log
+    environment:
+      MINIO_ENDPOINT: ${WANWU_MINIO_ENDPOINT}
+      MINIO_USER: ${WANWU_MINIO_USER}
+      MINIO_PASSWORD: ${WANWU_MINIO_PASSWORD}
+      REDIS_HOST: ${WANWU_REDIS_HOST}
+      REDIS_PORT: ${WANWU_REDIS_PORT}
+      REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
+      URL_RAG_DOC_PARSER: http://rag-wanwu:8681/rag/doc_parser
+      URL_MINIO_DOWNLOAD: ${WANWU_WEB_BASE_URL}/minio/download/api
 
   # agentscope:
   #   restart: always
