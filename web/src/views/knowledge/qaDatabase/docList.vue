@@ -333,7 +333,7 @@
       :knowledgeId="docQuery.knowledgeId"
     />
     <!-- 导出记录 -->
-    <exportRecord ref="exportRecord" :knowledgeId="docQuery.knowledgeId"/>
+    <exportRecord ref="exportRecord"/>
   </div>
 </template>
 
@@ -471,7 +471,7 @@ export default {
       (actions[command] || this.handleUpload)();
     },
     exportRecord() {
-      this.$refs.exportRecord.showDialog();
+      this.$refs.exportRecord.showDialog(this.docQuery.knowledgeId);
     },
     updateData(type = '') {
       if (type !== '') {

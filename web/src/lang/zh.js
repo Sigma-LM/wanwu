@@ -1038,6 +1038,7 @@ export default {
       title: "导出记录",
       tip: "问答库系统管理员和管理员能看所有记录，其余人只能看见自己的。",
       exportTime: "导出时间",
+      exportName: "文件名称",
       exportUser: "导出人",
       status: "状态",
       action: "操作",

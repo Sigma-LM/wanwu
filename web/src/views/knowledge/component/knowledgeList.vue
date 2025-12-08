@@ -124,6 +124,9 @@
                 <el-dropdown-item command="export">
                   {{ $t("common.button.export") }}
                 </el-dropdown-item>
+                <el-dropdown-item command="exportRecord">
+                  {{ $t("knowledgeManage.qaDatabase.exportRecord") }}
+                </el-dropdown-item>
                 <el-dropdown-item command="power">
                   {{ $t("knowledgeSelect.power") }}
                 </el-dropdown-item>
@@ -145,6 +148,7 @@
       :title="title"
     />
     <PowerManagement ref="powerManagement"/>
+    <exportRecord ref="exportRecord"/>
   </div>
 </template>
 
@@ -153,6 +157,7 @@ import {delKnowledgeItem} from "@/api/knowledge";
 import {AppType} from "@/utils/commonSet";
 import tagDialog from "./tagDialog.vue";
 import PowerManagement from "./power/index.vue";
+import exportRecord from "@/views/knowledge/qaDatabase/exportRecord.vue"
 import {mapActions} from "vuex";
 import {
   INITIAL,
@@ -163,7 +168,7 @@ import {
 } from "@/views/knowledge/constants";
 
 export default {
-  components: {tagDialog, PowerManagement},
+  components: {tagDialog, PowerManagement, exportRecord},
   props: {
     appData: {
       type: Array,
@@ -237,6 +242,9 @@ export default {
         case "export":
           this.exportItem(n);
           break;
+        case "exportRecord":
+          this.exportRecord(n.knowledgeId);
+          break;
         case "power":
           this.showPowerManagement(n);
           break;
@@ -244,6 +252,9 @@ export default {
     },
     exportItem(row) {
       this.$emit("exportItem", row);
+    },
+    exportRecord(knowledgeId) {
+      this.$refs.exportRecord.showDialog(knowledgeId)
     },
     editItem(row) {
       this.$emit("editItem", row);

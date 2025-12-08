@@ -29,6 +29,15 @@
         </template>
       </el-table-column>
       <el-table-column
+        :label="$t('knowledgeManage.qaExport.exportName')"
+        prop="fileName"
+        min-width="160"
+      >
+        <template slot-scope="scope">
+          {{ scope.row.fileName }}
+        </template>
+      </el-table-column>
+      <el-table-column
         :label="$t('knowledgeManage.qaExport.exportUser')"
         prop="author"
         min-width="160"
@@ -104,17 +113,12 @@ import {
 export default {
   name: "QaExportRecord",
   mixins: [commonMixin],
-  props: {
-    knowledgeId: {
-      type: String,
-      required: true,
-    },
-  },
   data() {
     return {
       dialogVisible: false,
       tableLoading: false,
       tableData: [],
+      knowledgeId: "",
       pagination: {
         pageNo: 1,
         pageSize: 10,
@@ -135,7 +139,8 @@ export default {
     }
   },
   methods: {
-    showDialog() {
+    showDialog(knowledgeId) {
+      this.knowledgeId = knowledgeId
       this.dialogVisible = true
       this.pagination.pageNo = 1
       this.fetchRecordList()
@@ -162,6 +167,17 @@ export default {
           if (res.code === 0) {
             const data = res.data || {}
             this.tableData = data.list || []
+            // 为每个表格数据项添加fileName属性，提取自filePath
+            this.tableData = this.tableData.map(item => {
+              if (item.filePath) {
+                const fileName = item.filePath.substring(item.filePath.lastIndexOf('/') + 1)
+                return {
+                  ...item,
+                  fileName
+                }
+              }
+              return item
+            })
             this.pagination.total = data.total || 0
           }
         })
