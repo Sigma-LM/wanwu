@@ -111,7 +111,7 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
-	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/go-vgo/gt/conf v0.0.0-20200606140533-a397c46789df // indirect
 	github.com/go-vgo/gt/info v0.0.0-20200606140533-a397c46789df // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect

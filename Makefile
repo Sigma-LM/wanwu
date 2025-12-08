@@ -118,6 +118,9 @@ docker-image-agent:
 docker-image-agent-base:
 	docker build -f Dockerfile.agent-base --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/agent-base:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
 
+docker-image-callback:
+	docker build -f Dockerfile.callback --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/callback:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
+
 docker-image-callback-base:
 	docker build -f Dockerfile.callback-base --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/callback-base:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
 

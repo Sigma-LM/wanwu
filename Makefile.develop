@@ -187,6 +187,20 @@ stop-agent:
 		--env-file .env \
 		down agent-service
 
+# --- callback ---
+run-callback:
+	docker compose -f docker-compose-develop.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		up -d callback
+
+
+stop-callback:
+	docker compose -f docker-compose-develop.yaml \
+		--env-file .env.image.${WANWU_ARCH} \
+		--env-file .env \
+		down callback
+
 # --- workflow ---
 run-workflow: # 启动workflow后自动重启下nginx
 	docker compose -f docker-compose-develop.yaml \
@@ -226,20 +240,6 @@ stop-agent-wanwu:
 		--env-file .env.image.${WANWU_ARCH} \
 		--env-file .env \
 		down agent
-
-# --- callback ---
-run-callback:
-	docker compose -f docker-compose-develop.yaml \
-		--env-file .env.image.${WANWU_ARCH} \
-		--env-file .env \
-		up -d callback-service
-
-
-stop-callback:
-	docker compose -f docker-compose-develop.yaml \
-		--env-file .env.image.${WANWU_ARCH} \
-		--env-file .env \
-		down callback-service
 
 # --- agentscope ---
 # run-agentscope: # 启动agentscope后自动重启下nginx
