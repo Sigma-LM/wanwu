@@ -1,5 +1,8 @@
 <template>
-  <div class="batch-operation-toolbar" v-if="selectedCount > 0  && batchMetaType === 'multiple'">
+  <div
+    class="batch-operation-toolbar"
+    v-if="selectedCount > 0 && batchMetaType === 'multiple'"
+  >
     <div class="toolbar-container">
       <div class="toolbar-item selected-item">
         <span class="selected-badge">{{ selectedCount }}</span>

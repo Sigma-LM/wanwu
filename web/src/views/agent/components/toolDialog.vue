@@ -298,7 +298,7 @@ export default {
       });
     },
     addWorkFlow(n) {
-      his.doCreateWorkFlow(n, n.appId);
+      this.doCreateWorkFlow(n, n.appId);
     },
     async doCreateWorkFlow(n, workFlowId, schema) {
       let params = {

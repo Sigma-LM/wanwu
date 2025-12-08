@@ -363,7 +363,7 @@ export default {
       }));
       if (this.category === 0) {
         this.formInline.knowledgeMatchParams.priorityMatch =
-        n.value !== 'mix' ? 0 : 1;
+          n.value !== 'mix' ? 0 : 1;
       } else {
         this.formInline.knowledgeMatchParams.priorityMatch = 0;
       }
