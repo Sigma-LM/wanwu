@@ -487,13 +487,21 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item
-              :label="$t('knowledgeManage.metadataManagement')"
-              prop="docAnalyzer"
-            >
+            <el-form-item prop="docAnalyzer">
+              <template #label>
+                <span>
+                  {{ $t('knowledgeManage.metadataManagement') }}
+                </span>
+                <el-tooltip
+                  :content="$t('knowledgeManage.metadataManagementTips')"
+                  placement="right"
+                >
+                  <span class="el-icon-question question"></span>
+                </el-tooltip>
+              </template>
               <mataData
                 ref="mataData"
-                @updateMeata="updateMeata"
+                @updateMeta="updateMeta"
                 :knowledgeId="knowledgeId"
               />
             </el-form-item>
@@ -760,7 +768,7 @@ export default {
         };
       });
     },
-    updateMeata(data) {
+    updateMeta(data) {
       this.ruleForm.docMetaData = data;
     },
     validateMetaData() {
