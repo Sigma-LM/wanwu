@@ -621,6 +621,7 @@ import {
   editSplitter,
   parserSelect,
   updateDocConfig,
+  getDocConfig,
 } from '@/api/knowledge';
 import { delfile } from '@/api/chunkFile';
 import LinkIcon from '@/components/linkIcon.vue';
@@ -634,6 +635,7 @@ import {
   FAT_SON_BLOCK,
   MODEL_TYPE_TIP,
 } from '../config';
+import { deepMerge } from '@/utils/util';
 
 export default {
   components: { LinkIcon, urlAnalysis, splitterDialog, mataData },
@@ -705,13 +707,29 @@ export default {
   async created() {
     const query = this.$route.query;
     if (query.mode === 'config') {
-      this.ruleForm = { ...this.ruleForm, ...query.config };
+      await getDocConfig({
+        docId: this.docId,
+        knowledgeId: this.knowledgeId,
+      }).then(res => {
+        if (res.code === 0) {
+          this.ruleForm = deepMerge(this.ruleForm, res.data);
+          this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
+          this.ruleForm.docAnalyzer = [...this.ruleForm.docAnalyzer]
+          this.getModelOptions();
+        }
+      });
     }
-    this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
     await this.getSplitterList('');
     await this.custom();
   },
   methods: {
+    getModelOptions() {
+      if (this.ruleForm.docAnalyzer.includes('ocr')) {
+        this.getOcrList();
+      } else if (this.ruleForm.docAnalyzer.includes('model')) {
+        this.getParserList();
+      }
+    },
     maxSplitterChange(item) {
       if (item.level === 'parent') {
         const parentMaxValue = this.ruleForm.docSegment.maxSplitter;
@@ -755,11 +773,7 @@ export default {
       if (val.length === 3) {
         this.ruleForm.docAnalyzer = [val[0], val[2]];
       }
-      if (this.ruleForm.docAnalyzer.includes('ocr')) {
-        this.getOcrList();
-      } else if (val.includes('model')) {
-        this.getParserList();
-      }
+      this.getModelOptions();
     },
     segmentClick(label) {
       this.ruleForm.docSegment.segmentType = label;
@@ -1094,6 +1108,7 @@ export default {
         ...item,
         checked: false,
       }));
+      this.getModelOptions();
       this.$refs.ruleForm.clearValidate();
     },
     uploadOnChange(file, fileList) {

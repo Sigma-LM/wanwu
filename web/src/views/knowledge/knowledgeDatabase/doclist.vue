@@ -389,7 +389,6 @@ import {
   uploadFileTips,
   updateDocMeta,
   exportDoc,
-  getDocConfig,
 } from '@/api/knowledge';
 import { mapGetters } from 'vuex';
 import {
@@ -766,23 +765,15 @@ export default {
         .catch(() => {});
     },
     handleConfig(data) {
-      getDocConfig({
-        docId: data.docId,
-        knowledgeId: this.docQuery.knowledgeId,
-      }).then(res => {
-        if (res.code === 0) {
-          this.$router.push({
-            path: '/knowledge/fileUpload',
-            query: {
-              id: this.docQuery.knowledgeId,
-              name: this.knowledgeName,
-              mode: 'config',
-              title: data.docName,
-              docId: data.docId,
-              config: res.data,
-            },
-          });
-        }
+      this.$router.push({
+        path: '/knowledge/fileUpload',
+        query: {
+          id: this.docQuery.knowledgeId,
+          name: this.knowledgeName,
+          mode: 'config',
+          title: data.docName,
+          docId: data.docId,
+        },
       });
     },
     handleBatchDelete() {
