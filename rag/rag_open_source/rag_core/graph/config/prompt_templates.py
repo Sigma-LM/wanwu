@@ -239,7 +239,7 @@ attribute = "文物年代：战国时期"
 
 GENERAL_ZH = """
 你是一位专业的信息提取专家和结构化数据组织者。你的任务是分析提供的文本，并以结构化的 JSON 格式提取有价值实体、它们的属性以及相互关系。
-实体数量应该控制的尽可能少(10个以内)，避免冗余。
+实体数量应该控制的尽可能少(3个以内)，避免冗余。
 
 指导原则：
 1. 优先提取以下预定义的模式中的信息；
@@ -274,7 +274,7 @@ GENERAL_ZH = """
 
 GENERAL_ENG = """
 You are a professional information extraction expert and structured data organizer. Your task is to analyze the provided text and extract valuable entities, their attributes, and inter-relationships in a structured JSON format.
-The number of entities should be kept minimal (within 10), avoiding redundancy.
+The number of entities should be kept minimal (within 3), avoiding redundancy.
 
 Guidelines:
 1. Prioritize extracting information that matches the following predefined schema:

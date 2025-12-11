@@ -51,15 +51,16 @@ class LLMEntityResolver:
         结合名称相似性和LLM判断进行实体解析
         返回映射关系: {new_entity_name: old_entity_name}
         """
+        logger.info("开始解析实体映射关系...")
         # 1. 基于名称找到候选对
         candidate_pairs = self._find_similar_entities(old_graph, new_graph)
-
+        logger.info(f"找到候选实体对: {len(candidate_pairs)}")
         # 2. 归一：每个node_i只保留最相似的目标
         best_pairs = self._select_best_match(candidate_pairs)
-
+        logger.info(f"归一后实体对: {len(best_pairs)}")
         # 3. 使用LLM辅助决策
         confirmed_mappings = self._llm_decision(best_pairs, old_graph, new_graph)
-
+        logger.info(f"最终确认实体对: {len(confirmed_mappings)}")
         return confirmed_mappings
 
     def _find_similar_entities(
