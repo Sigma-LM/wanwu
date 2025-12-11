@@ -2802,7 +2802,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "chichat": {
-                    "description": "当知识库召回结果为空时是否使用默认话术（兜底），默认为true",
+                    "description": "当知识库召回结果为空时是否使用默认话术（兜底），默认为false",
                     "type": "boolean"
                 },
                 "custom_model_info": {

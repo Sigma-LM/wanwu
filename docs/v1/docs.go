@@ -3731,6 +3731,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/knowledge/doc/config": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取文档配置信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.doc"
+                ],
+                "summary": "获取文档配置信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "docId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.DocConfigResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/knowledge/doc/export": {
             "post": {
                 "security": [
@@ -4449,6 +4503,45 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.UpdateDocSegmentReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/update/config": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "更新文档配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.doc"
+                ],
+                "summary": "更新文档配置",
+                "parameters": [
+                    {
+                        "description": "文更新文档配置请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DocConfigUpdateReq"
                         }
                     }
                 ],
@@ -13031,10 +13124,6 @@ const docTemplate = `{
         "request.AppKnowledgebaseParams": {
             "type": "object",
             "properties": {
-                "chiChat": {
-                    "description": "闲聊开关",
-                    "type": "boolean"
-                },
                 "keywordPriority": {
                     "description": "关键词权重",
                     "type": "number"
@@ -14641,6 +14730,62 @@ const docTemplate = `{
             "properties": {
                 "tableId": {
                     "description": "敏感词表id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocConfigUpdateReq": {
+            "type": "object",
+            "required": [
+                "docAnalyzer",
+                "docId",
+                "docSegment",
+                "knowledgeId"
+            ],
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型 text / ocr  / model",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docId": {
+                    "description": "文档id，当更新配置时需要传",
+                    "type": "string"
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：单条url上传，2.文件url上传",
+                    "type": "integer"
+                },
+                "docMetaData": {
+                    "description": "元数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocMetaData"
+                    }
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则 replaceSymbols / deleteLinks",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "文档分段配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.DocSegment"
+                        }
+                    ]
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "parserModelId": {
+                    "description": "模型解析或ocr模型id",
                     "type": "string"
                 }
             }
@@ -17863,6 +18008,41 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DocConfigResult": {
+            "type": "object",
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：url上传，2.批量url上传",
+                    "type": "integer"
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "分段信息配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.DocSegment"
+                        }
+                    ]
+                },
+                "ocrModelId": {
+                    "description": "ocr模型id",
+                    "type": "string"
+                }
+            }
+        },
         "response.DocKnowledgeInfo": {
             "type": "object",
             "properties": {
@@ -17986,6 +18166,48 @@ const docTemplate = `{
                 "title": {
                     "description": "文档名",
                     "type": "string"
+                }
+            }
+        },
+        "response.DocSegment": {
+            "type": "object",
+            "required": [
+                "segmentMethod"
+            ],
+            "properties": {
+                "maxSplitter": {
+                    "description": "可分隔最大值（只有自定义分段必填）",
+                    "type": "integer"
+                },
+                "overlap": {
+                    "description": "可重叠值（只有自定义分段必填）",
+                    "type": "number"
+                },
+                "segmentMethod": {
+                    "description": "分段方法 0：通用分段；1：父子分段",
+                    "type": "string"
+                },
+                "segmentType": {
+                    "description": "分段方式，只有通用分段必填 0：自动分段；1：自定义分段",
+                    "type": "string"
+                },
+                "splitter": {
+                    "description": "分隔符（只有自定义分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subMaxSplitter": {
+                    "description": "可分隔最大值（只有父子分段必填）",
+                    "type": "integer"
+                },
+                "subSplitter": {
+                    "description": "分隔符（只有父子分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -20659,7 +20881,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "AI Agent Productivity Platform API",
-	Description:      "## HTTP Header\n| Header        | 说明      |\n| ------------- | --------- |\n| Authorization | JWT token |\n| X-Language    | 语言Code  |\n| X-Org-Id      | 组织ID    |\n| X-Client-Id   | 客户端标识|\n\n## HTTP Status\n| HTTP Status             | 说明                   |\n| ----------------------- | ---------------------- |\n| 200, StatusOK           | 请求返回成功           |\n| 400, StatusBadRequest   | 请求返回失败，用于业务 |\n| 401, StatusUnauthorized | JWT认证失败            |\n| 403, StatusForbidden    | 没有权限               |\n\n## 权限-菜单对应表\n| 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\n|-------------|-------|------|------|------|------|\n| guest       |       |      | 【访客】 |      |      |\n| common      |       |      | 【通用】 |      |      |\n| permission  |       |      | 权限管理 |      |      |\n| permission  | user  |      | 权限管理 | 用户管理 |      |\n| permission  | org   |      | 权限管理 | 组织管理 |      |\n| permission  | role  |      | 权限管理 | 角色管理 |      |\n\n## `/v1/user/permission`返回用例\n```json\n{\n  \"code\": 0,\n  \"data\": {\n    \"orgPermission\": {\n      \"org\": {\"id\": \"test-org-id\", \"name\": \"test-org-name\"},\n      \"permissions\": [\n        {\"perm\": \"permission\"},\n        {\"perm\": \"permission.user\"},\n        {\"perm\": \"permission.org\"},\n        {\"perm\": \"permission.role\"}\n      ]\n    }\n  },\n  \"msg\": \"操作成功\"\n}\n```",
+	Description:      "## HTTP Header\r\n| Header        | 说明      |\r\n| ------------- | --------- |\r\n| Authorization | JWT token |\r\n| X-Language    | 语言Code  |\r\n| X-Org-Id      | 组织ID    |\r\n| X-Client-Id   | 客户端标识|\r\n\r\n## HTTP Status\r\n| HTTP Status             | 说明                   |\r\n| ----------------------- | ---------------------- |\r\n| 200, StatusOK           | 请求返回成功           |\r\n| 400, StatusBadRequest   | 请求返回失败，用于业务 |\r\n| 401, StatusUnauthorized | JWT认证失败            |\r\n| 403, StatusForbidden    | 没有权限               |\r\n\r\n## 权限-菜单对应表\r\n| 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\r\n|-------------|-------|------|------|------|------|\r\n| guest       |       |      | 【访客】 |      |      |\r\n| common      |       |      | 【通用】 |      |      |\r\n| permission  |       |      | 权限管理 |      |      |\r\n| permission  | user  |      | 权限管理 | 用户管理 |      |\r\n| permission  | org   |      | 权限管理 | 组织管理 |      |\r\n| permission  | role  |      | 权限管理 | 角色管理 |      |\r\n\r\n## `/v1/user/permission`返回用例\r\n```json\r\n{\r\n  \"code\": 0,\r\n  \"data\": {\r\n    \"orgPermission\": {\r\n      \"org\": {\"id\": \"test-org-id\", \"name\": \"test-org-name\"},\r\n      \"permissions\": [\r\n        {\"perm\": \"permission\"},\r\n        {\"perm\": \"permission.user\"},\r\n        {\"perm\": \"permission.org\"},\r\n        {\"perm\": \"permission.role\"}\r\n      ]\r\n    }\r\n  },\r\n  \"msg\": \"操作成功\"\r\n}\r\n```",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

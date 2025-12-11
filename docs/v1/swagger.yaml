@@ -862,9 +862,6 @@ definitions:
     type: object
   request.AppKnowledgebaseParams:
     properties:
-      chiChat:
-        description: 闲聊开关
-        type: boolean
       keywordPriority:
         description: 关键词权重
         type: number
@@ -1951,6 +1948,45 @@ definitions:
         type: string
     required:
     - tableId
+    type: object
+  request.DocConfigUpdateReq:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型 text / ocr  / model
+        items:
+          type: string
+        type: array
+      docId:
+        description: 文档id，当更新配置时需要传
+        type: string
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
+        type: integer
+      docMetaData:
+        description: 元数据
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
+      docPreprocess:
+        description: 文本预处理规则 replaceSymbols / deleteLinks
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/request.DocSegment'
+        description: 文档分段配置
+      knowledgeId:
+        description: 知识库id
+        type: string
+      parserModelId:
+        description: 模型解析或ocr模型id
+        type: string
+    required:
+    - docAnalyzer
+    - docId
+    - docSegment
+    - knowledgeId
     type: object
   request.DocImportReq:
     properties:
@@ -4118,6 +4154,29 @@ definitions:
           $ref: '#/definitions/response.ChildSegmentInfo'
         type: array
     type: object
+  response.DocConfigResult:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型
+        items:
+          type: string
+        type: array
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：url上传，2.批量url上传
+        type: integer
+      docPreprocess:
+        description: 文本预处理规则
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/response.DocSegment'
+        description: 分段信息配置
+      ocrModelId:
+        description: ocr模型id
+        type: string
+    type: object
   response.DocKnowledgeInfo:
     properties:
       graphSwitch:
@@ -4204,6 +4263,36 @@ definitions:
       title:
         description: 文档名
         type: string
+    type: object
+  response.DocSegment:
+    properties:
+      maxSplitter:
+        description: 可分隔最大值（只有自定义分段必填）
+        type: integer
+      overlap:
+        description: 可重叠值（只有自定义分段必填）
+        type: number
+      segmentMethod:
+        description: 分段方法 0：通用分段；1：父子分段
+        type: string
+      segmentType:
+        description: 分段方式，只有通用分段必填 0：自动分段；1：自定义分段
+        type: string
+      splitter:
+        description: 分隔符（只有自定义分段必填）
+        items:
+          type: string
+        type: array
+      subMaxSplitter:
+        description: 可分隔最大值（只有父子分段必填）
+        type: integer
+      subSplitter:
+        description: 分隔符（只有父子分段必填）
+        items:
+          type: string
+        type: array
+    required:
+    - segmentMethod
     type: object
   response.DocSegmentResp:
     properties:
@@ -5982,51 +6071,24 @@ definitions:
     type: object
 info:
   contact: {}
-  description: |-
-    ## HTTP Header
-    | Header        | 说明      |
-    | ------------- | --------- |
-    | Authorization | JWT token |
-    | X-Language    | 语言Code  |
-    | X-Org-Id      | 组织ID    |
-    | X-Client-Id   | 客户端标识|
-
-    ## HTTP Status
-    | HTTP Status             | 说明                   |
-    | ----------------------- | ---------------------- |
-    | 200, StatusOK           | 请求返回成功           |
-    | 400, StatusBadRequest   | 请求返回失败，用于业务 |
-    | 401, StatusUnauthorized | JWT认证失败            |
-    | 403, StatusForbidden    | 没有权限               |
-
-    ## 权限-菜单对应表
-    | 一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |
-    |-------------|-------|------|------|------|------|
-    | guest       |       |      | 【访客】 |      |      |
-    | common      |       |      | 【通用】 |      |      |
-    | permission  |       |      | 权限管理 |      |      |
-    | permission  | user  |      | 权限管理 | 用户管理 |      |
-    | permission  | org   |      | 权限管理 | 组织管理 |      |
-    | permission  | role  |      | 权限管理 | 角色管理 |      |
-
-    ## `/v1/user/permission`返回用例
-    ```json
-    {
-      "code": 0,
-      "data": {
-        "orgPermission": {
-          "org": {"id": "test-org-id", "name": "test-org-name"},
-          "permissions": [
-            {"perm": "permission"},
-            {"perm": "permission.user"},
-            {"perm": "permission.org"},
-            {"perm": "permission.role"}
-          ]
-        }
-      },
-      "msg": "操作成功"
-    }
-    ```
+  description: "## HTTP Header\r\n| Header        | 说明      |\r\n| ------------- |
+    --------- |\r\n| Authorization | JWT token |\r\n| X-Language    | 语言Code  |\r\n|
+    X-Org-Id      | 组织ID    |\r\n| X-Client-Id   | 客户端标识|\r\n\r\n## HTTP Status\r\n|
+    HTTP Status             | 说明                   |\r\n| -----------------------
+    | ---------------------- |\r\n| 200, StatusOK           | 请求返回成功           |\r\n|
+    400, StatusBadRequest   | 请求返回失败，用于业务 |\r\n| 401, StatusUnauthorized | JWT认证失败
+    \           |\r\n| 403, StatusForbidden    | 没有权限               |\r\n\r\n## 权限-菜单对应表\r\n|
+    一级权限        | 二级权限  | 三级权限 | 一级菜单 | 二级菜单 | 三级菜单 |\r\n|-------------|-------|------|------|------|------|\r\n|
+    guest       |       |      | 【访客】 |      |      |\r\n| common      |       |      |
+    【通用】 |      |      |\r\n| permission  |       |      | 权限管理 |      |      |\r\n|
+    permission  | user  |      | 权限管理 | 用户管理 |      |\r\n| permission  | org   |      |
+    权限管理 | 组织管理 |      |\r\n| permission  | role  |      | 权限管理 | 角色管理 |      |\r\n\r\n##
+    `/v1/user/permission`返回用例\r\n```json\r\n{\r\n  \"code\": 0,\r\n  \"data\": {\r\n
+    \   \"orgPermission\": {\r\n      \"org\": {\"id\": \"test-org-id\", \"name\":
+    \"test-org-name\"},\r\n      \"permissions\": [\r\n        {\"perm\": \"permission\"},\r\n
+    \       {\"perm\": \"permission.user\"},\r\n        {\"perm\": \"permission.org\"},\r\n
+    \       {\"perm\": \"permission.role\"}\r\n      ]\r\n    }\r\n  },\r\n  \"msg\":
+    \"操作成功\"\r\n}\r\n```"
   title: AI Agent Productivity Platform API
   version: v0.0.1
 paths:
@@ -8224,6 +8286,37 @@ paths:
       summary: 删除文档
       tags:
       - knowledge.doc
+  /knowledge/doc/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取文档配置信息
+      parameters:
+      - in: query
+        name: docId
+        required: true
+        type: string
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocConfigResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取文档配置信息
+      tags:
+      - knowledge.doc
   /knowledge/doc/export:
     post:
       consumes:
@@ -8665,6 +8758,30 @@ paths:
       security:
       - JWT: []
       summary: 更新文档切片
+      tags:
+      - knowledge.doc
+  /knowledge/doc/update/config:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档配置
+      parameters:
+      - description: 文更新文档配置请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DocConfigUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新文档配置
       tags:
       - knowledge.doc
   /knowledge/doc/url/analysis:
