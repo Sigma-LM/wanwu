@@ -262,7 +262,7 @@ workflow:
   get_process_uri: /api/workflow_api/get_process
   chatflow_run_uri: /v1/workflow/chat_by_wanwu
   # conversation
-  create_chatflow_conversation_uri: /v1/workflow/conversation/create
+  create_chatflow_conversation_uri: /v1/workflow/conversation/create_by_wanwu
   get_draft_intelligence_list_uri: /api/intelligence_api/search/get_draft_intelligence_list
   get_draft_intelligence_info_uri: /api/intelligence_api/search/get_draft_intelligence_info
   get_project_conversation_def: /api/workflow_api/project_conversation/create_by_wanwu
