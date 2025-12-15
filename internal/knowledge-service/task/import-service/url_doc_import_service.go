@@ -34,7 +34,16 @@ func (f UrlDocImportService) AnalyzeDoc(ctx context.Context, importTask *model.K
 
 func (f UrlDocImportService) CheckDoc(ctx context.Context, importTask *model.KnowledgeImportTask, docList []*model.DocInfo) ([]*CheckFileResult, error) {
 	var resultList []*CheckFileResult
+	var urlRepeatMap = make(map[string]bool)
 	for _, docInfo := range docList {
+		if urlRepeatMap[docInfo.FilePathMd5] { //如果统一文件内存在同一url则直接失败
+			resultList = append(resultList, &CheckFileResult{
+				Status:     model.DocFail,
+				ErrMessage: util.KnowledgeImportSameNameErr,
+				DocInfo:    docInfo,
+			})
+			continue
+		}
 		//文档重名校验
 		checkResult, checkMessage := checkUrlFile(ctx, importTask.UserId, importTask.KnowledgeId, docInfo.DocUrl)
 		var status = model.DocInit
@@ -46,6 +55,9 @@ func (f UrlDocImportService) CheckDoc(ctx context.Context, importTask *model.Kno
 			ErrMessage: checkMessage,
 			DocInfo:    docInfo,
 		})
+		if len(docInfo.FilePathMd5) > 0 {
+			urlRepeatMap[docInfo.FilePathMd5] = true
+		}
 	}
 	return resultList, nil
 }

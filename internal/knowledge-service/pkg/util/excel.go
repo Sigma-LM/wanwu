@@ -5,11 +5,12 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func ReadExcelColumn(filePath string, columnNo int) ([]string, error) {
+func ReadExcelColumn(filePath string, columnNo int, titleLineCount int) ([]string, error) {
 	// 1. 打开Excel文件
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
 		log.Errorf("打开Excel文件失败: %v", err)
+		return nil, err
 	}
 	defer func() {
 		// 关闭文件
@@ -31,6 +32,10 @@ func ReadExcelColumn(filePath string, columnNo int) ([]string, error) {
 	var result []string
 	// 4. 遍历行和单元格
 	for _, row := range rows {
+		if titleLineCount > 0 {
+			titleLineCount--
+			continue
+		}
 		result = append(result, row[columnNo])
 	}
 

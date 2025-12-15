@@ -40,7 +40,7 @@ func (f UrlFileDocImportService) AnalyzeDoc(ctx context.Context, importTask *mod
 		}
 	}()
 	//2.读取excel
-	columnList, err := util.ReadExcelColumn(localFilePath, 1)
+	columnList, err := util.ReadExcelColumn(localFilePath, 1, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +61,10 @@ func (f UrlFileDocImportService) AnalyzeDoc(ctx context.Context, importTask *mod
 	var retList []*model.DocInfo
 	for _, docUrlREsp := range docUrlRespList {
 		retList = append(retList, &model.DocInfo{
-			DocName: docUrlREsp.FileName,
-			DocSize: int64(docUrlREsp.FileSize),
-			DocUrl:  docUrlREsp.Url,
+			DocName:     docUrlREsp.FileName,
+			DocSize:     int64(docUrlREsp.FileSize),
+			DocUrl:      docUrlREsp.Url,
+			FilePathMd5: util.MD5(docUrlREsp.Url),
 		})
 	}
 	return retList, nil

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	"strings"
 	"sync"
 	"time"
@@ -155,14 +156,40 @@ type DocUrlResp struct {
 	ResponseInfo RagCommonResp `json:"response_info"`
 }
 
+// DeepCopy 深copy一下
+func (d *DocUrlResp) DeepCopy() *DocUrlResp {
+	return &DocUrlResp{
+		Url:      d.Url,
+		OldName:  d.OldName,
+		FileName: d.FileName,
+		FileSize: d.FileSize,
+		ResponseInfo: RagCommonResp{
+			Code:    d.ResponseInfo.Code,
+			Message: d.ResponseInfo.Message,
+		},
+	}
+}
+
 type DocUrlRespSafeArray struct {
-	data []*DocUrlResp
-	mu   sync.Mutex
+	deduplicationMap map[string]*DocUrlResp
+	data             []*DocUrlResp
+	mu               sync.Mutex
+}
+
+func (sa *DocUrlRespSafeArray) Contains(url string) *DocUrlResp {
+	if len(sa.deduplicationMap) == 0 {
+		return nil
+	}
+	return sa.deduplicationMap[url]
 }
 
 func (sa *DocUrlRespSafeArray) Append(value *DocUrlResp) {
 	sa.mu.Lock()
 	defer sa.mu.Unlock()
+	if len(sa.deduplicationMap) == 0 {
+		sa.deduplicationMap = make(map[string]*DocUrlResp)
+		sa.deduplicationMap[value.Url] = value
+	}
 	sa.data = append(sa.data, value)
 }
 
@@ -293,23 +320,15 @@ func BatchRagDocMeta(ctx context.Context, batchRagDocTagParams *BatchRagDocMetaP
 }
 
 func BatchRagDocUrlAnalysis(ctx context.Context, urlList []string) ([]*DocUrlResp, error) {
-	var wg = &sync.WaitGroup{}
 	var resultArray = DocUrlRespSafeArray{}
-	for _, url := range urlList {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			analysis, err := RagDocUrlAnalysis(ctx, &DocUrlParams{
-				Url: url,
-			})
-			if err != nil {
-				log.Errorf(err.Error())
-				return
-			}
-			resultArray.Append(analysis)
-		}()
+	urlSlice := util.ChunkSlice(urlList, 5)
+	for _, urlBatch := range urlSlice {
+		err := batchDocUrlAnalysis(ctx, urlBatch, &resultArray)
+		if err != nil {
+			log.Errorf(err.Error())
+			return nil, err
+		}
 	}
-	wg.Wait()
 	if resultArray.Len() == 0 {
 		return nil, errors.New("解析url失败")
 	}
@@ -412,4 +431,34 @@ func RebuildFileName(docId, docType, docName string) string {
 		return docId + ".txt"
 	}
 	return docName
+}
+
+func batchDocUrlAnalysis(ctx context.Context, urlList []string, resultArray *DocUrlRespSafeArray) error {
+	var wg = &sync.WaitGroup{}
+	for _, url := range urlList {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			//查询url解析结果
+			docUrlResp, err := searchUrlAnalysisResult(ctx, resultArray, url)
+			if err != nil {
+				log.Errorf(err.Error())
+				return
+			}
+			resultArray.Append(docUrlResp)
+		}()
+	}
+	wg.Wait()
+	return nil
+}
+
+func searchUrlAnalysisResult(ctx context.Context, resultArray *DocUrlRespSafeArray, url string) (*DocUrlResp, error) {
+	//处理同一文件重复url问题
+	docUrlResp := resultArray.Contains(url)
+	if docUrlResp != nil {
+		return docUrlResp.DeepCopy(), nil
+	}
+	return RagDocUrlAnalysis(ctx, &DocUrlParams{
+		Url: url,
+	})
 }

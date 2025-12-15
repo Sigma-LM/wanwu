@@ -43,6 +43,7 @@ type DocInfo struct {
 	DocType     string `json:"docType"`     // 文档类型
 	DocSize     int64  `json:"docSie"`      // 文档大小
 	DirFilePath string `json:"dirFilePath"` //所在文件夹中的路径
+	FilePathMd5 string `json:"filePathMd5"` //文件路径md5
 }
 
 type DocImportMetaData struct {
