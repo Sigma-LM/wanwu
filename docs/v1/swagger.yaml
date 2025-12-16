@@ -1418,6 +1418,16 @@ definitions:
     required:
     - workflow_id
     type: object
+  request.ChatflowConversationDeleteReq:
+    properties:
+      project_id:
+        type: string
+      unique_id:
+        type: string
+    required:
+    - project_id
+    - unique_id
+    type: object
   request.CheckFileListReq:
     properties:
       chunkName:
@@ -8027,6 +8037,30 @@ paths:
       security:
       - JWT: []
       summary: 应用广场对话流关联应用
+      tags:
+      - chatflow
+  /chatflow/conversation/delete:
+    delete:
+      consumes:
+      - application/json
+      description: 删除对话流会话
+      parameters:
+      - description: 删除对话流会话请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChatflowConversationDeleteReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除对话流会话
       tags:
       - chatflow
   /custom/home:

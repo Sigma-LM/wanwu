@@ -97,3 +97,9 @@ type CozeGetDraftIntelligenceInfoData struct {
 	PublishInfo      *CozeIntelligencePublishInfo `json:"publish_info,omitempty"`
 	OwnerInfo        *CozeUser                    `json:"owner_info,omitempty"`
 }
+
+type CozeDeleteProjectConversationDefResponse struct {
+	Success bool   `json:"success"`
+	Code    int64  `json:"code"`
+	Msg     string `json:"msg"`
+}

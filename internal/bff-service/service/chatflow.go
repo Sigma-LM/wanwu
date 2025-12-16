@@ -349,6 +349,34 @@ func ChatflowApplicationInfo(ctx *gin.Context, userId, orgId string, req request
 	return getDraftInfoResp.Data, nil
 }
 
+func DeleteChatflowConversation(ctx *gin.Context, orgId, projectId, uniqueId string) error {
+	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.DeleteConversationUri)
+	ret := &response.CozeDeleteProjectConversationDefResponse{}
+	if resp, err := resty.New().
+		R().
+		SetContext(ctx).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetHeaders(workflowHttpReqHeader(ctx)).
+		SetBody(map[string]string{
+			"space_id":   orgId,
+			"project_id": projectId,
+			"unique_id":  uniqueId,
+		}).
+		SetResult(ret).
+		Post(url); err != nil {
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_delete_chatflow_conversation", err.Error())
+	} else if resp.StatusCode() >= 300 {
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_delete_chatflow_conversation", fmt.Sprintf("[%v] code %v msg %v", resp.StatusCode(), ret.Code, ret.Msg))
+	} else if ret.Code != 0 {
+		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_delete_chatflow_conversation", fmt.Sprintf("code %v msg %v", ret.Code, ret.Msg))
+	}
+	if ret.Success {
+		return nil
+	}
+	return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_delete_chatflow_conversation", "delete chatflow conversation failed")
+}
+
 // --- internal ---
 func cozeChatflowInfo2Model(chatflowInfo *response.CozeWorkflowListDataWorkflow) response.AppBriefInfo {
 	return response.AppBriefInfo{

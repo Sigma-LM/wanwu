@@ -92,3 +92,12 @@ type ChatflowConversationCreateReq struct {
 func (r *ChatflowConversationCreateReq) Check() error {
 	return nil
 }
+
+type ChatflowConversationDeleteReq struct {
+	ProjectId string `json:"project_id" validate:"required"`
+	UniqueId  string `json:"unique_id" validate:"required"`
+}
+
+func (r *ChatflowConversationDeleteReq) Check() error {
+	return nil
+}

@@ -2979,6 +2979,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/chatflow/conversation/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除对话流会话",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chatflow"
+                ],
+                "summary": "删除对话流会话",
+                "parameters": [
+                    {
+                        "description": "删除对话流会话请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ChatflowConversationDeleteReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/custom/home": {
             "post": {
                 "security": [
@@ -14042,6 +14081,21 @@ const docTemplate = `{
             ],
             "properties": {
                 "workflow_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ChatflowConversationDeleteReq": {
+            "type": "object",
+            "required": [
+                "project_id",
+                "unique_id"
+            ],
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "unique_id": {
                     "type": "string"
                 }
             }

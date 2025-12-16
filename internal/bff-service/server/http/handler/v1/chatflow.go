@@ -151,3 +151,22 @@ func ChatflowApplicationInfo(ctx *gin.Context) {
 	resp, err := service.ChatflowApplicationInfo(ctx, getUserID(ctx), getOrgID(ctx), req)
 	gin_util.Response(ctx, resp, err)
 }
+
+// DeleteChatflowConversation
+//
+//	@Tags			chatflow
+//	@Summary		删除对话流会话
+//	@Description	删除对话流会话
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.ChatflowConversationDeleteReq	true	"删除对话流会话请求参数"
+//	@Success		200		{object}	response.Response{}
+//	@Router			/chatflow/conversation/delete [delete]
+func DeleteChatflowConversation(ctx *gin.Context) {
+	var req request.ChatflowConversationDeleteReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	gin_util.Response(ctx, nil, service.DeleteChatflowConversation(ctx, getOrgID(ctx), req.ProjectId, req.UniqueId))
+}

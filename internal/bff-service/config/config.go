@@ -167,6 +167,7 @@ type WorkflowServiceConfig struct {
 	GetConversationMessageListUri string `json:"get_conversation_message_list_uri" mapstructure:"get_conversation_message_list_uri"`
 	GetDraftIntelligenceListUri   string `json:"get_draft_intelligence_list_uri" mapstructure:"get_draft_intelligence_list_uri"`
 	GetDraftIntelligenceInfoUri   string `json:"get_draft_intelligence_info_uri" mapstructure:"get_draft_intelligence_info_uri"`
+	DeleteConversationUri         string `json:"delete_conversation_uri" mapstructure:"delete_conversation_uri"`
 	GetProjectConversationDef     string `json:"get_project_conversation_def" mapstructure:"get_project_conversation_def"`
 	// upload
 	UploadActionUri string               `json:"upload_action_uri" mapstructure:"upload_action_uri"`
