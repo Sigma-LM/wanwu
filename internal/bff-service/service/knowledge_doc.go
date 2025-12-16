@@ -138,7 +138,8 @@ func ImportDoc(ctx *gin.Context, userId, orgId string, req *request.DocImportReq
 func UpdateDocConfig(ctx *gin.Context, userId, orgId string, req *request.DocConfigUpdateReq) error {
 	segment := req.DocSegment
 	_, err := knowledgeBaseDoc.UpdateDocImportConfig(ctx.Request.Context(), &knowledgebase_doc_service.UpdateDocImportConfigReq{
-		DocId: req.DocId,
+		KnowledgeId: req.KnowledgeId,
+		DocIdList:   req.DocIdList,
 		ImportDocReq: &knowledgebase_doc_service.ImportDocReq{
 			UserId:        userId,
 			OrgId:         orgId,

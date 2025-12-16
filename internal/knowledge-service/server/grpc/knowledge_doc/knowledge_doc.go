@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	pkg_util "github.com/UnicomAI/wanwu/pkg/util"
 	util2 "github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -112,24 +114,22 @@ func (s *Service) ImportDoc(ctx context.Context, req *knowledgebase_doc_service.
 
 // UpdateDocImportConfig 更新文档导入配置
 func (s *Service) UpdateDocImportConfig(ctx context.Context, req *knowledgebase_doc_service.UpdateDocImportConfigReq) (*emptypb.Empty, error) {
-	//1.文档状态更新成待处理
-	//2.删除文档-copy 文档，删除rag
-	knowledgeDoc, err := orm.CopyDocAndRemoveRag(ctx, req)
-	if err != nil {
-		log.Errorf("import doc fail %v", err)
-		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateConfigFail)
+	//1.文档状态校验
+	if err := checkDocFinishStatus(ctx, req); err != nil {
+		return nil, err
 	}
-	//3.提交导入任务，注意排队中的任务可以修改，如果文件被删除则忽略不处理
-	task, err := buildReImportTask(req, knowledgeDoc)
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
 	if err != nil {
 		return nil, err
 	}
-	//创建导入任务
-	err = orm.CreateKnowledgeReImportTask(ctx, task, knowledgeDoc)
+	//2.文档状态更新成待处理
+	err = orm.BatchUpdateDocStatus(ctx, req.DocIdList, model.DocInit)
 	if err != nil {
-		log.Errorf("import doc fail %v", err)
+		log.Errorf("update doc status %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDocUpdateConfigFail)
 	}
+	//3.批量处理文档导入配置
+	batchProcessDocConfig(req, knowledge)
 	return &emptypb.Empty{}, nil
 }
 
@@ -1198,4 +1198,61 @@ func createKnowledgeGraph(ctx context.Context, knowledge *model.KnowledgeBase, d
 		GraphSchemaObjectName: graph.GraphSchemaObjectName,
 		GraphSchemaFileName:   graph.GraphSchemaFileName,
 	})
+}
+
+func batchProcessDocConfig(req *knowledgebase_doc_service.UpdateDocImportConfigReq, knowledge *model.KnowledgeBase) {
+	go func() {
+		for _, docId := range req.DocIdList {
+			err := updateOneDocImportConfig(context.Background(), req, knowledge, docId)
+			if err != nil {
+				log.Errorf("update doc import config %v", err)
+			}
+		}
+	}()
+}
+
+func updateOneDocImportConfig(ctx context.Context, req *knowledgebase_doc_service.UpdateDocImportConfigReq, knowledge *model.KnowledgeBase, docId string) (err error) {
+	defer pkg_util.PrintPanicStackWithCall(func(panicOccur bool, recoverError error) {
+		if recoverError != nil {
+			err = recoverError
+		}
+		if err != nil {
+			log.Errorf("update doc import config %v", err)
+			err2 := orm.UpdateDocInfo(db.GetHandle(context.Background()), docId, model.DocFail, "", "")
+			if err2 != nil {
+				log.Errorf("update doc status %v", err2)
+			}
+		}
+	})
+	//1.删除文档-copy 文档，删除rag
+	knowledgeDoc, err := orm.CopyDocAndRemoveRag(ctx, knowledge, docId)
+	if err != nil {
+		log.Errorf("import doc fail %v", err)
+		return err
+	}
+	//2.提交导入任务，注意排队中的任务可以修改，如果文件被删除则忽略不处理
+	task, err := buildReImportTask(req, knowledgeDoc)
+	if err != nil {
+		return err
+	}
+	//3.创建导入任务
+	err = orm.CreateKnowledgeReImportTask(ctx, task, knowledgeDoc)
+	if err != nil {
+		log.Errorf("import doc fail %v", err)
+		return err
+	}
+	return nil
+}
+
+func checkDocFinishStatus(ctx context.Context, req *knowledgebase_doc_service.UpdateDocImportConfigReq) error {
+	count, err := orm.SelectDocStatusByDocIdList(ctx, req.DocIdList, model.DocSuccessNew)
+	if err != nil {
+		log.Errorf("SelectDocByDocIdList 错误(%v) 参数(%v)", err, req)
+		return util.ErrCode(errs.Code_KnowledgeDocSearchFail)
+	}
+	//批量文档状态检查
+	if int(count) != len(req.DocIdList) {
+		return util.ErrCode(errs.Code_KnowledgeDocStatusFinishCheckFail)
+	}
+	return nil
 }

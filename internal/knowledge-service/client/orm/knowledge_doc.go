@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
-	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm/sqlopt"
@@ -183,6 +182,19 @@ func SelectDocByDocIdList(ctx context.Context, docIdList []string, userId, orgId
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
 	}
 	return docList, nil
+}
+
+// SelectDocStatusByDocIdList 查询知识库文档信息
+func SelectDocStatusByDocIdList(ctx context.Context, docIdList []string, status int) (int64, error) {
+	var count int64
+	err := sqlopt.SQLOptions(sqlopt.WithDocIDs(docIdList), sqlopt.WithStatus(status)).
+		Apply(db.GetHandle(ctx), &model.KnowledgeDoc{}).
+		Count(&count).Error
+	if err != nil {
+		log.Errorf("SelectDocStatusByDocIdList err: %v", err)
+		return 0, util.ErrCode(errs.Code_KnowledgeBaseAccessDenied)
+	}
+	return count, nil
 }
 
 // SelectDocByDocIdListAndFileTypeFilter 查询知识库文档信息
@@ -392,23 +404,23 @@ func ReImportKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTa
 }
 
 // CopyDocAndRemoveRag 复制文档并删除rag
-func CopyDocAndRemoveRag(ctx context.Context, req *knowledgebase_doc_service.UpdateDocImportConfigReq) (*model.KnowledgeDoc, error) {
-	knowledgeDoc, err := GetDocDetail(ctx, "", "", req.DocId)
+func CopyDocAndRemoveRag(ctx context.Context, knowledge *model.KnowledgeBase, docId string) (*model.KnowledgeDoc, error) {
+	knowledgeDoc, err := GetDocDetail(ctx, "", "", docId)
 	if err != nil {
+		log.Errorf("GetDocDetail docId %s error %s", docId, err)
 		return nil, err
 	}
-	knowledge, err := SelectKnowledgeById(ctx, knowledgeDoc.KnowledgeId, "", "")
-	if err != nil {
-		return nil, err
-	}
+
 	copyFile, _, _, err := service.CopyFile(ctx, knowledgeDoc.FilePath, "", true)
 	if err != nil {
+		log.Errorf("CopyFile error %s", err)
 		return nil, err
 	}
 	return knowledgeDoc, db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		//1.更新文档文件
-		err = UpdateDocInfo(tx, req.DocId, model.DocInit, copyFile, "")
+		err = UpdateDocInfo(tx, docId, -1, copyFile, "")
 		if err != nil {
+			log.Errorf("UpdateDocInfo %s", err)
 			return err
 		}
 		//2.rag删除
@@ -419,6 +431,18 @@ func CopyDocAndRemoveRag(ctx context.Context, req *knowledgebase_doc_service.Upd
 			FileName:      fileName,
 		})
 	})
+}
+
+// BatchUpdateDocStatus 批量更新文档状态
+func BatchUpdateDocStatus(ctx context.Context, docIdList []string, status int) error {
+	var updateParams = map[string]interface{}{
+		"status": status,
+	}
+	err := db.GetHandle(ctx).Model(&model.KnowledgeDoc{}).Where("doc_id IN ?", docIdList).Updates(updateParams).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // UpdateDocInfo 更新文档信息,由于status 0 是有含义的，所以不想更新status 请传-1

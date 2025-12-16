@@ -65,6 +65,7 @@ enum Code {
   KnowledgeDocExportFail = 142012; // 文档导出失败，请稍后重试
   KnowledgeDocSearchFail = 142013; // 文档信息查询失败，请稍后重试
   KnowledgeDocUpdateConfigFail = 142014; // 文档更新配置失败，请稍后重试
+  KnowledgeDocStatusFinishCheckFail = 142015; // 存在非处理完成状态文档，请重新选择文档后重试
   KnowledgeTagCreateFailed = 143001; // 新建知识库标签失败，请稍后重试
   KnowledgeTagDeleteFailed = 143002; // 删除知识库标签失败，请稍后重试
   KnowledgeTagUpdateFailed = 143003; // 修改知识库标签失败，请稍后重试
@@ -113,7 +114,7 @@ enum Code {
   KnowledgeQABaseSelectFailed = 148001; //获取问答库失败，请稍后重试
   KnowledgeQAPairImportFailed = 148002; //问答库文档导入失败，请稍后重试
   KnowledgeCreateQAPairFailed = 148003; //新增问答对失败，请稍后重试
-  KnowledgeDuplicateQAPirQuestion= 148004; //问答对问题校验失败，请稍后重试
+  KnowledgeDuplicateQAPirQuestion = 148004; //问答对问题校验失败，请稍后重试
   KnowledgeUpdateQAPairFailed = 148005; //更新问答对失败，请稍后重试
   KnowledgeQAPairSelectFailed = 148006; //获取问答对失败，请稍后重试
   KnowledgeUpdateQAPairSwitchFailed = 148007; //启停问答对失败，请稍后重试

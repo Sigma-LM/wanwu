@@ -44,8 +44,8 @@ type DocImportReq struct {
 }
 
 type DocConfigUpdateReq struct {
-	DocId       string `json:"docId"  validate:"required"`      //文档id，当更新配置时需要传
-	KnowledgeId string `json:"knowledgeId" validate:"required"` //知识库id
+	DocIdList   []string `json:"docIdList"  validate:"required"`  //文档id列表，当更新配置时需要传
+	KnowledgeId string   `json:"knowledgeId" validate:"required"` //知识库id
 	DocImportFileConfig
 	CommonCheck
 }
