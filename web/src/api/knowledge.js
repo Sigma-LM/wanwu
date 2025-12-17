@@ -198,11 +198,11 @@ export const editKnowledgeItem = data => {
     data,
   });
 };
-export const getDocList = params => {
+export const getDocList = data => {
   return service({
     url: `${USER_API}/knowledge/doc/list`,
-    method: 'get',
-    params,
+    method: 'post',
+    data,
   });
 };
 export const delDocItem = data => {

@@ -159,6 +159,8 @@ export default {
       fold: '收起',
       expand: '展开',
       detail: '详情 >>',
+      all: '全选',
+      filter: '筛选',
     },
     switch: {
       start: '开启',
@@ -666,7 +668,7 @@ export default {
     importTime: '上传时间',
     currentStatus: '当前状态',
     operate: '操作',
-    segmentConfig: '分段配置',
+    segmentConfig: '分段设置',
     view: '查看',
     knowledgeName: '知识库名称',
     knowledgeNameRules: '请输入知识库名称',
@@ -692,16 +694,15 @@ export default {
     brNum: '换行符',
     newClassfiy: '新建知识分类',
     all: '全部',
-    finish: '处理完成',
-    fail: '解析失败',
-    analysing: '正在解析中',
-    pendingProcessing: '待处理',
     beUploaded: '待上传',
     checking: '正在审核中',
     checkFail: '审核未通过',
     operateSuccess: '操作成功',
     deleteTips: '确定要删除此条数据吗?',
     deleteBatchTips: '确定要删除这些数据吗?',
+    batchConfigTips:
+      '本次共计选择{total}个文档，其中{unprocessedNum}个文件暂未解析成功，无法进行分段配置编辑，请在文档“当前状态”变为“处理完成”后再次尝试。',
+    continueTips: '是否继续批量编辑其余“处理完成”的文档？',
     tip: '提示',
     refreshTips:
       '您导入的文件正在异步处理中，请耐心等待，您可以尝试，刷新列表获取导入结果。',
@@ -1105,6 +1106,7 @@ export default {
     batchEdit: '批量编辑元数据值',
     batchDelete: '批量删除文档',
     batchExport: '批量导出',
+    batchConfig: '批量编辑分段设置',
     selected: '已选择',
   },
   metaSet: {
@@ -1382,7 +1384,7 @@ export default {
       yes: '是',
       no: '否',
     },
-    toolDialog:{
+    toolDialog: {
       tool: '工具',
       addTool: '新增工具',
       searchTool: '搜索工具',
