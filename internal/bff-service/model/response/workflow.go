@@ -228,12 +228,12 @@ type CozeWorkflowVersionListResp struct {
 }
 
 type CozeWorkflowVersionListData struct {
-	WorkflowID  string             `json:"workflow_id"`
-	VersionList []*WorkflowVersion `json:"version_list"`
-	Total       int32              `json:"total"`
+	WorkflowID  string                 `json:"workflow_id"`
+	VersionList []*CozeWorkflowVersion `json:"version_list"`
+	Total       int32                  `json:"total"`
 }
 
-type WorkflowVersion struct {
+type CozeWorkflowVersion struct {
 	Version   string `json:"version"`
 	Desc      string `json:"version_description"`
 	CreatedAt int64  `json:"created_at"`

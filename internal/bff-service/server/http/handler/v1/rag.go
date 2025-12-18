@@ -149,7 +149,7 @@ func GetDraftRag(ctx *gin.Context) {
 	if !gin_util.BindQuery(ctx, &req) {
 		return
 	}
-	resp, err := service.GetRag(ctx, req, 0)
+	resp, err := service.GetRag(ctx, req, false)
 	gin_util.Response(ctx, resp, err)
 }
 
@@ -169,7 +169,7 @@ func GetPublishedRag(ctx *gin.Context) {
 	if !gin_util.BindQuery(ctx, &req) {
 		return
 	}
-	resp, err := service.GetRag(ctx, req, 1)
+	resp, err := service.GetRag(ctx, req, true)
 	gin_util.Response(ctx, resp, err)
 }
 

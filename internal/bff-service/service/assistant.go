@@ -82,32 +82,26 @@ func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.A
 	return nil, err
 }
 
-func GetAssistantInfo(ctx *gin.Context, userId, orgId string, req request.AssistantIdRequest, isPublish bool) (*response.Assistant, error) {
-	if isPublish {
-		resp, err := assistant.AssistantSnapshotInfo(ctx.Request.Context(), &assistant_service.AssistantSnapshotInfoReq{
+func GetAssistantInfo(ctx *gin.Context, userId, orgId string, req request.AssistantIdRequest, needLatestPublished bool) (*response.Assistant, error) {
+	var resp *assistant_service.AssistantInfo
+	var err error
+	if needLatestPublished {
+		resp, err = assistant.AssistantSnapshotInfo(ctx.Request.Context(), &assistant_service.AssistantSnapshotInfoReq{
 			AssistantId: req.AssistantId,
-			Identity: &assistant_service.Identity{
-				UserId: userId,
-				OrgId:  orgId,
-			},
 		})
-		if err != nil {
-			return nil, err
-		}
-		return transAssistantResp2Model(ctx, resp)
 	} else {
-		resp, err := assistant.GetAssistantInfo(ctx.Request.Context(), &assistant_service.GetAssistantInfoReq{
+		resp, err = assistant.GetAssistantInfo(ctx.Request.Context(), &assistant_service.GetAssistantInfoReq{
 			AssistantId: req.AssistantId,
 			Identity: &assistant_service.Identity{ //草稿只能看自己的
 				UserId: userId,
 				OrgId:  orgId,
 			},
 		})
-		if err != nil {
-			return nil, err
-		}
-		return transAssistantResp2Model(ctx, resp)
 	}
+	if err != nil {
+		return nil, err
+	}
+	return transAssistantResp2Model(ctx, resp)
 }
 
 func AssistantCopy(ctx *gin.Context, userId, orgId string, req request.AssistantIdRequest) (*response.AssistantCreateResp, error) {
@@ -725,7 +719,7 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		return nil, nil
 	}
 
-	// 获取app发布信息
+	// 获取app发布信息，可能没有发布过，不返回错误
 	appInfo, _ := app.GetAppInfo(ctx, &app_service.GetAppInfoReq{AppId: resp.AssistantId, AppType: constant.AppTypeAgent})
 
 	// 转换Model配置

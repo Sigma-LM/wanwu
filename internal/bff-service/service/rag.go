@@ -10,6 +10,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/pkg/constant"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -183,8 +184,11 @@ func DeleteRag(ctx *gin.Context, req request.RagReq) error {
 	return err
 }
 
-func GetRag(ctx *gin.Context, req request.RagReq, isPublish int32) (*response.RagInfo, error) {
-	resp, err := rag.GetRagDetail(ctx.Request.Context(), &rag_service.RagDetailReq{RagId: req.RagID, Publish: isPublish})
+func GetRag(ctx *gin.Context, req request.RagReq, needLatestPublished bool) (*response.RagInfo, error) {
+	resp, err := rag.GetRagDetail(ctx.Request.Context(), &rag_service.RagDetailReq{
+		RagId:   req.RagID,
+		Publish: util.IfElse(needLatestPublished, int32(1), int32(0)),
+	})
 	if err != nil {
 		return nil, err
 	}

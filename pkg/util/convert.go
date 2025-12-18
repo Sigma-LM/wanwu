@@ -6,6 +6,13 @@ import (
 	"strconv"
 )
 
+func IfElse[T any](ok bool, trueValue, falseValue T) T {
+	if ok {
+		return trueValue
+	}
+	return falseValue
+}
+
 func I64(s string) (int64, error) {
 	return strconv.ParseInt(s, 10, 64)
 }

@@ -10,7 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const initFlagKey = "v0.3.2_app_table_cleared"
+const (
+	// v0.3.2 增加app版本管理，清楚之前发布的记录
+	initFlagKey = "v0.3.2_app_table_cleared"
+)
 
 type Metadata struct {
 	MetaKey   string `gorm:"primaryKey;column:key"`
@@ -49,7 +52,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 首次运行：清表
 			if err := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&model.App{}).Error; err != nil {
-				return nil, fmt.Errorf("failed to clear App table: %w", err)
+				return nil, fmt.Errorf("failed to clear app table: %w", err)
 			}
 			// 写入带版本的初始化标记
 			if err := db.Create(&Metadata{

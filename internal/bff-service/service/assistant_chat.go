@@ -20,9 +20,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, isPublish bool) error {
+func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, needLatestPublished bool) error {
 	// 1. CallAssistantConversationStream
-	chatCh, err := CallAssistantConversationStream(ctx, userId, orgId, req, isPublish)
+	chatCh, err := CallAssistantConversationStream(ctx, userId, orgId, req, needLatestPublished)
 	if err != nil {
 		return err
 	}
@@ -32,11 +32,23 @@ func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req reque
 	return nil
 }
 
-func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, isPublish bool) (<-chan string, error) {
+func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, needLatestPublished bool) (<-chan string, error) {
 	// 根据agentID获取敏感词配置
-	agentInfo, err := assistant.GetAssistantInfo(ctx, &assistant_service.GetAssistantInfoReq{
-		AssistantId: req.AssistantId,
-	})
+	var agentInfo *assistant_service.AssistantInfo
+	var err error
+	if needLatestPublished {
+		agentInfo, err = assistant.AssistantSnapshotInfo(ctx, &assistant_service.AssistantSnapshotInfoReq{
+			AssistantId: req.AssistantId,
+		})
+	} else {
+		agentInfo, err = assistant.GetAssistantInfo(ctx, &assistant_service.GetAssistantInfoReq{
+			AssistantId: req.AssistantId,
+			Identity: &assistant_service.Identity{ //草稿只能看自己的
+				UserId: userId,
+				OrgId:  orgId,
+			},
+		})
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +86,7 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 			UserId: userId,
 			OrgId:  orgId,
 		},
-		Draft: !isPublish,
+		Draft: !needLatestPublished,
 	}
 	var stream grpc.ServerStreamingClient[assistant_service.AssistantConversionStreamResp]
 	newAgent := config.Cfg().Agent.UseNewAgent == 1
