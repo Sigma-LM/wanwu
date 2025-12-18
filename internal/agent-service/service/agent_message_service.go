@@ -32,6 +32,7 @@ func AgentMessage(ctx *gin.Context, iter *adk.AsyncIterator[*adk.AgentEvent], re
 			if event.Err != nil {
 				log.Errorf("agent event result error %v", event.Err)
 				err = event.Err
+				rawCh <- response.AgentChatFailResp()
 				return
 			}
 
@@ -54,6 +55,7 @@ func streamReceive(sseCh chan string, output *adk.MessageVariant, respContext *r
 	if output.IsStreaming {
 		err := streamMessage(sseCh, output.MessageStream, respContext, req)
 		if err != nil {
+			sseCh <- response.AgentChatFailResp()
 			return err
 		}
 
@@ -62,6 +64,7 @@ func streamReceive(sseCh chan string, output *adk.MessageVariant, respContext *r
 		respList, err := response.NewAgentChatRespWithTool(msg, respContext, req)
 		if err != nil {
 			log.Errorf("MessageOutput error %v", err)
+			sseCh <- response.AgentChatFailResp()
 			return err
 		}
 		for _, resp := range respList {

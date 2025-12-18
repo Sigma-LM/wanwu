@@ -5,14 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	http_client "github.com/UnicomAI/wanwu/internal/rag-service/pkg/http-client"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
-
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
 	"github.com/eino-contrib/jsonschema"
@@ -136,6 +137,8 @@ type openAPITool struct {
 
 // Info 返回工具的元信息
 func (t *openAPITool) Info(ctx context.Context) (*schema.ToolInfo, error) {
+	marshal, _ := json.Marshal(t.info)
+	log.Printf("openAPITool %v", string(marshal))
 	return t.info, nil
 }
 
@@ -165,6 +168,12 @@ func GetToolsFromOpenAPISchema(ctx context.Context, pluginToolList []*request.Pl
 			log.Printf("Warning: OpenAPI schema validation failed: %v", err)
 		}
 
+		info := wrapper.APISchema.Info
+		var apiTitle = ""
+		if info != nil {
+			apiTitle = info.Title
+		}
+
 		for path, pathItem := range wrapper.APISchema.Paths {
 			operations := map[string]*openapi3.Operation{
 				"get":    pathItem.Get,
@@ -184,9 +193,12 @@ func GetToolsFromOpenAPISchema(ctx context.Context, pluginToolList []*request.Pl
 					toolName = fmt.Sprintf("%s_%s", method, path)
 				}
 
-				toolDesc := operation.Summary
+				toolDesc := operation.Description
 				if toolDesc == "" {
-					toolDesc = operation.Description
+					toolDesc = operation.Summary
+				}
+				if len(apiTitle) > 0 {
+					toolDesc = fmt.Sprintf("%s,%s", apiTitle, toolDesc)
 				}
 
 				params := buildParametersSchema(operation)
@@ -292,6 +304,7 @@ func buildParametersSchema(operation *openapi3.Operation) *openapi3.Schema {
 
 func createHTTPHandler(serverURL, path, method string, auth *request.APIAuth, contentType string) func(ctx context.Context, arguments string) (string, error) {
 	return func(ctx context.Context, arguments string) (string, error) {
+		start := time.Now().UnixMilli()
 		requestURL := serverURL + path
 
 		var body io.Reader
@@ -320,6 +333,10 @@ func createHTTPHandler(serverURL, path, method string, auth *request.APIAuth, co
 
 			// 添加业务查询参数
 			for key, value := range params {
+				if queryValues.Has(key) {
+					log.Printf("requestURL %s query parameter %s already exists, overwriting with value %v", requestURL, key, value)
+					continue
+				}
 				queryValues.Set(key, fmt.Sprintf("%v", value))
 			}
 		}
@@ -379,6 +396,7 @@ func createHTTPHandler(serverURL, path, method string, auth *request.APIAuth, co
 			methodUpper = http.MethodPatch
 		}
 
+		//todo 可以优化，client 考虑复用，日志打印
 		req, err := http.NewRequestWithContext(ctx, methodUpper, requestURL, body)
 		if err != nil {
 			return "", fmt.Errorf("failed to create request: %w", err)
@@ -394,20 +412,26 @@ func createHTTPHandler(serverURL, path, method string, auth *request.APIAuth, co
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
-		if err != nil {
-			return "", fmt.Errorf("failed to execute request: %w", err)
-		}
-		defer resp.Body.Close()
+		respBody, err := buildResult(resp, err)
+		http_client.LogRpcJson(ctx, "request_tool_call", method, arguments, respBody, err, start)
 
-		respBody, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return "", fmt.Errorf("failed to read response: %w", err)
-		}
-
-		if resp.StatusCode >= 400 {
-			return "", fmt.Errorf("request failed with status %d: %s", resp.StatusCode, string(respBody))
-		}
-
-		return string(respBody), nil
+		return respBody, nil
 	}
+}
+
+func buildResult(resp *http.Response, err error) (string, error) {
+	if err != nil {
+		return "", fmt.Errorf("failed to execute request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("request failed with status %d: %s", resp.StatusCode, string(respBody))
+	}
+	return string(respBody), nil
 }

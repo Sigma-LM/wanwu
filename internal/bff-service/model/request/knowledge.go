@@ -170,6 +170,7 @@ type RagSearchKnowledgeBaseReq struct {
 	MetaFilter           bool                           `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem          `json:"metadata_filtering_conditions"` // 元数据过滤条件
 	AutoCitation         bool                           `json:"auto_citation"`                 // 是否启动知识图谱查询
+	RewriteQuery         bool                           `json:"rewrite_query"`                 // 是否query改写
 	CommonCheck
 }
 

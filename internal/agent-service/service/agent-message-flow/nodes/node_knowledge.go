@@ -43,11 +43,13 @@ func (k *KnowledgeRetriever) Retrieve(ctx context.Context, reqContext *request.A
 		if doc == nil {
 			continue
 		}
-		packedRes.WriteString(fmt.Sprintf("---\nrecall slice %d: %s\n", idx+1, doc.Snippet))
+		number := idx + 1
+		packedRes.WriteString(fmt.Sprintf("---\nrecall slice %d: 【%d^】%s\n", number, number, doc.Snippet))
 	}
 	knowledgeData := packedRes.String()
 	if len(knowledgeData) > 0 {
-		knowledgeData = fmt.Sprintf(prompt.REACT_SYSTEM_PROMPT_KNOWLEDGE, knowledgeData)
+		sliceCount := len(hit.Data.SearchList)
+		knowledgeData = fmt.Sprintf(prompt.REACT_SYSTEM_PROMPT_KNOWLEDGE, sliceCount, knowledgeData)
 		return knowledgeData, nil
 	}
 	//如果没有知识库时，尽量减少输入token大小

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/UnicomAI/wanwu/pkg/log"
 	"strings"
 	"unicode/utf8"
 
@@ -19,6 +20,10 @@ const (
 	toolEndFormat         = "\n\n```工具%s调用结果：\n %s \n```\n\n"
 	toolEndTitle          = `</tool>`
 	endLine               = "\n\n"
+	agentSuccessCode      = 0
+	agentFailCode         = 1
+	finish                = 1
+	notFinish             = 0
 )
 
 type AgentChatRespContext struct {
@@ -62,7 +67,7 @@ func NewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentCha
 	var outputList = make([]string, 0)
 	for _, content := range contentList {
 		var agentChatResp = &AgentChatResp{
-			Code:           0,
+			Code:           agentSuccessCode,
 			Message:        "success",
 			Response:       content,
 			GenFileUrlList: []interface{}{},
@@ -72,17 +77,39 @@ func NewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentCha
 			Finish:         buildFinish(chatMessage),
 			Usage:          buildUsage(chatMessage),
 		}
-		var buf bytes.Buffer
-		encoder := json.NewEncoder(&buf)
-		encoder.SetEscapeHTML(false) // 关键：禁用 HTML 转义
-
-		if err := encoder.Encode(agentChatResp); err != nil {
+		respString, err := buildRespString(agentChatResp)
+		if err != nil {
 			return nil, err
 		}
-		outputList = append(outputList, "data:"+buf.String())
+		outputList = append(outputList, respString)
 	}
-
 	return outputList, nil
+}
+
+func AgentChatFailResp() string {
+	var agentChatResp = &AgentChatResp{
+		Code:     agentFailCode,
+		Message:  "success",
+		Response: "智能体处理异常，请稍后重试",
+		Finish:   finish,
+	}
+	respString, err := buildRespString(agentChatResp)
+	if err != nil {
+		log.Errorf("buildRespString error: %v", err)
+		return ""
+	}
+	return respString
+}
+
+func buildRespString(agentChatResp *AgentChatResp) (string, error) {
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false) // 关键：禁用 HTML 转义
+
+	if err := encoder.Encode(agentChatResp); err != nil {
+		return "", err
+	}
+	return "data:" + buf.String(), nil
 }
 
 func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext) []string {
@@ -194,9 +221,9 @@ func toolEnd(chatMessage *schema.Message) bool {
 
 func buildFinish(chatMessage *schema.Message) int {
 	if chatMessage.ResponseMeta != nil && chatMessage.ResponseMeta.FinishReason == "stop" {
-		return 1
+		return finish
 	}
-	return 0
+	return notFinish
 }
 
 func buildUsage(chatMessage *schema.Message) *AgentChatUsage {
