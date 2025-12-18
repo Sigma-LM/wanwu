@@ -70,6 +70,42 @@ export const deleteApp = data => {
   });
 };
 
+//获取应用最新版本信息
+export const getAppLatestVersion = params => {
+  return request({
+    url: `${USER_API}/appspace/app/version`,
+    method: 'get',
+    params,
+  });
+};
+
+//更新应用版本信息
+export const updateAppVersion = data => {
+  return request({
+    url: `${USER_API}/appspace/app/version`,
+    method: 'put',
+    data,
+  });
+};
+
+//获取应用版本列表
+export const getAppVersionList = params => {
+  return request({
+    url: `${USER_API}/appspace/app/version/list`,
+    method: 'get',
+    params,
+  });
+};
+
+//回滚应用到指定版本
+export const rollbackAppVersion = data => {
+  return request({
+    url: `${USER_API}/appspace/app/version/rollback`,
+    method: 'post',
+    data,
+  });
+};
+
 //智能体模版
 export const agentTemplateList = params => {
   return request({
