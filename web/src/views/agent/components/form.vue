@@ -1,5 +1,5 @@
 <template>
-  <div class="agent-from-content" :class="{ isDisabled: isPublish }">
+  <div class="agent-from-content">
     <div class="form-header">
       <div class="header-left">
         <span class="el-icon-arrow-left btn" @click="goBack"></span>
@@ -34,6 +34,12 @@
         </div>
       </div>
       <div class="header-right">
+        <VersionPopover
+          ref="versionPopover"
+          v-if="publishType"
+          :appId="editForm.assistantId"
+          :appType="AGENT"
+        />
         <el-button
           v-if="publishType"
           size="small"
@@ -44,37 +50,62 @@
           <span class="el-icon-setting"></span>
           {{ $t('agent.form.publishConfig') }}
         </el-button>
-        <el-button
-          size="small"
-          type="primary"
-          @click="handlePublish"
-          style="padding: 13px 12px"
+        <el-popover
+          placement="bottom-end"
+          trigger="click"
+          style="margin-left: 13px"
         >
-          {{ $t('agent.form.publish') }}
-          <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
-        </el-button>
-        <div class="popover-operation" v-if="showOperation">
-          <div>
-            <el-radio :label="'private'" v-model="scope">
-              {{ $t('agent.form.publishType') }}
-            </el-radio>
-          </div>
-          <div>
-            <el-radio :label="'organization'" v-model="scope">
-              {{ $t('agent.form.publishType1') }}
-            </el-radio>
-          </div>
-          <div>
-            <el-radio :label="'public'" v-model="scope">
-              {{ $t('agent.form.publishType2') }}
-            </el-radio>
-          </div>
-          <div class="saveBtn">
-            <el-button size="mini" type="primary" @click="savePublish">
-              {{ $t('common.button.save') }}
-            </el-button>
-          </div>
-        </div>
+          <el-button
+            slot="reference"
+            size="small"
+            type="primary"
+            style="padding: 13px 12px"
+          >
+            {{ $t('common.button.publish') }}
+            <span class="el-icon-arrow-down" style="margin-left: 5px"></span>
+          </el-button>
+          <el-form ref="publishForm" :model="publishForm" :rules="publishRules">
+            <el-form-item :label="$t('list.version.no')" prop="version">
+              <el-input
+                v-model="publishForm.version"
+                :placeholder="$t('list.version.noPlaceholder')"
+              ></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('list.version.desc')" prop="desc">
+              <el-input
+                v-model="publishForm.desc"
+                :placeholder="$t('list.version.descPlaceholder')"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              :label="$t('list.version.publishType')"
+              prop="publishType"
+            >
+              <el-radio-group v-model="publishForm.publishType">
+                <div>
+                  <el-radio label="private">
+                    {{ $t('agent.form.publishType') }}
+                  </el-radio>
+                </div>
+                <div>
+                  <el-radio label="organization">
+                    {{ $t('agent.form.publishType1') }}
+                  </el-radio>
+                </div>
+                <div>
+                  <el-radio label="public">
+                    {{ $t('agent.form.publishType2') }}
+                  </el-radio>
+                </div>
+              </el-radio-group>
+            </el-form-item>
+            <div class="saveBtn">
+              <el-button size="mini" type="primary" @click="savePublish">
+                {{ $t('common.button.save') }}
+              </el-button>
+            </div>
+          </el-form>
+        </el-popover>
       </div>
     </div>
     <!-- 智能体配置 -->
@@ -129,7 +160,7 @@
         <promptTemplate ref="promptTemplate" />
       </div>
       <div class="drawer-form">
-        <div class="agnetSet">
+        <div class="agentSet">
           <h3 class="labelTitle">{{ $t('agent.form.agentConfig') }}</h3>
           <div class="block prompt-box">
             <p class="block-title model-title">
@@ -259,7 +290,7 @@
             @updateMetaData="updateMetaData"
             :labelText="$t('agent.form.linkKnowledge')"
             :type="'knowledgeBaseConfig'"
-            :appType="'agent'"
+            :appType="AGENT"
           />
         </div>
 
@@ -422,7 +453,7 @@
     <!-- 视图设置 -->
     <visualSet ref="visualSet" @sendVisual="sendVisual" />
     <!-- 内置工具详情 -->
-    <ToolDeatail ref="toolDeatail" @updateDetail="updateDetail" />
+    <ToolDetail ref="toolDetail" @updateDetail="updateDetail" />
     <!-- 提交至提示词 -->
     <createPrompt
       :isCustom="true"
@@ -472,6 +503,7 @@ import visualSet from './visualSet';
 import metaSet from '@/components/metaSet';
 import ModelSet from './modelSetDialog';
 import { selectModelList, getRerankList } from '@/api/modelAccess';
+import { AGENT } from '@/utils/commonSet';
 import {
   deleteMcp,
   enableMcp,
@@ -485,7 +517,7 @@ import {
   switchCustomBuiltIn,
 } from '@/api/agent';
 import ToolDialog from './toolDialog';
-import ToolDeatail from './toolDetail';
+import ToolDetail from './toolDetail';
 import { readWorkFlow } from '@/api/workflow';
 import Chat from './chat';
 import LinkIcon from '@/components/linkIcon.vue';
@@ -493,8 +525,10 @@ import promptTemplate from './prompt/index.vue';
 import createPrompt from '@/components/createApp/createPrompt.vue';
 import PromptOptimize from '@/components/promptOptimize.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
+import VersionPopover from '@/components/versionPopover.vue';
 export default {
   components: {
+    VersionPopover,
     LinkIcon,
     Chat,
     CreateIntelligent,
@@ -503,7 +537,7 @@ export default {
     setSafety,
     visualSet,
     metaSet,
-    ToolDeatail,
+    ToolDetail,
     promptTemplate,
     createPrompt,
     PromptOptimize,
@@ -573,6 +607,7 @@ export default {
   },
   data() {
     return {
+      AGENT,
       promptType: 'create',
       limitMaxTokens: 4096,
       knowledgeIndex: -1,
@@ -581,11 +616,42 @@ export default {
       metaSetVisible: false,
       knowledgeCheckData: [],
       activeIndex: -1,
-      showOperation: false,
-      appId: '',
-      scope: 'public',
       rerankOptions: [],
       initialEditForm: null,
+      publishType: this.$route.query.publishType,
+      publishForm: {
+        publishType: 'private',
+        version: '',
+        desc: '',
+      },
+      publishRules: {
+        version: [
+          {
+            required: true,
+            message: this.$t('list.version.noPlaceholder'),
+            trigger: 'blur',
+          },
+          {
+            pattern: /^v\d+\.\d+\.\d+$/,
+            message: this.$t('list.version.versionMsg'),
+            trigger: 'blur',
+          },
+        ],
+        desc: [
+          {
+            required: true,
+            message: this.$t('list.version.descPlaceholder'),
+            trigger: 'blur',
+          },
+        ],
+        publishType: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'change',
+          },
+        ],
+      },
       editForm: {
         newAgent: false,
         functionCalling: '',
@@ -778,7 +844,7 @@ export default {
       this.updateInfo();
     },
     handleBuiltin(n) {
-      this.$refs.toolDeatail.showDialog(n);
+      this.$refs.toolDetail.showDialog(n);
     },
     showVisualSet() {
       this.$refs.visualSet.showDialog(this.editForm.visionConfig);
@@ -838,7 +904,7 @@ export default {
         path: `/agent/publishSet`,
         query: {
           appId: this.editForm.assistantId,
-          appType: 'agent',
+          appType: AGENT,
           name: this.editForm.name,
         },
       });
@@ -946,9 +1012,6 @@ export default {
         path: '/appSpace/agent',
       });
     },
-    handlePublish() {
-      this.showOperation = !this.showOperation;
-    },
     savePublish() {
       if (this.editForm.modelParams === '') {
         this.$message.warning(this.$t('agent.form.selectModel'));
@@ -958,15 +1021,20 @@ export default {
         this.$message.warning(this.$t('agent.form.inputPrologue'));
         return false;
       }
-      const data = {
-        appId: this.editForm.assistantId,
-        appType: 'agent',
-        publishType: this.scope,
-      };
-      appPublish(data).then(res => {
-        if (res.code === 0) {
-          this.$router.push({
-            path: '/explore',
+
+      this.$refs.publishForm.validate(valid => {
+        if (valid) {
+          const data = {
+            appId: this.editForm.assistantId,
+            appType: AGENT,
+            publishType: this.publishForm.publishType,
+            desc: this.publishForm.desc,
+            version: this.publishForm.version,
+          };
+          appPublish(data).then(res => {
+            if (res.code === 0) {
+              this.$router.push({ path: '/explore' });
+            }
           });
         }
       });
@@ -1254,12 +1322,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.isDisabled .header-right,
-.isDisabled .drawer-form > div {
-  user-select: none;
-  pointer-events: none !important;
-}
-
 /deep/ {
   .apikeyBtn {
     border: 1px solid $btn_bg;
@@ -1404,23 +1466,6 @@ export default {
   padding: 0 20px;
   position: relative;
   border-bottom: 1px solid #dbdbdb;
-
-  .popover-operation {
-    position: absolute;
-    bottom: -122px;
-    right: 20px;
-    background: #fff;
-    box-shadow: 0px 1px 7px rgba(0, 0, 0, 0.3);
-    padding: 10px 20px;
-    border-radius: 6px;
-    z-index: 999;
-
-    .saveBtn {
-      display: flex;
-      justify-content: center;
-      padding: 10px 0;
-    }
-  }
 
   .header-left {
     display: flex;
@@ -1572,7 +1617,7 @@ export default {
       padding: 10px 20px;
     }
 
-    .agnetSet {
+    .agentSet {
       background: #f7f8fa;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
       border-radius: 8px;

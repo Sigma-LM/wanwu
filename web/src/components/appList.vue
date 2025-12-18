@@ -129,10 +129,6 @@
               >
                 {{$t('common.button.publish')}}
               </el-dropdown-item>-->
-              <!--v0.3.2 下掉取消发布-->
-              <!--<el-dropdown-item command="cancelPublish" v-if="n.publishType">
-                {{ $t('common.button.cancelPublish') }}
-              </el-dropdown-item>-->
               <el-dropdown-item command="publishSet" v-if="n.publishType">
                 {{ $t('appSpace.publishSet') }}
               </el-dropdown-item>
@@ -448,6 +444,7 @@ export default {
         query: {
           id: row.appId,
           ...(row.publishType !== '' && { publish: true }),
+          publishType: row.publishType,
         },
       });
     },
@@ -498,6 +495,7 @@ export default {
         query: {
           id: row.appId,
           ...(row.publishType !== '' && { publish: true }),
+          publishType: row.publishType,
         },
       });
     },
