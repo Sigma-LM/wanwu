@@ -113,7 +113,7 @@ func (s *Service) AssistantSnapshotList(ctx context.Context, req *assistant_serv
 
 func (s *Service) AssistantSnapshotLatest(ctx context.Context, req *assistant_service.AssistantSnapshotInfoReq) (*assistant_service.AssistantSnapshot, error) {
 	assistantId := util.MustU32(req.AssistantId)
-	snapshotInfo, status := s.cli.GetAssistantSnapshot(ctx, assistantId, "", req.Identity.UserId, req.Identity.OrgId)
+	snapshotInfo, status := s.cli.GetAssistantSnapshot(ctx, assistantId, "")
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
@@ -129,7 +129,7 @@ func (s *Service) AssistantSnapshotLatest(ctx context.Context, req *assistant_se
 	}, nil
 }
 func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_service.AssistantSnapshotInfoReq) (*assistant_service.AssistantInfo, error) {
-	snapshotInfo, status := s.cli.GetAssistantSnapshot(ctx, util.MustU32(req.AssistantId), "", req.Identity.UserId, req.Identity.OrgId)
+	snapshotInfo, status := s.cli.GetAssistantSnapshot(ctx, util.MustU32(req.AssistantId), "")
 
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
@@ -294,7 +294,7 @@ func (s *Service) AssistantSnapshotRollback(ctx context.Context, req *assistant_
 	}
 
 	// 获取指定版本的快照信息
-	assistantSnapshot, status := s.cli.GetAssistantSnapshot(ctx, assistantId, version, req.Identity.UserId, req.Identity.OrgId)
+	assistantSnapshot, status := s.cli.GetAssistantSnapshot(ctx, assistantId, version)
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}

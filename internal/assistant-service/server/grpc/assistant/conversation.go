@@ -231,7 +231,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 			return errStatus(errs.Code_AssistantConversationErr, status)
 		}
 	} else {
-		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, uint32(assistantID), "", "", "")
+		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, uint32(assistantID), "")
 		if status != nil {
 			log.Errorf("Assistant服务获取智能体快照失败，assistantId: %s, error: %v", req.AssistantId, status)
 			SSEError(stream, "智能体快照获取失败")
@@ -520,7 +520,7 @@ func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantC
 			return errStatus(errs.Code_AssistantConversationErr, status)
 		}
 	} else {
-		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, uint32(assistantID), "", "", "")
+		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, uint32(assistantID), "")
 		if status != nil {
 			log.Errorf("Assistant服务获取智能体快照失败，assistantId: %s, error: %v", req.AssistantId, status)
 			SSEError(stream, "智能体快照获取失败")

@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
@@ -18,14 +19,14 @@ func (c *Client) CreateAssistantSnapshot(ctx context.Context, assistantSnapshot 
 			sqlopt.WithVersion(assistantSnapshot.Version),
 			sqlopt.DataPerm(assistantSnapshot.UserId, assistantSnapshot.OrgId),
 		).Apply(tx).First(&model.AssistantSnapshot{}).Error; err == nil {
-			return toErrStatus("assistant_snapshot", "snapshot already exists")
+			return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot version already exists: %v", err))
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return toErrStatus("assistant_snapshot", err.Error())
+			return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot query failed: %v", err))
 		}
 
 		// 创建
 		if err := tx.Create(assistantSnapshot).Error; err != nil {
-			return toErrStatus("assistant_snapshot", err.Error())
+			return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot create failed: %v", err))
 		}
 		return nil
 	})
@@ -44,13 +45,13 @@ func (c *Client) UpdateAssistantSnapshot(ctx context.Context, assistantID uint32
 			Pluck("id", &id).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return toErrStatus("assistant_snapshot", "snapshot not found")
+				return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot not found: %v", err))
 			}
-			return toErrStatus("assistant_snapshot", "query snapshot version failed: "+err.Error())
+			return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot query failed: %v", err))
 		}
 
 		if id == 0 {
-			return toErrStatus("assistant_snapshot", "snapshot not found")
+			return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot not found: %v", err))
 		}
 
 		// 更新
@@ -58,7 +59,7 @@ func (c *Client) UpdateAssistantSnapshot(ctx context.Context, assistantID uint32
 			"desc": desc,
 		})
 		if result.Error != nil {
-			return toErrStatus("assistant_snapshot", "update snapshot failed: "+result.Error.Error())
+			return toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot update failed: %v", result.Error))
 		}
 
 		return nil
@@ -74,22 +75,21 @@ func (c *Client) GetAssistantSnapshotList(ctx context.Context, assistantID uint3
 		Order("created_at DESC").
 		Find(&assistantSnapshots).Error
 	if err != nil {
-		return nil, toErrStatus("assistant_snapshot_list", err.Error())
+		return nil, toErrStatus("assistant_snapshot_list", fmt.Sprintf("assistant snapshot list query failed: %v", err))
 	}
 	return assistantSnapshots, nil
 }
 
-func (c *Client) GetAssistantSnapshot(ctx context.Context, assistantID uint32, version string, userID, orgID string) (*model.AssistantSnapshot, *err_code.Status) {
+func (c *Client) GetAssistantSnapshot(ctx context.Context, assistantID uint32, version string) (*model.AssistantSnapshot, *err_code.Status) {
 	assistantSnapshot := &model.AssistantSnapshot{}
 	err := sqlopt.SQLOptions(
 		sqlopt.WithAssistantID(assistantID),
 		sqlopt.WithVersion(version),
-		sqlopt.DataPerm(userID, orgID),
 	).Apply(c.db.WithContext(ctx)).Model(&model.AssistantSnapshot{}).
 		Order("created_at DESC").
 		First(&assistantSnapshot).Error
 	if err != nil {
-		return nil, toErrStatus("assistant_snapshot", err.Error())
+		return nil, toErrStatus("assistant_snapshot", fmt.Sprintf("assistant snapshot query failed: %v", err))
 	}
 	return assistantSnapshot, nil
 }
@@ -114,7 +114,7 @@ func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model
 			"safety_config":        assistant.SafetyConfig,
 			"vision_config":        assistant.VisionConfig,
 		}).Error; err != nil {
-			return toErrStatus("assistant_update", err.Error())
+			return toErrStatus("assistant_update", fmt.Sprintf("assistant update failed: %v", err))
 		}
 
 		assistantId := assistant.ID
@@ -130,7 +130,7 @@ func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model
 		// 创建
 		if len(tools) > 0 {
 			if err := tx.Create(tools).Error; err != nil {
-				return toErrStatus("assistant_tool", err.Error())
+				return toErrStatus("assistant_tool", fmt.Sprintf("assistant tool create failed: %v", err))
 			}
 		}
 
@@ -140,12 +140,12 @@ func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model
 			sqlopt.WithAssistantID(assistantId),
 			sqlopt.DataPerm(userID, orgID),
 		).Apply(tx).Delete(&model.AssistantMCP{}).Error; err != nil {
-			return toErrStatus("assistant_mcp", err.Error())
+			return toErrStatus("assistant_mcp", fmt.Sprintf("assistant mcp delete failed: %v", err))
 		}
 		// 创建
 		if len(mcps) > 0 {
 			if err := tx.Create(mcps).Error; err != nil {
-				return toErrStatus("assistant_mcp", err.Error())
+				return toErrStatus("assistant_mcp", fmt.Sprintf("assistant mcp create failed: %v", err))
 			}
 		}
 
@@ -155,12 +155,12 @@ func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model
 			sqlopt.WithAssistantID(assistantId),
 			sqlopt.DataPerm(userID, orgID),
 		).Apply(tx).Delete(&model.AssistantWorkflow{}).Error; err != nil {
-			return toErrStatus("assistant_workflow", err.Error())
+			return toErrStatus("assistant_workflow", fmt.Sprintf("assistant workflow delete failed: %v", err))
 		}
 		// 创建
 		if len(workflows) > 0 {
 			if err := tx.Create(workflows).Error; err != nil {
-				return toErrStatus("assistant_workflow", err.Error())
+				return toErrStatus("assistant_workflow", fmt.Sprintf("assistant workflow create failed: %v", err))
 			}
 		}
 
