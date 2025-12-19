@@ -29,7 +29,7 @@ func SelectKnowledgeList(ctx *gin.Context, userId, orgId string, req *request.Kn
 	resp, err := knowledgeBase.SelectKnowledgeList(ctx.Request.Context(), &knowledgebase_service.KnowledgeSelectReq{
 		UserId:    userId,
 		OrgId:     orgId,
-		Name:      req.Name,
+		Name:      strings.TrimSpace(req.Name),
 		TagIdList: req.TagIdList,
 		Category:  req.Category,
 	})

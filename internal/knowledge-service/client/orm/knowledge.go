@@ -26,6 +26,9 @@ func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, catego
 		if err != nil {
 			return nil, nil, err
 		}
+		if len(knowledgeIdList) == 0 {
+			return make([]*model.KnowledgeBase, 0), nil, nil
+		}
 	}
 	//查询有权限的知识库列表，获取有权限的知识库id，目前是getALL，没有通过连表实现
 	permissionKnowledgeList, err := SelectKnowledgeIdByPermission(ctx, userId, orgId, model.PermissionTypeView)
