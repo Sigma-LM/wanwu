@@ -218,7 +218,10 @@
                       class="el-icon-refresh"
                       style="margin-left: 5px; color: #409eff"
                       @click="handleRetry(scope.row)"
-                      v-if="scope.row.status === KNOWLEDGE_STATUS_FAIL"
+                      v-if="
+                        scope.row.status === KNOWLEDGE_STATUS_FAIL &&
+                        scope.row.docType !== 'url'
+                      "
                     ></i>
                   </template>
                 </el-table-column>
@@ -288,7 +291,7 @@
                       :disabled="
                         ![KNOWLEDGE_STATUS_FINISH].includes(
                           Number(scope.row.status),
-                        )
+                        ) || scope.row.docType === 'url'
                       "
                       v-if="hasManagePerm"
                     >
@@ -726,6 +729,7 @@ export default {
       }).then(res => {
         if (res.code === 0) {
           this.$message.success(this.$t('common.info.retry'));
+          this.reLoadDocList();
         }
       });
     },
