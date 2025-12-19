@@ -81,6 +81,7 @@
 {"code":110000,"key":"bff_workflow_rollback","langs":{"zh":"工作流回滚错误: %v"}}
 {"code":110000,"key":"bff_chatflow_application_list","langs":{"zh":"获取对话流应用列表错误:%v"}}
 {"code":110000,"key":"bff_chatflow_application_info","langs":{"zh":"获取对话流应用信息错误:%v"}}
+{"code":110000,"key":"bff_app_publish_version","langs":{"zh":"%v"}}
 {"code":110010,"key":"","langs":{"zh":"应用类型错误"}}
 {"code":0,"key":"------ doc ------","langs":{}}
 {"code":110000,"key":"bff_doc_center_file_unescape","langs":{"en":"path unescape error: %v","zh":"路径去除转义错误: %v"}}
@@ -442,6 +443,7 @@
 {"code":300003,"key":"app_safety_sensitive_download_fail","langs":{"zh":"文件下载失败: %v"}}
 {"code":300003,"key":"app_safety_sensitive_vocabulary_list_get_by_ids","langs":{"zh":"批量获取敏感词失败: %v"}}
 {"code":300003,"key":"app_safety_sensitive_table_not_found","langs":{"zh":"敏感词表(%v)不存在"}}
+{"code":300000,"key":"app_type_revert","langs":{"zh":"应用类型转换错误: %v"}}
 {"code":300009,"key":"app_url_get_by_name","langs":{"zh":"获取应用(%v)错误: %v"}}
 {"code":300009,"key":"app_url_same_name","langs":{"zh":"存在同名应用(%v)，请修改后重试"}}
 {"code":300009,"key":"app_url_create","langs":{"zh":"创建URL(%v)失败: %v"}}

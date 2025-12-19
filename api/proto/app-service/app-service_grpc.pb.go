@@ -33,6 +33,7 @@ const (
 	AppService_GetAppListByIds_FullMethodName              = "/app_service.AppService/GetAppListByIds"
 	AppService_DeleteApp_FullMethodName                    = "/app_service.AppService/DeleteApp"
 	AppService_GetAppInfo_FullMethodName                   = "/app_service.AppService/GetAppInfo"
+	AppService_ConvertAppType_FullMethodName               = "/app_service.AppService/ConvertAppType"
 	AppService_AppUrlCreate_FullMethodName                 = "/app_service.AppService/AppUrlCreate"
 	AppService_AppUrlDelete_FullMethodName                 = "/app_service.AppService/AppUrlDelete"
 	AppService_AppUrlUpdate_FullMethodName                 = "/app_service.AppService/AppUrlUpdate"
@@ -66,6 +67,7 @@ type AppServiceClient interface {
 	GetAppListByIds(ctx context.Context, in *GetAppListByIdsReq, opts ...grpc.CallOption) (*AppList, error)
 	DeleteApp(ctx context.Context, in *DeleteAppReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAppInfo(ctx context.Context, in *GetAppInfoReq, opts ...grpc.CallOption) (*AppInfo, error)
+	ConvertAppType(ctx context.Context, in *ConvertAppTypeReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// --- url ---
 	AppUrlCreate(ctx context.Context, in *AppUrlCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AppUrlDelete(ctx context.Context, in *AppUrlDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -220,6 +222,16 @@ func (c *appServiceClient) GetAppInfo(ctx context.Context, in *GetAppInfoReq, op
 	return out, nil
 }
 
+func (c *appServiceClient) ConvertAppType(ctx context.Context, in *ConvertAppTypeReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AppService_ConvertAppType_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appServiceClient) AppUrlCreate(ctx context.Context, in *AppUrlCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -350,6 +362,7 @@ type AppServiceServer interface {
 	GetAppListByIds(context.Context, *GetAppListByIdsReq) (*AppList, error)
 	DeleteApp(context.Context, *DeleteAppReq) (*emptypb.Empty, error)
 	GetAppInfo(context.Context, *GetAppInfoReq) (*AppInfo, error)
+	ConvertAppType(context.Context, *ConvertAppTypeReq) (*emptypb.Empty, error)
 	// --- url ---
 	AppUrlCreate(context.Context, *AppUrlCreateReq) (*emptypb.Empty, error)
 	AppUrlDelete(context.Context, *AppUrlDeleteReq) (*emptypb.Empty, error)
@@ -412,6 +425,9 @@ func (UnimplementedAppServiceServer) DeleteApp(context.Context, *DeleteAppReq) (
 }
 func (UnimplementedAppServiceServer) GetAppInfo(context.Context, *GetAppInfoReq) (*AppInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAppInfo not implemented")
+}
+func (UnimplementedAppServiceServer) ConvertAppType(context.Context, *ConvertAppTypeReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConvertAppType not implemented")
 }
 func (UnimplementedAppServiceServer) AppUrlCreate(context.Context, *AppUrlCreateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AppUrlCreate not implemented")
@@ -701,6 +717,24 @@ func _AppService_GetAppInfo_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AppService_ConvertAppType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConvertAppTypeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServiceServer).ConvertAppType(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AppService_ConvertAppType_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServiceServer).ConvertAppType(ctx, req.(*ConvertAppTypeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AppService_AppUrlCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AppUrlCreateReq)
 	if err := dec(in); err != nil {
@@ -957,6 +991,10 @@ var AppService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAppInfo",
 			Handler:    _AppService_GetAppInfo_Handler,
+		},
+		{
+			MethodName: "ConvertAppType",
+			Handler:    _AppService_ConvertAppType_Handler,
 		},
 		{
 			MethodName: "AppUrlCreate",

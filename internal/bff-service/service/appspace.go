@@ -1,14 +1,17 @@
 package service
 
 import (
+	"fmt"
 	"sort"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	rag_service "github.com/UnicomAI/wanwu/api/proto/rag-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	"github.com/UnicomAI/wanwu/pkg/constant"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -161,6 +164,18 @@ func PublishApp(ctx *gin.Context, userId, orgId string, req request.PublishAppRe
 		}
 	}
 	if req.AppType == constant.AppTypeAgent {
+		resp, _ := assistant.AssistantSnapshotLatest(ctx.Request.Context(), &assistant_service.AssistantSnapshotInfoReq{
+			AssistantId: req.AppId,
+			Identity: &assistant_service.Identity{
+				UserId: userId,
+				OrgId:  orgId,
+			},
+		})
+		if resp != nil {
+			if req.Version <= resp.Version {
+				return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_app_publish_version", fmt.Sprintf("the version number is not self-incrementing, old version %v, current version is %v", resp.Version, req.Version))
+			}
+		}
 		_, err := assistant.AssistantSnapshotCreate(ctx.Request.Context(), &assistant_service.AssistantSnapshotReq{
 			AssistantId: req.AppId,
 			Version:     req.Version,
@@ -175,6 +190,18 @@ func PublishApp(ctx *gin.Context, userId, orgId string, req request.PublishAppRe
 		}
 	}
 	if req.AppType == constant.AppTypeRag {
+		resp, _ := rag.GetPublishRagDesc(ctx.Request.Context(), &rag_service.GetPublishRagDescReq{
+			RagId: req.AppId,
+			Identity: &rag_service.Identity{
+				UserId: userId,
+				OrgId:  orgId,
+			},
+		})
+		if resp != nil {
+			if req.Version <= resp.Version {
+				return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_app_publish_version", fmt.Sprintf("the version number is not self-incrementing, old version %v, current version is %v", resp.Version, req.Version))
+			}
+		}
 		_, err := rag.PublishRag(ctx.Request.Context(), &rag_service.PublishRagReq{
 			RagId:   req.AppId,
 			Version: req.Version,

@@ -163,6 +163,28 @@ func (c *Client) RecordAppHistory(ctx context.Context, userId, appId, appType st
 	return nil
 }
 
+func (c *Client) ConvertAppType(ctx context.Context, appId, oldAppType, newAppType string) *errs.Status {
+	var app model.App
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithAppID(appId),
+		sqlopt.WithAppType(oldAppType),
+	).Apply(c.db.WithContext(ctx)).First(&app).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return toErrStatus("app_type_revert", err.Error())
+	}
+	if updateErr := sqlopt.SQLOptions(
+		sqlopt.WithAppID(appId),
+		sqlopt.WithAppType(oldAppType),
+	).Apply(c.db.WithContext(ctx)).Model(&app).Updates(map[string]interface{}{
+		"app_type": newAppType,
+	}).Error; updateErr != nil {
+		return toErrStatus("app_type_revert", updateErr.Error())
+	}
+	return nil
+}
+
 // 不包括apiKey
 func deleteAppRelatedDataByUnPublish(tx *gorm.DB, appId, appType string) error {
 	if err := sqlopt.SQLOptions(

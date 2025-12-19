@@ -10,6 +10,7 @@ import (
 	"sort"
 	"time"
 
+	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
@@ -308,7 +309,16 @@ func WorkflowConvert(ctx *gin.Context, orgId, workflowId, flowMode string) error
 		}
 		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_convert", fmt.Sprintf("[%v] %v", resp.StatusCode(), string(b)))
 	}
-	return nil
+	var oldAppType, newAppType string
+	if flowMode == "3" {
+		oldAppType = constant.AppTypeWorkflow
+		newAppType = constant.AppTypeChatflow
+	} else {
+		oldAppType = constant.AppTypeChatflow
+		newAppType = constant.AppTypeWorkflow
+	}
+	_, err = app.ConvertAppType(ctx, &app_service.ConvertAppTypeReq{AppId: workflowId, OldAppType: oldAppType, NewAppType: newAppType})
+	return err
 }
 
 func PublishedWorkflowRun(ctx *gin.Context, orgId string, req request.WorkflowRunReq) (*response.CozeNodeResult, error) {

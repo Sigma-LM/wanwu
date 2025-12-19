@@ -100,6 +100,14 @@ func (s *Service) RecordAppHistory(ctx context.Context, req *app_service.RecordA
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) ConvertAppType(ctx context.Context, req *app_service.ConvertAppTypeReq) (*emptypb.Empty, error) {
+	err := s.cli.ConvertAppType(ctx, req.AppId, req.OldAppType, req.NewAppType)
+	if err != nil {
+		return nil, errStatus(errs.Code_AppGeneral, err)
+	}
+	return &emptypb.Empty{}, nil
+}
+
 // --- internal ---
 func toProtoExpApp(record *orm.ExplorationAppInfo) *app_service.ExplorationAppInfo {
 	return &app_service.ExplorationAppInfo{
