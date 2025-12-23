@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	timeout        = 120 * time.Second
+	timeout        = 600 * time.Second
 	connectTimeout = 60 * time.Second
 )
 
