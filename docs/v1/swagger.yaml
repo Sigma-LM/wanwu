@@ -6939,7 +6939,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: 导出工作流的json文件
+      description: 导出对话流的json文件
       parameters:
       - description: 工作流ID
         in: query
@@ -6960,6 +6960,29 @@ paths:
       security:
       - JWT: []
       summary: 导出Chatflow
+      tags:
+      - chatflow
+  /appspace/chatflow/export/draft:
+    get:
+      consumes:
+      - application/json
+      description: 导出对话流草稿的json文件
+      parameters:
+      - description: 工作流ID
+        in: query
+        name: workflow_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 导出Chatflow草稿
       tags:
       - chatflow
   /appspace/chatflow/import:
@@ -7269,6 +7292,29 @@ paths:
       security:
       - JWT: []
       summary: 导出Workflow
+      tags:
+      - workflow
+  /appspace/workflow/export/draft:
+    get:
+      consumes:
+      - application/json
+      description: 导出工作流草稿的json文件
+      parameters:
+      - description: 工作流ID
+        in: query
+        name: workflow_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 导出Workflow草稿
       tags:
       - workflow
   /appspace/workflow/import:

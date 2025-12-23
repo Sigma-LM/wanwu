@@ -71,7 +71,7 @@ func ImportChatflow(ctx *gin.Context) {
 //
 //	@Tags			chatflow
 //	@Summary		导出Chatflow
-//	@Description	导出工作流的json文件
+//	@Description	导出对话流的json文件
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		application/octet-stream
@@ -83,7 +83,42 @@ func ExportChatflow(ctx *gin.Context) {
 	fileName := "chatflow_export.json"
 	workflowID := ctx.Query("workflow_id")
 	version := ctx.Query("version")
-	resp, err := service.ExportWorkFlow(ctx, getOrgID(ctx), workflowID, version)
+	//适配从草稿导出 从最新版本导出 导出指定版本（workflow中FromDraft:0,FromSpecificVersion:1,FromLatestVersion:2）
+	var qType uint8
+	qType = 2
+	if version != "" {
+		qType = 1
+	}
+	resp, err := service.ExportWorkFlow(ctx, getOrgID(ctx), workflowID, version, qType)
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
+	// 设置响应头
+	ctx.Header("Content-Disposition", "attachment; filename*=utf-8''"+url.QueryEscape(fileName))
+	ctx.Header("Content-Type", "application/octet-stream")
+	ctx.Header("Access-Control-Expose-Headers", "Content-Disposition")
+	// 直接写入字节数据
+	ctx.Data(http.StatusOK, "application/octet-stream", resp)
+}
+
+// ExportChatflowDraft
+//
+//	@Tags			chatflow
+//	@Summary		导出Chatflow草稿
+//	@Description	导出对话流草稿的json文件
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		application/octet-stream
+//	@Param			workflow_id	query		string	true	"工作流ID"
+//	@Success		200			{object}	response.Response{}
+//	@Router			/appspace/chatflow/export/draft [get]
+func ExportChatflowDraft(ctx *gin.Context) {
+	fileName := "chatflow_export.json"
+	workflowID := ctx.Query("workflow_id")
+	version := ctx.Query("version")
+	qType := uint8(0)
+	resp, err := service.ExportWorkFlow(ctx, getOrgID(ctx), workflowID, version, qType)
 	if err != nil {
 		gin_util.Response(ctx, nil, err)
 		return

@@ -190,7 +190,7 @@ func DeleteWorkflow(ctx *gin.Context, orgID, workflowID string) error {
 	return nil
 }
 
-func ExportWorkFlow(ctx *gin.Context, orgID, workflowID, version string) ([]byte, error) {
+func ExportWorkFlow(ctx *gin.Context, orgID, workflowID, version string, qType uint8) ([]byte, error) {
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ExportUri)
 	ret := &response.CozeWorkflowExportResp{}
 	if resp, err := resty.New().
@@ -199,10 +199,11 @@ func ExportWorkFlow(ctx *gin.Context, orgID, workflowID, version string) ([]byte
 		SetHeader("Content-Type", "application/json").
 		SetHeader("Accept", "application/json").
 		SetHeaders(workflowHttpReqHeader(ctx)).
-		SetBody(map[string]string{
+		SetBody(map[string]any{
 			"workflow_id": workflowID,
 			"version":     version,
 			"space_id":    orgID,
+			"qType":       qType,
 		}).
 		SetResult(&ret).
 		Post(url); err != nil {

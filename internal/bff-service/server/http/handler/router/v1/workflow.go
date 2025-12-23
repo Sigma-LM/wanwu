@@ -14,6 +14,7 @@ func registerWorkflow(apiV1 *gin.RouterGroup) {
 	mid.Sub("workflow").Reg(apiV1, "/appspace/workflow/copy", http.MethodPost, v1.CopyWorkflow, "拷贝workflow")
 	mid.Sub("workflow").Reg(apiV1, "/appspace/workflow/model/select/llm", http.MethodGet, v1.ListLlmModelsByWorkflow, "llm模型列表（用于workflow）")
 	mid.Sub("workflow").Reg(apiV1, "/appspace/workflow/export", http.MethodGet, v1.ExportWorkflow, "导出workflow")
+	mid.Sub("workflow").Reg(apiV1, "/appspace/workflow/export/draft", http.MethodGet, v1.ExportWorkflowDraft, "导出workflow草稿")
 	mid.Sub("workflow").Reg(apiV1, "/appspace/workflow/import", http.MethodPost, v1.ImportWorkflow, "导入workflow")
 
 	mid.Sub("workflow").Reg(apiV1, "/workflow/tool/action", http.MethodGet, v1.GetWorkflowToolDetail, "获取Tool具体action")
@@ -28,5 +29,6 @@ func registerWorkflow(apiV1 *gin.RouterGroup) {
 	mid.Sub("workflow").Reg(apiV1, "/appspace/chatflow/copy", http.MethodPost, v1.CopyChatflow, "拷贝chatflow")
 	mid.Sub("workflow").Reg(apiV1, "/appspace/chatflow/import", http.MethodPost, v1.ImportChatflow, "导入chatflow")
 	mid.Sub("workflow").Reg(apiV1, "/appspace/chatflow/export", http.MethodGet, v1.ExportChatflow, "导出chatflow")
+	mid.Sub("workflow").Reg(apiV1, "/appspace/chatflow/export/draft", http.MethodGet, v1.ExportChatflowDraft, "导出chatflow草稿")
 
 }

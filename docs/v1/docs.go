@@ -965,7 +965,7 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
-                "description": "导出工作流的json文件",
+                "description": "导出对话流的json文件",
                 "consumes": [
                     "application/json"
                 ],
@@ -989,6 +989,43 @@ const docTemplate = `{
                         "description": "版本",
                         "name": "version",
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/chatflow/export/draft": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "导出对话流草稿的json文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "chatflow"
+                ],
+                "summary": "导出Chatflow草稿",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "工作流ID",
+                        "name": "workflow_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1522,6 +1559,43 @@ const docTemplate = `{
                         "description": "版本",
                         "name": "version",
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/appspace/workflow/export/draft": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "导出工作流草稿的json文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "导出Workflow草稿",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "工作流ID",
+                        "name": "workflow_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
