@@ -57,6 +57,7 @@ export default {
   menu: {
     explore: '应用广场',
     templateSquare: '模板广场',
+    apiKey: 'API Key 管理',
     workspace: '工作室',
     tool: '资源库',
     mcp: 'MCP广场',
@@ -165,6 +166,7 @@ export default {
       inputDesc: '请输入描述',
     },
     hint: {
+      nameHint: '仅支持中文、英文、数字、下划线、中划线、英文（.）',
       appName: '支持中文、英文、数字、斜线(\\)、中划线(-)、下划线(_)',
       appNameLimit: '30个字符以内',
       appRemarkLimit: '500字以内',
@@ -416,6 +418,28 @@ export default {
     switch: {
       startHint: '该组织状态已停用，是否确定开启？',
       stopHint: '该组织状态开启中，是否确定停用？',
+    },
+  },
+  apiKeyManage: {
+    table: {
+      name: '名称',
+      desc: '描述',
+      apiKey: 'API Key',
+      expiredAt: '过期时间',
+      createdAt: '创建时间',
+      creator: '创建人',
+      status: '应用状态',
+    },
+    dialog: {
+      create: 'API Key创建',
+      edit: 'API Key编辑',
+    },
+    confirm: {
+      delete: '删除后会导致所有正在使用API访问的应用不可用，是否确认删除？',
+    },
+    switch: {
+      startHint: '开启后可通过API访问应用，是否确认开启？',
+      stopHint: '停用后将影响正在使用API访问的应用的正常使用，是否确认停用？',
     },
   },
   infoSetting: {

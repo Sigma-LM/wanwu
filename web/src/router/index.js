@@ -263,6 +263,11 @@ const constantRoutes = [
         meta: { perm: [PERMS.RAG] },
       },
       {
+        path: '/openApiKey',
+        component: resolve => require(['@/views/apiKeyManagement'], resolve),
+        meta: { perm: [PERMS.API_KEY] },
+      },
+      {
         path: '/templateSquare',
         component: resolve => require(['@/views/templateSquare'], resolve),
       },

@@ -515,10 +515,10 @@ export default {
     },
     /*showCreateTotalDialog() {
       this.$refs.createTotalDialog.openDialog()
-    },*/
+    },
     showDocDownloadDialog() {
       this.$refs.docDownloadDialog.openDialog();
-    },
+    },*/
     showAboutDialog() {
       this.$refs.aboutDialog.openDialog();
     },
@@ -613,11 +613,9 @@ export default {
 .full-menu.layout {
   height: 100%;
   /*background: linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%);*/
-  /*min-height: 660px;*/
   .outer-container {
     height: 100%;
     .left-page-container {
-      //position: relative;
       width: 80px;
       height: 100%;
     }
@@ -635,13 +633,11 @@ export default {
       z-index: 20;
       .left-nav-container {
         position: relative;
-        min-height: 650px;
         height: 100%;
       }
       .left-nav-content-wrap {
-        /*display: flex;
-        flex-direction: column;
-        justify-content: center;*/
+        height: calc(100% - 115px);
+        overflow: auto;
       }
       .left-nav-content {
         padding: 6px 5px;
@@ -705,8 +701,6 @@ export default {
       width: calc(100% - 80px);
       height: 100%;
       border-radius: 10px;
-      // border: 1px solid #e6e6e6;
-      /*box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.15);*/
       .el-aside.full-menu-aside {
         height: 100%;
         width: 220px !important;
@@ -742,9 +736,6 @@ export default {
         width: 100%;
         height: 100vh;
         overflow: auto;
-        /*background: linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%);
-        border-radius: 8px 8px 8px 8px;
-        border-left: 0.5px solid #e6e6e6;*/
         .page-container {
           height: 100%;
           overflow: auto;
