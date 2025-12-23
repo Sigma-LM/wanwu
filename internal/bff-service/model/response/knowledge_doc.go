@@ -67,7 +67,7 @@ type DocSegmentResp struct {
 	SegmentContentList  []*SegmentContent `json:"contentList"`         //内容
 	SegmentImportStatus string            `json:"segmentImportStatus"` //分段导入状态描述
 	SegmentMethod       string            `json:"segmentMethod"`       //分段方式 父子分段/通用分段
-	DocAnalyzer         []string          `json:"docAnalyzer"`         //文档解析类型 text / ocr  / model
+	DocAnalyzerText     []string          `json:"docAnalyzerText"`     //文档解析类型 文字提取 / OCR解析  / 模型解析
 }
 
 type DocMetaData struct {

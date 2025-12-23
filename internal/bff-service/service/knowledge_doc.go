@@ -23,6 +23,12 @@ const (
 	ParentChildSegment = "1" //父子分段
 )
 
+var docAnalyzerMap = map[string]string{
+	"text":  "文字提取",
+	"ocr":   "OCR解析",
+	"model": "模型解析",
+}
+
 // GetDocList 查询知识库所属文档列表
 func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (*response.DocPageResult, error) {
 	resp, err := knowledgeBaseDoc.GetDocList(ctx.Request.Context(), &knowledgebase_doc_service.GetDocListReq{
@@ -387,8 +393,17 @@ func buildDocSegmentResp(docSegmentListResp *knowledgebase_doc_service.DocSegmen
 		MetaDataList:        buildMetaDataResultList(docSegmentListResp.MetaDataList),
 		SegmentImportStatus: docSegmentListResp.SegmentImportStatus,
 		SegmentMethod:       docSegmentListResp.SegmentMethod,
-		DocAnalyzer:         docSegmentListResp.DocAnalyzer,
+		DocAnalyzerText:     buildDocAnalyzerText(docSegmentListResp.DocAnalyzer),
 	}
+}
+
+func buildDocAnalyzerText(docAnalyzer []string) []string {
+	if len(docAnalyzer) == 0 {
+		return make([]string, 0)
+	}
+	return lo.Map(docAnalyzer, func(item string, index int) string {
+		return docAnalyzerMap[item]
+	})
 }
 
 func buildDocChildSegmentResp(docSegmentListResp *knowledgebase_doc_service.GetDocChildSegmentListResp) *response.DocChildSegmentResp {
