@@ -334,34 +334,6 @@ export default {
     linkSearch() {
       this.isActive = !this.isActive;
     },
-    getModelData(type = '') {
-      getModelList({ modelType: '' })
-        .then(res => {
-          if (res.code === 0) {
-            this.modelOptions = res.data.list || [];
-            if (type === '') {
-              this.modelParams = this.modelOptions[0];
-            }
-            this.modelType =
-              this.modelParams.modelSeries === 'deepseek'
-                ? 'deepseek'
-                : 'bigModel';
-            this.$emit('getModelType', this.modelType);
-          }
-        })
-        .catch(err => {});
-    },
-    visibleChange(val) {
-      if (val) {
-        this.getModelData('refresh');
-      }
-    },
-    modelChange() {
-      this.modelType =
-        this.modelParams.modelSeries === 'deepseek' ? 'deepseek' : 'bigModel';
-      this.$emit('getModelType', this.modelType);
-      this.$emit('modelChange');
-    },
     showBigImg(url) {
       console.log(url);
     },

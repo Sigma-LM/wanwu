@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { OAUTH_API } from '@/utils/requestConstants';
+import { OPENAPI_API } from '@/utils/requestConstants';
 import { store } from '@/store';
 
 export default {
@@ -69,7 +69,7 @@ export default {
         jwt_token: this.token,
       }).toString();
 
-      window.location.href = `${OAUTH_API}/oauth/code/authorize?${queryParams}`;
+      window.location.href = `${OPENAPI_API}/oauth/code/authorize?${queryParams}`;
     },
   },
 };

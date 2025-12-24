@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { MODEL_API, DATACENTER_API } from '@/utils/requestConstants';
+import { MODEL_API } from '@/utils/requestConstants';
 
 /*----元景------*/
 //对话列表
@@ -67,14 +67,6 @@ export const deleteConversationHistory = data => {
     url: `${MODEL_API}/assistant/conversation/detail/delete`,
     method: 'delete',
     data,
-  });
-};
-//获取模型列表
-export const getModelList = data => {
-  return request({
-    url: `${DATACENTER_API}/infer/publish/model/select`,
-    method: 'get',
-    params: data,
   });
 };
 
