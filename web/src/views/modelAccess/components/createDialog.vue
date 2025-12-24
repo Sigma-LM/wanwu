@@ -201,6 +201,9 @@
           >
           </el-date-picker>
         </el-form-item>-->
+        <el-form-item v-if="isEdit" label="uuid">
+          {{ row.uuid || '--' }}
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">
