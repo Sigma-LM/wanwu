@@ -209,12 +209,12 @@ func (s *Service) GetMCPServerToolList(ctx context.Context, req *mcp_service.Get
 // internal
 func getMCPServerExample(ctx context.Context, mcpServerId string) (string, string, string, string) {
 	apiKey := "API KEY"
-	apiKeys, err := app.GetApiKeyList(ctx, &app_service.GetApiKeyListReq{
+	apiKeys, err := app.GetAppKeyList(ctx, &app_service.GetAppKeyListReq{
 		AppType: constant.AppTypeMCPServer,
 		AppId:   mcpServerId,
 	})
 	if err == nil && apiKeys.Total >= 1 {
-		apiKey = apiKeys.Info[0].ApiKey
+		apiKey = apiKeys.Info[0].AppKey
 	}
 
 	query := url.Values{}

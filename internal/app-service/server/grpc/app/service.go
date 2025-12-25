@@ -21,3 +21,15 @@ func NewService(cli client.IClient) *Service {
 func errStatus(code errs.Code, status *errs.Status) error {
 	return grpc_util.ErrorStatusWithKey(code, status.TextKey, status.Args...)
 }
+
+type iReq interface {
+	GetPageNo() int32 // 从1开始
+	GetPageSize() int32
+}
+
+func toOffset(req iReq) int32 {
+	if req.GetPageNo() < 1 || req.GetPageSize() < 0 {
+		return -1
+	}
+	return (req.GetPageNo() - 1) * req.GetPageSize()
+}

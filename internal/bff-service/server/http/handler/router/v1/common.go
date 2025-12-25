@@ -53,10 +53,13 @@ func registerCommon(apiV1 *gin.RouterGroup) {
 	mid.Sub("common").Reg(apiV1, "/appspace/app/list", http.MethodGet, v1.GetAppSpaceAppList, "获取应用列表")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/publish", http.MethodPost, v1.PublishApp, "发布应用")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/publish", http.MethodDelete, v1.UnPublishApp, "取消发布应用")
-	mid.Sub("common").Reg(apiV1, "/appspace/app/url", http.MethodGet, v1.GetApiBaseUrl, "获取Api根地址")
-	mid.Sub("common").Reg(apiV1, "/appspace/app/key", http.MethodPost, v1.GenApiKey, "生成ApiKey")
-	mid.Sub("common").Reg(apiV1, "/appspace/app/key", http.MethodDelete, v1.DelApiKey, "删除ApiKey")
-	mid.Sub("common").Reg(apiV1, "/appspace/app/key/list", http.MethodGet, v1.GetApiKeyList, "获取ApiKey列表")
+
+	// 老版本AppKey接口暂时保留
+	// mid.Sub("common").Reg(apiV1, "/appspace/app/url", http.MethodGet, v1.GetAppBaseUrl, "获取App根地址")
+	// mid.Sub("common").Reg(apiV1, "/appspace/app/key", http.MethodPost, v1.GenAppKey, "生成AppKey")
+	// mid.Sub("common").Reg(apiV1, "/appspace/app/key", http.MethodDelete, v1.DelAppKey, "删除AppKey")
+	// mid.Sub("common").Reg(apiV1, "/appspace/app/key/list", http.MethodGet, v1.GetAppKeyList, "获取AppKey列表")
+
 	mid.Sub("common").Reg(apiV1, "/appspace/app/version/list", http.MethodGet, v1.GetAppVersionList, "获取应用版本列表")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/version", http.MethodPut, v1.UpdateAppVersion, "更新应用版本描述并设置公开范围")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/version/rollback", http.MethodPost, v1.RollbackAppVersion, "回滚应用到指定版本")

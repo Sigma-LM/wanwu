@@ -15,6 +15,243 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/key": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "创建API密钥",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api.key"
+                ],
+                "summary": "创建API密钥",
+                "parameters": [
+                    {
+                        "description": "创建API密钥参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateAPIKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.APIKeyDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除API密钥",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api.key"
+                ],
+                "summary": "删除API\t密钥",
+                "parameters": [
+                    {
+                        "description": "删除API密钥参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteAPIKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/key/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取API密钥列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api.key"
+                ],
+                "summary": "获取API密钥列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页面编号，从1开始",
+                        "name": "pageNo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "单页数量，从1开始",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.APIKeyDetailResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/key/status": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "更新API密钥状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api.key"
+                ],
+                "summary": "更新API密钥状态",
+                "parameters": [
+                    {
+                        "description": "更新API密钥状态参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateAPIKeyStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/key/update": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "更新API密钥",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api.key"
+                ],
+                "summary": "更新API密钥",
+                "parameters": [
+                    {
+                        "description": "更新API密钥参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateAPIKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/appspace/app": {
             "delete": {
                 "security": [
@@ -56,7 +293,7 @@ const docTemplate = `{
         },
         "/appspace/app/key": {
             "post": {
-                "description": "生成ApiKey",
+                "description": "生成AppKey",
                 "consumes": [
                     "application/json"
                 ],
@@ -66,15 +303,15 @@ const docTemplate = `{
                 "tags": [
                     "app.key"
                 ],
-                "summary": "生成ApiKey",
+                "summary": "生成AppKey",
                 "parameters": [
                     {
-                        "description": "生成ApiKey参数",
+                        "description": "生成AppKey参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.GenApiKeyRequest"
+                            "$ref": "#/definitions/request.GenAppKeyRequest"
                         }
                     }
                 ],
@@ -90,7 +327,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/response.ApiResponse"
+                                            "$ref": "#/definitions/response.AppResponse"
                                         }
                                     }
                                 }
@@ -100,7 +337,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "删除ApiKey",
+                "description": "删除AppKey",
                 "consumes": [
                     "application/json"
                 ],
@@ -110,15 +347,15 @@ const docTemplate = `{
                 "tags": [
                     "app.key"
                 ],
-                "summary": "删除ApiKey",
+                "summary": "删除AppKey",
                 "parameters": [
                     {
-                        "description": "删除Apikey参数",
+                        "description": "删除Appkey参数",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.DelApiKeyRequest"
+                            "$ref": "#/definitions/request.DelAppKeyRequest"
                         }
                     }
                 ],
@@ -134,7 +371,7 @@ const docTemplate = `{
         },
         "/appspace/app/key/list": {
             "get": {
-                "description": "获取ApiKey",
+                "description": "获取AppKey",
                 "consumes": [
                     "application/json"
                 ],
@@ -144,7 +381,7 @@ const docTemplate = `{
                 "tags": [
                     "app.key"
                 ],
-                "summary": "获取ApiKey",
+                "summary": "获取AppKey",
                 "parameters": [
                     {
                         "type": "string",
@@ -175,7 +412,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/response.ApiResponse"
+                                                "$ref": "#/definitions/response.AppResponse"
                                             }
                                         }
                                     }
@@ -567,7 +804,7 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
-                "description": "获取Api根地址",
+                "description": "获取App根地址",
                 "consumes": [
                     "application/json"
                 ],
@@ -577,7 +814,7 @@ const docTemplate = `{
                 "tags": [
                     "app.key"
                 ],
-                "summary": "获取Api根地址",
+                "summary": "获取App根地址",
                 "parameters": [
                     {
                         "type": "string",
@@ -14590,6 +14827,24 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateAPIKeyRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "expiredAt": {
+                    "description": "格式 yyyy-mm-dd",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateDocChildSegmentReq": {
             "type": "object",
             "required": [
@@ -15046,7 +15301,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.DelApiKeyRequest": {
+        "request.DelAppKeyRequest": {
             "type": "object",
             "required": [
                 "apiId"
@@ -15054,6 +15309,14 @@ const docTemplate = `{
             "properties": {
                 "apiId": {
                     "description": "ApiID",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteAPIKeyRequest": {
+            "type": "object",
+            "properties": {
+                "keyId": {
                     "type": "string"
                 }
             }
@@ -15609,7 +15872,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.GenApiKeyRequest": {
+        "request.GenAppKeyRequest": {
             "type": "object",
             "required": [
                 "appId",
@@ -16922,6 +17185,35 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateAPIKeyRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "expiredAt": {
+                    "type": "string"
+                },
+                "keyId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateAPIKeyStatusRequest": {
+            "type": "object",
+            "properties": {
+                "keyId": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态 false-禁用 true-启用",
+                    "type": "boolean"
+                }
+            }
+        },
         "request.UpdateAppVersionRequest": {
             "type": "object",
             "required": [
@@ -17504,6 +17796,43 @@ const docTemplate = `{
                 }
             }
         },
+        "response.APIKeyDetailResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "创建ApiKey的时间",
+                    "type": "string"
+                },
+                "creator": {
+                    "description": "创建者",
+                    "type": "string"
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "expiredAt": {
+                    "description": "过期时间",
+                    "type": "string"
+                },
+                "key": {
+                    "description": "生成的ApiKey",
+                    "type": "string"
+                },
+                "keyId": {
+                    "description": "ID",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "boolean"
+                }
+            }
+        },
         "response.AnalysisDocUrlResp": {
             "type": "object",
             "properties": {
@@ -17512,23 +17841,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.DocUrl"
                     }
-                }
-            }
-        },
-        "response.ApiResponse": {
-            "type": "object",
-            "properties": {
-                "apiId": {
-                    "description": "ApiID",
-                    "type": "string"
-                },
-                "apiKey": {
-                    "description": "生成的ApiKey",
-                    "type": "string"
-                },
-                "createdAt": {
-                    "description": "创建ApiKey的时间",
-                    "type": "string"
                 }
             }
         },
@@ -17573,6 +17885,23 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "description": "应用更新时间(用于历史记录排序)",
+                    "type": "string"
+                }
+            }
+        },
+        "response.AppResponse": {
+            "type": "object",
+            "properties": {
+                "apiId": {
+                    "description": "ApiID",
+                    "type": "string"
+                },
+                "apiKey": {
+                    "description": "生成的ApiKey",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建ApiKey的时间",
                     "type": "string"
                 }
             }

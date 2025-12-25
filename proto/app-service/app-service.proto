@@ -8,10 +8,16 @@ option go_package = "github.com/UnicomAI/wanwu/api/proto/app-service";
 
 service AppService {
   // --- apiKey ---
-  rpc GenApiKey(GenApiKeyReq) returns (ApiKeyInfo) {}
-  rpc GetApiKeyList(GetApiKeyListReq) returns (ApiKeyInfoList) {}
-  rpc DelApiKey(DelApiKeyReq) returns (google.protobuf.Empty) {}
-  rpc GetApiKeyByKey(GetApiKeyByKeyReq) returns (ApiKeyInfo) {}
+  rpc CreateApiKey(CreateApiKeyReq) returns (ApiKeyInfo) {}
+  rpc DeleteApiKey(DeleteApiKeyReq) returns (google.protobuf.Empty) {}
+  rpc ListApiKeys(ListApiKeysReq) returns (ApiKeyInfoList) {}
+  rpc UpdateApiKey(UpdateApiKeyReq) returns (google.protobuf.Empty) {}
+  rpc UpdateApiKeyStatus(UpdateApiKeyStatusReq) returns (google.protobuf.Empty) {}
+  // --- appKey ---
+  rpc GenAppKey(GenAppKeyReq) returns (AppKeyInfo) {}
+  rpc GetAppKeyList(GetAppKeyListReq) returns (AppKeyInfoList) {}
+  rpc DelAppKey(DelAppKeyReq) returns (google.protobuf.Empty) {}
+  rpc GetAppKeyByKey(GetAppKeyByKeyReq) returns (AppKeyInfo) {}
   // --- exploration ---
   rpc GetExplorationAppList(GetExplorationAppListReq) returns (ExplorationAppList){}
   rpc ChangeExplorationAppFavorite(ChangeExplorationAppFavoriteReq) returns (google.protobuf.Empty){}
@@ -43,28 +49,79 @@ service AppService {
   rpc CreateChatflowApplication(CreateChatflowApplicationReq) returns (google.protobuf.Empty) {}
 }
 
-message GenApiKeyReq {
+// 创建API Key请求
+message CreateApiKeyReq {
+  string name = 1;
+  string desc = 2;
+  int64 expiredAt = 3;
+  string userId = 4;
+  string orgId = 5;
+}
+
+// 删除API Key请求
+message DeleteApiKeyReq {
+  string keyId = 1;
+}
+
+// 更新API Key请求
+message UpdateApiKeyReq {
+  string keyId = 1;
+  string name = 2;
+  string desc = 3;
+  int64 expiredAt = 4;
+  string userId = 5;
+  string orgId = 6;
+}
+
+// 更新API Key状态请求
+message UpdateApiKeyStatusReq {
+  string keyId = 1;
+  bool status = 2; // false-禁用, true-启用
+}
+
+// 列表请求
+message ListApiKeysReq {
+  int32 pageNo = 1;
+  int32 pageSize = 2;
+  string userId = 3;
+  string orgId = 4;
+}
+
+// API Key信息响应
+message ApiKeyInfo {
+  string keyId = 1; // ID
+  string key = 2; // 生成的ApiKey
+  string creator = 3; // 创建者
+  string name = 4; // 名称
+  string desc = 5; // 描述
+  int64 expiredAt = 6; // 过期时间 yyyy-mm-dd
+  int64 createdAt = 7; // 创建时间 yyyy-mm-dd
+  bool status = 8; // 状态
+}
+
+
+message GenAppKeyReq {
   string appId = 1;
   string appType = 2;
   string userId = 3;
   string orgId = 4;
 }
 
-message GetApiKeyListReq {
+message GetAppKeyListReq {
   string appId = 1;
   string appType = 2;
   string userId = 3;
   string orgId = 4;
 }
 
-message ApiKeyInfoList {
-  repeated ApiKeyInfo info = 1;
+message AppKeyInfoList {
+  repeated AppKeyInfo info = 1;
   int64 total = 2;
 }
 
-message ApiKeyInfo {
-  string apiId = 1;
-  string apiKey = 2;
+message AppKeyInfo {
+  string appKeyId = 1;
+  string appKey = 2;
   string userId = 3;
   string orgId = 4;
   string appId = 5;
@@ -72,12 +129,20 @@ message ApiKeyInfo {
   int64 createdAt = 7;
 }
 
-message DelApiKeyReq {
-  string apiId = 1;
+message DelAppKeyReq {
+  string appKeyId = 1;
 }
 
-message GetApiKeyByKeyReq {
-  string apiKey = 1;
+message GetAppKeyByKeyReq {
+  string appKeyId = 1;
+}
+
+// API Key列表响应
+message ApiKeyInfoList {
+  repeated ApiKeyInfo items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 pageSize = 4;
 }
 
 message GetExplorationAppListReq{

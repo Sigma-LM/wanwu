@@ -71,4 +71,7 @@ func Init() {
 
 	// --- oauth ---
 	mid.NewSub("oauth", "OAuth密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- openapi_key ---
+	mid.NewSub("api_key", "API密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 }

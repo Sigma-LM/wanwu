@@ -64,7 +64,7 @@ func CreateMCPServer(ctx *gin.Context, userID, orgID string, req request.MCPServ
 	if err != nil {
 		return nil, err
 	}
-	_, err = app.GenApiKey(ctx.Request.Context(), &app_service.GenApiKeyReq{
+	_, err = app.GenAppKey(ctx.Request.Context(), &app_service.GenAppKeyReq{
 		AppId:   resp.McpServerId,
 		AppType: constant.AppTypeMCPServer,
 		UserId:  userID,

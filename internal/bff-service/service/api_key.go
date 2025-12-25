@@ -1,58 +1,32 @@
 package service
 
 import (
-	"net/url"
-
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
-	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
+	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
-	"github.com/UnicomAI/wanwu/pkg/constant"
-	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
-func GetApiBaseUrl(ctx *gin.Context, req request.GetApiBaseUrlRequest) (string, error) {
-	if req.AppType == constant.AppTypeWorkflow {
-		apiBaseUrl, err := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1", req.AppType, "/run")
-		if err != nil {
-			return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
-		}
-		return apiBaseUrl, nil
-	}
-	apiBaseUrl, err := url.JoinPath(config.Cfg().Server.ApiBaseUrl, "/openapi/v1", req.AppType, "/chat")
-	if err != nil {
-		return "", grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
-	}
-	return apiBaseUrl, nil
-}
-
-func GetApiKeyByKey(ctx *gin.Context, apiKey string) (*app_service.ApiKeyInfo, error) {
-	return app.GetApiKeyByKey(ctx.Request.Context(), &app_service.GetApiKeyByKeyReq{ApiKey: apiKey})
-}
-
-func GenApiKey(ctx *gin.Context, userId, orgId string, req request.GenApiKeyRequest) (*response.ApiResponse, error) {
-	key, err := app.GenApiKey(ctx.Request.Context(), &app_service.GenApiKeyReq{
-		AppId:   req.AppId,
-		AppType: req.AppType,
-		UserId:  userId,
-		OrgId:   orgId,
+func CreateApiKey(ctx *gin.Context, userId, orgId string, req request.CreateAPIKeyRequest) (*response.APIKeyDetailResponse, error) {
+	expiredAt, _ := util.Date2Time(req.ExpiredAt)
+	keyInfo, err := app.CreateApiKey(ctx.Request.Context(), &app_service.CreateApiKeyReq{
+		UserId:    userId,
+		OrgId:     orgId,
+		Name:      req.Name,
+		Desc:      req.Desc,
+		ExpiredAt: expiredAt,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &response.ApiResponse{
-		ApiID:     key.ApiId,
-		ApiKey:    key.ApiKey,
-		CreatedAt: util.Time2Str(key.CreatedAt),
-	}, nil
+	return toApiKeyResponse(keyInfo, getUserNameById(ctx, userId)), nil
 }
 
-func DelApiKey(ctx *gin.Context, req request.DelApiKeyRequest) error {
-	_, err := app.DelApiKey(ctx.Request.Context(), &app_service.DelApiKeyReq{
-		ApiId: req.ApiId,
+func DeleteApiKey(ctx *gin.Context, req request.DeleteAPIKeyRequest) error {
+	_, err := app.DeleteApiKey(ctx.Request.Context(), &app_service.DeleteApiKeyReq{
+		KeyId: req.KeyID,
 	})
 	if err != nil {
 		return err
@@ -60,26 +34,76 @@ func DelApiKey(ctx *gin.Context, req request.DelApiKeyRequest) error {
 	return nil
 }
 
-func GetApiKeyList(ctx *gin.Context, userId string, req request.GetApiKeyListRequest) ([]*response.ApiResponse, error) {
-	apiKeyList, err := app.GetApiKeyList(ctx.Request.Context(), &app_service.GetApiKeyListReq{
-		AppId:   req.AppId,
-		AppType: req.AppType,
-		UserId:  userId,
+func ListApiKeys(ctx *gin.Context, userId, orgId string, pageNo int32, pageSize int32) ([]*response.APIKeyDetailResponse, error) {
+	keys, err := app.ListApiKeys(ctx.Request.Context(), &app_service.ListApiKeysReq{
+		PageNo:   pageNo,
+		PageSize: pageSize,
+		UserId:   userId,
+		OrgId:    orgId,
 	})
 	if err != nil {
 		return nil, err
 	}
-	var apiRes []*response.ApiResponse
-	for _, apiKeyInfo := range apiKeyList.Info {
-		apiRes = append(apiRes, toApiResp(apiKeyInfo))
+	creatorName := getUserNameById(ctx, userId)
+	var result []*response.APIKeyDetailResponse
+	// 遍历keys返回给前端
+	for _, key := range keys.Items {
+		result = append(result, toApiKeyResponse(key, creatorName))
 	}
-	return apiRes, nil
+	return result, nil
 }
 
-func toApiResp(apiKeyInfo *app_service.ApiKeyInfo) *response.ApiResponse {
-	return &response.ApiResponse{
-		ApiID:     apiKeyInfo.ApiId,
-		ApiKey:    apiKeyInfo.ApiKey,
-		CreatedAt: util.Time2Str(apiKeyInfo.CreatedAt),
+func UpdateApiKey(ctx *gin.Context, userId, orgId string, req request.UpdateAPIKeyRequest) error {
+	expiredAt, _ := util.Date2Time(req.ExpiredAt)
+	_, err := app.UpdateApiKey(ctx.Request.Context(), &app_service.UpdateApiKeyReq{
+		KeyId:     req.KeyID,
+		Name:      req.Name,
+		Desc:      req.Desc,
+		ExpiredAt: expiredAt,
+		UserId:    userId,
+		OrgId:     orgId,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateApiKeyStatus(ctx *gin.Context, req request.UpdateAPIKeyStatusRequest) error {
+	_, err := app.UpdateApiKeyStatus(ctx.Request.Context(), &app_service.UpdateApiKeyStatusReq{
+		KeyId:  req.KeyID,
+		Status: req.Status,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// --- internal ---
+func getUserNameById(ctx *gin.Context, userId string) string {
+	ret, err := iam.GetUserSelectByUserIDs(ctx.Request.Context(), &iam_service.GetUserSelectByUserIDsReq{
+		UserIds: []string{userId},
+	})
+	if err != nil || len(ret.Selects) == 0 {
+		return ""
+	}
+	return ret.Selects[0].Name
+}
+
+func toApiKeyResponse(keyInfo *app_service.ApiKeyInfo, creatorName string) *response.APIKeyDetailResponse {
+	expiredAtStr := ""
+	if keyInfo.ExpiredAt != 0 {
+		expiredAtStr = util.Time2Date(keyInfo.ExpiredAt)
+	}
+	return &response.APIKeyDetailResponse{
+		KeyID:     keyInfo.KeyId,
+		Key:       keyInfo.Key,
+		Creator:   creatorName,
+		Name:      keyInfo.Name,
+		Desc:      keyInfo.Desc,
+		ExpiredAt: expiredAtStr,
+		CreatedAt: util.Time2Str(keyInfo.CreatedAt),
+		Status:    keyInfo.Status,
 	}
 }

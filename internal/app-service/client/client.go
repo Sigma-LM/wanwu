@@ -9,11 +9,18 @@ import (
 )
 
 type IClient interface {
-	// --- api key ---
-	GetApiKeyList(ctx context.Context, userId, orgId, appId, appType string) ([]*model.ApiKey, *err_code.Status)
-	DelApiKey(ctx context.Context, apiId uint32) *err_code.Status
-	GenApiKey(ctx context.Context, userId, orgId, appId, appType, apiKey string) (*model.ApiKey, *err_code.Status)
-	GetApiKeyByKey(ctx context.Context, apiKey string) (*model.ApiKey, *err_code.Status)
+	// ---api key ---
+	CreateApiKey(ctx context.Context, userId, orgId, name, desc string, expiredAt int64, apiKey string) (*model.OpenApiKey, *err_code.Status)
+	DeleteApiKey(ctx context.Context, keyId uint32) *err_code.Status
+	UpdateApiKey(ctx context.Context, keyId uint32, userId, orgId, name, desc string, expiredAt int64) *err_code.Status
+	ListApiKeys(ctx context.Context, userId, orgId string, offset, limit int32) ([]*model.OpenApiKey, int64, *err_code.Status)
+	UpdateApiKeyStatus(ctx context.Context, keyId uint32, status bool) *err_code.Status
+
+	// --- app key ---
+	GetAppKeyList(ctx context.Context, userId, orgId, appId, appType string) ([]*model.ApiKey, *err_code.Status)
+	DelAppKey(ctx context.Context, appKeyId uint32) *err_code.Status
+	GenAppKey(ctx context.Context, userId, orgId, appId, appType, appKey string) (*model.ApiKey, *err_code.Status)
+	GetAppKeyByKey(ctx context.Context, appKey string) (*model.ApiKey, *err_code.Status)
 
 	// --- explore ---
 	GetExplorationAppList(ctx context.Context, userId, orgId, name, appType, searchType string) ([]*orm.ExplorationAppInfo, *err_code.Status)

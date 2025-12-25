@@ -20,20 +20,20 @@ func AuthOpenAPI(appType string) func(*gin.Context) {
 			ctx.Abort()
 			return
 		}
-		apiKey, err := service.GetApiKeyByKey(ctx, token)
+		appKey, err := service.GetAppKeyByKey(ctx, token)
 		if err != nil {
 			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, err.Error())
 			ctx.Abort()
 			return
 		}
-		if apiKey.AppType != appType {
+		if appKey.AppType != appType {
 			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, "invalid appType")
 			ctx.Abort()
 			return
 		}
-		ctx.Set(gin_util.USER_ID, apiKey.UserId)
-		ctx.Set(gin_util.X_ORG_ID, apiKey.OrgId)
-		ctx.Set(gin_util.APP_ID, apiKey.AppId)
+		ctx.Set(gin_util.USER_ID, appKey.UserId)
+		ctx.Set(gin_util.X_ORG_ID, appKey.OrgId)
+		ctx.Set(gin_util.APP_ID, appKey.AppId)
 	}
 
 }
@@ -46,20 +46,20 @@ func AuthOpenAPIByQuery(appType string) func(*gin.Context) {
 			ctx.Abort()
 			return
 		}
-		apiKey, err := service.GetApiKeyByKey(ctx, token)
+		appKey, err := service.GetAppKeyByKey(ctx, token)
 		if err != nil {
 			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, err.Error())
 			ctx.Abort()
 			return
 		}
-		if apiKey.AppType != appType {
+		if appKey.AppType != appType {
 			gin_util.ResponseDetail(ctx, http.StatusUnauthorized, codes.Code(err_code.Code_BFFAuth), nil, "invalid appType")
 			ctx.Abort()
 			return
 		}
-		ctx.Set(gin_util.USER_ID, apiKey.UserId)
-		ctx.Set(gin_util.X_ORG_ID, apiKey.OrgId)
-		ctx.Set(gin_util.APP_ID, apiKey.AppId)
+		ctx.Set(gin_util.USER_ID, appKey.UserId)
+		ctx.Set(gin_util.X_ORG_ID, appKey.OrgId)
+		ctx.Set(gin_util.APP_ID, appKey.AppId)
 	}
 
 }

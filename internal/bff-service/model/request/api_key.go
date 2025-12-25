@@ -1,27 +1,39 @@
 package request
 
-type GenApiKeyRequest struct {
-	AppId   string `json:"appId" validate:"required"`   // 应用id
-	AppType string `json:"appType" validate:"required"` // 应用类型
+type CreateAPIKeyRequest struct {
+	Name      string `json:"name" validate:"required"`
+	Desc      string `json:"desc"`
+	ExpiredAt string `json:"expiredAt"` // 格式 yyyy-mm-dd
 }
 
-func (g GenApiKeyRequest) Check() error {
+func (c *CreateAPIKeyRequest) Check() error {
 	return nil
 }
 
-type DelApiKeyRequest struct {
-	ApiId string `json:"apiId" validate:"required"` // ApiID
+type DeleteAPIKeyRequest struct {
+	KeyID string `json:"keyId"`
 }
 
-func (d DelApiKeyRequest) Check() error {
+func (d *DeleteAPIKeyRequest) Check() error {
 	return nil
 }
 
-type GetApiKeyListRequest struct {
-	AppId   string `form:"appId" json:"appId" validate:"required"`     // 应用id
-	AppType string `form:"appType" json:"appType" validate:"required"` // 应用类型
+type UpdateAPIKeyRequest struct {
+	KeyID     string `json:"keyId"`
+	Name      string `json:"name"`
+	Desc      string `json:"desc"`
+	ExpiredAt string `json:"expiredAt"`
 }
 
-func (g GetApiKeyListRequest) Check() error {
+func (u *UpdateAPIKeyRequest) Check() error {
+	return nil
+}
+
+type UpdateAPIKeyStatusRequest struct {
+	KeyID  string `json:"keyId"`
+	Status bool   `json:"status"` // 状态 false-禁用 true-启用
+}
+
+func (u *UpdateAPIKeyStatusRequest) Check() error {
 	return nil
 }

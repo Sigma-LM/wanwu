@@ -52,4 +52,7 @@ func Register(apiV1 *gin.RouterGroup) {
 
 	// oauth
 	registerOauth(apiV1)
+
+	// api_key
+	registerAPIKey(apiV1)
 }

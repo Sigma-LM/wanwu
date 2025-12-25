@@ -7,79 +7,96 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetApiBaseUrl
+// CreateAPIKey
 //
-//	@Tags			app.key
-//	@Summary		获取Api根地址
-//	@Description	获取Api根地址
+//	@Tags			api.key
+//	@Summary		创建API密钥
+//	@Description	创建API密钥
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	query		request.GetApiBaseUrlRequest	true	"获取Api根地址参数"
-//	@Success		200		{object}	response.Response{data=string}
-//	@Router			/appspace/app/url [get]
-func GetApiBaseUrl(ctx *gin.Context) {
-	var req request.GetApiBaseUrlRequest
-	if !gin_util.BindQuery(ctx, &req) {
-		return
-	}
-	resp, err := service.GetApiBaseUrl(ctx, req)
-	gin_util.Response(ctx, resp, err)
-}
-
-// GenApiKey
-//
-//	@Tags			app.key
-//	@Summary		生成ApiKey
-//	@Description	生成ApiKey
-//	@Accept			json
-//	@Produce		json
-//	@Param			data	body		request.GenApiKeyRequest	true	"生成ApiKey参数"
-//	@Success		200		{object}	response.Response{data=response.ApiResponse}
-//	@Router			/appspace/app/key [post]
-func GenApiKey(ctx *gin.Context) {
-	var req request.GenApiKeyRequest
+//	@Param			data	body		request.CreateAPIKeyRequest	true	"创建API密钥参数"
+//	@Success		200		{object}	response.Response{data=response.APIKeyDetailResponse}
+//	@Router			/api/key [post]
+func CreateAPIKey(ctx *gin.Context) {
+	var req request.CreateAPIKeyRequest
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	resp, err := service.GenApiKey(ctx, getUserID(ctx), getOrgID(ctx), req)
+	resp, err := service.CreateApiKey(ctx, getUserID(ctx), getOrgID(ctx), req)
 	gin_util.Response(ctx, resp, err)
 }
 
-// DelApiKey
+// DeleteAPIKey
 //
-//	@Tags			app.key
-//	@Summary		删除ApiKey
-//	@Description	删除ApiKey
+//	@Tags			api.key
+//	@Summary		删除API	密钥
+//	@Description	删除API密钥
+//	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.DelApiKeyRequest	true	"删除Apikey参数"
+//	@Param			data	body		request.DeleteAPIKeyRequest	true	"删除API密钥参数"
 //	@Success		200		{object}	response.Response
-//	@Router			/appspace/app/key [delete]
-func DelApiKey(ctx *gin.Context) {
-	var req request.DelApiKeyRequest
+//	@Router			/api/key [delete]
+func DeleteAPIKey(ctx *gin.Context) {
+	var req request.DeleteAPIKeyRequest
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	err := service.DelApiKey(ctx, req)
-	gin_util.Response(ctx, nil, err)
+	gin_util.Response(ctx, nil, service.DeleteApiKey(ctx, req))
 }
 
-// GetApiKeyList
+// ListAPIKeys
 //
-//	@Tags			app.key
-//	@Summary		获取ApiKey
-//	@Description	获取ApiKey
+//	@Tags			api.key
+//	@Summary		获取API密钥列表
+//	@Description	获取API密钥列表
+//	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	query		request.GetApiKeyListRequest	true	"获取ApiKey参数"
-//	@Success		200		{object}	response.Response{data=[]response.ApiResponse}
-//	@Router			/appspace/app/key/list [get]
-func GetApiKeyList(ctx *gin.Context) {
-	var req request.GetApiKeyListRequest
-	if !gin_util.BindQuery(ctx, &req) {
+//	@Param			pageNo		query		int	true	"页面编号，从1开始"
+//	@Param			pageSize	query		int	true	"单页数量，从1开始"
+//	@Success		200			{object}	response.Response{data=response.PageResult{list=[]response.APIKeyDetailResponse}}
+//	@Router			/api/key/list [get]
+func ListAPIKeys(ctx *gin.Context) {
+	resp, err := service.ListApiKeys(ctx, getUserID(ctx), getOrgID(ctx), getPageNo(ctx), getPageSize(ctx))
+	gin_util.Response(ctx, resp, err)
+}
+
+// UpdateAPIKey
+//
+//	@Tags			api.key
+//	@Summary		更新API密钥
+//	@Description	更新API密钥
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.UpdateAPIKeyRequest	true	"更新API密钥参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/api/key/update [post]
+func UpdateAPIKey(ctx *gin.Context) {
+	var req request.UpdateAPIKeyRequest
+	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	resp, err := service.GetApiKeyList(ctx, getUserID(ctx), req)
-	gin_util.Response(ctx, resp, err)
+	gin_util.Response(ctx, nil, service.UpdateApiKey(ctx, getUserID(ctx), getOrgID(ctx), req))
+}
+
+// UpdateAPIKeyStatus
+//
+//	@Tags			api.key
+//	@Summary		更新API密钥状态
+//	@Description	更新API密钥状态
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.UpdateAPIKeyStatusRequest	true	"更新API密钥状态参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/api/key/status [post]
+func UpdateAPIKeyStatus(ctx *gin.Context) {
+	var req request.UpdateAPIKeyStatusRequest
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	gin_util.Response(ctx, nil, service.UpdateApiKeyStatus(ctx, req))
 }

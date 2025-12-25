@@ -42,6 +42,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		model.SensitiveWordVocabulary{},
 		model.AppUrl{},
 		model.ChatflowApplcation{},
+		model.OpenApiKey{},
 	); err != nil {
 		return nil, err
 	}
