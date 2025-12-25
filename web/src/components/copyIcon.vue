@@ -1,5 +1,11 @@
 <template>
-  <el-button v-bind="$attrs" @click="handleCopy" class="copy-icon">
+  <i
+    v-if="onlyIcon"
+    class="el-icon-document-copy"
+    style="cursor: pointer"
+    @click="handleCopy"
+  ></i>
+  <el-button v-else v-bind="$attrs" @click="handleCopy" class="copy-icon">
     <i v-if="showIcon" class="el-icon-document-copy"></i>
     {{ $t('common.button.copy') }}
   </el-button>
@@ -10,13 +16,20 @@ export default {
   name: 'CopyIcon',
   inheritAttrs: false,
   props: {
+    // 需要复制的文本内容
     text: {
       type: String,
       required: true,
     },
+    // 是否显示图标
     showIcon: {
       type: Boolean,
       default: true,
+    },
+    // 是否只显示图标，不显示按钮
+    onlyIcon: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {

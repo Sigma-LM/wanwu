@@ -10,13 +10,19 @@
             :color="item.isCurrent ? '#409EFF' : '#E6A23C'"
           >
             <div
-              class="version-status current"
-              style="margin-left: 32px"
               v-if="item.isCurrent"
+              class="version-status current"
+              style="margin-left: 32px; cursor: pointer"
+              @click="previewVersion(item, $event)"
             >
               {{ $t('list.now') }}
             </div>
-            <el-card v-else class="version-card">
+            <el-card
+              v-else
+              class="version-card"
+              style="cursor: pointer"
+              @click.native="previewVersion(item, $event)"
+            >
               <div class="version-header">
                 <div class="version-info">
                   <div
@@ -137,6 +143,12 @@ export default {
           this.rollbackVersion(index);
           break;
       }
+    },
+    previewVersion(item, event) {
+      if (event.target.closest('.el-dropdown')) {
+        return;
+      }
+      this.$emit('previewVersion', item);
     },
     rollbackVersion(index) {
       rollbackAppVersion({

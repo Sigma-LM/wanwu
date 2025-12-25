@@ -4,7 +4,7 @@
       ref="versionPopover"
       placement="bottom"
       width="400"
-      trigger="hover"
+      trigger="click"
       popper-class="version-popover"
       @hide="onPopoverHide"
     >
@@ -13,6 +13,7 @@
         :appId="appId"
         :appType="appType"
         @reloadData="reloadData"
+        @previewVersion="previewVersion"
       />
 
       <i slot="reference" :class="iconClass" :style="iconStyle" />
@@ -55,6 +56,9 @@ export default {
   methods: {
     reloadData() {
       this.$emit('reloadData');
+    },
+    previewVersion(item) {
+      this.$emit('previewVersion', item);
     },
     onPopoverHide() {
       this.$nextTick(() => {

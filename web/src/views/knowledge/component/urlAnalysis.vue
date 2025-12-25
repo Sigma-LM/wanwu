@@ -70,7 +70,7 @@
   </div>
 </template>
 <script>
-import { setUploadURL, setAnalysis } from '@/api/knowledge';
+import { setAnalysis } from '@/api/knowledge';
 
 export default {
   props: {
@@ -224,34 +224,6 @@ export default {
         this.oldList.push({ value: '' });
         this.urlConut += 1;
       }
-    },
-    handleSave() {
-      this.$refs['dynamicValidateForm'].validate(valid => {
-        if (valid) {
-          if (this.backResult.length > 0 && !this.isDabled) {
-            this.$emit('handleLoading', true);
-            setUploadURL({
-              urls: this.backResult,
-              categoryId: this.categoryId,
-            })
-              .then(res => {
-                if (res.code === 0) {
-                  this.$message.success('操作成功');
-                } else {
-                  this.$message.error(res.msg);
-                }
-                this.$emit('handleLoading', false, 'success');
-              })
-              .catch(err => {
-                this.$message.error(err);
-                this.$emit('handleLoading', false);
-              });
-          } else {
-            this.$message.warning(this.$t('knowledgeManage.analysisTips'));
-          }
-        } else {
-        }
-      });
     },
     validateUrl(rule, value, callback) {
       function isValidUrl(url) {

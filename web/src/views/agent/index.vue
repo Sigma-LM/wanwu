@@ -71,7 +71,7 @@ import CommonLayout from '@/components/exploreContainer.vue';
 import Chat from './components/chat.vue';
 import { mapGetters, mapActions } from 'vuex';
 import {
-  getAgentInfo,
+  getAgentPublishedInfo,
   getOpenurlInfo,
   OpenurlConverList,
   getConversationlist,
@@ -105,7 +105,7 @@ export default {
       },
       chatType: 'agentChat',
       apiStrategies: {
-        agentChat_info: getAgentInfo,
+        agentChat_info: getAgentPublishedInfo,
         webChat_info: getOpenurlInfo,
         agentChat_converstionList: getConversationlist,
         webChat_converstionList: OpenurlConverList,
@@ -200,7 +200,9 @@ export default {
       let res = null;
       let data = null;
       if (this.chatType === 'agentChat') {
-        res = await getAgentInfo({ assistantId: this.editForm.assistantId });
+        res = await getAgentPublishedInfo({
+          assistantId: this.editForm.assistantId,
+        });
         data = res.data;
       } else {
         const config = this.headerConfig();

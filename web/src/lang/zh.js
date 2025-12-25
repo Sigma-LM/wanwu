@@ -1477,6 +1477,7 @@ export default {
         '描述你想创建的应用，详细描述应用的详细功能及作用，以及对该应用生成结果的要求',
       agentConfig: '智能体配置',
       modelSelect: '模型选择',
+      modelSelectConfigTips: '模型参数配置',
       modelSearchPlaceholder: '可输入模型名称搜索',
       visionModelTips:
         '*您选择的是图文问答类模型，此类模型暂时无法调用知识库、联网检索及工具',
@@ -1490,9 +1491,11 @@ export default {
       metaDataFilter: '元数据过滤',
       tool: '工具',
       safetyConfig: '安全护栏配置',
-      safetyConfigTips: '实时拦截高风险内容的输入和输出，保障内容安全合规。',
+      safetyConfigTips1: '实时拦截高风险内容的输入和输出，保障内容安全合规。',
+      safetyConfigTips: '敏感词表配置',
       vision: '视觉',
-      visionTips: '允许用户上传图片，并进行图文问答。',
+      visionTips1: '允许用户上传图片，并进行图文问答。',
+      visionTips: '图片上传限制配置',
       configMetaDataFilter: '配置元数据过滤',
       metaDataFilterDesc:
         '[ 通过设置的元数据，对知识库内信息进行更加细化的筛选与检索控制。]',

@@ -1,5 +1,5 @@
 <template>
-  <div class="agent-from-content">
+  <div class="agent-from-content" :class="{ 'disable-clicks': disableClick }">
     <div class="form-header">
       <div class="header-left">
         <span class="el-icon-arrow-left btn" @click="goBack"></span>
@@ -21,6 +21,14 @@
             ></span>
             <LinkIcon type="rag" />
             <p>{{ editForm.desc || '' }}</p>
+            <p>
+              uuid: {{ this.editForm.appId }}
+              <copyIcon
+                :text="this.editForm.appId"
+                :onlyIcon="true"
+                size="mini"
+              />
+            </p>
           </div>
         </div>
       </div>
@@ -28,9 +36,11 @@
         <VersionPopover
           ref="versionPopover"
           v-if="publishType"
+          style="pointer-events: auto"
           :appId="editForm.appId"
           :appType="RAG"
           @reloadData="reloadData"
+          @previewVersion="previewVersion"
         />
         <el-button
           v-if="publishType"
@@ -102,8 +112,8 @@
     </div>
     <div class="agent_form">
       <div class="drawer-form">
-        <div class="model-box">
-          <div class="block prompt-box">
+        <div class="block">
+          <div class="prompt-box">
             <p class="block-title common-set">
               <span class="common-set-label">
                 <img
@@ -113,10 +123,18 @@
                 {{ $t('agent.form.modelSelect') }}
                 <span class="model-tips">[ {{ $t('app.modelTips') }} ]</span>
               </span>
-              <span
-                class="el-icon-s-operation operation"
-                @click="showModelSet"
-              ></span>
+              <span class="common-add" @click="showModelSet">
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('agent.form.modelSelectConfigTips')"
+                  placement="top-start"
+                >
+                  <span class="el-icon-s-operation operation">
+                    <span class="handleBtn">{{ $t('agent.form.config') }}</span>
+                  </span>
+                </el-tooltip>
+              </span>
             </p>
             <div class="rl">
               <el-select
@@ -158,7 +176,7 @@
           </div>
         </div>
         <!-- 问答库配置 -->
-        <div class="block safety-box">
+        <div class="block">
           <knowledgeDataField
             :knowledgeConfig="editForm.qaKnowledgeBaseConfig"
             :category="1"
@@ -171,7 +189,7 @@
           />
         </div>
         <!-- 知识库库配置 -->
-        <div class="block safety-box">
+        <div class="block">
           <knowledgeDataField
             :knowledgeConfig="editForm.knowledgeBaseConfig"
             :category="0"
@@ -183,26 +201,30 @@
             :type="'knowledgeBaseConfig'"
           />
         </div>
-        <div class="block prompt-box safety-box">
-          <p class="block-title tool-title">
-            <span class="block-title-text">
+        <div class="block">
+          <p class="block-title common-set">
+            <span class="common-set-label">
               {{ $t('agent.form.safetyConfig') }}
               <el-tooltip
                 class="item"
                 effect="dark"
-                :content="$t('agent.form.safetyConfigTips')"
+                :content="$t('agent.form.safetyConfigTips1')"
                 placement="top"
               >
                 <span class="el-icon-question question-tips"></span>
               </el-tooltip>
             </span>
-            <span class="common-add">
-              <span @click="showSafety">
-                <span class="el-icon-s-operation"></span>
-                <span class="handleBtn" style="margin-right: 10px">
-                  {{ $t('agent.form.config') }}
+            <span class="common-add" @click="showSafety">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="$t('agent.form.safetyConfigTips')"
+                placement="top-start"
+              >
+                <span class="el-icon-s-operation operation">
+                  <span class="handleBtn">{{ $t('agent.form.config') }}</span>
                 </span>
-              </span>
+              </el-tooltip>
               <el-switch
                 v-model="editForm.safetyConfig.enable"
                 :disabled="!(editForm.safetyConfig.tables || []).length"
@@ -211,8 +233,12 @@
           </p>
         </div>
       </div>
-      <div class="drawer-test">
-        <Chat :chatType="'test'" :editForm="editForm" />
+      <div class="drawer-test block">
+        <Chat
+          :editForm="editForm"
+          :chatType="'test'"
+          :disableClick="disableClick"
+        />
       </div>
     </div>
     <!-- 编辑智能体 -->
@@ -242,7 +268,7 @@ import knowledgeSet from './knowledgeSetDialog.vue';
 import setSafety from '@/components/setSafety';
 import VersionPopover from '@/components/versionPopover';
 import { getRerankList, selectModelList } from '@/api/modelAccess';
-import { getRagInfo, updateRagConfig } from '@/api/rag';
+import { getRagInfo, getRagPublishedInfo, updateRagConfig } from '@/api/rag';
 import Chat from './chat';
 import searchConfig from '@/components/searchConfig.vue';
 import chiChat from '@/components/app/chiChat.vue';
@@ -250,8 +276,10 @@ import LinkIcon from '@/components/linkIcon.vue';
 import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 import { RAG } from '@/utils/commonSet';
+import CopyIcon from '@/components/copyIcon.vue';
 export default {
   components: {
+    CopyIcon,
     LinkIcon,
     Chat,
     CreateTxtQues,
@@ -268,6 +296,8 @@ export default {
   data() {
     return {
       RAG,
+      disableClick: false,
+      version: '',
       rerankOptions: [],
       localKnowledgeConfig: {},
       publishType: this.$route.query.publishType,
@@ -432,6 +462,11 @@ export default {
         }, 500);
       }
     },
+    previewVersion(item) {
+      this.disableClick = !item.isCurrent;
+      this.version = item.version || '';
+      this.getDetail();
+    },
     //获取知识库或问答库选中数据
     getSelectKnowledge(data, type) {
       this.editForm[type]['knowledgebases'] = data;
@@ -474,7 +509,17 @@ export default {
     getDetail() {
       //获取详情
       this.isSettingFromDetail = true; // 设置标志位，防止触发更新逻辑
-      getRagInfo({ ragId: this.editForm.appId })
+      let res;
+      if (this.version) {
+        res = getRagPublishedInfo({
+          ragId: this.editForm.appId,
+          version: this.version,
+        });
+      } else
+        res = getRagInfo({
+          ragId: this.editForm.appId,
+        });
+      res
         .then(res => {
           if (res.code === 0) {
             this.publishType = res.data.appPublishConfig.publishType;
@@ -714,509 +759,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.model-option-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-
-  .model-name {
-    flex-shrink: 0;
-    font-weight: 500;
-  }
-
-  .model-select-tags {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 4px;
-    flex-shrink: 0;
-    margin-top: 4px;
-    .model-select-tag {
-      background-color: #f0f2ff;
-      color: $color;
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: 10px;
-      line-height: 1.2;
-    }
-  }
-}
-/deep/ {
-  .metaSetVisible {
-    .el-dialog__header {
-      border-bottom: 1px solid #dbdbdb;
-    }
-    .el-dialog__body {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-  }
-}
-
-.metaHeader {
-  display: flex;
-  justify-content: flex-start;
-  h3 {
-    font-size: 18px;
-  }
-  span {
-    margin-left: 10px;
-    color: #666;
-    display: inline-block;
-    padding-top: 5px;
-  }
-}
-
-.question {
-  cursor: pointer;
-  color: #999;
-  margin-left: 8px;
-}
-::selection {
-  color: #1a2029;
-  background: #c8deff;
-}
-.question {
-  cursor: pointer;
-  color: #ccc;
-  margin-left: 6px;
-}
-.form-header {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  position: relative;
-  border-bottom: 1px solid #dbdbdb;
-  .header-left {
-    display: flex;
-    align-items: center;
-    .btn {
-      margin-right: 10px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .header-left-title {
-      font-size: 18px;
-      color: $color_title;
-      font-weight: bold;
-    }
-    .basicInfo {
-      display: flex;
-      align-items: center;
-      border-radius: 8px;
-      padding: 10px 0;
-      .img {
-        padding: 10px;
-        img {
-          border: 1px solid #eee;
-          border-radius: 6px;
-          width: 32px;
-          height: 32px;
-          object-fit: cover;
-        }
-      }
-      .basicInfo-desc {
-        flex: 1;
-        .editIcon {
-          cursor: pointer;
-          margin-left: 5px;
-          font-size: 16px;
-          color: #6b7280;
-        }
-      }
-      .basicInfo-title {
-        display: inline-block;
-        font-weight: 800;
-        font-size: 14px;
-      }
-      p {
-        color: #6b7280;
-        font-size: 12px;
-        margin: 0;
-        line-height: 1.4;
-      }
-    }
-  }
-  .header-right {
-    display: flex;
-    align-items: center;
-    .header-api {
-      padding: 6px 10px;
-      box-shadow: 1px 2px 2px #ddd;
-      background-color: #fff;
-      margin: 0 10px;
-      border-radius: 6px;
-      .root-url {
-        background-color: #eceefe;
-        color: $color;
-        border: none;
-      }
-    }
-  }
-}
-.agent-from-content {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-.agent_form {
-  padding: 0 10px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  height: calc(100% - 60px);
-  .drawer-form {
-    width: 50%;
-    position: relative;
-    height: 100%;
-    padding: 0 10px;
-    border-radius: 6px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    margin: 10px 0;
-    .editIcon {
-      font-size: 16px;
-      margin-left: 5px;
-      cursor: pointer;
-    }
-    /deep/.el-input__inner,
-    /deep/.el-textarea__inner {
-      background-color: transparent !important;
-      border: 1px solid #d3d7dd !important;
-      font-family: 'Microsoft YaHei', Arial, sans-serif;
-      padding: 15px;
-    }
-    .flex {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-    }
-    .model-box {
-      background: #f7f8fa;
-      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-      border-radius: 8px;
-      padding: 20px 15px;
-      margin-bottom: 20px;
-      .block {
-        margin-bottom: 10px;
-      }
-      .model-tips {
-        color: #999;
-        margin-left: 10px;
-        font-weight: normal !important;
-      }
-    }
-    .safety-box {
-      background: #f7f8fa;
-      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-      border-radius: 8px;
-      padding: 10px 15px;
-      .block-title {
-        line-height: 30px;
-        font-size: 15px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        .block-title-text {
-          font-size: 15px;
-        }
-        .handleBtn {
-          cursor: pointer;
-        }
-      }
-      .tool-title {
-        justify-content: space-between;
-      }
-    }
-    .common-set {
-      display: flex;
-      justify-content: space-between;
-      .common-set-label {
-        display: flex;
-        align-items: center;
-        font-size: 15px;
-        font-weight: bold;
-      }
-    }
-    /*通用*/
-    .block {
-      margin-bottom: 20px;
-      .block-title {
-        line-height: 30px;
-        font-size: 15px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        .title_tips {
-          color: #999;
-          margin-left: 20px;
-          font-weight: normal;
-        }
-      }
-      .tool-conent {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        .tool {
-          width: 50%;
-          height: 300px;
-          max-height: 300px;
-        }
-      }
-      .knowledge-conent {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        .tool {
-          width: 100%;
-          max-height: 300px;
-          .action-list {
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-          }
-        }
-      }
-      .model-select {
-        width: 100%;
-      }
-      .operation {
-        text-align: center;
-        cursor: pointer;
-        font-size: 16px;
-        padding-right: 10px;
-      }
-      .common-add {
-        cursor: pointer;
-      }
-      .operation:hover {
-        color: $color;
-      }
-      .tips {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-        .block-title-tips {
-          color: #ccc;
-          margin-right: 10px;
-        }
-      }
-      .paramsSet {
-        padding: 10px;
-      }
-      .required-label {
-        width: 18px;
-        height: 18px;
-        margin-right: 4px;
-      }
-      .block-tip {
-        color: #919eac;
-      }
-    }
-    .el-input__count {
-      color: #909399;
-      background: #fafafa;
-      position: absolute;
-      font-size: 12px;
-      bottom: 5px;
-      right: 10px;
-    }
-    /*新建应用*/
-    .name-box {
-      height: 90px;
-      line-height: 90px;
-      font-size: 22px;
-      display: flex;
-      .name-input {
-        width: 100%;
-      }
-      .input-echo {
-        font-size: 22px;
-        .name-edit {
-          margin-left: 20px;
-          cursor: pointer;
-          font-size: 16px;
-        }
-      }
-    }
-    .logo-box {
-      margin-top: 20px;
-      .right-input-box {
-        flex: 1;
-        width: 0;
-        margin-left: 20px;
-      }
-      .instructions-input {
-        margin-top: 10px;
-      }
-    }
-    .logo-upload {
-      width: 120px;
-      height: 120px;
-      margin-top: 3px;
-      /deep/ {
-        .el-upload {
-          width: 100%;
-          height: 100%;
-        }
-        .echo-img {
-          img {
-            object-fit: cover;
-            height: 100%;
-          }
-          .echo-img-tip {
-            position: absolute;
-            width: 100%;
-            bottom: 0;
-            background: #33333396;
-            color: #fff !important;
-            font-size: 12px;
-            line-height: 26px;
-            z-index: 10;
-          }
-        }
-      }
-    }
-    /deep/.desc-input {
-      .el-textarea__inner {
-        height: 90px !important;
-      }
-    }
-    .systemPrompt-tip {
-      background-color: #f1f1f1;
-      border-radius: 6px;
-      line-height: 24px;
-      color: #919eac;
-      margin-top: 10px;
-      padding: 8px 20px;
-    }
-    /*推荐问题*/
-    .recommend-box {
-      .recommend-item {
-        margin-bottom: 12px;
-        .recommend--input {
-          width: calc(100% - 60px);
-        }
-        .close--icon {
-          display: inline-block;
-          width: 60px;
-          line-height: 40px;
-          text-align: center;
-          cursor: pointer;
-          color: #333;
-          &:hover {
-            font-weight: bold;
-          }
-        }
-      }
-    }
-
-    /*知识增强*/
-    .knowledge-config-com {
-      margin-top: 10px;
-    }
-
-    /*action*/
-    .api-box {
-      padding-bottom: 60px;
-    }
-
-    /*插件*/
-    .plugin-box {
-      .el-checkbox-group {
-        margin-top: 10px;
-      }
-      .plugin-checkbox /deep/.el-checkbox__inner.is-checked.el-checkbox__inner {
-        background-color: #409eff;
-        border-color: #409eff;
-      }
-    }
-
-    /*footer*/
-    .footer {
-      position: absolute;
-      height: 80px;
-      padding: 20px 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      text-align: center;
-      border-top: 1px solid #d3d7dd;
-    }
-  }
-  .drawer-test {
-    width: 50%;
-    background: #f7f8fa;
-    border-radius: 6px;
-    border-radius: 8px;
-    margin: 10px 0;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-  }
-}
-
-.loading-progress {
-  width: 100%;
-  top: -4px;
-  z-index: 1;
-  position: fixed;
-  left: -2px;
-  right: -2px;
-}
-.action-list {
-  margin: 10px 0 15px 0;
-  width: 100%;
-  .action-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    width: 100%;
-    .name {
-      width: 60%;
-      box-sizing: border-box;
-      padding: 10px 20px;
-      cursor: pointer;
-      color: #2c7eea;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .bt {
-      text-align: center;
-      width: 40%;
-      display: flex;
-      justify-content: flex-end;
-      padding-right: 10px;
-      box-sizing: border-box;
-      cursor: pointer;
-      .del {
-        color: $btn_bg;
-        font-size: 16px;
-      }
-    }
-  }
-}
-</style>
-<style lang="scss">
-.vue-treeselect .vue-treeselect__menu-container {
-  z-index: 9999 !important;
-}
-.custom-tooltip.is-light {
-  border-color: #ccc; /* 设置边框颜色 */
-  background-color: #fff; /* 设置背景颜色 */
-  color: #666; /* 设置文字颜色 */
-}
-.custom-tooltip.el-tooltip__popper[x-placement^='top'] .popper__arrow::after {
-  border-top-color: #fff !important;
-}
-.custom-tooltip.el-tooltip__popper.is-light[x-placement^='top'] .popper__arrow {
-  border-top-color: #ccc !important;
-}
+@import '@/style/draft.scss';
 </style>
