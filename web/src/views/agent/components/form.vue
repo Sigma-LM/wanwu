@@ -157,7 +157,7 @@
             </el-tooltip>
           </div>
         </div>
-        <div class="rl" style="padding-top: 10px">
+        <div class="rl" style="height: calc(100% - 200px); padding-top: 10px">
           <el-input
             class="desc-input"
             v-model="editForm.instructions"
