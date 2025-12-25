@@ -25,6 +25,8 @@ service ModelService {
     rpc ListTypeModels(ListTypeModelsReq) returns (ModelInfos) {}
     // 根据模型ID列表查询
     rpc GetModelByIds(GetModelByIdsReq) returns (ModelInfos) {}
+    // 根据uuid获取modelId
+    rpc GetModelInfoByUuid(GetModelInfoByUuidReq) returns (GetModelInfoByUuidResp) {}
 }
 
 message ModelInfo {
@@ -42,6 +44,7 @@ message ModelInfo {
     int64 createdAt = 12;
     int64 updatedAt = 13;
     string modelDesc = 14;
+    string uuid = 15;
 }
 
 message ModelInfos {
@@ -94,4 +97,16 @@ message ListTypeModelsReq {
     string userId = 1;
     string orgId = 2;
     string modelType = 3;       // 模型类型
+}
+
+message GetModelInfoByUuidReq {
+    string uuid = 1;
+}
+
+message GetModelInfoByUuidResp {
+    ModelInfoRespData ModelInfoRespData = 1; // 可扩展
+}
+
+message ModelInfoRespData {
+    string modelId = 1;
 }
