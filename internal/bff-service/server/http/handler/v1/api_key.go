@@ -73,7 +73,7 @@ func ListAPIKeys(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			data	body		request.UpdateAPIKeyRequest	true	"更新API密钥参数"
 //	@Success		200		{object}	response.Response
-//	@Router			/api/key/update [post]
+//	@Router			/api/key [put]
 func UpdateAPIKey(ctx *gin.Context) {
 	var req request.UpdateAPIKeyRequest
 	if !gin_util.Bind(ctx, &req) {
@@ -92,7 +92,7 @@ func UpdateAPIKey(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			data	body		request.UpdateAPIKeyStatusRequest	true	"更新API密钥状态参数"
 //	@Success		200		{object}	response.Response
-//	@Router			/api/key/status [post]
+//	@Router			/api/key/status [put]
 func UpdateAPIKeyStatus(ctx *gin.Context) {
 	var req request.UpdateAPIKeyStatusRequest
 	if !gin_util.Bind(ctx, &req) {

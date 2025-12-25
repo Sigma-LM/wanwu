@@ -1226,7 +1226,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "uuid": {
-                    "description": "智能体UUID",
                     "type": "string"
                 },
                 "visionConfig": {

@@ -30,9 +30,6 @@ func Init() {
 	// --- knowledge ---
 	mid.NewSub("knowledge", "知识库", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 
-	// --- mcp ---
-	mid.NewSub("mcp", "MCP广场", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
-
 	// --- tool ---
 	mid.NewSub("tool", "资源库", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 
@@ -48,8 +45,14 @@ func Init() {
 	// --- agent ---
 	mid.NewSub("agent", "智能体", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 
+	// --- mcp ---
+	mid.NewSub("mcp", "MCP广场", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
 	// --- exploration ---
 	mid.NewSub("exploration", "应用广场", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- openapi_key ---
+	mid.NewSub("api_key", "API密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 
 	// --- permission ---
 	mid.NewSub("permission", "组织管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
@@ -71,7 +74,4 @@ func Init() {
 
 	// --- oauth ---
 	mid.NewSub("oauth", "OAuth密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
-
-	// --- openapi_key ---
-	mid.NewSub("api_key", "API密钥管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 }

@@ -562,7 +562,6 @@ definitions:
         description: 更新时间
         type: string
       uuid:
-        description: 智能体UUID
         type: string
       visionConfig:
         allOf:

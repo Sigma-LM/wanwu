@@ -34,7 +34,7 @@ func DeleteApiKey(ctx *gin.Context, req request.DeleteAPIKeyRequest) error {
 	return nil
 }
 
-func ListApiKeys(ctx *gin.Context, userId, orgId string, pageNo int32, pageSize int32) ([]*response.APIKeyDetailResponse, error) {
+func ListApiKeys(ctx *gin.Context, userId, orgId string, pageNo, pageSize int32) (*response.PageResult, error) {
 	keys, err := app.ListApiKeys(ctx.Request.Context(), &app_service.ListApiKeysReq{
 		PageNo:   pageNo,
 		PageSize: pageSize,
@@ -50,7 +50,12 @@ func ListApiKeys(ctx *gin.Context, userId, orgId string, pageNo int32, pageSize 
 	for _, key := range keys.Items {
 		result = append(result, toApiKeyResponse(key, creatorName))
 	}
-	return result, nil
+	return &response.PageResult{
+		List:     result,
+		Total:    int64(keys.Total),
+		PageNo:   int(pageNo),
+		PageSize: int(pageSize),
+	}, nil
 }
 
 func UpdateApiKey(ctx *gin.Context, userId, orgId string, req request.UpdateAPIKeyRequest) error {

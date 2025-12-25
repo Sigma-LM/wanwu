@@ -163,6 +163,94 @@ const docTemplate = `{
                 }
             }
         },
+        "/callback/mcp": {
+            "get": {
+                "description": "获取自定义MCP详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp"
+                ],
+                "summary": "获取自定义MCP详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mcpId",
+                        "name": "mcpId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.MCPDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/callback/mcp/server": {
+            "get": {
+                "description": "获取MCP Server详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp.server"
+                ],
+                "summary": "获取MCP Server详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "mcpServerId",
+                        "name": "mcpServerId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.MCPServerDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/chatflow/list": {
             "get": {
                 "description": "根据userId和spaceId获取Chatflow",
@@ -1216,6 +1304,10 @@ const docTemplate = `{
                 },
                 "model": {
                     "type": "string"
+                },
+                "user": {
+                    "description": "用户标识（兼容千帆)",
+                    "type": "string"
                 }
             }
         },
@@ -1497,6 +1589,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "user": {
+                    "description": "用户标识（兼容千帆)",
                     "type": "string"
                 },
                 "web_search": {
@@ -1855,6 +1948,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "documents": {
+                    "description": "需要重排序的文本",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1870,7 +1964,12 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "top_n": {
+                    "description": "返回排序后的top_n个文档。默认返回全部文档。",
                     "type": "integer"
+                },
+                "user": {
+                    "description": "用户标识（兼容千帆)",
+                    "type": "string"
                 }
             }
         },
@@ -3197,6 +3296,144 @@ const docTemplate = `{
                 }
             }
         },
+        "response.MCPDetail": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "category": {
+                    "description": "类型(data:数据,create:创作,search:搜索)",
+                    "type": "string"
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "detail": {
+                    "description": "详情",
+                    "type": "string"
+                },
+                "feature": {
+                    "description": "特性说明",
+                    "type": "string"
+                },
+                "from": {
+                    "description": "来源",
+                    "type": "string"
+                },
+                "manual": {
+                    "description": "使用说明",
+                    "type": "string"
+                },
+                "mcpId": {
+                    "description": "mcpId",
+                    "type": "string"
+                },
+                "mcpSquareId": {
+                    "description": "广场mcpId(非空表示来源于广场)",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "scenario": {
+                    "description": "应用场景",
+                    "type": "string"
+                },
+                "sseUrl": {
+                    "description": "SSE URL",
+                    "type": "string"
+                },
+                "summary": {
+                    "description": "使用概述",
+                    "type": "string"
+                }
+            }
+        },
+        "response.MCPServerDetail": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "mcpServerId": {
+                    "description": "mcpServerId",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "sseExample": {
+                    "description": "sse连接示例",
+                    "type": "string"
+                },
+                "sseUrl": {
+                    "description": "sse url",
+                    "type": "string"
+                },
+                "streamableExample": {
+                    "description": "streamable http 连接示例",
+                    "type": "string"
+                },
+                "streamableUrl": {
+                    "description": "streamable http url",
+                    "type": "string"
+                },
+                "tools": {
+                    "description": "绑定工具列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.MCPServerToolInfo"
+                    }
+                }
+            }
+        },
+        "response.MCPServerToolInfo": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "应用或工具id",
+                    "type": "string"
+                },
+                "mcpServerToolId": {
+                    "description": "mcpServerToolId",
+                    "type": "string"
+                },
+                "methodName": {
+                    "description": "显示名称",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "应用或工具名称",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "类型",
+                    "type": "string"
+                }
+            }
+        },
         "response.ModelInfo": {
             "type": "object",
             "required": [
@@ -3276,6 +3513,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userId": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }
