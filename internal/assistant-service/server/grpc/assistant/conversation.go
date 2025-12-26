@@ -502,17 +502,12 @@ func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantC
 	}()
 
 	// 根据智能体id查询智能体信息
-	assistantID, err := strconv.ParseUint(req.AssistantId, 10, 32)
-	if err != nil {
-		log.Errorf("Assistant服务智能体ID转换失败，assistantId: %s, error: %v", req.AssistantId, err)
-		return err
-	}
-
+	assistantID := util.MustU32(req.AssistantId)
 	var assistant *model.Assistant
 	var assistantSnapshot *model.AssistantSnapshot
 	var status *err_code.Status
 	if req.Draft {
-		assistant, status = s.cli.GetAssistant(ctx, uint32(assistantID), "", "")
+		assistant, status = s.cli.GetAssistant(ctx, assistantID, "", "")
 		if status != nil {
 			log.Errorf("Assistant服务获取智能体信息失败，assistantId: %s, error: %v", req.AssistantId, status)
 			SSEError(stream, "智能体信息获取失败")
@@ -520,7 +515,7 @@ func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantC
 			return errStatus(errs.Code_AssistantConversationErr, status)
 		}
 	} else {
-		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, uint32(assistantID), "")
+		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, assistantID, "")
 		if status != nil {
 			log.Errorf("Assistant服务获取智能体快照失败，assistantId: %s, error: %v", req.AssistantId, status)
 			SSEError(stream, "智能体快照获取失败")
@@ -560,7 +555,7 @@ func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantC
 	sseReq.UploadFileUrl = extractFileUrls(req.FileInfo)
 
 	// 模型参数配置
-	_, err = s.setModelConfigParams(sseReq, assistant)
+	_, err := s.setModelConfigParams(sseReq, assistant)
 	if err != nil {
 		SSEError(stream, "智能体模型配置解析失败")
 		saveConversation(ctx, req, "智能体模型配置解析失败", "")
@@ -1204,6 +1199,10 @@ func (s *Service) buildToolPluginListAlgParam(ctx context.Context, sseReq *confi
 			if err := json.Unmarshal([]byte(assistantSnapshot.AssistantToolConfig), &resp); err != nil {
 				return pluginList, errStatus(errs.Code_AssistantConversationErr, toErrStatus("assistant_conversation_err", err.Error()))
 			}
+
+			// 使用创建者的userid、orgid
+			identity.UserId = assistantSnapshot.UserId
+			identity.OrgId = assistantSnapshot.OrgId
 		}
 	}
 
@@ -1341,6 +1340,10 @@ func (s *Service) buildToolPluginListAlgParamNew(ctx context.Context, sseReq *co
 			if err := json.Unmarshal([]byte(assistantSnapshot.AssistantToolConfig), &resp); err != nil {
 				return pluginList, errStatus(errs.Code_AssistantConversationErr, toErrStatus("assistant_conversation_err", err.Error()))
 			}
+
+			// 使用创建者的userid、orgid
+			identity.UserId = assistantSnapshot.UserId
+			identity.OrgId = assistantSnapshot.OrgId
 		}
 	}
 
