@@ -323,8 +323,11 @@ func assistantWorkFlowConvert(ctx *gin.Context, workFlowInfos []*assistant_servi
 				}
 			}
 
-			assistantWorkFlowInfos = append(assistantWorkFlowInfos, workFlowInfo)
-			log.Debugf("添加工作流信息: WorkFlowId=%s, ApiName=%s", wf.WorkFlowId, wf.ApiName)
+			// 仅当工作流名称非空时才添加
+			if workFlowInfo.WorkFlowName != "" {
+				assistantWorkFlowInfos = append(assistantWorkFlowInfos, workFlowInfo)
+				log.Debugf("添加工作流信息: WorkFlowId=%s, ApiName=%s", wf.WorkFlowId, wf.ApiName)
+			}
 		}
 		log.Debugf("总共添加 %d 个工作流信息", len(assistantWorkFlowInfos))
 	} else {
