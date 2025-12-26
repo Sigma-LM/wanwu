@@ -394,6 +394,16 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 	}, nil
 }
 
+func (s *Service) GetAssistantIdByUuid(ctx context.Context, req *assistant_service.GetAssistantIdByUuidReq) (*assistant_service.GetAssistantIdByUuidResp, error) {
+	assistant, status := s.cli.GetAssistantByUuid(ctx, req.Uuid)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+	return &assistant_service.GetAssistantIdByUuidResp{
+		AssistantId: util.Int2Str(assistant.ID),
+	}, nil
+}
+
 func (s *Service) AssistantCopy(ctx context.Context, req *assistant_service.AssistantCopyReq) (*assistant_service.AssistantCreateResp, error) {
 	assistantId, err := util.U32(req.AssistantId)
 	if err != nil {

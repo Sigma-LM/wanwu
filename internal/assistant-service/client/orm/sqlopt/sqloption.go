@@ -144,3 +144,9 @@ func WithVersion(version string) SQLOption {
 		return db
 	})
 }
+
+func WithUuid(uuid string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("uuid = ?", uuid)
+	})
+}

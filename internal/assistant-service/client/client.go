@@ -15,6 +15,7 @@ type IClient interface {
 	DeleteAssistant(ctx context.Context, assistantID uint32) *err_code.Status
 	GetAssistant(ctx context.Context, assistantID uint32, userID, orgID string) (*model.Assistant, *err_code.Status)
 	GetAssistantsByIDs(ctx context.Context, assistantIDs []uint32) ([]*model.Assistant, *err_code.Status)
+	GetAssistantByUuid(ctx context.Context, uuid string) (*model.Assistant, *err_code.Status)
 	GetAssistantList(ctx context.Context, userID, orgID string, name string) ([]*model.Assistant, int64, *err_code.Status)
 	CheckSameAssistantName(ctx context.Context, userID, orgID, name, assistantID string) *err_code.Status
 	CopyAssistant(ctx context.Context, assistant *model.Assistant, workflows []*model.AssistantWorkflow, mcps []*model.AssistantMCP, customTools []*model.AssistantTool) (uint32, *err_code.Status)

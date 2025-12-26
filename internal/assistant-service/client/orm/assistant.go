@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"strings"
 
@@ -89,6 +90,18 @@ func (c *Client) GetAssistantsByIDs(ctx context.Context, assistantIDs []uint32) 
 		}
 		return nil
 	})
+}
+
+func (c *Client) GetAssistantByUuid(ctx context.Context, uuid string) (*model.Assistant, *err_code.Status) {
+	var assistant model.Assistant
+	if err := sqlopt.WithUuid(uuid).Apply(c.db.WithContext(ctx)).
+		First(&assistant).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, toErrStatus("assistant_get_by_uuid", "assistant not found")
+		}
+		return nil, toErrStatus("assistant_get_by_uuid", err.Error())
+	}
+	return &assistant, nil
 }
 
 func (c *Client) GetAssistantList(ctx context.Context, userID, orgID string, name string) ([]*model.Assistant, int64, *err_code.Status) {

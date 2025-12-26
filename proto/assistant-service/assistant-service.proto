@@ -16,6 +16,7 @@ service AssistantService {
   rpc AssistantDelete(AssistantDeleteReq) returns (google.protobuf.Empty) {}
   rpc GetAssistantListMyAll(GetAssistantListMyAllReq) returns (AppBriefList) {}
   rpc GetAssistantInfo(GetAssistantInfoReq) returns (AssistantInfo) {}
+  rpc GetAssistantIdByUuid(GetAssistantIdByUuidReq) returns (GetAssistantIdByUuidResp) {}
   rpc AssistantCopy(AssistantCopyReq) returns (AssistantCreateResp) {}
 
   // --- assistant snapshot ---
@@ -222,6 +223,14 @@ message AssistantOnlineSearchConfig {
 message GetAssistantListMyAllReq {
   string name = 1;
   Identity identity = 2;
+}
+
+message GetAssistantIdByUuidReq {
+  string uuid = 1;
+}
+
+message GetAssistantIdByUuidResp {
+  string assistantId = 1;
 }
 
 message AssistantInfo {
