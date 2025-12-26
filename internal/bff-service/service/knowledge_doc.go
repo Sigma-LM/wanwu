@@ -141,6 +141,18 @@ func ImportDoc(ctx *gin.Context, userId, orgId string, req *request.DocImportReq
 	return nil
 }
 
+// ImportDocOpenapi 导入文档
+func ImportDocOpenapi(ctx *gin.Context, userId, orgId string, req *request.DocImportReq) error {
+	var err error
+	if req.ParserModelId != "" {
+		req.ParserModelId, err = getModelIdByUuid(ctx, req.ParserModelId)
+		if err != nil {
+			return err
+		}
+	}
+	return ImportDoc(ctx, userId, orgId, req)
+}
+
 // UpdateDocConfig 更新文档配置
 func UpdateDocConfig(ctx *gin.Context, userId, orgId string, req *request.DocConfigUpdateReq) error {
 	segment := req.DocSegment
@@ -171,6 +183,18 @@ func UpdateDocConfig(ctx *gin.Context, userId, orgId string, req *request.DocCon
 		return err
 	}
 	return nil
+}
+
+// UpdateDocConfigOpenapi 更新文档配置
+func UpdateDocConfigOpenapi(ctx *gin.Context, userId, orgId string, req *request.DocConfigUpdateReq) error {
+	var err error
+	if req.ParserModelId != "" {
+		req.ParserModelId, err = getModelIdByUuid(ctx, req.ParserModelId)
+		if err != nil {
+			return err
+		}
+	}
+	return UpdateDocConfig(ctx, userId, orgId, req)
 }
 
 // ReImportDoc 重新解析文档

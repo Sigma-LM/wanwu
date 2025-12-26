@@ -13,6 +13,7 @@ import (
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
+	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
@@ -133,6 +134,22 @@ func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKn
 	return &response.CreateKnowledgeResp{KnowledgeId: resp.KnowledgeId}, nil
 }
 
+func CreateKnowledgeOpenapi(ctx *gin.Context, userId, orgId string, r *request.CreateKnowledgeReq) (*response.CreateKnowledgeResp, error) {
+	embModelId, err := getModelIdByUuid(ctx, r.EmbeddingModel.ModelId)
+	if err != nil {
+		return nil, err
+	}
+	r.EmbeddingModel.ModelId = embModelId
+	if r.Category == request.CategoryKnowledge && r.KnowledgeGraph.Switch {
+		llmModelId, err := getModelIdByUuid(ctx, r.KnowledgeGraph.LLMModelId)
+		if err != nil {
+			return nil, err
+		}
+		r.KnowledgeGraph.LLMModelId = llmModelId
+	}
+	return CreateKnowledge(ctx, userId, orgId, r)
+}
+
 // UpdateKnowledge 更新知识库
 func UpdateKnowledge(ctx *gin.Context, userId, orgId string, r *request.UpdateKnowledgeReq) error {
 	_, err := knowledgeBase.UpdateKnowledge(ctx.Request.Context(), &knowledgebase_service.UpdateKnowledgeReq{
@@ -183,6 +200,17 @@ func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHi
 		return nil, err
 	}
 	return buildKnowledgeHitResp(resp), nil
+}
+
+func KnowledgeHitOpenapi(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
+	if r.KnowledgeMatchParams.RerankModelId != "" {
+		rerankModelId, err := getModelIdByUuid(ctx, r.KnowledgeMatchParams.RerankModelId)
+		if err != nil {
+			return nil, err
+		}
+		r.KnowledgeMatchParams.RerankModelId = rerankModelId
+	}
+	return KnowledgeHit(ctx, userId, orgId, r)
 }
 
 func GetKnowledgeMetaSelect(ctx *gin.Context, userId, orgId string, r *request.GetKnowledgeMetaSelectReq) (*response.GetKnowledgeMetaSelectResp, error) {
@@ -254,6 +282,17 @@ func GetKnowledgeGraph(ctx *gin.Context, userId, orgId string, req *request.Know
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("knowledge graph unmarshal err: %v", err))
 	}
 	return graph, nil
+}
+
+func getModelIdByUuid(ctx *gin.Context, uuid string) (string, error) {
+	resp, err := model.GetModelInfoByUuid(ctx, &model_service.GetModelInfoByUuidReq{Uuid: uuid})
+	if err != nil {
+		return "", err
+	}
+	if resp == nil || resp.ModelInfoRespData == nil || resp.ModelInfoRespData.ModelId == "" {
+		return "", grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "无法找到该模型")
+	}
+	return resp.ModelInfoRespData.ModelId, nil
 }
 
 func buildUserKnowledgeList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagKnowledgeInfo {

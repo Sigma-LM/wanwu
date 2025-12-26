@@ -37,6 +37,10 @@ type ProxyUploadFileReq struct {
 	FileName string `json:"file_name" form:"file_name" validate:"required"` //原始文件名
 }
 
+type DirectUploadFilesReq struct {
+	IsExpired bool `json:"isExpired" form:"isExpired"` //minio存储文件是否过期 0:过期，1:不过期
+}
+
 func (c *CheckFileReq) Check() error {
 	return nil
 }
@@ -56,5 +60,8 @@ func (c *DeleteFileReq) Check() error {
 	return nil
 }
 func (c *ProxyUploadFileReq) Check() error {
+	return nil
+}
+func (c *DirectUploadFilesReq) Check() error {
 	return nil
 }

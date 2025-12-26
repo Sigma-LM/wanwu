@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"mime/multipart"
 	"os"
 	"sort"
 	"strconv"
@@ -321,4 +322,54 @@ func ProxyUploadFile(ctx *gin.Context, r *request.ProxyUploadFileReq) (*response
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_save", err.Error())
 	}
 	return resp, nil
+}
+
+func DirectUploadFiles(ctx *gin.Context, r *request.DirectUploadFilesReq) (*response.DirectUploadFilesResp, error) {
+	var uploadFiles []*response.DirectUploadFileInfo
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_save", err.Error())
+	}
+	files := form.File["files"]
+	if len(files) <= 0 {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_check", fmt.Errorf("file is empty").Error())
+	}
+	for _, file := range files {
+		uploadFileInfo, err := directUploadFile(ctx, r, file)
+		if err != nil {
+			return nil, err
+		}
+		uploadFiles = append(uploadFiles, uploadFileInfo)
+	}
+	return &response.DirectUploadFilesResp{
+		Files: uploadFiles,
+	}, nil
+}
+
+func directUploadFile(ctx *gin.Context, r *request.DirectUploadFilesReq, file *multipart.FileHeader) (*response.DirectUploadFileInfo, error) {
+	open, err := file.Open()
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_file_open", err.Error())
+	}
+	defer func() {
+		if err = open.Close(); err != nil {
+			log.Errorf("close file (%v) err: %v", file, err)
+			return
+		}
+	}()
+	defer util.PrintPanicStack()
+	fileName, _, err := minio.UploadFileCommon(ctx, open, util.FileExt(file.Filename), file.Size, r.IsExpired)
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_minio", fmt.Sprintf("upload minio err: %v", err))
+	}
+	filePath, err := minio.GetUploadFileCommon(ctx, fileName, r.IsExpired)
+	if err != nil {
+		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_get_minio_path", fmt.Sprintf("get minio file err: %v", err))
+	}
+	return &response.DirectUploadFileInfo{
+		FileName: file.Filename,
+		FilePath: filePath,
+		FileSize: file.Size,
+		FileId:   fileName,
+	}, nil
 }

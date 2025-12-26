@@ -246,6 +246,703 @@ const docTemplate = `{
                 }
             }
         },
+        "/file/upload/direct": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "文件上传",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "文件上传",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "原始文件名",
+                        "name": "fileName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.UploadFileResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge": {
+            "put": {
+                "description": "修改知识库openapi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "修改知识库openapi",
+                "parameters": [
+                    {
+                        "description": "修改知识库请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateKnowledgeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新建知识库OpenAPI",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "新建知识库OpenAPI",
+                "parameters": [
+                    {
+                        "description": "创建知识库请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateKnowledgeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CreateKnowledgeResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除知识库openapi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "删除知识库openapi",
+                "parameters": [
+                    {
+                        "description": "删除知识库请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteKnowledge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除文档",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "删除文档",
+                "parameters": [
+                    {
+                        "description": "删除文档请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteDocReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/config": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取文档配置信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取文档配置信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "docId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.DocConfigResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/export": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "知识库文档导出",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "知识库文档导出",
+                "parameters": [
+                    {
+                        "description": "知识库文档导出请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.KnowledgeDocExportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/import": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "上传文档",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "上传文档",
+                "parameters": [
+                    {
+                        "description": "文档上传请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DocImportReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/import/tip": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取知识库异步上传任务提示：有正在执行的异步上传任务/最近一次上传任务的失败信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取知识库异步上传任务提示",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取知识库文档列表，不展示状态为无效（-1）的文档数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取文档列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "docName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "图谱状态：-1.全部 0.待处理 1.解析中 2.解析成功 3.解析失败",
+                        "name": "graphStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "metaValue",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageNo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "文档状态：-1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.DocPageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/update/config": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "更新文档配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "更新文档配置",
+                "parameters": [
+                    {
+                        "description": "更新文档配置请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DocConfigUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/export/record": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除知识库导出记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "删除知识库导出记录",
+                "parameters": [
+                    {
+                        "description": "删除知识库导出记录请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteKnowledgeExportRecordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/export/record/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取知识库导出记录列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "获取知识库导出记录列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "知识库id",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageNo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.KnowledgeExportRecordPageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/hit": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "知识库命中测试",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "知识库命中测试",
+                "parameters": [
+                    {
+                        "description": "知识库命中测试请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.KnowledgeHitReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.KnowledgeHitResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/select": {
+            "post": {
+                "description": "查询知识库列表openapi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openapi"
+                ],
+                "summary": "查询知识库列表openapi",
+                "parameters": [
+                    {
+                        "description": "查询知识库列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.KnowledgeSelectReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.KnowledgeListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/mcp/server/message": {
             "post": {
                 "description": "获取MCPServer Message",
@@ -738,6 +1435,324 @@ const docTemplate = `{
                 }
             }
         },
+        "request.AppKnowledgeBase": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "graphSwitch": {
+                    "description": "知识图谱开关",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "metaDataFilterParams": {
+                    "$ref": "#/definitions/request.MetaDataFilterParams"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateKnowledgeReq": {
+            "type": "object",
+            "required": [
+                "embeddingModelInfo",
+                "name"
+            ],
+            "properties": {
+                "category": {
+                    "description": "0:知识库，1:问答库",
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "embeddingModelInfo": {
+                    "$ref": "#/definitions/request.EmbeddingModel"
+                },
+                "knowledgeGraph": {
+                    "$ref": "#/definitions/request.KnowledgeGraph"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteDocReq": {
+            "type": "object",
+            "required": [
+                "docIdList",
+                "knowledgeId"
+            ],
+            "properties": {
+                "docIdList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "knowledgeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteKnowledge": {
+            "type": "object",
+            "required": [
+                "knowledgeId"
+            ],
+            "properties": {
+                "knowledgeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteKnowledgeExportRecordReq": {
+            "type": "object",
+            "required": [
+                "exportRecordId",
+                "knowledgeId"
+            ],
+            "properties": {
+                "exportRecordId": {
+                    "description": "问答库导出记录id",
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "description": "问答库id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocConfigUpdateReq": {
+            "type": "object",
+            "required": [
+                "docAnalyzer",
+                "docIdList",
+                "docSegment",
+                "knowledgeId"
+            ],
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型 text / ocr  / model",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docIdList": {
+                    "description": "文档id列表，当更新配置时需要传",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：单条url上传，2.文件url上传",
+                    "type": "integer"
+                },
+                "docMetaData": {
+                    "description": "元数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocMetaData"
+                    }
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则 replaceSymbols / deleteLinks",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "文档分段配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.DocSegment"
+                        }
+                    ]
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "parserModelId": {
+                    "description": "模型解析或ocr模型id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocImportReq": {
+            "type": "object",
+            "required": [
+                "docAnalyzer",
+                "docInfoList",
+                "docSegment",
+                "knowledgeId"
+            ],
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型 text / ocr  / model",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：单条url上传，2.文件url上传",
+                    "type": "integer"
+                },
+                "docInfoList": {
+                    "description": "上传文档列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocInfo"
+                    }
+                },
+                "docMetaData": {
+                    "description": "元数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocMetaData"
+                    }
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则 replaceSymbols / deleteLinks",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "文档分段配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.DocSegment"
+                        }
+                    ]
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "parserModelId": {
+                    "description": "模型解析或ocr模型id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocInfo": {
+            "type": "object",
+            "properties": {
+                "docId": {
+                    "description": "文档id",
+                    "type": "string"
+                },
+                "docName": {
+                    "description": "文档名称",
+                    "type": "string"
+                },
+                "docSize": {
+                    "description": "文档类型",
+                    "type": "integer"
+                },
+                "docType": {
+                    "description": "文档类型",
+                    "type": "string"
+                },
+                "docUrl": {
+                    "description": "文档url",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocMetaData": {
+            "type": "object",
+            "properties": {
+                "metaId": {
+                    "description": "元数据id",
+                    "type": "string"
+                },
+                "metaKey": {
+                    "description": "key",
+                    "type": "string"
+                },
+                "metaRule": {
+                    "description": "正则表达式",
+                    "type": "string"
+                },
+                "metaValue": {
+                    "description": "确定值",
+                    "type": "string"
+                },
+                "metaValueType": {
+                    "description": "string，number，time",
+                    "type": "string"
+                },
+                "option": {
+                    "description": "option:add(新增)、update(更新)、delete(删除),update 和delete 的时候metaId 不能为空",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DocSegment": {
+            "type": "object",
+            "required": [
+                "segmentMethod"
+            ],
+            "properties": {
+                "maxSplitter": {
+                    "description": "可分隔最大值（只有自定义分段必填）",
+                    "type": "integer"
+                },
+                "overlap": {
+                    "description": "可重叠值（只有自定义分段必填）",
+                    "type": "number"
+                },
+                "segmentMethod": {
+                    "description": "分段方法 0：通用分段；1：父子分段",
+                    "type": "string"
+                },
+                "segmentType": {
+                    "description": "分段方式，只有通用分段必填 0：自动分段；1：自定义分段",
+                    "type": "string"
+                },
+                "splitter": {
+                    "description": "分隔符（只有自定义分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subMaxSplitter": {
+                    "description": "可分隔最大值（只有父子分段必填）",
+                    "type": "integer"
+                },
+                "subSplitter": {
+                    "description": "分隔符（只有父子分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "request.EmbeddingModel": {
+            "type": "object",
+            "required": [
+                "modelId"
+            ],
+            "properties": {
+                "modelId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.History": {
             "type": "object",
             "properties": {
@@ -748,6 +1763,170 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "response": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.KnowledgeDocExportReq": {
+            "type": "object",
+            "required": [
+                "knowledgeId"
+            ],
+            "properties": {
+                "docIdList": {
+                    "description": "文档id",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.KnowledgeGraph": {
+            "type": "object",
+            "properties": {
+                "llmModelId": {
+                    "description": "大模型id，开关为true必填",
+                    "type": "string"
+                },
+                "schemaUrl": {
+                    "description": "模型schema文件地址，可以为空",
+                    "type": "string"
+                },
+                "switch": {
+                    "description": "知识图谱开关",
+                    "type": "boolean"
+                }
+            }
+        },
+        "request.KnowledgeHitReq": {
+            "type": "object",
+            "required": [
+                "knowledgeMatchParams",
+                "question"
+            ],
+            "properties": {
+                "knowledgeList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.AppKnowledgeBase"
+                    }
+                },
+                "knowledgeMatchParams": {
+                    "$ref": "#/definitions/request.KnowledgeMatchParams"
+                },
+                "question": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.KnowledgeMatchParams": {
+            "type": "object",
+            "required": [
+                "matchType"
+            ],
+            "properties": {
+                "keywordPriority": {
+                    "description": "关键词权重",
+                    "type": "number"
+                },
+                "matchType": {
+                    "description": "matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）",
+                    "type": "string"
+                },
+                "priorityMatch": {
+                    "description": "权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1",
+                    "type": "integer"
+                },
+                "rerankModelId": {
+                    "description": "rerank模型id",
+                    "type": "string"
+                },
+                "semanticsPriority": {
+                    "description": "语义权重",
+                    "type": "number"
+                },
+                "termWeight": {
+                    "description": "关键词系数",
+                    "type": "number"
+                },
+                "termWeightEnable": {
+                    "description": "关键词系数开关",
+                    "type": "boolean"
+                },
+                "threshold": {
+                    "description": "threshold 过滤分数阈值",
+                    "type": "number"
+                },
+                "topK": {
+                    "description": "topK 获取最高的几行",
+                    "type": "integer"
+                },
+                "useGraph": {
+                    "description": "是否使用知识图谱",
+                    "type": "boolean"
+                }
+            }
+        },
+        "request.KnowledgeSelectReq": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "0:知识库，1:问答库",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tagId": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "request.MetaDataFilterParams": {
+            "type": "object",
+            "properties": {
+                "filterEnable": {
+                    "description": "元数据过滤开关",
+                    "type": "boolean"
+                },
+                "filterLogicType": {
+                    "description": "元数据逻辑条件：and/or",
+                    "type": "string"
+                },
+                "metaFilterParams": {
+                    "description": "元数据过滤参数列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.MetaFilterParams"
+                    }
+                }
+            }
+        },
+        "request.MetaFilterParams": {
+            "type": "object",
+            "properties": {
+                "condition": {
+                    "description": "条件",
+                    "type": "string"
+                },
+                "key": {
+                    "description": "Key",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "类型（Time, String, Number）",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "value",
                     "type": "string"
                 }
             }
@@ -899,6 +2078,432 @@ const docTemplate = `{
                 },
                 "uuid": {
                     "type": "string"
+                }
+            }
+        },
+        "request.UpdateKnowledgeReq": {
+            "type": "object",
+            "required": [
+                "knowledgeId",
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ChildContent": {
+            "type": "object",
+            "properties": {
+                "childSnippet": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                }
+            }
+        },
+        "response.ChunkSearchList": {
+            "type": "object",
+            "properties": {
+                "childContentList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ChildContent"
+                    }
+                },
+                "childScore": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "contentType": {
+                    "description": "graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）",
+                    "type": "string"
+                },
+                "knowledgeName": {
+                    "type": "string"
+                },
+                "snippet": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CreateKnowledgeResp": {
+            "type": "object",
+            "properties": {
+                "knowledgeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocConfigResult": {
+            "type": "object",
+            "properties": {
+                "docAnalyzer": {
+                    "description": "文档解析类型",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docImportType": {
+                    "description": "文档导入类型，0：文件上传，1：url上传，2.批量url上传",
+                    "type": "integer"
+                },
+                "docPreprocess": {
+                    "description": "文本预处理规则",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "docSegment": {
+                    "description": "分段信息配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.DocSegment"
+                        }
+                    ]
+                },
+                "parserModelId": {
+                    "description": "ocr模型id",
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocKnowledgeInfo": {
+            "type": "object",
+            "properties": {
+                "graphSwitch": {
+                    "type": "integer"
+                },
+                "knowledgeId": {
+                    "type": "string"
+                },
+                "knowledgeName": {
+                    "type": "string"
+                },
+                "showGraphReport": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.DocPageResult": {
+            "type": "object",
+            "properties": {
+                "docKnowledgeInfo": {
+                    "$ref": "#/definitions/response.DocKnowledgeInfo"
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ListDocResp"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.DocSegment": {
+            "type": "object",
+            "required": [
+                "segmentMethod"
+            ],
+            "properties": {
+                "maxSplitter": {
+                    "description": "可分隔最大值（只有自定义分段必填）",
+                    "type": "integer"
+                },
+                "overlap": {
+                    "description": "可重叠值（只有自定义分段必填）",
+                    "type": "number"
+                },
+                "segmentMethod": {
+                    "description": "分段方法 0：通用分段；1：父子分段",
+                    "type": "string"
+                },
+                "segmentType": {
+                    "description": "分段方式，只有通用分段必填 0：自动分段；1：自定义分段",
+                    "type": "string"
+                },
+                "splitter": {
+                    "description": "分隔符（只有自定义分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subMaxSplitter": {
+                    "description": "可分隔最大值（只有父子分段必填）",
+                    "type": "integer"
+                },
+                "subSplitter": {
+                    "description": "分隔符（只有父子分段必填）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "response.EmbeddingModelInfo": {
+            "type": "object",
+            "properties": {
+                "modelId": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.KnowledgeExportRecordPageResult": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ListKnowledgeExportRecordResp"
+                    }
+                },
+                "pageNo": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.KnowledgeHitResp": {
+            "type": "object",
+            "properties": {
+                "prompt": {
+                    "description": "提示词列表",
+                    "type": "string"
+                },
+                "score": {
+                    "description": "打分信息",
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "searchList": {
+                    "description": "种种结果",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ChunkSearchList"
+                    }
+                },
+                "useGraph": {
+                    "description": "是否使用知识图谱",
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.KnowledgeInfo": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "0: 知识库; 1: 问答库",
+                    "type": "integer"
+                },
+                "createAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "createUserId": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "知识库描述",
+                    "type": "string"
+                },
+                "docCount": {
+                    "description": "文档数量",
+                    "type": "integer"
+                },
+                "embeddingModelInfo": {
+                    "description": "embedding模型信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.EmbeddingModelInfo"
+                        }
+                    ]
+                },
+                "graphSwitch": {
+                    "description": "图谱开关",
+                    "type": "integer"
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "knowledgeTagList": {
+                    "description": "知识库标签列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.KnowledgeTag"
+                    }
+                },
+                "llmModelId": {
+                    "description": "知识图谱模型id",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "知识库名称",
+                    "type": "string"
+                },
+                "orgName": {
+                    "description": "知识库所属名称",
+                    "type": "string"
+                },
+                "permissionType": {
+                    "description": "权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限\u003e编辑权限\u003e查看权限",
+                    "type": "integer"
+                },
+                "ragName": {
+                    "description": "rag名称",
+                    "type": "string"
+                },
+                "share": {
+                    "description": "是分享，还是私有",
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "response.KnowledgeListResp": {
+            "type": "object",
+            "properties": {
+                "knowledgeList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.KnowledgeInfo"
+                    }
+                }
+            }
+        },
+        "response.KnowledgeTag": {
+            "type": "object",
+            "properties": {
+                "selected": {
+                    "description": "此表标签是否选中",
+                    "type": "boolean"
+                },
+                "tagId": {
+                    "description": "知识库标签id",
+                    "type": "string"
+                },
+                "tagName": {
+                    "description": "知识库标签名称",
+                    "type": "string"
+                }
+            }
+        },
+        "response.ListDocResp": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "上传文档 作者",
+                    "type": "string"
+                },
+                "docId": {
+                    "type": "string"
+                },
+                "docName": {
+                    "description": "文档名称",
+                    "type": "string"
+                },
+                "docType": {
+                    "description": "文档类型",
+                    "type": "string"
+                },
+                "errorMsg": {
+                    "description": "解析错误信息，预留",
+                    "type": "string"
+                },
+                "fileSize": {
+                    "description": "文件大小，预留",
+                    "type": "string"
+                },
+                "graphErrMsg": {
+                    "description": "图谱错误信息",
+                    "type": "string"
+                },
+                "graphStatus": {
+                    "description": "图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败",
+                    "type": "integer"
+                },
+                "knowledgeId": {
+                    "description": "知识库id",
+                    "type": "string"
+                },
+                "segmentMethod": {
+                    "description": "分段模式 0:通用分段，1：父子分段",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "处理状态",
+                    "type": "integer"
+                },
+                "uploadTime": {
+                    "description": "上传时间",
+                    "type": "string"
+                }
+            }
+        },
+        "response.ListKnowledgeExportRecordResp": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "导出人",
+                    "type": "string"
+                },
+                "errorMsg": {
+                    "description": "导出状态错误信息",
+                    "type": "string"
+                },
+                "exportRecordId": {
+                    "description": "知识库导出记录id",
+                    "type": "string"
+                },
+                "exportTime": {
+                    "description": "导出时间",
+                    "type": "string"
+                },
+                "filePath": {
+                    "description": "导出文件路径",
+                    "type": "string"
+                },
+                "knowledgeName": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "integer"
                 }
             }
         },
@@ -1261,6 +2866,15 @@ const docTemplate = `{
                 "data": {},
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "response.UploadFileResp": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "description": "0:上传失败，1：上传成功",
+                    "type": "integer"
                 }
             }
         }

@@ -28,3 +28,14 @@ type CheckFileListResp struct {
 type ProxyUploadFileResp struct {
 	DownloadLink string `json:"download_link"` //上传文件链接
 }
+
+type DirectUploadFilesResp struct {
+	Files []*DirectUploadFileInfo `json:"files"`
+}
+
+type DirectUploadFileInfo struct {
+	FileName string `json:"fileName"` //原始文件名
+	FileId   string `json:"fileId"`   //上传文件名
+	FilePath string `json:"filePath"` //minio文件的完整路径
+	FileSize int64  `json:"fileSize"` //文件大小
+}

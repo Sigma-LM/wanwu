@@ -37,7 +37,7 @@ func GetKnowledgeSelect(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body		request.CreateKnowledgeReq	true	"创建知识库请求参数"
-//	@Success		200		{object}	response.Response{data=[]response.CreateKnowledgeResp}
+//	@Success		200		{object}	response.Response{data=response.CreateKnowledgeResp}
 //	@Router			/knowledge [post]
 func CreateKnowledge(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)

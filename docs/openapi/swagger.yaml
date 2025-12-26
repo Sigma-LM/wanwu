@@ -15,6 +15,228 @@ definitions:
       use:
         type: string
     type: object
+  request.AppKnowledgeBase:
+    properties:
+      graphSwitch:
+        description: 知识图谱开关
+        type: integer
+      id:
+        description: 知识库id
+        type: string
+      metaDataFilterParams:
+        $ref: '#/definitions/request.MetaDataFilterParams'
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  request.CreateKnowledgeReq:
+    properties:
+      category:
+        description: 0:知识库，1:问答库
+        type: integer
+      description:
+        type: string
+      embeddingModelInfo:
+        $ref: '#/definitions/request.EmbeddingModel'
+      knowledgeGraph:
+        $ref: '#/definitions/request.KnowledgeGraph'
+      name:
+        type: string
+    required:
+    - embeddingModelInfo
+    - name
+    type: object
+  request.DeleteDocReq:
+    properties:
+      docIdList:
+        items:
+          type: string
+        type: array
+      knowledgeId:
+        type: string
+    required:
+    - docIdList
+    - knowledgeId
+    type: object
+  request.DeleteKnowledge:
+    properties:
+      knowledgeId:
+        type: string
+    required:
+    - knowledgeId
+    type: object
+  request.DeleteKnowledgeExportRecordReq:
+    properties:
+      exportRecordId:
+        description: 问答库导出记录id
+        type: string
+      knowledgeId:
+        description: 问答库id
+        type: string
+    required:
+    - exportRecordId
+    - knowledgeId
+    type: object
+  request.DocConfigUpdateReq:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型 text / ocr  / model
+        items:
+          type: string
+        type: array
+      docIdList:
+        description: 文档id列表，当更新配置时需要传
+        items:
+          type: string
+        type: array
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
+        type: integer
+      docMetaData:
+        description: 元数据
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
+      docPreprocess:
+        description: 文本预处理规则 replaceSymbols / deleteLinks
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/request.DocSegment'
+        description: 文档分段配置
+      knowledgeId:
+        description: 知识库id
+        type: string
+      parserModelId:
+        description: 模型解析或ocr模型id
+        type: string
+    required:
+    - docAnalyzer
+    - docIdList
+    - docSegment
+    - knowledgeId
+    type: object
+  request.DocImportReq:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型 text / ocr  / model
+        items:
+          type: string
+        type: array
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
+        type: integer
+      docInfoList:
+        description: 上传文档列表
+        items:
+          $ref: '#/definitions/request.DocInfo'
+        type: array
+      docMetaData:
+        description: 元数据
+        items:
+          $ref: '#/definitions/request.DocMetaData'
+        type: array
+      docPreprocess:
+        description: 文本预处理规则 replaceSymbols / deleteLinks
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/request.DocSegment'
+        description: 文档分段配置
+      knowledgeId:
+        description: 知识库id
+        type: string
+      parserModelId:
+        description: 模型解析或ocr模型id
+        type: string
+    required:
+    - docAnalyzer
+    - docInfoList
+    - docSegment
+    - knowledgeId
+    type: object
+  request.DocInfo:
+    properties:
+      docId:
+        description: 文档id
+        type: string
+      docName:
+        description: 文档名称
+        type: string
+      docSize:
+        description: 文档类型
+        type: integer
+      docType:
+        description: 文档类型
+        type: string
+      docUrl:
+        description: 文档url
+        type: string
+    type: object
+  request.DocMetaData:
+    properties:
+      metaId:
+        description: 元数据id
+        type: string
+      metaKey:
+        description: key
+        type: string
+      metaRule:
+        description: 正则表达式
+        type: string
+      metaValue:
+        description: 确定值
+        type: string
+      metaValueType:
+        description: string，number，time
+        type: string
+      option:
+        description: option:add(新增)、update(更新)、delete(删除),update 和delete 的时候metaId
+          不能为空
+        type: string
+    type: object
+  request.DocSegment:
+    properties:
+      maxSplitter:
+        description: 可分隔最大值（只有自定义分段必填）
+        type: integer
+      overlap:
+        description: 可重叠值（只有自定义分段必填）
+        type: number
+      segmentMethod:
+        description: 分段方法 0：通用分段；1：父子分段
+        type: string
+      segmentType:
+        description: 分段方式，只有通用分段必填 0：自动分段；1：自定义分段
+        type: string
+      splitter:
+        description: 分隔符（只有自定义分段必填）
+        items:
+          type: string
+        type: array
+      subMaxSplitter:
+        description: 可分隔最大值（只有父子分段必填）
+        type: integer
+      subSplitter:
+        description: 分隔符（只有父子分段必填）
+        items:
+          type: string
+        type: array
+    required:
+    - segmentMethod
+    type: object
+  request.EmbeddingModel:
+    properties:
+      modelId:
+        type: string
+    required:
+    - modelId
+    type: object
   request.History:
     properties:
       needHistory:
@@ -22,6 +244,121 @@ definitions:
       query:
         type: string
       response:
+        type: string
+    type: object
+  request.KnowledgeDocExportReq:
+    properties:
+      docIdList:
+        description: 文档id
+        items:
+          type: string
+        type: array
+      knowledgeId:
+        description: 知识库id
+        type: string
+    required:
+    - knowledgeId
+    type: object
+  request.KnowledgeGraph:
+    properties:
+      llmModelId:
+        description: 大模型id，开关为true必填
+        type: string
+      schemaUrl:
+        description: 模型schema文件地址，可以为空
+        type: string
+      switch:
+        description: 知识图谱开关
+        type: boolean
+    type: object
+  request.KnowledgeHitReq:
+    properties:
+      knowledgeList:
+        items:
+          $ref: '#/definitions/request.AppKnowledgeBase'
+        type: array
+      knowledgeMatchParams:
+        $ref: '#/definitions/request.KnowledgeMatchParams'
+      question:
+        type: string
+    required:
+    - knowledgeMatchParams
+    - question
+    type: object
+  request.KnowledgeMatchParams:
+    properties:
+      keywordPriority:
+        description: 关键词权重
+        type: number
+      matchType:
+        description: matchType：vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
+        type: string
+      priorityMatch:
+        description: 权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+        type: integer
+      rerankModelId:
+        description: rerank模型id
+        type: string
+      semanticsPriority:
+        description: 语义权重
+        type: number
+      termWeight:
+        description: 关键词系数
+        type: number
+      termWeightEnable:
+        description: 关键词系数开关
+        type: boolean
+      threshold:
+        description: threshold 过滤分数阈值
+        type: number
+      topK:
+        description: topK 获取最高的几行
+        type: integer
+      useGraph:
+        description: 是否使用知识图谱
+        type: boolean
+    required:
+    - matchType
+    type: object
+  request.KnowledgeSelectReq:
+    properties:
+      category:
+        description: 0:知识库，1:问答库
+        type: integer
+      name:
+        type: string
+      tagId:
+        items:
+          type: string
+        type: array
+    type: object
+  request.MetaDataFilterParams:
+    properties:
+      filterEnable:
+        description: 元数据过滤开关
+        type: boolean
+      filterLogicType:
+        description: 元数据逻辑条件：and/or
+        type: string
+      metaFilterParams:
+        description: 元数据过滤参数列表
+        items:
+          $ref: '#/definitions/request.MetaFilterParams'
+        type: array
+    type: object
+  request.MetaFilterParams:
+    properties:
+      condition:
+        description: 条件
+        type: string
+      key:
+        description: Key
+        type: string
+      type:
+        description: 类型（Time, String, Number）
+        type: string
+      value:
+        description: value
         type: string
     type: object
   request.OAuthRefreshRequest:
@@ -123,6 +460,299 @@ definitions:
         type: string
     required:
     - uuid
+    type: object
+  request.UpdateKnowledgeReq:
+    properties:
+      description:
+        type: string
+      knowledgeId:
+        type: string
+      name:
+        type: string
+    required:
+    - knowledgeId
+    - name
+    type: object
+  response.ChildContent:
+    properties:
+      childSnippet:
+        type: string
+      score:
+        type: number
+    type: object
+  response.ChunkSearchList:
+    properties:
+      childContentList:
+        items:
+          $ref: '#/definitions/response.ChildContent'
+        type: array
+      childScore:
+        items:
+          type: number
+        type: array
+      contentType:
+        description: graph：知识图谱（文本）, text：文档分段（文本）, community_report：社区报告（markdown），qa：问答库（文本）
+        type: string
+      knowledgeName:
+        type: string
+      snippet:
+        type: string
+      title:
+        type: string
+    type: object
+  response.CreateKnowledgeResp:
+    properties:
+      knowledgeId:
+        type: string
+    type: object
+  response.DocConfigResult:
+    properties:
+      docAnalyzer:
+        description: 文档解析类型
+        items:
+          type: string
+        type: array
+      docImportType:
+        description: 文档导入类型，0：文件上传，1：url上传，2.批量url上传
+        type: integer
+      docPreprocess:
+        description: 文本预处理规则
+        items:
+          type: string
+        type: array
+      docSegment:
+        allOf:
+        - $ref: '#/definitions/response.DocSegment'
+        description: 分段信息配置
+      parserModelId:
+        description: ocr模型id
+        type: string
+    type: object
+  response.DocKnowledgeInfo:
+    properties:
+      graphSwitch:
+        type: integer
+      knowledgeId:
+        type: string
+      knowledgeName:
+        type: string
+      showGraphReport:
+        type: boolean
+    type: object
+  response.DocPageResult:
+    properties:
+      docKnowledgeInfo:
+        $ref: '#/definitions/response.DocKnowledgeInfo'
+      list:
+        items:
+          $ref: '#/definitions/response.ListDocResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.DocSegment:
+    properties:
+      maxSplitter:
+        description: 可分隔最大值（只有自定义分段必填）
+        type: integer
+      overlap:
+        description: 可重叠值（只有自定义分段必填）
+        type: number
+      segmentMethod:
+        description: 分段方法 0：通用分段；1：父子分段
+        type: string
+      segmentType:
+        description: 分段方式，只有通用分段必填 0：自动分段；1：自定义分段
+        type: string
+      splitter:
+        description: 分隔符（只有自定义分段必填）
+        items:
+          type: string
+        type: array
+      subMaxSplitter:
+        description: 可分隔最大值（只有父子分段必填）
+        type: integer
+      subSplitter:
+        description: 分隔符（只有父子分段必填）
+        items:
+          type: string
+        type: array
+    required:
+    - segmentMethod
+    type: object
+  response.EmbeddingModelInfo:
+    properties:
+      modelId:
+        type: string
+    type: object
+  response.KnowledgeExportRecordPageResult:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ListKnowledgeExportRecordResp'
+        type: array
+      pageNo:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  response.KnowledgeHitResp:
+    properties:
+      prompt:
+        description: 提示词列表
+        type: string
+      score:
+        description: 打分信息
+        items:
+          type: number
+        type: array
+      searchList:
+        description: 种种结果
+        items:
+          $ref: '#/definitions/response.ChunkSearchList'
+        type: array
+      useGraph:
+        description: 是否使用知识图谱
+        type: boolean
+    type: object
+  response.KnowledgeInfo:
+    properties:
+      category:
+        description: '0: 知识库; 1: 问答库'
+        type: integer
+      createAt:
+        description: 创建时间
+        type: string
+      createUserId:
+        type: string
+      description:
+        description: 知识库描述
+        type: string
+      docCount:
+        description: 文档数量
+        type: integer
+      embeddingModelInfo:
+        allOf:
+        - $ref: '#/definitions/response.EmbeddingModelInfo'
+        description: embedding模型信息
+      graphSwitch:
+        description: 图谱开关
+        type: integer
+      knowledgeId:
+        description: 知识库id
+        type: string
+      knowledgeTagList:
+        description: 知识库标签列表
+        items:
+          $ref: '#/definitions/response.KnowledgeTag'
+        type: array
+      llmModelId:
+        description: 知识图谱模型id
+        type: string
+      name:
+        description: 知识库名称
+        type: string
+      orgName:
+        description: 知识库所属名称
+        type: string
+      permissionType:
+        description: '权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限'
+        type: integer
+      ragName:
+        description: rag名称
+        type: string
+      share:
+        description: 是分享，还是私有
+        type: boolean
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  response.KnowledgeListResp:
+    properties:
+      knowledgeList:
+        items:
+          $ref: '#/definitions/response.KnowledgeInfo'
+        type: array
+    type: object
+  response.KnowledgeTag:
+    properties:
+      selected:
+        description: 此表标签是否选中
+        type: boolean
+      tagId:
+        description: 知识库标签id
+        type: string
+      tagName:
+        description: 知识库标签名称
+        type: string
+    type: object
+  response.ListDocResp:
+    properties:
+      author:
+        description: 上传文档 作者
+        type: string
+      docId:
+        type: string
+      docName:
+        description: 文档名称
+        type: string
+      docType:
+        description: 文档类型
+        type: string
+      errorMsg:
+        description: 解析错误信息，预留
+        type: string
+      fileSize:
+        description: 文件大小，预留
+        type: string
+      graphErrMsg:
+        description: 图谱错误信息
+        type: string
+      graphStatus:
+        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+        type: integer
+      knowledgeId:
+        description: 知识库id
+        type: string
+      segmentMethod:
+        description: 分段模式 0:通用分段，1：父子分段
+        type: string
+      status:
+        description: 处理状态
+        type: integer
+      uploadTime:
+        description: 上传时间
+        type: string
+    type: object
+  response.ListKnowledgeExportRecordResp:
+    properties:
+      author:
+        description: 导出人
+        type: string
+      errorMsg:
+        description: 导出状态错误信息
+        type: string
+      exportRecordId:
+        description: 知识库导出记录id
+        type: string
+      exportTime:
+        description: 导出时间
+        type: string
+      filePath:
+        description: 导出文件路径
+        type: string
+      knowledgeName:
+        type: string
+      status:
+        description: 状态
+        type: integer
     type: object
   response.OAuthConfig:
     properties:
@@ -367,6 +997,12 @@ definitions:
       msg:
         type: string
     type: object
+  response.UploadFileResp:
+    properties:
+      status:
+        description: 0:上传失败，1：上传成功
+        type: integer
+    type: object
 info:
   contact: {}
   title: AI Agent Productivity Platform - Open API
@@ -511,6 +1147,426 @@ paths:
                   $ref: '#/definitions/response.OpenAPIChatflowGetConversationMessageListResponse'
               type: object
       summary: 对话流根据conversationId获取历史对话
+      tags:
+      - openapi
+  /file/upload/direct:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 文件上传
+      parameters:
+      - description: 原始文件名
+        in: formData
+        name: fileName
+        required: true
+        type: string
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.UploadFileResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 文件上传
+      tags:
+      - openapi
+  /knowledge:
+    delete:
+      consumes:
+      - application/json
+      description: 删除知识库openapi
+      parameters:
+      - description: 删除知识库请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 删除知识库openapi
+      tags:
+      - openapi
+    post:
+      consumes:
+      - application/json
+      description: 新建知识库OpenAPI
+      parameters:
+      - description: 创建知识库请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateKnowledgeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CreateKnowledgeResp'
+              type: object
+      summary: 新建知识库OpenAPI
+      tags:
+      - openapi
+    put:
+      consumes:
+      - application/json
+      description: 修改知识库openapi
+      parameters:
+      - description: 修改知识库请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateKnowledgeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 修改知识库openapi
+      tags:
+      - openapi
+  /knowledge/doc:
+    delete:
+      consumes:
+      - application/json
+      description: 删除文档
+      parameters:
+      - description: 删除文档请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteDocReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除文档
+      tags:
+      - openapi
+  /knowledge/doc/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取文档配置信息
+      parameters:
+      - in: query
+        name: docId
+        required: true
+        type: string
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocConfigResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取文档配置信息
+      tags:
+      - openapi
+  /knowledge/doc/export:
+    post:
+      consumes:
+      - application/json
+      description: 知识库文档导出
+      parameters:
+      - description: 知识库文档导出请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeDocExportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 知识库文档导出
+      tags:
+      - openapi
+  /knowledge/doc/import:
+    post:
+      consumes:
+      - application/json
+      description: 上传文档
+      parameters:
+      - description: 文档上传请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DocImportReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 上传文档
+      tags:
+      - openapi
+  /knowledge/doc/import/tip:
+    get:
+      consumes:
+      - application/json
+      description: 获取知识库异步上传任务提示：有正在执行的异步上传任务/最近一次上传任务的失败信息
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 获取知识库异步上传任务提示
+      tags:
+      - openapi
+  /knowledge/doc/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取知识库文档列表，不展示状态为无效（-1）的文档数据
+      parameters:
+      - in: query
+        name: docName
+        type: string
+      - collectionFormat: csv
+        description: 图谱状态：-1.全部 0.待处理 1.解析中 2.解析成功 3.解析失败
+        in: query
+        items:
+          type: integer
+        name: graphStatus
+        type: array
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: metaValue
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: 文档状态：-1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败
+        in: query
+        items:
+          type: integer
+        name: status
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取文档列表
+      tags:
+      - openapi
+  /knowledge/doc/update/config:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档配置
+      parameters:
+      - description: 更新文档配置请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DocConfigUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 更新文档配置
+      tags:
+      - openapi
+  /knowledge/export/record:
+    delete:
+      consumes:
+      - application/json
+      description: 删除知识库导出记录
+      parameters:
+      - description: 删除知识库导出记录请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledgeExportRecordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除知识库导出记录
+      tags:
+      - openapi
+  /knowledge/export/record/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取知识库导出记录列表
+      parameters:
+      - description: 知识库id
+        in: query
+        name: knowledgeId
+        required: true
+        type: string
+      - in: query
+        name: pageNo
+        type: integer
+      - in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeExportRecordPageResult'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取知识库导出记录列表
+      tags:
+      - openapi
+  /knowledge/hit:
+    post:
+      consumes:
+      - application/json
+      description: 知识库命中测试
+      parameters:
+      - description: 知识库命中测试请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeHitReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeHitResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 知识库命中测试
+      tags:
+      - openapi
+  /knowledge/select:
+    post:
+      consumes:
+      - application/json
+      description: 查询知识库列表openapi
+      parameters:
+      - description: 查询知识库列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.KnowledgeSelectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeListResp'
+              type: object
+      summary: 查询知识库列表openapi
       tags:
       - openapi
   /mcp/server/message:

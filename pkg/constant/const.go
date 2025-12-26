@@ -2,10 +2,11 @@ package constant
 
 // openapi type
 const (
-	OpenAPITypeChatflow = "chatflow" // 对话问答
-	OpenAPITypeWorkflow = "workflow" // 工作流
-	OpenAPITypeAgent    = "agent"    // 智能体
-	OpenAPITypeRag      = "rag"      // 文本问答
+	OpenAPITypeChatflow  = "chatflow"  // 对话问答
+	OpenAPITypeWorkflow  = "workflow"  // 工作流
+	OpenAPITypeAgent     = "agent"     // 智能体
+	OpenAPITypeRag       = "rag"       // 文本问答
+	OpenAPITypeKnowledge = "knowledge" // 知识库
 )
 
 // app type
