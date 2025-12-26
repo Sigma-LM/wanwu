@@ -310,7 +310,7 @@ export default {
         version: [
           {
             required: true,
-            message: this.$t('list.version.noPlaceholder'),
+            message: this.$t('list.version.noMsg'),
             trigger: 'blur',
           },
           {
