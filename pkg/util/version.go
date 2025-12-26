@@ -26,7 +26,6 @@ func IsVersionGreaterThan(newVersion, oldVersion string) error {
 	if vNew.GreaterThan(vOld) {
 		return nil
 	} else {
-		return fmt.Errorf("the version number is not self-incrementing, old version %v, current version is %v",
-			oldVersion, newVersion)
+		return fmt.Errorf("the version number is not self-incrementing")
 	}
 }

@@ -173,7 +173,7 @@ func PublishApp(ctx *gin.Context, userId, orgId string, req request.PublishAppRe
 		})
 		if resp != nil {
 			if err := util.IsVersionGreaterThan(req.Version, resp.Version); err != nil {
-				return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_app_publish_version", err.Error())
+				return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_app_publish_version", resp.Version, req.Version, err.Error())
 			}
 		}
 		_, err := assistant.AssistantSnapshotCreate(ctx.Request.Context(), &assistant_service.AssistantSnapshotReq{
@@ -199,7 +199,7 @@ func PublishApp(ctx *gin.Context, userId, orgId string, req request.PublishAppRe
 		})
 		if resp != nil {
 			if err := util.IsVersionGreaterThan(req.Version, resp.Version); err != nil {
-				return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_app_publish_version", err.Error())
+				return grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_app_publish_version", resp.Version, req.Version, err.Error())
 			}
 		}
 		_, err := rag.PublishRag(ctx.Request.Context(), &rag_service.PublishRagReq{
