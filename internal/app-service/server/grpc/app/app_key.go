@@ -13,7 +13,7 @@ import (
 func (s *Service) GenAppKey(ctx context.Context, req *app_service.GenAppKeyReq) (*app_service.AppKeyInfo, error) {
 	appKey, err := s.cli.GenAppKey(ctx, req.UserId, req.OrgId, req.AppId, req.AppType, util.GenApiUUID())
 	if err != nil {
-		return nil, errStatus(errs.Code_AppApikey, err)
+		return nil, errStatus(errs.Code_Appkey, err)
 	}
 	return toProtoAppKey(appKey), nil
 }
@@ -21,7 +21,7 @@ func (s *Service) GenAppKey(ctx context.Context, req *app_service.GenAppKeyReq) 
 func (s *Service) GetAppKeyList(ctx context.Context, req *app_service.GetAppKeyListReq) (*app_service.AppKeyInfoList, error) {
 	appKeyList, err := s.cli.GetAppKeyList(ctx, req.UserId, req.OrgId, req.AppId, req.AppType)
 	if err != nil {
-		return nil, errStatus(errs.Code_AppApikey, err)
+		return nil, errStatus(errs.Code_Appkey, err)
 	}
 	ret := &app_service.AppKeyInfoList{
 		Total: int64(len(appKeyList)),
@@ -35,7 +35,7 @@ func (s *Service) GetAppKeyList(ctx context.Context, req *app_service.GetAppKeyL
 func (s *Service) DelAppKey(ctx context.Context, req *app_service.DelAppKeyReq) (*emptypb.Empty, error) {
 	err := s.cli.DelAppKey(ctx, util.MustU32(req.AppKeyId))
 	if err != nil {
-		return nil, errStatus(errs.Code_AppApikey, err)
+		return nil, errStatus(errs.Code_Appkey, err)
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -43,7 +43,7 @@ func (s *Service) DelAppKey(ctx context.Context, req *app_service.DelAppKeyReq) 
 func (s *Service) GetAppKeyByKey(ctx context.Context, req *app_service.GetAppKeyByKeyReq) (*app_service.AppKeyInfo, error) {
 	appKey, err := s.cli.GetAppKeyByKey(ctx, req.AppKey)
 	if err != nil {
-		return nil, errStatus(errs.Code_AppApikey, err)
+		return nil, errStatus(errs.Code_Appkey, err)
 	}
 	return toProtoAppKey(appKey), nil
 }

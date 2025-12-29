@@ -40,7 +40,7 @@ enum Code {
 
   // --- knowledge-service ---
   // [140000, 149999]
-  KnowledgeGeneral = 140000;     // 系统异常，请稍后重试
+  KnowledgeGeneral = 140000; // 系统异常，请稍后重试
   KnowledgeBaseCreateFailed = 141001; // 新建知识库失败，请稍后重试
   KnowledgeBaseDeleteFailed = 141002; // 删除知识库失败，请稍后重试
   KnowledgeBaseUpdateFailed = 141003; // 修改知识库失败，请稍后重试
@@ -87,7 +87,7 @@ enum Code {
   KnowledgeSplitterDuplicateName = 145004; // 已存在同名知识库分隔符
   KnowledgeSplitterSelectFailed = 145005; // 查询知识库标分隔符表失败，请稍后重试
   KnowledgeSplitterAccessDenied = 145008; // 没有操作该知识库分隔符的权限
-  KnowledgeDocSegmentUpdateLabelsFailed = 145009;  // 更新文档切片标签失败，请稍后重试
+  KnowledgeDocSegmentUpdateLabelsFailed = 145009; // 更新文档切片标签失败，请稍后重试
   KnowledgeDocSegmentCreateFailed = 145010; // 新增文档分段失败，请稍后重试
   KnowledgeDocSegmentExceedMaxSize = 145011; // 分段长度超过最大值
   KnowledgeDocSegmentUpdateFailed = 145012; // 更新文档分段失败，请稍后重试
@@ -100,13 +100,13 @@ enum Code {
   KnowledgeInvalidArguments = 145019; // 非法参数
   KnowledgeDocSegmentEmpty = 145020; // 文档分段内容为空
   KnowledgeMetaUpdatePartialSuccess = 145021; // 部分元数据更新成功
-  KnowledgePermissionSelectedFailed = 146001;// 获取知识库权限列表失败，请稍后重试
-  KnowledgePermissionDeny = 146002;// 知识库操作权限不足，请联系管理员添加后重试
-  KnowledgeAddPermissionFailed = 146003;// 知识库添加权限失败，请稍后重试
-  KnowledgeEditPermissionFailed = 146004;// 知识库修改权限失败，请稍后重试
-  KnowledgeDeletePermissionFailed = 146005;// 知识库删除权限失败，请稍后重试
-  KnowledgeDeleteGrantPermissionFailed = 146006;// 知识库的授权权限只有用户本人才能删除
-  KnowledgeTransferPermissionFailed = 146007;// 知识库转让失败
+  KnowledgePermissionSelectedFailed = 146001; // 获取知识库权限列表失败，请稍后重试
+  KnowledgePermissionDeny = 146002; // 知识库操作权限不足，请联系管理员添加后重试
+  KnowledgeAddPermissionFailed = 146003; // 知识库添加权限失败，请稍后重试
+  KnowledgeEditPermissionFailed = 146004; // 知识库修改权限失败，请稍后重试
+  KnowledgeDeletePermissionFailed = 146005; // 知识库删除权限失败，请稍后重试
+  KnowledgeDeleteGrantPermissionFailed = 146006; // 知识库的授权权限只有用户本人才能删除
+  KnowledgeTransferPermissionFailed = 146007; // 知识库转让失败
   KnowledgeGetReportFailed = 147001; // 获取社区报告失败，请稍后重试
   KnowledgeAddReportFailed = 147002; // 新增社区报告失败，请稍后重试
   KnowledgeDeleteReportFailed = 147003; // 删除社区报告失败，请稍后重试
@@ -130,8 +130,8 @@ enum Code {
 
   // --- rag-service ---
   // [150000, 159999]
-  RagGeneral = 150000;      // 通用错误
-  RagRole = 150001;         // 角色权限错误
+  RagGeneral = 150000; // 通用错误
+  RagRole = 150001; // 角色权限错误
   RagInfoNotExist = 150002; // rag信息不存在
   RagDeleteErr = 150003; // 删除rag错误
   RagGetErr = 150004; // 获取rag错误
@@ -163,12 +163,12 @@ enum Code {
   // [250000, 259999]
   ModelGeneral = 250000; // 通用错误
   ModelImportedModel = 250001; // 导入模型错误
-  ModelGetModelById = 250002;  // 根据模型ID查询错误
-  ModelUpdateModel = 250003;  // 模型更新错误
-  ModelDeleteModel = 250004;  // 模型删除错误
-  ModelGetModel = 250005;      // 模型查询错误
-  ModelListModels = 250006;    // 模型列表错误
-  ModelChangeModelStatus = 250007;   // 模型启用/关停错误
+  ModelGetModelById = 250002; // 根据模型ID查询错误
+  ModelUpdateModel = 250003; // 模型更新错误
+  ModelDeleteModel = 250004; // 模型删除错误
+  ModelGetModel = 250005; // 模型查询错误
+  ModelListModels = 250006; // 模型列表错误
+  ModelChangeModelStatus = 250007; // 模型启用/关停错误
   ModelListTypeModels = 250008; // 模型llm/rerank/embedding列表错误
   ModelGetModelByIds = 250009; // 根据模型ID列表查询错误
   ModelGetModelByUUID = 250010; // 根据模型UUID查询错误
@@ -176,7 +176,7 @@ enum Code {
   // --- app-service ---
   // [300000, 309999]
   AppGeneral = 300000; // 通用错误
-  AppApikey = 300001; // ApiKey相关错误
+  Appkey = 300001; // AppKey相关错误
   AppExploration = 300002; // APP应用广场相关错误
   AppSafety = 300003; // 安全护栏相关错误
   AppSafetySensitiveWordTable = 300004; // 安全护栏敏感词表相关错误
@@ -188,6 +188,7 @@ enum Code {
   AppUrlStatus = 300010; // App WebUrl状态错误
   AppUrlExpired = 300011; // App WebUrl过期错误
   AppConversation = 300012; // 对话流相关错误
+  ApiKey = 300013; //ApiKey相关错误
 
   // --- mcp-service ---
   // [310000, 319999]

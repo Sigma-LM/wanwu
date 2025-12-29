@@ -18,10 +18,10 @@ func (c *Client) CreateApiKey(ctx context.Context, userId, orgId, name, desc str
 		sqlopt.WithOrgID(orgId),
 		sqlopt.WithName(name),
 	).Apply(c.db.WithContext(ctx)).Model(&model.OpenApiKey{}).Count(&count).Error; err != nil {
-		return nil, toErrStatus("api_keys_create", err.Error())
+		return nil, toErrStatus("api_key_create", err.Error())
 	}
 	if count > 0 {
-		return nil, toErrStatus("api_keys_create", fmt.Sprintf("name %v duplicate", name))
+		return nil, toErrStatus("api_key_create", fmt.Sprintf("name %v duplicate", name))
 	}
 	newKey := &model.OpenApiKey{
 		OrgID:       orgId,
@@ -33,7 +33,7 @@ func (c *Client) CreateApiKey(ctx context.Context, userId, orgId, name, desc str
 		Status:      true, // 默认启用
 	}
 	if err := c.db.WithContext(ctx).Create(newKey).Error; err != nil {
-		return nil, toErrStatus("api_keys_create", err.Error())
+		return nil, toErrStatus("api_key_create", err.Error())
 	}
 	return newKey, nil
 }
