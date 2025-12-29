@@ -1325,6 +1325,7 @@ export default {
   .drawer-info {
     position: relative;
     width: 30%;
+    min-width: 350px;
     margin: 10px 0 10px 10px;
   }
 
@@ -1375,6 +1376,7 @@ export default {
 
   .drawer-form {
     width: 30%;
+    min-width: 350px;
 
     /*通用*/
     .block {
