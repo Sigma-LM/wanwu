@@ -116,6 +116,14 @@ func (c HttpClient) Get(ctx context.Context, httpRequestParams *HttpRequestParam
 	})
 }
 
+// GetOriResp 此方法需要在外部设置content 超时，并进行defer cancel
+func (c HttpClient) GetOriResp(ctx context.Context, httpRequestParams *HttpRequestParams) (result *http.Response, err error) {
+	return SendRequestOriResp(ctx, c.Client, httpRequestParams, "GET", func(params *HttpRequestParams, ctx context.Context) (*http.Request, string, error) {
+		request, err2 := http.NewRequest("GET", httpRequestParams.Url, nil)
+		return request, jsonContentType, err2
+	})
+}
+
 func (c HttpClient) PostJson(ctx context.Context, httpRequestParams *HttpRequestParams) (result []byte, err error) {
 	return SendRequest(ctx, c.Client, httpRequestParams, "POST-JSON", func(params *HttpRequestParams, ctx context.Context) (*http.Request, string, error) {
 		var requestBody *bytes.Buffer

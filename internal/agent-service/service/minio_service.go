@@ -4,17 +4,31 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
+	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	agent_http_client "github.com/UnicomAI/wanwu/internal/agent-service/pkg/http"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	minio_client "github.com/UnicomAI/wanwu/pkg/minio"
 	"github.com/minio/minio-go/v7"
+)
+
+// URLType 表示URL的类型
+type URLType string
+
+const (
+	URLTypeMinioDirect    URLType = "MINIO_DIRECT"    // 直接MinIO URL
+	URLTypeMinioPresigned URLType = "MINIO_PRESIGNED" // MinIO预签名URL
+	URLTypeOther          URLType = "OTHER"           // 其他URL
 )
 
 func DownloadFile(ctx context.Context, minioFilePath string) ([]byte, error) {
@@ -140,6 +154,10 @@ func UploadFile(ctx context.Context, dir string, fileName string, reader io.Read
 }
 
 func DownloadFileToLocal(ctx context.Context, minioFilePath string, localPath string) error {
+	urlType := getURLType(minioFilePath)
+	if urlType == URLTypeMinioPresigned {
+		return DownloadFileToLocalDirect(ctx, minioFilePath, localPath)
+	}
 	sourceBucketName, objectName, _ := SplitFilePath(minioFilePath)
 	object, err := minio_client.Agent().Cli().GetObject(ctx, sourceBucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
@@ -168,6 +186,48 @@ func DownloadFileToLocal(ctx context.Context, minioFilePath string, localPath st
 	}()
 	_, err = io.Copy(outFile, object)
 
+	if util.FileEOF(err) {
+		return nil
+	}
+	return err
+}
+
+func DownloadFileToLocalDirect(ctx context.Context, minioFilePath string, localPath string) error {
+	resp, err := agent_http_client.GetClient().GetOriResp(ctx, &http_client.HttpRequestParams{
+		Url:        minioFilePath,
+		Timeout:    2 * time.Minute,
+		MonitorKey: "http_download_service",
+		LogLevel:   http_client.LogParams,
+	})
+	if err != nil {
+		log.Errorf("DownloadFileToLocalDirect error %s", err)
+		return err
+	}
+
+	defer func() {
+		err2 := resp.Body.Close()
+		if err2 != nil {
+			log.Errorf("DownloadFile %s close resp.Body error: %s", minioFilePath, err2)
+		}
+	}()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("download failed with status: %d", resp.StatusCode)
+	}
+	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+		return err
+	}
+
+	outFile, err := os.Create(localPath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err2 := outFile.Close()
+		if err2 != nil {
+			log.Errorf("DownloadFile %s close outFile error: %s", minioFilePath, err2)
+		}
+	}()
+	_, err = io.Copy(outFile, resp.Body)
 	if util.FileEOF(err) {
 		return nil
 	}
@@ -203,4 +263,41 @@ func buildObjectName(dir, fileName string) string {
 		return fileName
 	}
 	return dir + "/" + fileName
+}
+
+// IsMinioPresignedURL 判断是否是MinIO预签名URL
+func IsMinioPresignedURL(rawURL string) bool {
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		return false
+	}
+
+	// 预签名URL通常包含这些查询参数
+	query := parsedURL.Query()
+	presignedParams := []string{
+		"X-Amz-Algorithm",
+		"X-Amz-Credential",
+		"X-Amz-Date",
+		"X-Amz-Expires",
+		"X-Amz-SignedHeaders",
+		"X-Amz-Signature",
+		"AWSAccessKeyId", // 旧版本参数
+		"Signature",      // 旧版本参数
+	}
+
+	for _, param := range presignedParams {
+		if query.Get(param) != "" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// GetURLType 获取URL类型
+func getURLType(rawURL string) URLType {
+	if IsMinioPresignedURL(rawURL) {
+		return URLTypeMinioPresigned
+	}
+	return URLTypeMinioDirect
 }

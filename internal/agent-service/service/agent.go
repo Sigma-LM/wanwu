@@ -2,6 +2,7 @@ package service
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/config"
@@ -206,7 +207,7 @@ func buildVisionChatMessage(ctx *gin.Context, req *request.AgentChatReq, agentCh
 // buildFileMessage 构建文件消息
 func buildFileMessage(ctx *gin.Context, minioFilePath string) (*schema.MessageInputPart, error) {
 	//1.下载压缩文件到本地
-	var localFilePath = agent_util.BuildFilePath(config.GetConfig().AgentFileConfig.LocalFilePath, filepath.Ext(minioFilePath))
+	var localFilePath = agent_util.BuildFilePath(config.GetConfig().AgentFileConfig.LocalFilePath, filepath.Ext(removeParams(minioFilePath)))
 	err := DownloadFileToLocal(ctx, minioFilePath, localFilePath)
 	if err != nil {
 		return nil, err
@@ -223,4 +224,10 @@ func buildFileMessage(ctx *gin.Context, minioFilePath string) (*schema.MessageIn
 			},
 		},
 	}, nil
+}
+
+func removeParams(url string) string {
+	// 分割查询参数部分,简单做
+	parts := strings.Split(url, "?")
+	return parts[0]
 }
