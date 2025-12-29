@@ -77,7 +77,7 @@
 
 ▸ Built-in **conditional branching, API, large model, knowledge base, code, MCP** and other nodes, support end-to-end process debugging and performance analysis
 
-#### **5. Enterprise-level Knowledge Base, RAG Pipeline**
+#### 5. <a href="#🚀High-precision RAG">High-precision RAG</a>
 ▸ Provides the whole process knowledge management capabilities of **knowledge base creation → document parsing → vectorization → retrieval → fine sorting**, supports **multiple formats** such as pdf/docx/txt/xlsx/csv/pptx documents, and also supports the capture and access of web resources
 
 ▸ Integrates **multi-modal retrieval**, **cascading segmentation** and **adaptive segmentation**, significantly improves the accuracy of Q&A
@@ -271,6 +271,22 @@ To help you quickly get started with this project, we strongly recommend that yo
 | [Template Plaza](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/10.%E6%A8%A1%E6%9D%BF%E5%B9%BF%E5%9C%BA.md) | Built-in with 50+ optimized industry prompts, available for immediate use. |
 | [Settings](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.%E8%AE%BE%E7%BD%AE.md) | The platform supports multi-tenancy, allowing users to manage organizations, roles, users, and perform basic platform configuration. |
 | [UniAI-GraphRAG](https://github.com/UnicomAI/wanwu/blob/66539378255f9a1da80b02a83e75c7a5155f7f87/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E3%80%81%E9%97%AE%E7%AD%94%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md) | UniAI-GraphRAG integrates techniques such as domain knowledge ontology modeling, knowledge graph and community report construction, and Graph Retrieval-Augmented Generation to effectively enhance the completeness, logical coherence, and credibility of knowledge question answering. It significantly improves performance in complex QA scenarios like cross-document summarization and multi-hop relational reasoning. |
+
+### 🚀High-precision RAG
+
+**Wanwu RAG has completed its retrieval performance evaluation on the authoritative, publicly available industry benchmark, the MultiHop-RAG dataset**
+
+<p align="center">
+  <img width="660" alt="image" src="https://github.com/user-attachments/assets/8a267ba2-13e4-48fe-8ea8-4f24fb10dfc6" />
+</p>
+
+The F1 score serving as the comprehensive evaluation metric (the harmonic mean of precision and recall), are as follows: 
+
+1）Wanwu RAG outperforms Dify by 14% 
+
+2）Wanwu GraphRAG outperforms Dify by 17.2% 
+
+3）Wanwu GraphRAG outperforms open-source LightRAG by 3.5%
 
 ------
 

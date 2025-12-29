@@ -83,11 +83,13 @@
 
 ▸ 内置 **条件分支、API、大模型、知识库、代码、MCP** 等多种节点，支持端到端流程调试与性能分析
 
-#### **5. 企业级知识库、RAG Pipeline**
+#### 5. <a href="#🚀  万悟高精度RAG">高精度知识库</a>
 
 ▸ 提供**知识库创建**→ **文档解析→向量化→检索→精排** 的全流程知识管理能力，支持pdf/docx/txt/xlsx/csv/pptx等 **多种格式** 文档，还支持网页资源的抓取和接入
 
 ▸ 集成 **多模态检索** 、**级联切分** 与 **自适应切分**，显著提升问答准确率
+
+▸ 文档解析方式支持OCR和[ MinerU模型解析(标题/表格/公式等场景)](https://github.com/UnicomAI/DocParserServer/tree/main)的私有化部署及接入
 
 #### **6. 智能体开发框架（Agent Framework）**
 
@@ -276,7 +278,7 @@
 |                             功能                             |                           详细描述                           |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | [模型管理](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/1.%E6%A8%A1%E5%9E%8B%E7%AE%A1%E7%90%86.md) | 支持用户导入包括联通元景、OpenAI-API-compatible、Ollama、通义千问、火山引擎等模型供应商的LLM、Embedding、Rerank模型。[ 模型导入方式-详细版](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/%E6%A8%A1%E5%9E%8B%E5%AF%BC%E5%85%A5%E6%96%B9%E5%BC%8F-%E8%AF%A6%E7%BB%86%E7%89%88.md) |
-| [知识库](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93) | 在文档解析能力方面:支持12种文件类型的上传，支持url解析;文档解析方式支持OCR和[ MinerU模型解析(标题/表格/公式等场景)](https://github.com/UnicomAI/DocParserServer/tree/main)的私有化部署及接入，文档分段设置支持通用分段和父子分段。在调优能力方面:支持知识图谱、元数据管理及元数据过滤查询，支持分段内容增删改，支持对分段设置关键词标签提升召回效果，支持分段启停操作，支持命中测试等功能。在检索能力方面:支持向量检索、全文检索、混合检索多种检索模式;在问答能力方面:支持自动引用出处，支持图文并茂的生成答案 |
+| [知识库](https://github.com/UnicomAI/wanwu/tree/main/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93) | 在文档解析能力方面:支持12种文件类型的上传，支持url解析;文档解析方式支持OCR和[ MinerU模型解析(标题/表格/公式等场景)](https://github.com/UnicomAI/DocParserServer/tree/main)的私有化部署及接入，文档分段设置支持通用分段和父子分段。在调优能力方面:支持知识图谱、元数据管理及元数据过滤查询，支持分段内容增删改，支持对分段设置关键词标签提升召回效果，支持分段启停操作，支持命中测试等功能。在检索能力方面:支持向量检索、全文检索、混合检索多种检索模式;在问答能力方面:支持自动引用出处，支持图文并茂的生成答案。 |
 | [资源库](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/3.%E5%B7%A5%E5%85%B7%E5%B9%BF%E5%9C%BA.md) | 同时支持导入自己的MCP服务或自定义工具或提示词，并在工作流和智能体中使用；支持用户创建MCP Server |
 | [安全护栏](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/4.%E5%AE%89%E5%85%A8%E6%8A%A4%E6%A0%8F.md) |        用户可以创建敏感词表，控制模型反馈结果的安全性        |
 | [文本问答](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/5.%E6%96%87%E6%9C%AC%E9%97%AE%E7%AD%94.md) | 基于私人知识库的专属知识顾问，支持知识库管理、知识问答、知识总结、个性参数配置、安全护栏、检索配置等功能，提高知识管理与学习的效率。支持公开或私密发布文本问答应用，支持发布为API |
@@ -287,6 +289,24 @@
 | [模板广场](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/10.%E6%A8%A1%E6%9D%BF%E5%B9%BF%E5%9C%BA.md) |               内置50+优选行业提示词，即选即用                |
 | [设置](https://github.com/UnicomAI/wanwu/blob/main/configs/microservice/bff-service/static/manual/9.%E8%AE%BE%E7%BD%AE.md) | 平台支持多租户，允许用户进行组织、角色、用户管理、平台基础配置，单点登录配置 |
 | [知识图谱UniAI-GraphRAG](https://github.com/UnicomAI/wanwu/blob/66539378255f9a1da80b02a83e75c7a5155f7f87/configs/microservice/bff-service/static/manual/2.%E7%9F%A5%E8%AF%86%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93%E3%80%81%E9%97%AE%E7%AD%94%E5%BA%93/%E5%88%9B%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%BA%93/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md) | UniAI-GraphRAG结合领域知识本体建模、知识图谱与社区报告构建、图检索增强生成等技术可有效提升知识问答的完整性、逻辑性与可信度。可显著提升跨多文档总结与多跳关系推理等复杂问答场景的问答效果 |
+
+------
+
+### 🚀  万悟高精度RAG
+
+**万悟RAG已在业界权威公开评测集MutiHop-RAG数据集上完成检索召回性能指标评测**：
+
+<p align="center">
+  <img width="660" alt="image" src="https://github.com/user-attachments/assets/1a513ac7-6b7b-4903-9e6f-cb1215ba69cd" />
+</p>
+
+**检索性能综合评价指标：F1值（检索准确率和召回率的调和平均值）**
+
+1）万悟RAG比Dify高：14%
+
+2）万悟GraphRAG比Dify高：17.2%
+
+3）万悟GraphRAG比开源-LightRAG高：3.5%
 
 ------
 
