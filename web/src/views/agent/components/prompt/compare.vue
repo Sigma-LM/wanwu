@@ -50,7 +50,7 @@
 <script>
 import PromptField from './promptField.vue';
 import EditableDivV3 from '../EditableDivV3';
-import { getAgentDetail } from '@/api/agent';
+import { getAgentInfo } from '@/api/agent';
 
 export default {
   name: 'PromptCompare',
@@ -73,7 +73,7 @@ export default {
     };
   },
   created() {
-    this.getAgentDetail();
+    this.getAgentInfo();
   },
   methods: {
     handleFieldSelect(index) {
@@ -126,8 +126,8 @@ export default {
       }
       return true;
     },
-    getAgentDetail() {
-      getAgentDetail({ assistantId: this.$route.params.id }).then(res => {
+    getAgentInfo() {
+      getAgentInfo({ assistantId: this.$route.params.id }).then(res => {
         if (res.code === 0) {
           const detail = res.data || {};
           const recommendQuestion = Array.isArray(detail.recommendQuestion)

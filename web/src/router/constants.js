@@ -15,6 +15,8 @@ export const PERMS = {
   AGENT: 'agent', // 智能体
   SAFETY: 'safety', //安全护栏
 
+  API_KEY: 'api_key', // API Key管理
+
   STATISTIC: 'statistic_client', // 统计看板
   OAUTH: 'oauth', // oauth
 };

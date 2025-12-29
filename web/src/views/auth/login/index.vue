@@ -29,14 +29,14 @@
               <img
                 v-if="!isShowPwd"
                 class="pwd-icon"
-                src="@/assets/imgs/showPwd.png"
+                src="@/assets/imgs/hidePwd.png"
                 alt=""
                 @click="isShowPwd = true"
               />
               <img
                 v-else
                 class="pwd-icon"
-                src="@/assets/imgs/hidePwd.png"
+                src="@/assets/imgs/showPwd.png"
                 alt=""
                 @click="isShowPwd = false"
               />

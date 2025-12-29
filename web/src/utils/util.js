@@ -2,6 +2,7 @@ import router from '@/router/index';
 import { menuList } from '@/views/layout/menu';
 import { checkPerm, PERMS } from '@/router/permission';
 import { i18n } from '@/lang';
+import { Message } from 'element-ui';
 import { basePath } from '@/utils/config';
 
 export function guid() {
@@ -102,6 +103,21 @@ export const replaceTitle = title => {
   document.title = title || i18n.t('header.title');
 };
 
+export const copy = text => {
+  let textareaEl = document.createElement('textarea');
+  textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
+  textareaEl.value = text;
+  document.body.appendChild(textareaEl);
+  textareaEl.select();
+  const res = document.execCommand('copy');
+  document.body.removeChild(textareaEl);
+  return res;
+};
+
+export const copyCb = () => {
+  Message.success(i18n.t('common.copy.success'));
+};
+
 export const getInitTimeRange = () => {
   const date = new Date();
   const month = date.getMonth() + 1;
@@ -187,7 +203,7 @@ export const formatTools = tools => {
         name: key,
         requiredBadge:
           n.inputSchema.required && n.inputSchema.required.includes(key)
-            ? '必填'
+            ? i18n.t('common.required')
             : '',
         type: properties[key].type,
         description: properties[key].description,

@@ -78,9 +78,10 @@ export const importWorkflow = (data, config, appType) => {
 };
 
 // 导出
-export const exportWorkflow = (params, appType) => {
+export const exportWorkflow = (params, appType, isDraft) => {
+  const withUrl = isDraft ? '/draft' : '';
   return request({
-    url: `${USER_API}/appspace/${appType || 'workflow'}/export`,
+    url: `${USER_API}/appspace/${appType || 'workflow'}/export${withUrl}`,
     method: 'get',
     params,
     responseType: 'blob',

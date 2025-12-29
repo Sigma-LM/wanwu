@@ -125,11 +125,6 @@ module.exports = {
         changeOrigin: true,
         secure: false,
       },
-      '/datacenter/api': {
-        target: 'http://192.168.0.21:8081',
-        changeOrigin: true,
-        secure: false,
-      },
       '/modelprocess/api': {
         target: 'http://192.168.0.21:8081',
         changeOrigin: true,
@@ -146,11 +141,6 @@ module.exports = {
         secure: false,
       },
       '/img': {
-        target: 'http://192.168.0.21:8081',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/konwledgeServe': {
         target: 'http://192.168.0.21:8081',
         changeOrigin: true,
         secure: false,

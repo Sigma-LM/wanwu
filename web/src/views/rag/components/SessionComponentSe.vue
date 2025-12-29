@@ -1,7 +1,11 @@
 <template>
   <div class="session rl">
     <div class="session-setting">
-      <el-dropdown class="right-setting" @command="gropdownClick">
+      <el-link class="right-setting" @click="gropdownClick" type="primary" :underline="false" style="color: var(--color);top:0;">
+        <span class="el-icon-delete"></span>
+        清空对话
+      </el-link>
+      <!-- <el-dropdown class="right-setting" @command="gropdownClick">
         <i class="el-icon-more" trigger="click" style="color: var(--color)"></i>
         <el-dropdown-menu
           :append-to-body="false"
@@ -10,7 +14,7 @@
         >
           <el-dropdown-item command="clear">清空对话</el-dropdown-item>
         </el-dropdown-menu>
-      </el-dropdown>
+      </el-dropdown> -->
     </div>
 
     <div class="history-box showScroll" id="timeScroll" v-loading="loading">

@@ -117,7 +117,10 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          v-if="createForm.modelType === llm && provider.key === yuanjing"
+          v-if="
+            createForm.modelType === llm &&
+            showVisionList.includes(provider.key)
+          "
           label="Vision"
           prop="visionSupport"
         >
@@ -198,6 +201,9 @@
           >
           </el-date-picker>
         </el-form-item>-->
+        <el-form-item v-if="isEdit" label="uuid">
+          {{ row.uuid || '--' }}
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">
@@ -226,6 +232,8 @@ import {
   EMBEDDING,
   RERANK,
   YUAN_JING,
+  QWEN,
+  QIANFAN,
 } from '../constants';
 import LinkIcon from '@/components/linkIcon.vue';
 
@@ -255,6 +263,7 @@ export default {
       embedding: EMBEDDING,
       rerank: RERANK,
       yuanjing: YUAN_JING,
+      showVisionList: [YUAN_JING, QWEN, QIANFAN],
       createForm: {
         model: '',
         displayName: '',
@@ -400,7 +409,7 @@ export default {
           const functionCallingObj =
             modelType === LLM ? { functionCalling, maxTokens } : {};
           const visionSupportObj =
-            modelType === LLM && this.provider.key === YUAN_JING
+            modelType === LLM && this.showVisionList.includes(this.provider.key)
               ? { visionSupport }
               : {};
           const contextSizeObj = [LLM, EMBEDDING, RERANK].includes(modelType)

@@ -62,7 +62,7 @@
             <p class="desc">{{ n.desc }}</p>
           </el-tooltip>
         </div>
-        <div class="tags">
+        <div :class="['tags', { 'is-showTool-tags': isExploreShowTool(n) }]">
           <span :class="['smartDate']">{{ n.createdAt }}</span>
           <div v-if="!isShowTool" class="favorite-wrap">
             <el-tooltip
@@ -148,6 +148,18 @@
                     ? $t('appSpace.chat')
                     : $t('appSpace.workflow'))
                 }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+        <div class="editor" v-if="isExploreShowTool(n)">
+          <el-dropdown @command="handleClick($event, n)" placement="top">
+            <span class="el-dropdown-link">
+              <i class="el-icon-more icon edit-icon" @click.stop />
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="export">
+                {{ $t('common.button.export') }}
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -257,6 +269,9 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
+    isExploreShowTool(n) {
+      return this.appFrom === 'explore' && [WORKFLOW, CHAT].includes(n.appType);
+    },
     isCanClick(n) {
       return true;
       /*this.isShowTool
@@ -343,7 +358,11 @@ export default {
       }
     },
     workflowExport(row) {
-      exportWorkflow({ workflow_id: row.appId }, row.appType).then(response => {
+      exportWorkflow(
+        { workflow_id: row.appId },
+        row.appType,
+        this.appFrom !== 'explore',
+      ).then(response => {
         const blob = new Blob([response], { type: response.type });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');

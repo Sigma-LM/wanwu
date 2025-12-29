@@ -33,14 +33,14 @@
               <img
                 v-if="!isShowPwdOld"
                 class="pwd-icon"
-                src="@/assets/imgs/showPwd.png"
+                src="@/assets/imgs/hidePwd.png"
                 alt=""
                 @click="isShowPwdOld = true"
               />
               <img
                 v-else
                 class="pwd-icon"
-                src="@/assets/imgs/hidePwd.png"
+                src="@/assets/imgs/showPwd.png"
                 alt=""
                 @click="isShowPwdOld = false"
               />
@@ -61,14 +61,14 @@
               <img
                 v-if="!isShowPwd1"
                 class="pwd-icon"
-                src="@/assets/imgs/showPwd.png"
+                src="@/assets/imgs/hidePwd.png"
                 alt=""
                 @click="isShowPwd1 = true"
               />
               <img
                 v-else
                 class="pwd-icon"
-                src="@/assets/imgs/hidePwd.png"
+                src="@/assets/imgs/showPwd.png"
                 alt=""
                 @click="isShowPwd1 = false"
               />
@@ -91,14 +91,14 @@
               <img
                 v-if="!isShowPwd2"
                 class="pwd-icon"
-                src="@/assets/imgs/showPwd.png"
+                src="@/assets/imgs/hidePwd.png"
                 alt=""
                 @click="isShowPwd2 = true"
               />
               <img
                 v-else
                 class="pwd-icon"
-                src="@/assets/imgs/hidePwd.png"
+                src="@/assets/imgs/showPwd.png"
                 alt=""
                 @click="isShowPwd2 = false"
               />

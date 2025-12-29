@@ -10,13 +10,27 @@
             :color="item.isCurrent ? '#409EFF' : '#E6A23C'"
           >
             <div
-              class="version-status current"
-              style="margin-left: 32px"
+              class="version-box"
               v-if="item.isCurrent"
+              @click="previewVersion(item, $event)"
+              :style="{
+                backgroundColor: version === item.version ? '#E6E9FF' : '',
+              }"
             >
-              {{ $t('list.now') }}
+              <div class="version-status current">
+                {{ $t('list.now') }}
+              </div>
             </div>
-            <el-card v-else class="version-card">
+            <el-card
+              v-else
+              class="version-card"
+              shadow="hover"
+              style="cursor: pointer"
+              :style="{
+                backgroundColor: version === item.version ? '#E6E9FF' : '',
+              }"
+              @click.native="previewVersion(item, $event)"
+            >
               <div class="version-header">
                 <div class="version-info">
                   <div
@@ -104,6 +118,7 @@ export default {
     return {
       popoverVisible: false,
       showExportList: [WORKFLOW, CHAT],
+      version: '',
       versionList: [
         {
           isCurrent: true,
@@ -137,6 +152,13 @@ export default {
           this.rollbackVersion(index);
           break;
       }
+    },
+    previewVersion(item, event) {
+      if (event.target.closest('.el-dropdown')) {
+        return;
+      }
+      this.version = item.version;
+      this.$emit('previewVersion', item);
     },
     rollbackVersion(index) {
       rollbackAppVersion({
@@ -197,6 +219,21 @@ export default {
   background: #a8a8a8;
 }
 
+.version-box {
+  width: 100%;
+  height: 40px;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  border-radius: 4px;
+  position: relative;
+  z-index: 999;
+  top: -10px;
+}
+
+.version-box:hover {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
 .version-status {
   display: inline-block;
   padding: 2px 8px;
@@ -206,6 +243,7 @@ export default {
 }
 
 .version-status.current {
+  margin: 10px 32px;
   background-color: #ecf5ff;
   color: #409eff;
   border: 1px solid #b3d8ff;

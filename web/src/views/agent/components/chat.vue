@@ -49,6 +49,7 @@
             :isModelDisable="isModelDisable"
             :showModelSelect="false"
             :type="type"
+            :disableClick="disableClick"
             @preSend="preSend"
             @modelChange="modelChange"
             @setSessionStatus="setSessionStatus"
@@ -114,6 +115,10 @@ export default {
     appUrlInfo: {
       type: Object,
       default: null,
+    },
+    disableClick: {
+      type: Boolean,
+      default: false,
     },
   },
   components: {

@@ -16,19 +16,18 @@
           <span class="el-icon-plus"></span>
           <span class="handleBtn">{{ $t('knowledgeSelect.add') }}</span>
         </span>
-        <el-tooltip
-          class="item"
-          effect="dark"
-          :content="$t('searchConfig.title')"
-          placement="top-start"
-        >
-          <span
-            class="el-icon-s-operation operation"
-            @click="showknowledgeRecallSet"
+        <span class="common-add" @click="showknowledgeRecallSet">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="$t('searchConfig.title')"
+            placement="top-start"
           >
-            <span class="handleBtn">{{ $t('agent.form.config') }}</span>
-          </span>
-        </el-tooltip>
+            <span class="el-icon-s-operation operation">
+              <span class="handleBtn">{{ $t('agent.form.config') }}</span>
+            </span>
+          </el-tooltip>
+        </span>
       </div>
     </div>
     <div class="qa-database-content">
@@ -228,7 +227,6 @@ export default {
       .header-title {
         font-size: 15px;
         font-weight: bold;
-        color: #333;
       }
     }
 

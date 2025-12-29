@@ -23,14 +23,14 @@ export const delAgent = data => {
     data,
   });
 };
-export const getAgentInfo = params => {
+export const getAgentPublishedInfo = params => {
   return service({
     url: `${USER_API}/assistant`,
     method: 'get',
     params,
   });
 };
-export const getAgentDetail = params => {
+export const getAgentInfo = params => {
   return service({
     url: `${USER_API}/assistant/draft`,
     method: 'get',

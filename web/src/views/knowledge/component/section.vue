@@ -38,7 +38,7 @@
         <el-descriptions-item :label="$t('knowledgeManage.markSplit')">
           {{ String(res.splitter).replace(/\n/g, '\\n') }}
         </el-descriptions-item>
-        <el-descriptions-item label="元数据">
+        <el-descriptions-item :label="$t('knowledgeManage.metaData')">
           <template v-if="metaDataList && metaDataList.length > 0">
             <span
               v-for="(item, index) in metaDataList.slice(0, 3)"
@@ -60,7 +60,7 @@
               <span class="metaItem">...</span>
             </el-tooltip>
           </template>
-          <span v-else>无数据</span>
+          <span v-else>{{ $t('knowledgeManage.zeroData') }}</span>
           <span
             class="el-icon-edit-outline editIcon"
             @click="showDatabase(metaDataList || [])"
@@ -74,7 +74,7 @@
             "
           ></span>
         </el-descriptions-item>
-        <el-descriptions-item label="元数据规则">
+        <el-descriptions-item :label="$t('knowledgeManage.metaDataRules')">
           <template v-if="metaRuleList && metaRuleList.length > 0">
             <span
               v-for="(item, index) in metaRuleList.slice(0, 3)"
@@ -92,10 +92,13 @@
               <span class="metaItem">...</span>
             </el-tooltip>
           </template>
-          <span v-else>无数据</span>
+          <span v-else>{{ $t('knowledgeManage.zeroData') }}</span>
         </el-descriptions-item>
-        <el-descriptions-item label="批量新增分段状态">
-          <span>{{ res.segmentImportStatus }}</span>
+        <el-descriptions-item :label="$t('knowledgeManage.batchAddSplit')">
+          <span>{{ res.segmentImportStatus || '-' }}</span>
+        </el-descriptions-item>
+        <el-descriptions-item :label="$t('knowledgeManage.parsingMethod')">
+          <span>{{ res.docAnalyzerText.join(', ') }}</span>
         </el-descriptions-item>
       </el-descriptions>
 

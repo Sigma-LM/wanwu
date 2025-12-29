@@ -34,12 +34,13 @@
           :appId="appId"
           :appType="appType"
         />
-        <CreateApi
+        <!--v0.3.3 发布配置不展示 API-->
+        <!--<CreateApi
           ref="CreateApi"
           v-if="active === 'api'"
           :appId="appId"
           :appType="appType"
-        />
+        />-->
         <CreateScope
           ref="CreateScope"
           v-if="active === 'scope'"
@@ -72,11 +73,11 @@ export default {
           desc: '分享链接后，可通过网页直接访问智能体应用',
           type: 'url',
         },
-        {
+        /*{
           name: 'API',
           desc: '支持嵌入第三方应用系统',
           type: 'api',
-        },
+        },*/
         {
           name: '发布范围',
           desc: '支持配置应用发布范围',
@@ -90,7 +91,7 @@ export default {
     this.appId = appId;
     this.appType = appType;
     this.name = name;
-    this.active = appType === AGENT ? 'url' : 'api';
+    this.active = appType === AGENT ? 'url' : 'scope';
   },
   methods: {
     checkTool(item) {

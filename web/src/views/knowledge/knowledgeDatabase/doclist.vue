@@ -7,6 +7,10 @@
         style="margin-right: 10px; font-size: 20px; cursor: pointer"
       ></i>
       {{ knowledgeName }}
+      <div style="margin-left: 34px; font-weight: normal; color: #6b7280">
+        uuid: {{ docQuery.knowledgeId }}
+        <copyIcon :text="docQuery.knowledgeId" :onlyIcon="true" size="mini" />
+      </div>
     </div>
     <div class="block table-wrap list-common wrap-fullheight">
       <el-container class="konw_container">
@@ -422,9 +426,11 @@ import {
   KNOWLEDGE_STATUS_FAIL,
 } from '@/views/knowledge/constants';
 import exportRecord from '@/views/knowledge/qaDatabase/exportRecord.vue';
+import CopyIcon from '@/components/copyIcon.vue';
 
 export default {
   components: {
+    CopyIcon,
     exportRecord,
     Pagination,
     SearchInput,

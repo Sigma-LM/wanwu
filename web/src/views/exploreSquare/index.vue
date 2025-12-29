@@ -68,7 +68,7 @@ export default {
   components: { SearchInput, CreateTotalDialog, AppList },
   data() {
     return {
-      placeholder: this.$t('explore.hint'),
+      placeholder: this.$t('appSpace.search'),
       asideTitle: this.$t('explore.asideTitle'),
       activeName: 'agent',
       searchValue: '',

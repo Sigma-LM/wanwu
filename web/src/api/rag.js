@@ -8,7 +8,7 @@ export const getRagInfo = params => {
     params,
   });
 };
-export const getRagRunInfo = params => {
+export const getRagPublishedInfo = params => {
   return service({
     url: `${USER_API}/appspace/rag`,
     method: 'get',
