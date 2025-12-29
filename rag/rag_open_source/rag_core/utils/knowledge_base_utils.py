@@ -538,7 +538,6 @@ def get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk
         vector_text_search_list = []
         label_useful_list = []  # 后过滤有效的知识片段
         graph_data_list = []  # SPO及社区报告置顶片段
-
         for user_id, base_info_list in knowledge_base_info.items():
             temp_duplicate_set = set()
             user_search_list = []
@@ -645,7 +644,13 @@ def get_knowledge_based_answer(knowledge_base_info, question, rate, top_k, chunk
                 temp_graph_search_list, temp_graph_dat_list = graph_utils.get_graph_search_list(user_id, kb_names, question, top_k,
                                                                              kb_ids=[], threshold=rate,
                                                                              filter_file_name_list=filter_file_name_list)
-                graph_data_list.extend(temp_graph_dat_list)  # 直接放进去先
+                graph_data_list.extend(temp_graph_dat_list)  # 社区报告等直接放进去先
+                # 根据 duplicate_set 去重，将图谱关联出来的chunk 再加入 vector_text_search_list
+                for item in temp_graph_search_list:
+                    item["user_id"] = user_id
+                    if item["snippet"] in duplicate_set: continue
+                    vector_text_search_list.append(item)
+                    duplicate_set.add(item["snippet"])
 
         # 多路召回融合
         # reank重排

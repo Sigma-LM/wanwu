@@ -274,14 +274,24 @@ class ChineseTextSplitter(CharacterTextSplitter):
         merged_chunks = []
         temp_splits  = []
         total = 0
+        overlap_chars = int(self.overlap_size * self.sentence_size)
         for split in splits:
             if len(temp_splits) > 0 and total + len(split)  > self.sentence_size:
                 text = "".join(temp_splits).strip()
                 if text != "" and text is not None:
                     merged_chunks.append(text)
-                while total > self.overlap_size or (total + len(split) > self.sentence_size and total > 0):
-                    total -= len(temp_splits[0])
-                    temp_splits = temp_splits[1:]
+                while total > overlap_chars or (total + len(split) > self.sentence_size and total > 0):
+                    first = temp_splits[0]
+                    if total - len(first) < overlap_chars and overlap_chars > 0:
+                        need = overlap_chars - (total - len(first))
+                        need_int = max(0, min(len(first), int(need)))
+                        suffix = first[-need_int:]
+                        temp_splits[0] = suffix
+                        total = overlap_chars
+                        break
+                    else:
+                        total -= len(first)
+                        temp_splits = temp_splits[1:]
             temp_splits.append(split)
             total += len(split)
         text = "".join(temp_splits).strip()
