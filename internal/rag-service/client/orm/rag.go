@@ -15,19 +15,17 @@ import (
 )
 
 func (c *Client) DeleteRag(ctx context.Context, req *rag_service.RagDeleteReq) *err_code.Status {
-	err := sqlopt.WithRagID(req.RagId).Apply(c.db.WithContext(ctx)).First(&model.RagInfo{}).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return toErrStatus("rag_delete_err", "rag not found: "+req.RagId)
-	} else if err != nil {
-		return toErrStatus("rag_delete_err", err.Error())
-	}
-
-	err = sqlopt.WithRagID(req.RagId).Apply(c.db.WithContext(ctx)).Delete(&model.RagInfo{}).Error
-	if err != nil {
-		return toErrStatus("rag_delete_err", err.Error())
-	}
-
-	return nil
+	return c.transaction(ctx, func(tx *gorm.DB) *err_code.Status {
+		err := sqlopt.WithRagID(req.RagId).Apply(c.db.WithContext(ctx)).Delete(&model.RagInfo{}).Error
+		if err != nil {
+			return toErrStatus("rag_delete_err", err.Error())
+		}
+		err = sqlopt.WithRagID(req.RagId).Apply(c.db.WithContext(ctx)).Delete(&model.RagPublish{}).Error
+		if err != nil {
+			return toErrStatus("rag_delete_err", err.Error())
+		}
+		return nil
+	})
 }
 func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*rag_service.RagInfo, *err_code.Status) {
 	info := &model.RagInfo{}
