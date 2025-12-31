@@ -76,9 +76,11 @@ module.exports = {
     open: false,
     hot: true,
     client: {
+      // 禁用错误覆盖层
       overlay: {
         warnings: false,
-        errors: true,
+        errors: false,
+        runtimeErrors: false,
       },
     },
     headers: {
