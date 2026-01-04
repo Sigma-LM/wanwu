@@ -55,7 +55,7 @@ func registerCommon(apiV1 *gin.RouterGroup) {
 	mid.Sub("common").Reg(apiV1, "/appspace/app/publish", http.MethodDelete, v1.UnPublishApp, "取消发布应用")
 
 	// 老版本AppKey接口暂时保留（mcp server在使用）
-	// mid.Sub("common").Reg(apiV1, "/appspace/app/url", http.MethodGet, v1.GetAppBaseUrl, "获取App根地址")
+	mid.Sub("common").Reg(apiV1, "/appspace/app/url", http.MethodGet, v1.GetAppBaseUrl, "获取App根地址")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/key", http.MethodPost, v1.GenAppKey, "生成AppKey")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/key", http.MethodDelete, v1.DelAppKey, "删除AppKey")
 	mid.Sub("common").Reg(apiV1, "/appspace/app/key/list", http.MethodGet, v1.GetAppKeyList, "获取AppKey列表")
