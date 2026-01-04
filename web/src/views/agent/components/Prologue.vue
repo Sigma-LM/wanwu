@@ -103,7 +103,7 @@ export default {
     getLogoPath(editForm) {
       return editForm && editForm.avatar && editForm.avatar.path
         ? avatarSrc(editForm.avatar.path)
-        : '@/assets/imgs/bg-logo.png';
+        : require('@/assets/imgs/bg-logo.png');
     },
     setProloguePrompt(val) {
       this.$emit('setProloguePrompt', val);

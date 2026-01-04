@@ -9,7 +9,7 @@
               :src="
                 editForm.avatar.path
                   ? `/user/api` + editForm.avatar.path
-                  : '@/assets/imgs/bg-logo.png'
+                  : require('@/assets/imgs/bg-logo.png')
               "
             />
           </div>
