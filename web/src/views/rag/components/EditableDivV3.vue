@@ -111,18 +111,10 @@
         </span>
       </div>
     </transition>
-
-    <upload-dialog
-      ref="upload"
-      :fileTypeArr="fileTypeArr"
-      @setFileId="setFileId"
-      @setFile="setFile"
-    ></upload-dialog>
   </div>
 </template>
 
 <script>
-import uploadDialog from './uploadBatchDialog';
 export default {
   props: {
     source: { type: String },
@@ -142,7 +134,6 @@ export default {
     },
     isModelDisable: { type: Boolean, default: false },
   },
-  components: { uploadDialog },
   data() {
     return {
       basePath: this.$basePath,

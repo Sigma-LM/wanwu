@@ -7,7 +7,6 @@
           <streamGreetingField
             :editForm="editForm"
             @setProloguePrompt="setProloguePrompt"
-            :isBigModel="true"
           />
         </div>
         <!--对话-->
@@ -48,7 +47,6 @@
             :fileTypeArr="fileTypeArr"
             :currentModel="currentModel"
             :isModelDisable="isModelDisable"
-            :showModelSelect="false"
             :type="type"
             :disableClick="disableClick"
             @preSend="preSend"
@@ -58,10 +56,10 @@
           <!-- 版权信息 -->
           <div v-if="appUrlInfo" class="appUrlInfo">
             <span v-if="appUrlInfo.copyrightEnable">
-              版权所有: {{ appUrlInfo.copyright }}
+              {{$t('app.copyright')}}: {{ appUrlInfo.copyright }}
             </span>
             <span v-if="appUrlInfo.privacyPolicyEnable">
-              隐私协议:
+              {{$t('app.privacyPolicy')}}:
               <a
                 :href="appUrlInfo.privacyPolicy"
                 target="_blank"
@@ -71,7 +69,7 @@
               </a>
             </span>
             <span v-if="appUrlInfo.disclaimerEnable">
-              免责声明: {{ appUrlInfo.disclaimer }}
+              {{$t('app.disclaimer')}}: {{ appUrlInfo.disclaimer }}
             </span>
           </div>
         </div>
@@ -158,7 +156,7 @@ export default {
       if (this.echo) {
         this.$message({
           type: 'info',
-          message: '已切换最新会话',
+          message: this.$t('app.switchSession'),
           customClass: 'dark-message',
           iconClass: 'none',
           duration: 1500,
@@ -211,17 +209,14 @@ export default {
                 ...n,
                 query: n.prompt,
                 finish: 1,//兼容流式问答
-                // response: [0, 1, 2, 3, 4, 5, 6, 20, 21, 10].includes(n.qa_type)
-                //   ? md.render(n.response)
-                //   : n.response.replaceAll('\n-', '\n•'),
                 response: md.render(parseSub(convertLatexSyntax(n.response),index)),
                 oriResponse: n.response,
                 searchList: n.searchList || [],
                 fileList: n.requestFiles,
                 gen_file_url_list: n.responseFileUrls || [],
                 isOpen: true,
-                toolText: '已使用工具',
-                thinkText: '已深度思考',
+                toolText: this.$t('agent.tooled'),
+                thinkText: this.$t('agent.thinked'),
                 showScrollBtn: null,
               };
             })
@@ -265,7 +260,7 @@ export default {
       this.isTestChat = this.chatType === 'test' ? true : false;
       this.fileList = fileList || this.$refs['editable'].getFileList();
       if (!this.inputVal) {
-        this.$message.warning('请输入内容');
+        this.$message.warning(this.$t('agent.inputContent'));
         return;
       }
       if (!this.verifiyFormParams()) {
@@ -300,8 +295,8 @@ export default {
     verifiyFormParams() {
       if (this.chatType === 'chat') return true;
       const conditions = [
-        { check: !this.editForm.modelParams, message: '请选择模型' },
-        { check: !this.editForm.prologue, message: '请输入开场白' },
+        { check: !this.editForm.modelParams, message: this.$t('agent.form.selectModel') },
+        { check: !this.editForm.prologue, message: this.$t('agent.form.inputPrologue') },
       ];
       for (const condition of conditions) {
         if (condition.check) {

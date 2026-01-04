@@ -105,9 +105,9 @@
                   ></el-button>
                 </div>
                 <div v-else>
-                  <p>文件名称: {{ fileList[0]['name'] }}</p>
+                  <p>{{$t('knowledgeManage.fileName')}}: {{ fileList[0]['name'] }}</p>
                   <p>
-                    文件大小:
+                    {{$t('knowledgeManage.fileSize')}}:
                     {{
                       fileList[0]['size'] > 1024
                         ? (fileList[0]['size'] / (1024 * 1024)).toFixed(2) +
@@ -126,11 +126,11 @@
                   style="width: 360px; margin: 0 auto"
                 ></el-progress>
                 <p>
-                  图片类型限制{{ maxPicNum }}个文件，其它类型限制1个文件
+                  {{ $t('app.imgLimit', { num: maxPicNum }) }}
                   <span style="color: var(--color)">
                     {{ $t('common.fileUpload.click') }}
                   </span>
-                  非图片类型文件会替换已有文件
+                  {{ $t('app.imgLimitTips') }}
                 </p>
               </div>
             </div>
@@ -149,7 +149,7 @@
                   {{ $t('common.fileUpload.typeFileTip') }}
                 </p>
                 <p style="padding-top: 5px; color: #dc6803 !important">
-                  *若该智能体基于大语言模型创建，则上传图片暂时无法进行解析
+                  {{ $t('app.uploadModelTips') }}
                 </p>
               </div>
             </div>
@@ -291,7 +291,7 @@ export default {
       if (this.fileType === 'image/*') {
         // 图片类型可累加至6个
         if (fileList.length > 6) {
-          this.$message.warning('只能上传6个图片文件');
+          this.$message.warning(this.$t('app.uploadImgTips', { num: 6 }));
           return;
         }
         if (prevFileType && prevFileType !== this.fileType) {

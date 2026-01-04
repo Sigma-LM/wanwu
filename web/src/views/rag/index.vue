@@ -1,5 +1,5 @@
 <template>
-  <CommonLayout :aside-title="asideTitle" :isButton="false" :showAside="false">
+  <CommonLayout :isButton="false" :showAside="false">
     <template #main-content>
       <div class="app-content">
         <Chat :editForm="editForm" :chatType="'chat'" />
@@ -10,30 +10,17 @@
 <script>
 import CommonLayout from '@/components/exploreContainer.vue';
 import Chat from './components/chat.vue';
-import { getApiKeyRoot } from '@/api/appspace';
 import { getRagPublishedInfo } from '@/api/rag';
 export default {
   components: { CommonLayout, Chat },
   data() {
     return {
-      apiURL: '',
       editForm: {
         appId: '',
         avatar: {},
         name: '',
         desc: '',
-      },
-      asideTitle: '文本问答名称',
-      historyList: [
-        {
-          appId: '122249e8-c986-4c02-a731-c4c338c0683a',
-          conversationId: '39ecc738-eb39-4812-93bf-3280746082ca',
-          createdAt: '2025-06-03 14:57:44',
-          hover: false,
-          title:
-            '你是一个问答助手，主要任务是汇总参考信息回答用户问题。请根据参考信息中提供的上下文信息回答用户问题，注意仅用提供的上下文作答不要根据自己已经有的先验知识来回答问题。',
-        },
-      ],
+      }
     };
   },
   created() {
@@ -54,18 +41,7 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
-    },
-    openApiDialog() {
-      this.$refs.apiKeyDialog.showDialog();
-    },
-    apiKeyRootUrl() {
-      const data = { appId: this.editForm.appId, appType: 'rag' };
-      getApiKeyRoot(data).then(res => {
-        if (res.code === 0) {
-          this.apiURL = res.data || '';
-        }
-      });
-    },
+    }
   },
 };
 </script>

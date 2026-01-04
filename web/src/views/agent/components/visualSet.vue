@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="视觉设置"
+    :title="$t('app.visualSetting')"
     :visible.sync="dialogVisible"
     width="40%"
     :before-close="handleClose"
@@ -13,10 +13,10 @@
       label-position="left"
     >
       <el-form-item
-        label="图片上传限制"
+        :label="$t('app.picNumLimit')"
         prop="visionConfig.picNum"
         :rules="[
-          { required: true, message: '请选设置图片上传限制', trigger: 'blur' },
+          { required: true, message: $t('app.picNumLimitDesc'), trigger: 'blur' },
         ]"
       >
         <el-slider
@@ -29,7 +29,7 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="submit('ruleForm')">确 定</el-button>
+      <el-button type="primary" @click="submit('ruleForm')">{{$t('common.button.confirm')}}</el-button>
     </span>
   </el-dialog>
 </template>

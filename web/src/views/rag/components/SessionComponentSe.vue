@@ -3,18 +3,8 @@
     <div class="session-setting">
       <el-link class="right-setting" @click="gropdownClick" type="primary" :underline="false" style="color: var(--color);top:0;">
         <span class="el-icon-delete"></span>
-        清空对话
+        {{ $t('app.clearChat') }}
       </el-link>
-      <!-- <el-dropdown class="right-setting" @command="gropdownClick">
-        <i class="el-icon-more" trigger="click" style="color: var(--color)"></i>
-        <el-dropdown-menu
-          :append-to-body="false"
-          placement="bottom-end"
-          slot="dropdown"
-        >
-          <el-dropdown-item command="clear">清空对话</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown> -->
     </div>
 
     <div class="history-box showScroll" id="timeScroll" v-loading="loading">
@@ -25,7 +15,6 @@
             <img class="logo" :src="'/user/api/' + userAvatar" />
             <div class="answer-content">
               <div class="answer-content-query">
-                <!-- <span class="session-setting-id" v-if="$route.params && $route.params.id">ragID: {{$route.params.id}}</span> -->
                 <el-popover
                   placement="bottom-start"
                   trigger="click"
@@ -177,7 +166,7 @@
                               : 'el-icon-caret-right',
                           ]"
                         ></i>
-                        出处：
+                        {{ $t('agent.source') }}：
                       </span>
                       <a
                         v-if="m.link"
@@ -198,7 +187,6 @@
                         </sub>
                         {{ m.title }}
                       </span>
-                      <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
                     </div>
                     <el-collapse-transition>
                       <div v-show="m.collapse ? true : false" class="snippet">
@@ -245,16 +233,6 @@ export default {
     return {
       autoScroll: true,
       scrollTimeout: null,
-      isDs:
-        [
-          'txt2txt-002-001',
-          'txt2txt-002-002',
-          'txt2txt-002-004',
-          'txt2txt-002-005',
-          'txt2txt-002-006',
-          'txt2txt-002-007',
-          'txt2txt-002-008',
-        ].indexOf(this.$route.params.id) != -1,
       loading: false,
       marked: marked,
       session_data: {
@@ -499,7 +477,7 @@ export default {
     copy(text) {
       text = text.replaceAll('<br/>', '\n');
       var textareaEl = document.createElement('textarea');
-      textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
+      textareaEl.setAttribute('readonly', 'readonly');
       textareaEl.value = text;
       document.body.appendChild(textareaEl);
       textareaEl.select();

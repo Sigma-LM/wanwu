@@ -66,9 +66,9 @@
                           style="width: 30px !important"
                         />
                         <div class="docInfo">
-                          <p class="docInfo_name">文件名称：{{ file.name }}</p>
+                          <p class="docInfo_name">{{ $t('knowledgeManage.fileName') }}:{{ file.name }}</p>
                           <p class="docInfo_size">
-                            文件大小:{{ getFileSizeDisplay(file.size) }}
+                            {{ $t('knowledgeManage.fileSize') }}:{{ getFileSizeDisplay(file.size) }}
                           </p>
                         </div>
                       </div>
@@ -203,7 +203,7 @@
                         : 'el-icon-caret-right',
                     ]"
                   ></i>
-                  出处：
+                  {{ $t('agent.source') }}：
                 </span>
                 <a
                   v-if="m.link"
@@ -612,7 +612,7 @@ export default {
           data = '<tool>\n' + data;
         }
       }
-      n.thinkText = '思考结束';
+      n.thinkText = this.$t('agent.thinked');
       // 统一替换为 section 标签
       return data
         .replace(/think>/gi, 'section>')
@@ -705,7 +705,7 @@ export default {
     },
     replaceLastData(index, data) {
       if (!data.response) {
-        data.response = '无响应数据';
+        data.response = this.$t('app.noResponse');
       }
       this.$set(this.session_data.history, index, data);
       this.scrollBottom();
@@ -795,7 +795,7 @@ export default {
       this.session_data.history = this.session_data.history.filter(item => {
         if (item.pending) {
           item.responseLoading = false;
-          item.pendingResponse = '本次回答已被终止';
+          item.pendingResponse = this.$t('app.stopStream');
         }
         return item;
       });

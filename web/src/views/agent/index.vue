@@ -91,7 +91,7 @@ export default {
       showAside: false,
       asideWidth: '260px',
       apiURL: '',
-      asideTitle: '新建对话',
+      asideTitle: this.$t('app.createConversation'),
       assistantId: '',
       historyList: [],
       appUrlInfo: {},
@@ -239,7 +239,7 @@ export default {
             return { ...n, hover: false, active: false };
           });
           if (noInit) {
-            this.historyList[0].active = true; //noInit 是true时，左侧默认选中第一个,但是不要调接口刷新详情
+            this.historyList[0].active = true; 
           } else {
             this.historyClick[this.historyList[0]];
           }

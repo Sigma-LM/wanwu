@@ -77,16 +77,15 @@
     <div class="compare-bottom">
       <div class="compare-bottom-content">
         <div v-show="echo" class="session rl echo">
-          <Prologue
+          <streamGreetingField
             :editForm="editForm"
-            :isBigModel="true"
             :sessionItemWidth="sessionItemWidth"
             :showRecommendQuestion="showRecommendQuestion"
           />
         </div>
         <!--对话-->
         <div v-show="!echo" class="center-session">
-          <SessionComponentSe
+          <streamMessageField
             ref="sessionComLocal"
             class="component"
             :sessionStatus="instanceSessionStatus"
@@ -107,8 +106,10 @@
 </template>
 
 <script>
-import Prologue from '../Prologue.vue';
-import SessionComponentSe from '../SessionComponentSe.vue';
+// import Prologue from '../Prologue.vue';
+// import SessionComponentSe from '../SessionComponentSe.vue';
+import streamGreetingField from '@/components/stream/streamGreetingField';
+import streamMessageField from '@/components/stream/streamMessageField';
 import PromptOptimize from '@/components/promptOptimize.vue';
 import createPrompt from '@/components/createApp/createPrompt.vue';
 import sseMethodMixin from '@/mixins/sseMethod';
@@ -139,8 +140,10 @@ export default {
     },
   },
   components: {
-    Prologue,
-    SessionComponentSe,
+    // Prologue,
+    // SessionComponentSe,
+    streamGreetingField,
+    streamMessageField,
     PromptOptimize,
     createPrompt,
   },
