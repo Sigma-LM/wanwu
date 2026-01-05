@@ -313,7 +313,11 @@ export default {
     },
     async workflowCopy(row) {
       const params = { workflow_id: row.appId };
-      const res = await copyWorkFlow(params, row.appType);
+      const res = await copyWorkFlow(
+        params,
+        row.appType,
+        this.appFrom !== 'explore',
+      );
 
       if (res.code === 0) {
         this.$router.push({
