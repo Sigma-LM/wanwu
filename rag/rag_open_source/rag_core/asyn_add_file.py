@@ -267,6 +267,8 @@ def parse_meta_data(docs, parse_rules):
                 text = doc["text"]
                 matches = re.findall(pattern, text)
                 for match in matches:
+                    if isinstance(match, tuple):
+                        raise ValueError(f"Regex rule returned tuple (capture group detected): {match}")
                     meta_datas.append(str(match.strip()))
             if meta_datas:
                 item["value"] = meta_datas[-1]
