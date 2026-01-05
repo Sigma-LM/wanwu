@@ -18,7 +18,6 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ego/riot"
 	"github.com/go-ego/riot/types"
@@ -125,11 +124,6 @@ func SearchDocCenter(ctx *gin.Context, content string) ([]response.DocSearchResp
 	var searchResps []response.DocSearchResp
 	for _, doc := range results.Docs {
 		title := strings.TrimSuffix(filepath.Base(doc.DocId), filepath.Ext(filepath.Base(doc.DocId)))
-		snippet, err := util.Md2html([]byte(getMarkdownSnippet(doc.Content, content, docCenterSnippetLen)))
-		if err != nil {
-			log.Errorf("doc center %v md2html error", doc.DocId)
-			continue // 跳过当前doc不做处理
-		}
 		searchUrl, err := url.JoinPath(config.Cfg().Server.WebBaseUrl, config.Cfg().DocCenter.FrontendPrefix, url.PathEscape(doc.DocId))
 		if err != nil {
 			log.Errorf("doc center %v to search url err: %v", doc.DocId, err)
@@ -140,7 +134,7 @@ func SearchDocCenter(ctx *gin.Context, content string) ([]response.DocSearchResp
 			ContentList: []response.DocSearchContent{
 				{
 					Title:   title,
-					Content: snippet,
+					Content: getMarkdownSnippet(doc.Content, content, docCenterSnippetLen),
 					Url:     searchUrl,
 				},
 			},
