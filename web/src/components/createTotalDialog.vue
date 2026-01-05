@@ -19,8 +19,8 @@
           >
             <img
               class="create-card-img"
-              v-if="item.img"
-              :src="item.img"
+              v-if="imgObj[item.key]"
+              :src="imgObj[item.key]"
               alt=""
             />
             <div class="create-card-right">
@@ -43,7 +43,7 @@ import CreateWorkflow from './createApp/createWorkflow.vue';
 import CreateChat from './createApp/createChat.vue';
 import CreateIntelligent from './createApp/createIntelligent';
 import CreateTxtQues from './createApp/createRag.vue';
-import { CHAT, RAG, AGENT } from '@/utils/commonSet';
+import { CHAT, RAG, AGENT, WORKFLOW } from '@/utils/commonSet';
 
 export default {
   components: { CreateWorkflow, CreateChat, CreateIntelligent, CreateTxtQues },
@@ -51,6 +51,11 @@ export default {
     return {
       dialogVisible: false,
       list: this.$t('createTotal.list'),
+      imgObj: {
+        [AGENT]: require('../assets/imgs/intelligent.png'),
+        [RAG]: require('../assets/imgs/ques.png'),
+        [WORKFLOW]: require('../assets/imgs/workflow.png'),
+      },
     };
   },
   mounted() {},
