@@ -258,19 +258,16 @@ export default {
       {
         key: 'agent',
         name: '创建智能体',
-        img: require('../assets/imgs/intelligent.png'),
         desc: '可搭建对话式智能体，并支持上传私域知识库',
       },
       {
         key: 'rag',
         name: '文本问答',
-        img: require('../assets/imgs/ques.png'),
         desc: '用于生成单轮对话任务，支持上传私域知识库',
       },
       {
         key: 'workflow',
         name: '工作流',
-        img: require('../assets/imgs/workflow.png'),
         desc: '可搭建严格按照顺序执行的工作流程任务',
       },
     ],
