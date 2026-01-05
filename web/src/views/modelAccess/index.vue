@@ -107,8 +107,11 @@
             <div class="card-top">
               <img
                 class="card-img"
-                v-if="item.avatar && item.avatar.path"
-                :src="basePath + '/user/api/' + item.avatar.path"
+                :src="
+                  item.avatar && item.avatar.path
+                    ? basePath + '/user/api/' + item.avatar.path
+                    : require('@/assets/imgs/model_default_icon.png')
+                "
               />
               <div class="card-title">
                 <div class="card-name" :title="item.displayName || item.model">

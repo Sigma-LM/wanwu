@@ -39,7 +39,7 @@ export default {
     handleDownload() {
       docDownload().then(res => {
         if (!(res.data && res.data.docCenterPath)) {
-          this.$message.error(res.msg || '暂无下载路径');
+          this.$message.error(res.msg || this.$t('common.noData'));
           return;
         }
         const url = window.location.origin + avatarSrc(res.data.docCenterPath);

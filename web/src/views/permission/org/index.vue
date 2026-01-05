@@ -30,10 +30,23 @@
             align="left"
           />
           <el-table-column
+            prop="remark"
+            :label="$t('org.dialog.remark')"
+            align="left"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.remark || '--' }}
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="creator.name"
             :label="$t('org.table.creator')"
             align="left"
-          />
+          >
+            <template slot-scope="scope">
+              {{ scope.row.creator ? scope.row.creator.name || '--' : '--' }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="createdAt"
             :label="$t('org.table.createAt')"

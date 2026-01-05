@@ -66,8 +66,9 @@
                   <div
                     class="header_search-item-right"
                     @click="jumpMenu(it.url)"
-                    v-html="it.content"
-                  />
+                  >
+                    <MdContent :content="it.content" />
+                  </div>
                 </div>
               </div>
             </el-option>
@@ -170,6 +171,7 @@
 
 <script>
 import DocPage from './components/docPage.vue';
+import MdContent from '@/components/mdContent.vue';
 import { checkPerm } from '@/router/permission';
 import { DOC_FIRST_KEY } from './constants';
 import { getDocMenu, getDocSearchContent } from '@/api/docs';
@@ -177,7 +179,7 @@ import { fetchPermFirPath, fetchCurrentPathIndex } from '@/utils/util';
 import { mapGetters } from 'vuex';
 
 export default {
-  components: { DocPage },
+  components: { DocPage, MdContent },
   data() {
     return {
       basePath: this.$basePath,

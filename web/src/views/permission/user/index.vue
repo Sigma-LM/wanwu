@@ -68,6 +68,15 @@
             </template>
           </el-table-column>
           <el-table-column
+            prop="remark"
+            :label="$t('user.dialog.remark')"
+            align="left"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.remark || '--' }}
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="createdAt"
             :label="$t('user.table.createAt')"
             align="left"
