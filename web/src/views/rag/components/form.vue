@@ -33,6 +33,22 @@
         </div>
       </div>
       <div class="header-right">
+        <div class="header-api" v-if="publishType">
+          <el-tag effect="plain" class="root-url">
+            {{ $t('rag.form.apiRootUrl') }}
+          </el-tag>
+          {{ apiURL }}
+        </div>
+        <el-button
+          v-if="publishType"
+          @click="$router.push('/openApiKey')"
+          plain
+          class="apikeyBtn"
+          size="small"
+        >
+          <img :src="require('@/assets/imgs/apikey.png')" />
+          {{ $t('rag.form.apiKey') }}
+        </el-button>
         <VersionPopover
           ref="versionPopover"
           v-if="publishType"
@@ -260,7 +276,7 @@
 </template>
 
 <script>
-import { appPublish } from '@/api/appspace';
+import { appPublish, getApiKeyRoot } from '@/api/appspace';
 import CreateTxtQues from '@/components/createApp/createRag.vue';
 import ModelSet from './modelSetDialog.vue';
 import metaSet from '@/components/metaSet';
@@ -300,7 +316,7 @@ export default {
       version: '',
       rerankOptions: [],
       localKnowledgeConfig: {},
-      publishType: this.$route.query.publishType,
+      publishType: '', // 为空表示未发布，private表示私密，organization表示组织内可见，public表示公开
       publishForm: {
         publishType: 'private',
         version: '',
@@ -385,6 +401,7 @@ export default {
         },
       },
       initialEditForm: null,
+      apiURL: '',
       modelLoading: false,
       wfDialogVisible: false,
       workFlowInfos: [],
@@ -455,6 +472,7 @@ export default {
       this.editForm.appId = this.$route.query.id;
       setTimeout(() => {
         this.getDetail(); //获取详情
+        this.apiKeyRootUrl(); //获取api根地址
       }, 500);
     }
   },
@@ -646,6 +664,14 @@ export default {
               this.$router.push({ path: '/explore' });
             }
           });
+        }
+      });
+    },
+    apiKeyRootUrl() {
+      const data = { appId: this.editForm.appId, appType: 'rag' };
+      getApiKeyRoot(data).then(res => {
+        if (res.code === 0) {
+          this.apiURL = res.data || '';
         }
       });
     },

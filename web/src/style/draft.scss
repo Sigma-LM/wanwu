@@ -106,6 +106,32 @@
   .header-right {
     display: flex;
     align-items: center;
+
+    .header-api {
+      padding: 6px 10px;
+      box-shadow: 1px 2px 2px #ddd;
+      background-color: #fff;
+      margin: 0 10px;
+      border-radius: 6px;
+
+      .root-url {
+        background-color: #eceefe;
+        color: $color;
+        border: none;
+      }
+    }
+
+    ::v-deep .apikeyBtn {
+      padding: 12px 10px;
+      border: 1px solid $btn_bg;
+      color: $btn_bg;
+      display: flex;
+      align-items: center;
+
+      img {
+        height: 14px;
+      }
+    }
   }
 }
 
@@ -163,6 +189,7 @@
 
     /deep/ .desc-input {
       height: 100%;
+
       .el-textarea__inner {
         height: 100% !important;
       }
