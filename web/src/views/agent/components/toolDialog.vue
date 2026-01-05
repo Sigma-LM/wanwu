@@ -158,6 +158,9 @@ export default {
       workFlowList: [],
       customList: [],
       builtInInfos: [],
+      customCount: 0,
+      mcpCount: 0,
+      workflowCount: 0,
       toolList: [
         {
           value: 'tool',
@@ -198,11 +201,11 @@ export default {
   methods: {
     showToolNum(type) {
       if (type === 'tool') {
-        return this.customList.length > 0 ? this.customList.length : 0;
+        return this.customCount;
       } else if (type === 'mcp') {
-        return this.mcpList.length > 0 ? this.mcpList.length : 0;
+        return this.mcpCount;
       } else {
-        return this.workFlowList.length > 0 ? this.workFlowList.length : 0;
+        return this.workflowCount;
       }
     },
     handleToolChange(id) {
@@ -298,6 +301,7 @@ export default {
       }).then(res => {
         if (res.code === 0) {
           this.$set(action, 'checked', true);
+          this.customCount++;
           this.$forceUpdate();
           this.$message.success(this.$t('agent.toolDialog.addSuccess'));
           this.$emit('updateDetail');
@@ -313,6 +317,7 @@ export default {
       }).then(res => {
         if (res.code === 0) {
           this.$set(action, 'checked', true);
+          this.mcpCount++;
           this.$forceUpdate();
           this.$message.success(this.$t('agent.toolDialog.addSuccess'));
           this.$emit('updateDetail');
@@ -330,6 +335,7 @@ export default {
       let res = await addWorkFlowInfo(params);
       if (res.code === 0) {
         n.checked = true;
+        this.workflowCount++;
         this.$message.success(this.$t('agent.addWorkFlowTips'));
         this.$emit('updateDetail');
       }
@@ -391,6 +397,9 @@ export default {
       this.mcpList = row.mcpInfos || [];
       this.workFlowList = row.workFlowInfos || [];
       this.customList = row.customInfos || [];
+      this.customCount = this.customList.length;
+      this.mcpCount = this.mcpList.length;
+      this.workflowCount = this.workFlowList.length;
     },
     setWorkflow(data) {
       this.workFlowInfos = this.workFlowInfos.map(m => ({
