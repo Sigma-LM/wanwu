@@ -59,9 +59,10 @@ export const createWorkFlow = (data, appType) => {
 };
 
 // 复制
-export const copyWorkFlow = (data, appType) => {
+export const copyWorkFlow = (data, appType, isDraft) => {
+  const withUrl = isDraft ? '/draft' : '';
   return request({
-    url: `${USER_API}/appspace/${appType || 'workflow'}/copy`,
+    url: `${USER_API}/appspace/${appType || 'workflow'}/copy${withUrl}`,
     method: 'post',
     data,
   });

@@ -158,6 +158,9 @@
               <i class="el-icon-more icon edit-icon" @click.stop />
             </span>
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="copy">
+                {{ $t('common.button.copy') }}
+              </el-dropdown-item>
               <el-dropdown-item command="export">
                 {{ $t('common.button.export') }}
               </el-dropdown-item>
@@ -310,7 +313,11 @@ export default {
     },
     async workflowCopy(row) {
       const params = { workflow_id: row.appId };
-      const res = await copyWorkFlow(params, row.appType);
+      const res = await copyWorkFlow(
+        params,
+        row.appType,
+        this.appFrom !== 'explore',
+      );
 
       if (res.code === 0) {
         this.$router.push({

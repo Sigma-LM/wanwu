@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import infoList from './infoList';
+import infoList from '@/mixins/infoList';
 export default {
   mixins: [infoList],
   components: {},
