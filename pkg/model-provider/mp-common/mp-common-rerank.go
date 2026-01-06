@@ -19,8 +19,9 @@ type RerankReq struct {
 	Model           string   `json:"model" validate:"required"`
 	Query           string   `json:"query" validate:"required"`
 	ReturnDocuments *bool    `json:"return_documents,omitempty"`
-	TopN            *int     `json:"top_n,omitempty"` // 返回排序后的top_n个文档。默认返回全部文档。
-	User            *string  `json:"user,omitempty"`  // 用户标识（兼容千帆)
+	TopN            *int     `json:"top_n,omitempty"`       // 返回排序后的top_n个文档。默认返回全部文档。
+	User            *string  `json:"user,omitempty"`        // 用户标识（兼容千帆)
+	Instruction     *string  `json:"instruction,omitempty"` // 指令内容（适配元景qwen_rerank）
 }
 
 func (req *RerankReq) Check() error {
