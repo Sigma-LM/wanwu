@@ -55,26 +55,27 @@ type WeightParams struct {
 }
 
 type AgentSSERequest struct {
-	Input          string                       `json:"input"`
-	Stream         bool                         `json:"stream"`
-	SystemRole     string                       `json:"system_role,omitempty"`
-	UploadFileUrl  []string                     `json:"upload_file_url,omitempty"`
-	FileName       string                       `json:"file_name,omitempty"`
-	PluginList     []PluginListAlgRequest       `json:"plugin_list,omitempty"`
-	Model          string                       `json:"model,omitempty"`
-	ModelUrl       string                       `json:"model_url,omitempty"`
-	SearchUrl      string                       `json:"search_url,omitempty"`
-	SearchKey      string                       `json:"search_key,omitempty"`
-	SearchRerankId interface{}                  `json:"search_rerank_id,omitempty"`
-	UseSearch      bool                         `json:"use_search,omitempty"`
-	KnParams       *KnParams                    `json:"kn_params,omitempty"`
-	UseKnow        bool                         `json:"use_know,omitempty"`
-	ModelId        string                       `json:"model_id,omitempty"`
-	History        []AssistantConversionHistory `json:"history,omitempty"`
-	McpTools       map[string]MCPToolInfo       `json:"mcp_tools,omitempty"`
-	ToolsName      []string                     `json:"tools_name,omitempty"`
-	AutoCitation   bool                         `json:"auto_citation,omitempty"`
-	ModelParams    map[string]interface{}       `json:"-"` // 用于合并动态模型参数，不直接序列化到JSON
+	Input            string                       `json:"input"`
+	Stream           bool                         `json:"stream"`
+	SystemRole       string                       `json:"system_role,omitempty"`
+	UploadFileUrl    []string                     `json:"upload_file_url,omitempty"`
+	FileName         string                       `json:"file_name,omitempty"`
+	PluginList       []PluginListAlgRequest       `json:"plugin_list,omitempty"`
+	Model            string                       `json:"model,omitempty"`
+	ModelUrl         string                       `json:"model_url,omitempty"`
+	SearchUrl        string                       `json:"search_url,omitempty"`
+	SearchKey        string                       `json:"search_key,omitempty"`
+	SearchRerankId   interface{}                  `json:"search_rerank_id,omitempty"`
+	UseSearch        bool                         `json:"use_search,omitempty"`
+	KnParams         *KnParams                    `json:"kn_params,omitempty"`
+	UseKnow          bool                         `json:"use_know,omitempty"`
+	ModelId          string                       `json:"model_id,omitempty"`
+	History          []AssistantConversionHistory `json:"history,omitempty"`
+	McpTools         map[string]MCPToolInfo       `json:"mcp_tools,omitempty"`
+	ToolsName        []string                     `json:"tools_name,omitempty"`
+	AutoCitation     bool                         `json:"auto_citation,omitempty"`
+	MaxHistoryLength int32                        `json:"max_history_length,omitempty"`
+	ModelParams      map[string]interface{}       `json:"-"` // 用于合并动态模型参数，不直接序列化到JSON
 }
 
 type PluginListAlgRequest struct {

@@ -99,7 +99,7 @@ func buildAgentModelParams(sseRequest *config.AgentSSERequest) *ModelParams {
 	modelParams := &ModelParams{
 		ModelId:    sseRequest.ModelId,
 		History:    sseRequest.History,
-		MaxHistory: config.DefaultMaxHistoryLength,
+		MaxHistory: int(sseRequest.MaxHistoryLength),
 	}
 	return buildModelParams(modelParamsReq, modelParams)
 }

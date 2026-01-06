@@ -583,6 +583,13 @@ func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantC
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "MCP配置解析失败")
 	}
 
+	// 记忆参数配置
+	if err = s.setMemoryParams(ctx, sseReq, assistant); err != nil {
+		SSEError(stream, "智能体记忆配置解析失败")
+		saveConversation(ctx, req, "智能体记忆配置解析失败", "")
+		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "记忆配置解析失败")
+	}
+
 	// 历史聊天记录配置
 	if !req.Trial && req.ConversationId != "" {
 		s.setHistoryParams(ctx, sseReq, req)
@@ -857,6 +864,22 @@ func (s *Service) setToolAndWorkflowParamsNew(ctx context.Context, sseReq *confi
 	allPlugin := append(toolPluginList, workflowPluginList...)
 	sseReq.PluginList = allPlugin
 	log.Debugf("智能体tool_plugin_list，assistantId: %s, tool_plugin_list: %s", assistantId, allPlugin)
+	return nil
+}
+func (s *Service) setMemoryParams(_ context.Context, sseReq *config.AgentSSERequest, assistant *model.Assistant) error {
+	memoryConfig := &assistant_service.AssistantMemoryConfig{}
+	if assistant.MemoryConfig == "" || assistant.MemoryConfig == "{}" {
+		sseReq.MaxHistoryLength = config.DefaultMaxHistoryLength
+		return nil
+	}
+	if err := json.Unmarshal([]byte(assistant.MemoryConfig), memoryConfig); err != nil {
+		return fmt.Errorf("Assistant服务解析智能体记忆配置失败，assistantId: %d, error: %v, memoryConfigRaw: %s", assistant.ID, err, assistant.MemoryConfig)
+	}
+	if memoryConfig.MaxHistoryLength > 0 {
+		sseReq.MaxHistoryLength = memoryConfig.MaxHistoryLength
+	} else {
+		sseReq.MaxHistoryLength = config.DefaultMaxHistoryLength
+	}
 	return nil
 }
 
