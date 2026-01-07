@@ -972,16 +972,16 @@ func (s *Service) setHistoryParams(ctx context.Context, sseReq *config.AgentSSER
 	}
 	indexPattern := "conversation_detail_infos_*"
 
-	documents, _, err := es.Assistant().SearchByFields(ctx, indexPattern, fieldConditions, 0, 1000, "asc")
+	documents, _, err := es.Assistant().SearchByFields(ctx, indexPattern, fieldConditions, 0, int(sseReq.MaxHistoryLength), "desc")
 	if err != nil {
 		log.Warnf("Assistant服务查询历史聊天记录失败，conversationId: %s, userId: %s, error: %v", req.ConversationId, req.Identity.UserId, err)
 		return
 	}
 
 	var historyList []config.AssistantConversionHistory
-	for _, doc := range documents {
+	for i := len(documents) - 1; i >= 0; i-- {
 		var detail model.ConversationDetails
-		if err := json.Unmarshal(doc, &detail); err != nil {
+		if err := json.Unmarshal(documents[i], &detail); err != nil {
 			log.Warnf("Assistant服务解析ES历史聊天记录失败: %v", err)
 			continue
 		}
