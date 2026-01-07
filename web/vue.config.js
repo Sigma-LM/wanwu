@@ -169,6 +169,11 @@ module.exports = {
     loaderOptions: {
       scss: {
         implementation: require('sass'),
+        sassOptions: {
+          outputStyle: 'compressed',
+          sourceMap: false,
+          quietDeps: true,
+        },
         additionalData: `
             @use "@/style/theme/vars_blue.scss" as *;
             @use "@/style/theme/common.scss" as *;
