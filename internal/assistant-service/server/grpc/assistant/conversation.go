@@ -132,7 +132,7 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 	indexPattern := "conversation_detail_infos_*"
 
 	// 从ES查询数据
-	documents, total, err := es.Assistant().SearchByFields(ctx, indexPattern, fieldConditions, int(from), size)
+	documents, total, err := es.Assistant().SearchByFields(ctx, indexPattern, fieldConditions, int(from), size, "desc")
 	if err != nil {
 		log.Errorf("从ES查询对话详情失败，conversationId: %s, userId: %s, error: %v", req.ConversationId, req.Identity.UserId, err)
 		return nil, fmt.Errorf("查询对话详情失败: %v", err)
@@ -972,7 +972,7 @@ func (s *Service) setHistoryParams(ctx context.Context, sseReq *config.AgentSSER
 	}
 	indexPattern := "conversation_detail_infos_*"
 
-	documents, _, err := es.Assistant().SearchByFields(ctx, indexPattern, fieldConditions, 0, 1000)
+	documents, _, err := es.Assistant().SearchByFields(ctx, indexPattern, fieldConditions, 0, 1000, "asc")
 	if err != nil {
 		log.Warnf("Assistant服务查询历史聊天记录失败，conversationId: %s, userId: %s, error: %v", req.ConversationId, req.Identity.UserId, err)
 		return
