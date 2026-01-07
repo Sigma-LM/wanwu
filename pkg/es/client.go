@@ -140,7 +140,7 @@ func (c *client) IndexDocument(ctx context.Context, index string, document inter
 }
 
 // 根据指定字段条件查询所有数据
-func (c *client) SearchByFields(ctx context.Context, index string, fieldConditions map[string]interface{}, from, size int) ([]json.RawMessage, int64, error) {
+func (c *client) SearchByFields(ctx context.Context, index string, fieldConditions map[string]interface{}, from, size int, sortOrder string) ([]json.RawMessage, int64, error) {
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"bool": map[string]interface{}{
@@ -152,7 +152,7 @@ func (c *client) SearchByFields(ctx context.Context, index string, fieldConditio
 		"sort": []map[string]interface{}{
 			{
 				"createdAt": map[string]interface{}{
-					"order": "desc",
+					"order": sortOrder,
 				},
 			},
 		},
