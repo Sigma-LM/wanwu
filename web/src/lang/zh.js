@@ -1495,6 +1495,7 @@ export default {
       config: '配置',
       metaDataFilter: '元数据过滤',
       tool: '工具',
+      multiAgent: '多智能体配置',
       safetyConfig: '安全护栏配置',
       safetyConfigTips1: '实时拦截高风险内容的输入和输出，保障内容安全合规。',
       safetyConfigTips: '敏感词表配置',
@@ -1516,6 +1517,10 @@ export default {
   agentDialog: {
     createApp: '智能体创建',
     editApp: '智能体编辑',
+    singleAgent: '单智能体',
+    singleAgentDesc: '该模式智能体能自主决策，调用工具，适合基础简单场景',
+    multipleAgent: '多智能体',
+    multipleAgentDesc: '该模式可关联多个智能体进行协同，适合逻辑复杂的场景',
     agentLogo: '智能体图标',
     changeImg: '点击换图',
     agentName: '智能体名称',

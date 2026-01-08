@@ -155,8 +155,12 @@ export function isSub(data) {
   return /\【([0-9]{0,2})\^\】/.test(data);
 }
 
-export function parseSub(data, index,searchList) {
-  if (!searchList || !Array.isArray(searchList)) {
+export function parseSub(data, index, searchList) {
+  return data.replace(/\【([0-9]{0,2})\^\】/g, item => {
+    let result = item.match(/\【([0-9]{0,2})\^\】/)[1];
+    return `<sup class='citation' data-parents-index='${index}'>${result}</sup>`;
+  });
+  /*if (!searchList || !Array.isArray(searchList)) {
     searchList = [];
   }
   const result = data.match(/\【([0-9]{0,2})\^\】/g);
@@ -164,11 +168,11 @@ export function parseSub(data, index,searchList) {
   return data.replace(/\【([0-9]{0,2})\^\】/g, item => {
     const num = item.replace(/\【|\^\】/g, '');
     if (!num) return item;
-
     const searchItem = searchList[Number(num)-1];
-    const snippet = searchItem.snippet || '';
-    const title = searchItem.title || '';
-    const displaySnippet = snippet.length >= 50 ? snippet.substring(0, 50) + '...' : snippet;
+    if (!searchItem) return item;
+    const snippet = searchItem ? searchItem.snippet : '';
+    const title = searchItem ? searchItem.title : '';
+    const displaySnippet = snippet.length >= 25 ? snippet.substring(0, 25) + '...' : snippet;
     return `
       <div class="citation-container" data-citation-index="${index}" data-citation-number="${num}">
         <sup class='citation' data-parents-index="${index}">${num}</sup>
@@ -186,7 +190,7 @@ export function parseSub(data, index,searchList) {
         </div>
       </div>
     `;
-  });
+  });*/
 }
 
 /**

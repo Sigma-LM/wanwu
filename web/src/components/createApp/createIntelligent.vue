@@ -7,6 +7,28 @@
       append-to-body
       :close-on-click-modal="false"
     >
+      <div class="agentCategoryList" v-if="type === 'create'">
+        <div
+          v-for="agentCategoryItem in agentCategoryList"
+          :key="agentCategoryItem.category"
+          :class="[
+            'agentCategoryItem',
+            form.category === agentCategoryItem.category ? 'active' : '',
+          ]"
+          @click="form.category = agentCategoryItem.category"
+        >
+          <div class="itemImg">
+            <img
+              :src="require(`@/assets/imgs/${agentCategoryItem.img}`)"
+              alt="agentCategoryItem.text"
+            />
+          </div>
+          <div>
+            <p class="agentCategoryItem_text">{{ agentCategoryItem.text }}</p>
+            <h3 class="agentCategoryItem_desc">{{ agentCategoryItem.desc }}</h3>
+          </div>
+        </div>
+      </div>
       <el-form ref="form" :model="form" label-width="120px" :rules="rules">
         <el-form-item
           :label="$t('agentDialog.agentLogo') + ':'"
@@ -69,6 +91,7 @@
 import { uploadAvatar } from '@/api/user';
 import { createAgent, updateAgent } from '@/api/agent';
 import { mapActions, mapGetters } from 'vuex';
+import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
 export default {
   props: {
     type: {
@@ -81,6 +104,20 @@ export default {
   },
   data() {
     return {
+      agentCategoryList: [
+        {
+          category: SINGLE_AGENT,
+          img: 'agent_single.png',
+          text: this.$t('agentDialog.singleAgent'),
+          desc: this.$t('agentDialog.singleAgentDesc'),
+        },
+        {
+          category: MULTIPLE_AGENT,
+          img: 'agent_multiple.png',
+          text: this.$t('agentDialog.multipleAgent'),
+          desc: this.$t('agentDialog.multipleAgentDesc'),
+        },
+      ],
       isLoading: false,
       defaultLogo: '',
       logoFileList: [],
@@ -88,6 +125,7 @@ export default {
       dialogVisible: false,
       assistantId: '',
       form: {
+        category: SINGLE_AGENT,
         name: '',
         desc: '',
         avatar: {
@@ -181,6 +219,7 @@ export default {
     },
     clearForm() {
       this.form = {
+        category: SINGLE_AGENT,
         name: '',
         desc: '',
         avatar: {
@@ -290,6 +329,55 @@ export default {
         line-height: 26px;
         z-index: 10;
       }
+    }
+  }
+}
+
+.agentCategoryList {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 15px;
+
+  .agentCategoryItem {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    gap: 15px;
+    width: 50%;
+
+    &.active {
+      border-color: $color;
+    }
+
+    .itemImg {
+      width: 45px;
+      height: 45px;
+      border: 1px solid #eeeded;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+
+      img {
+        width: 25px;
+        height: fit-content;
+      }
+    }
+
+    .agentCategoryItem_text {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.8;
+    }
+
+    .agentCategoryItem_desc {
+      line-height: 1.2;
+      color: #b4b3b3;
+      font-weight: unset;
     }
   }
 }

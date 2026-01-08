@@ -78,6 +78,7 @@ import {
 } from '@/api/agent';
 import { getApiKeyRoot } from '@/api/appspace';
 import sseMethod from '@/mixins/sseMethod';
+import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
 export default {
   components: { CommonLayout, Chat },
   mixins: [sseMethod],
@@ -97,6 +98,7 @@ export default {
       appUrlInfo: {},
       editForm: {
         assistantId: '',
+        category: SINGLE_AGENT,
         avatar: {},
         name: '',
         desc: '',
@@ -203,14 +205,18 @@ export default {
         res = await getAgentPublishedInfo({
           assistantId: this.editForm.assistantId,
         });
-        data = res.data;
       } else {
         const config = this.headerConfig();
         res = await getOpenurlInfo(this.assistantId, config);
-        data = res.data.assistant;
-        this.appUrlInfo = res.data.appUrlInfo;
       }
       if (res.code === 0) {
+        if (this.chatType === 'agentChat') {
+          data = res.data;
+          this.editForm.category = data.category;
+        } else {
+          data = res.data.assistant;
+          this.appUrlInfo = data.appUrlInfo;
+        }
         this.editForm.avatar = data.avatar;
         this.editForm.name = data.name;
         this.editForm.desc = data.desc;

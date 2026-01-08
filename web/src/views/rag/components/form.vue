@@ -40,7 +40,6 @@
           {{ apiURL }}
         </div>
         <el-button
-          v-if="publishType"
           @click="$router.push('/openApiKey')"
           plain
           class="apikeyBtn"

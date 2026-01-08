@@ -30,6 +30,36 @@ export const getAgentPublishedInfo = params => {
     params,
   });
 };
+
+export const bindMultiAgent = data => {
+  return service({
+    url: `${USER_API}/assistant/multi-agent`,
+    method: 'post',
+    data,
+  });
+};
+export const unbindMultiAgent = data => {
+  return service({
+    url: `${USER_API}/assistant/multi-agent`,
+    method: 'delete',
+    data,
+  });
+};
+export const updateMultiAgent = data => {
+  return service({
+    url: `${USER_API}/assistant/multi-agent/config`,
+    method: 'put',
+    data,
+  });
+};
+export const switchMultiAgent = data => {
+  return service({
+    url: `${USER_API}/assistant/multi-agent/switch`,
+    method: 'put',
+    data,
+  });
+};
+
 export const getAgentInfo = params => {
   return service({
     url: `${USER_API}/assistant/draft`,

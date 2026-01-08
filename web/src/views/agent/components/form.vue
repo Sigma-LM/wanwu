@@ -49,7 +49,6 @@
           {{ apiURL }}
         </div>
         <el-button
-          v-if="publishType"
           @click="$router.push('/openApiKey')"
           plain
           class="apikeyBtn"
@@ -342,7 +341,7 @@
           </div>
         </div>
         <!-- 知识库库配置 -->
-        <div class="block">
+        <div class="block" v-if="editForm.category === SINGLE_AGENT">
           <knowledgeDataField
             :knowledgeConfig="editForm.knowledgeBaseConfig"
             :category="0"
@@ -356,7 +355,7 @@
           />
         </div>
 
-        <div class="block">
+        <div class="block" v-if="editForm.category === SINGLE_AGENT">
           <p class="block-title common-set">
             <span class="common-set-label">
               {{ $t('agent.form.tool') }}
@@ -552,6 +551,7 @@ import metaSet from '@/components/metaSet';
 import ModelSet from './modelSetDialog';
 import { selectModelList, getRerankList } from '@/api/modelAccess';
 import { AGENT } from '@/utils/commonSet';
+import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
 import {
   deleteMcp,
   enableMcp,
@@ -664,6 +664,8 @@ export default {
   data() {
     return {
       AGENT,
+      SINGLE_AGENT,
+      MULTIPLE_AGENT,
       disableClick: false,
       version: '',
       promptType: 'create',
@@ -676,7 +678,7 @@ export default {
       rerankOptions: [],
       initialEditForm: null,
       apiURL: '',
-      publishType: '', // 为空表示未发布，private表示私密，organization表示组织内可见，public表示公开
+      publishType: this.$route.query.publishType,
       publishForm: {
         publishType: 'private',
         version: '',
@@ -711,6 +713,7 @@ export default {
         ],
       },
       editForm: {
+        // category: SINGLE_AGENT,
         newAgent: false,
         functionCalling: '',
         visionsupport: '',
@@ -1245,19 +1248,17 @@ export default {
       if (res.code === 0) {
         this.startLoading(100);
         let data = res.data;
+        this.editForm.category = data.category;
         this.publishType = data.publishType;
         //兼容后端知识库数据返回null
-        if (
-          res.data.knowledgeBaseConfig &&
-          res.data.knowledgeBaseConfig !== null
-        ) {
+        if (data.knowledgeBaseConfig) {
           this.editForm.knowledgeBaseConfig.knowledgebases =
-            res.data.knowledgeBaseConfig.knowledgebases;
+            data.knowledgeBaseConfig.knowledgebases;
           this.editForm.knowledgeBaseConfig.config =
-            res.data.knowledgeBaseConfig.config === null ||
-            !res.data.knowledgeBaseConfig.config.matchType
+            data.knowledgeBaseConfig.config === null ||
+            !data.knowledgeBaseConfig.config.matchType
               ? this.editForm.knowledgeBaseConfig.config
-              : res.data.knowledgeBaseConfig.config;
+              : data.knowledgeBaseConfig.config;
         }
 
         this.editForm = {
@@ -1294,7 +1295,7 @@ export default {
         };
 
         this.editForm.knowledgeBaseConfig.config.rerankModelId =
-          res.data.rerankConfig.modelId;
+          data.rerankConfig.modelId;
         //设置模型信息
         this.setModelInfo(data.modelConfig.modelId);
 
