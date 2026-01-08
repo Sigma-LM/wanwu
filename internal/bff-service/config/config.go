@@ -44,7 +44,6 @@ type Config struct {
 	Rag                ServiceConfig         `json:"rag" mapstructure:"rag"`
 	Assistant          ServiceConfig         `json:"assistant" mapstructure:"assistant"`
 	Operate            ServiceConfig         `json:"operate" mapstructure:"operate"`
-	Agent              AgentServiceConfig    `json:"agent" mapstructure:"agent"`
 	RagKnowledgeConfig RagKnowledgeConfig    `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 	Workflow           WorkflowServiceConfig `json:"workflow" mapstructure:"workflow"`
 	Models             []*ModelConfig        `json:"models" mapstructure:"models"`
@@ -204,12 +203,6 @@ type WorkflowModelParamDefaultVal struct {
 	Balance    string `json:"balance" mapstructure:"balance"`
 	Creative   string `json:"creative" mapstructure:"creative"`
 	DefaultVal string `json:"default_val" mapstructure:"default_val"`
-}
-
-type AgentServiceConfig struct {
-	UseOldAgent    int       `json:"use_old_agent" mapstructure:"use_old_agent"`
-	Host           string    `json:"host" mapstructure:"host"`
-	UploadMinioUri UriConfig `json:"upload_minio" mapstructure:"upload_minio"`
 }
 
 type UriConfig struct {

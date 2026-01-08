@@ -55,7 +55,6 @@ services:
       WANWU_EXTERNAL_SCHEME: ${WANWU_EXTERNAL_SCHEME}
       WANWU_EXTERNAL_ENDPOINT: ${WANWU_EXTERNAL_ENDPOINT}
       OAUTH_SWITCH: ${WANWU_BFF_OAUTH_SWITCH}
-      AGENT_USE_OLD_AGENT: ${WANWU_BFF_USE_OLD_AGENT}
     working_dir: /app
     command: ./bin/bff-service
 
@@ -451,41 +450,8 @@ services:
       REPLACE_MINIO_DOWNLOAD_URL: ${WANWU_WEB_BASE_URL}/minio/download/api/
     command: /model_extend/start.sh
 
-  agent:
-    restart: always
-    image: ${WANWU_AGENT_BASE_IMAGE}
-    container_name: agent-wanwu
-    networks:
-      - ${WANWU_DOCKER_NETWORK}
-    ports:
-      - 7258:7258
-      - 1991:1991
-      - 1992:1992
-      - 15001:15001
-      - 15002:15002
-      - 15003:15003
-    volumes:
-      - ./agent/agent_open_source:/agent/agent_open_source
-      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/logs:/agent/agent_open_source/logs
-      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/minio/logs:/agent/agent_open_source/minio/logs
-      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/minio/file:/agent/agent_open_source/minio/file
-      - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/agent_plugin/logs:/agent/agent_open_source/agent_plugin/logs
-    environment:
-      MINIO_ADDRESS: ${WANWU_MINIO_ENDPOINT}
-      MINIO_ACCESS_KEY: ${WANWU_MINIO_USER}
-      MINIO_SECRET_KEY: ${WANWU_MINIO_PASSWORD}
-      # 用于agent并发处理
-      WORKERS: 4
-      THREADS: 8
-      # 用于agent调用外部接口的API前缀
-      URL_MODEL: http://bff-service
-      URL_MINIO: http://bff-service
-      URL_RAG: http://rag-wanwu
-      URL_RAG_STREAM: http://bff-service:6668/callback/v1/rag/knowledge/stream/search
-    working_dir: /agent/agent_open_source
-    command: bash -c "./start_all.sh && tail -f /dev/null"
-
   # ------ middleware ------
+
   kibana:
     restart: always
     image: ${WANWU_KIBANA_IMAGE}

@@ -230,13 +230,6 @@ knowledge:
 operate:
   host: operate-service:9797
 
-agent:
-  use_old_agent: 0
-  host: agent-wanwu
-  upload_minio:
-    port: 15001
-    uri: /upload
-
 rag-knowledge:
   endpoint: 'http://rag-wanwu:8681'
   chat-endpoint: 'http://rag-wanwu:10891'

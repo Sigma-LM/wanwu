@@ -11,7 +11,6 @@ import (
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	safety_service "github.com/UnicomAI/wanwu/api/proto/safety-service"
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	bff_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
@@ -818,7 +817,7 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		ToolInfos:           assistantToolInfos,
 		CreatedAt:           util.Time2Str(resp.CreatTime),
 		UpdatedAt:           util.Time2Str(resp.UpdateTime),
-		NewAgent:            config.Cfg().Agent.UseOldAgent != 1,
+		NewAgent:            true,
 		PublishType:         appInfo.GetPublishType(),
 	}
 

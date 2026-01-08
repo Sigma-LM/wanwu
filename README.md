@@ -344,7 +344,6 @@ The F1 score serving as the comprehensive evaluation metric (the harmonic mean o
 
 - [Coze](https://github.com/coze-dev)
 - [LangChain](https://github.com/langchain-ai/langchain)
-- [Qwen-Agent](https://github.com/QwenLM/Qwen-Agent)
 
 ------
 

@@ -28,7 +28,6 @@ func registerCommon(apiV1 *gin.RouterGroup) {
 	mid.Sub("common").Reg(apiV1, "/file/merge", http.MethodPost, v1.MergeFile, "合并文件")
 	mid.Sub("common").Reg(apiV1, "/file/clean", http.MethodPost, v1.CleanFile, "清除文件")
 	mid.Sub("common").Reg(apiV1, "/file/delete", http.MethodDelete, v1.DeleteFile, "刪除文件")
-	mid.Sub("common").Reg(apiV1, "/proxy/file/upload", http.MethodPost, v1.ProxyUploadFile, "代理上传文件")
 
 	// 文档中心
 	mid.Sub("common").Reg(apiV1, "/doc_center/search", http.MethodGet, v1.SearchDocCenter, "查找文档中心内容")

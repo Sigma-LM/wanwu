@@ -227,16 +227,3 @@ stop-rag-wanwu:
 		--env-file .env.image.${WANWU_ARCH} \
 		--env-file .env \
 		down rag
-
-# --- agent-wanwu ---
-run-agent-wanwu:
-	docker compose -f docker-compose-develop.yaml \
-		--env-file .env.image.${WANWU_ARCH} \
-		--env-file .env \
-		up -d agent
-
-stop-agent-wanwu:
-	docker compose -f docker-compose-develop.yaml \
-		--env-file .env.image.${WANWU_ARCH} \
-		--env-file .env \
-		down agent

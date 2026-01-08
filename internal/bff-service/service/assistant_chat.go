@@ -8,7 +8,6 @@ import (
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/pkg/ahocorasick"
 	"github.com/UnicomAI/wanwu/pkg/constant"
@@ -17,7 +16,6 @@ import (
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
 )
 
 func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, needLatestPublished bool) error {
@@ -88,13 +86,7 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 		},
 		Draft: !needLatestPublished,
 	}
-	var stream grpc.ServerStreamingClient[assistant_service.AssistantConversionStreamResp]
-	newAgent := config.Cfg().Agent.UseOldAgent != 1
-	if newAgent {
-		stream, err = assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
-	} else {
-		stream, err = assistant.AssistantConversionStream(ctx.Request.Context(), agentReq)
-	}
+	stream, err := assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
 	if err != nil {
 		return nil, err
 	}

@@ -354,7 +354,6 @@
 
 - [Coze](https://github.com/coze-dev)
 - [LangChain](https://github.com/langchain-ai/langchain)
-- [Qwen-Agent](https://github.com/QwenLM/Qwen-Agent)
 
 ------
 
