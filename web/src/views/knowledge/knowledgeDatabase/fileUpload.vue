@@ -51,6 +51,7 @@
                 :show-file-list="false"
                 :auto-upload="false"
                 :multiple="fileType !== 'fileUrl'"
+                :limit="fileType === 'fileUrl' ? 1 : undefined"
                 accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps"
                 :file-list="fileList"
                 :on-change="uploadOnChange"
