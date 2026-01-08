@@ -15,6 +15,7 @@
           <streamMessageField
             ref="session-com"
             class="component"
+            :chatType="'rag'"
             :sessionStatus="sessionStatus"
             @clearHistory="clearHistory"
             @refresh="refresh"
@@ -71,7 +72,7 @@ export default {
     type: {
       type: String,
       default: 'agentChat',
-    }
+    },
   },
   components: {
     // SessionComponentSe,
@@ -176,12 +177,11 @@ export default {
       if (res.code === 0) {
         this.reminderList = res.data.list || [];
         cb && cb();
-        console.log(new Date().getTime());
       }
     },
     reminderClick(n) {
       this.$refs['editable'].setPrompt(n.prompt);
-    }
+    },
   },
 };
 </script>

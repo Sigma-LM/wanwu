@@ -171,7 +171,8 @@ export default {
     // 填充开场白
     setProloguePrompt(val) {
       // this.$refs['editable'].setPrompt(val)
-      const editable = this.$refs.editable || (this.getEditableRef && this.getEditableRef());
+      const editable =
+        this.$refs.editable || (this.getEditableRef && this.getEditableRef());
       if (editable) {
         editable.setPrompt(val);
       }
@@ -223,14 +224,25 @@ export default {
       this.sendEventStream(this.inputVal, '', _history.length);
     },
     sendEventStream(prompt, msgStr, lastIndex) {
-      if (this.sessionStatus === 0) {
+      let sessionCom = this.sessionComRef || this.$refs['session-com'];
+      if (!sessionCom) {
+        console.warn('[sseMethod] session-com ref missing');
+        return;
+      }
+      if (this.getCurrentSessionStatus() === 0) {
         this.$message.warning('上个问题没有回答完！');
         return;
       }
 
+      // if (this.sessionStatus === 0) {
+      //   this.$message.warning('上个问题没有回答完！');
+      //   return;
+      // }
+
       this.sseResponse = {};
       this.setStoreSessionStatus(0);
       this.clearInput();
+
       let params = {
         query: prompt,
         pending: true,
@@ -239,7 +251,9 @@ export default {
         fileList: this.fileList,
         pendingResponse: '',
       };
-      this.$refs['session-com'].pushHistory(params);
+      // this.$refs['session-com'].pushHistory(params);
+      sessionCom.pushHistory(params);
+
       let endStr = '';
       this._print = new Print({
         onPrintEnd: () => {
@@ -247,7 +261,8 @@ export default {
         },
       });
 
-      let history_list = this.$refs['session-com'].getSessionData();
+      // let history_list = this.$refs['session-com'].getSessionData();
+      let history_list = sessionCom.getSessionData();
       const history =
         history_list['history'].length > 1
           ? history_list['history'][history_list['history'].length - 2][
@@ -280,7 +295,8 @@ export default {
                 ...commonData,
                 response: errorData.msg,
               };
-              this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              // this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              sessionCom.replaceLastData(lastIndex, fillData);
             } catch (e) {
               const text = await e.text();
               this.$message.error(text || '未知错误');
@@ -335,10 +351,9 @@ export default {
                   endStr += worldObj.world;
                   endStr = convertLatexSyntax(endStr);
                   endStr = parseSub(endStr, lastIndex, search_list);
-                  const finalResponse = String(endStr);
                   let fillData = {
                     ...commonData,
-                    response: md.render(finalResponse),
+                    response: md.render(endStr),
                     oriResponse: endStr,
                     finish: worldObj.finish,
                     searchList:
@@ -349,10 +364,11 @@ export default {
                           }))
                         : [],
                   };
-                  this.$refs['session-com'].replaceLastData(
-                    lastIndex,
-                    fillData,
-                  );
+                  // this.$refs['session-com'].replaceLastData(
+                  //   lastIndex,
+                  //   fillData,
+                  // );
+                  sessionCom.replaceLastData(lastIndex, fillData);
                   if (worldObj.isEnd && worldObj.finish === 1) {
                     this.setStoreSessionStatus(-1);
                   }
@@ -364,7 +380,8 @@ export default {
                 ...commonData,
                 response: data.message,
               };
-              this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              // this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              sessionCom.replaceLastData(lastIndex, fillData);
             }
           }
         },
@@ -405,9 +422,7 @@ export default {
       }
 
       this.sseResponse = {};
-      //发送问题后不允许继续提问
       this.setStoreSessionStatus(0);
-
       this.clearInput();
 
       let params = {
@@ -566,7 +581,6 @@ export default {
                   }
                 },
               );
-
             } else if (data.code === 7 || data.code === -1 || data.code === 1) {
               this.setStoreSessionStatus(-1);
               let fillData = {

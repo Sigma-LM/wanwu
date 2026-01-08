@@ -14,6 +14,7 @@
           <streamMessageField
             ref="session-com"
             class="component"
+            :chatType="'agent'"
             :sessionStatus="sessionStatus"
             @clearHistory="clearHistory"
             @refresh="refresh"
@@ -51,10 +52,10 @@
           <!-- 版权信息 -->
           <div v-if="appUrlInfo" class="appUrlInfo">
             <span v-if="appUrlInfo.copyrightEnable">
-              {{$t('app.copyright')}}: {{ appUrlInfo.copyright }}
+              {{ $t('app.copyright') }}: {{ appUrlInfo.copyright }}
             </span>
             <span v-if="appUrlInfo.privacyPolicyEnable">
-              {{$t('app.privacyPolicy')}}:
+              {{ $t('app.privacyPolicy') }}:
               <a
                 :href="appUrlInfo.privacyPolicy"
                 target="_blank"
@@ -64,7 +65,7 @@
               </a>
             </span>
             <span v-if="appUrlInfo.disclaimerEnable">
-              {{$t('app.disclaimer')}}: {{ appUrlInfo.disclaimer }}
+              {{ $t('app.disclaimer') }}: {{ appUrlInfo.disclaimer }}
             </span>
           </div>
         </div>
@@ -114,7 +115,7 @@ export default {
     appUrlInfo: {
       type: Object,
       default: null,
-    }
+    },
   },
   components: {
     // SessionComponentSe,
@@ -192,12 +193,14 @@ export default {
 
       if (res.code === 0) {
         let history = res.data.list
-          ? res.data.list.map((n,index) => {
+          ? res.data.list.map((n, index) => {
               return {
                 ...n,
                 query: n.prompt,
-                finish: 1,//兼容流式问答
-                response: md.render(parseSub(convertLatexSyntax(n.response),index)),
+                finish: 1, //兼容流式问答
+                response: md.render(
+                  parseSub(convertLatexSyntax(n.response), index),
+                ),
                 oriResponse: n.response,
                 searchList: n.searchList || [],
                 fileList: n.requestFiles,
@@ -283,8 +286,14 @@ export default {
     verifiyFormParams() {
       if (this.chatType === 'chat') return true;
       const conditions = [
-        { check: !this.editForm.modelParams, message: this.$t('agent.form.selectModel') },
-        { check: !this.editForm.prologue, message: this.$t('agent.form.inputPrologue') },
+        {
+          check: !this.editForm.modelParams,
+          message: this.$t('agent.form.selectModel'),
+        },
+        {
+          check: !this.editForm.prologue,
+          message: this.$t('agent.form.inputPrologue'),
+        },
       ];
       for (const condition of conditions) {
         if (condition.check) {

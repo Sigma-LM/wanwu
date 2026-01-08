@@ -2,7 +2,13 @@
 <template>
   <div class="session rl">
     <div class="session-setting">
-      <el-link class="right-setting" @click="gropdownClick" type="primary" :underline="false" style="color: var(--color);top:0;">
+      <el-link
+        class="right-setting"
+        @click="gropdownClick"
+        type="primary"
+        :underline="false"
+        style="color: var(--color); top: 0"
+      >
         <span class="el-icon-delete"></span>
         {{ $t('app.clearChat') }}
       </el-link>
@@ -123,7 +129,7 @@
 
         <!--回答 文字+图片-->
         <div
-          v-if="n.response && !n.error"
+          v-if="!n.error && (n.response || n.msg_type)"
           class="session-answer"
           :id="'message-container' + i"
         >
@@ -131,12 +137,12 @@
           <div class="session-answer-wrapper">
             <img class="logo" :src="'/user/api/' + defaultUrl" />
             <div class="session-wrap" style="width: calc(100% - 30px)">
-              <div
+              <!-- <div
                 v-if="showDSBtn(n.response)"
                 class="deepseek"
                 @click="toggle($event, i)"
-              >
-               <div
+              > -->
+              <div
                 class="deepseek"
                 v-if="
                   n.msg_type &&
@@ -151,7 +157,7 @@
                 />
                 {{ getTitle(n.msg_type) }}
               </div>
-                <!-- <template>
+              <!-- <template>
                   <img
                     :src="require('@/assets/imgs/think-icon.png')"
                     class="think_icon"
@@ -164,7 +170,8 @@
                     'el-icon-arrow-up': n.isOpen,
                   }"
                 ></i> -->
-                 <template v-else>
+              <template v-else>
+                <div v-if="chatType === 'rag'">
                   <img
                     :src="require('@/assets/imgs/think-icon.png')"
                     class="think_icon"
@@ -182,9 +189,31 @@
                       }"
                     ></i>
                   </div>
-                  <span v-else class="deepseek">{{ $t('menu.knowledge') }}</span>
-                </template>
-              </div>
+                  <span v-else class="deepseek">
+                    {{ $t('menu.knowledge') }}
+                  </span>
+                </div>
+                <div v-else>
+                  <div
+                    v-if="showDSBtn(n.response)"
+                    class="deepseek"
+                    @click="toggle($event, i)"
+                  >
+                    <img
+                      :src="require('@/assets/imgs/think-icon.png')"
+                      class="think_icon"
+                    />
+                    {{ n.thinkText }}
+                    <i
+                      v-bind:class="{
+                        'el-icon-arrow-down': !n.isOpen,
+                        'el-icon-arrow-up': n.isOpen,
+                      }"
+                    ></i>
+                  </div>
+                </div>
+              </template>
+              <!-- </div> -->
               <div
                 v-if="n.response"
                 class="answer-content"
@@ -222,7 +251,8 @@
             v-if="n.searchList && n.searchList.length && n.finish === 1"
             class="search-list"
           >
-           <h2 class="recommended-question-title"
+            <h2
+              class="recommended-question-title"
               v-if="n.msg_type && ['qa_finish'].includes(n.msg_type)"
             >
               {{ $t('app.recommendedQuestion') }}
@@ -242,7 +272,7 @@
               <template v-else>
                 <div
                   class="serach-list-item"
-                  v-if="showSearchList(j,n.citations)"
+                  v-if="showSearchList(j, n.citations)"
                 >
                   <span @click="collapseClick(n, m, j)">
                     <i
@@ -251,30 +281,30 @@
                         m.collapse
                           ? 'el-icon-caret-bottom'
                           : 'el-icon-caret-right',
-                    ]"
-                  ></i>
-                  {{ $t('agent.source') }}：
-                </span>
-                <a
-                  v-if="m.link"
-                  :href="m.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="link"
-                >
-                  {{ m.link }}
-                </a>
-                <span v-if="m.title">
-                  <sub
-                    class="subTag"
-                    :data-parents-index="i"
-                    :data-collapse="m.collapse ? 'true' : 'false'"
+                      ]"
+                    ></i>
+                    {{ $t('agent.source') }}：
+                  </span>
+                  <a
+                    v-if="m.link"
+                    :href="m.link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link"
                   >
-                    {{ j + 1 }}
-                  </sub>
-                  {{ m.title }}
-                </span>
-                <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
+                    {{ m.link }}
+                  </a>
+                  <span v-if="m.title">
+                    <sub
+                      class="subTag"
+                      :data-parents-index="i"
+                      :data-collapse="m.collapse ? 'true' : 'false'"
+                    >
+                      {{ j + 1 }}
+                    </sub>
+                    {{ m.title }}
+                  </span>
+                  <!-- <span @click="goPreview($event,m)" class="search-doc">查看全文</span> -->
                 </div>
                 <el-collapse-transition>
                   <div v-show="m.collapse ? true : false" class="snippet">
@@ -394,7 +424,7 @@ marked.setOptions({
 
 export default {
   mixins: [commonMixin],
-  props: ['defaultUrl', 'type'],
+  props: ['defaultUrl', 'chatType'],
   data() {
     return {
       md: md,
@@ -478,17 +508,28 @@ export default {
     }
   },
   methods: {
+    getTitle(type) {
+      if (type === 'qa_start') {
+        return this.$t('app.qaSearching');
+      } else if (type === 'knowledge_start') {
+        return this.$t('app.knowledgeSearch');
+      } else if (type === 'qa_finish') {
+        return this.$t('knowledgeManage.qaDatabase.name');
+      } else {
+        return this.$t('menu.knowledge');
+      }
+    },
     handleRecommendedQuestion(m) {
       this.$emit('handleRecommendedQuestion', m.question);
     },
-    handleCitationBtnClick(e){
+    handleCitationBtnClick(e) {
       const target = e.target;
       if (target.classList.contains('citation-tips-content-icon')) {
         const index = target.dataset.index;
         const citation = Number(target.dataset.citation);
-        const historyItem = this.session_data.history[index]
-        if(historyItem && historyItem.searchList){
-          const searchItem = historyItem.searchList[citation-1];
+        const historyItem = this.session_data.history[index];
+        if (historyItem && historyItem.searchList) {
+          const searchItem = historyItem.searchList[citation - 1];
           if (searchItem) {
             const j = historyItem.searchList.indexOf(searchItem);
             this.collapseClick(historyItem, searchItem, j);
@@ -1351,7 +1392,7 @@ export default {
   .session-setting {
     position: relative;
     height: 36px;
-    right:50px;
+    right: 50px;
     .right-setting {
       position: absolute;
       right: 10px;
@@ -1403,6 +1444,7 @@ export default {
     font-weight: bold;
     margin: 0 0 10px 6px;
     cursor: pointer;
+    display: inline-block;
   }
 }
 
