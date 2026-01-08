@@ -981,7 +981,7 @@ export default {
     handleRemove(item, index) {
       if (item.percentage < 100) {
         this.fileList.splice(index, 1);
-        this.cancelAllRequests(); //取消所有请求
+        this.cancelAndRestartNextRequests();
         return;
       }
       this.delfile({
