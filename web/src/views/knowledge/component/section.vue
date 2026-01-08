@@ -98,7 +98,13 @@
           <span>{{ res.segmentImportStatus || '-' }}</span>
         </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.parsingMethod')">
-          <span>{{ res.docAnalyzerText.join(', ') }}</span>
+          <span>
+            {{
+              res.docAnalyzerText && res.docAnalyzerText.length > 0
+                ? res.docAnalyzerText.join(', ')
+                : '-'
+            }}
+          </span>
         </el-descriptions-item>
       </el-descriptions>
 

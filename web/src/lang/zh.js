@@ -890,6 +890,7 @@ export default {
     docCountUnit: '个文档',
     qaCountUnit: '个问答对',
     public: '公开',
+    organization: '组织内可见',
     private: '私密',
     create: {
       knowledgeGraph: '知识图谱',
@@ -1150,6 +1151,21 @@ export default {
     added: '已添加',
     power: '权限',
     noOperationPermission: '无操作权限',
+  },
+  multiAgentSelect: {
+    title: '添加智能体',
+    searchPlaceholder: '输入智能体名称搜索',
+    createAgent: '创建单智能体应用',
+    createTime: '创建时间',
+    add: '添加',
+    added: '已添加',
+    power: '权限',
+    noOperationPermission: '无操作权限',
+  },
+  multiAgentEdit: {
+    title: '编辑智能体描述',
+    descPlaceholder:
+      '请详细描述该智能体可以做什么，以便更加贴切的调用该智能体能力',
   },
   metaData: {
     batchEdit: '批量编辑元数据值',
@@ -1496,6 +1512,9 @@ export default {
       metaDataFilter: '元数据过滤',
       tool: '工具',
       multiAgent: '多智能体配置',
+      multiAgentConfig: '编辑智能体描述',
+      multiAgentConfigPlaceholder:
+        '请详细描述该智能体可以做什么，以便更加贴切的调用该智能体能力',
       safetyConfig: '安全护栏配置',
       safetyConfigTips1: '实时拦截高风险内容的输入和输出，保障内容安全合规。',
       safetyConfigTips: '敏感词表配置',
@@ -1676,8 +1695,6 @@ export default {
     uploadImgTips: '只能上传{num}个图片文件',
     createConversation: '新建对话',
     copyright: '版权所有',
-    privacyPolicy: '隐私协议',
-    disclaimer: '免责声明',
     switchSession: '已切换最新会话',
     modelSet: '模型配置',
     temperature: '温度',
