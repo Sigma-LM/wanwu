@@ -373,6 +373,8 @@
 {"code":160001,"key":"assistant_visionConfig_marshal","langs":{"zh":"智能体vision配置解析失败: %v"}}
 {"code":160001,"key":"assistant_memoryConfig_marshal","langs":{"zh":"智能体memory配置解析失败: %v"}}
 {"code":160001,"key":"assistant_memoryConfig_unmarshal","langs":{"zh":"智能体memory配置解析失败: %v"}}
+{"code":160001,"key":"assistant_recommendConfig_marshal","langs":{"zh":"智能体recommend配置解析失败: %v"}}
+{"code":160001,"key":"assistant_recommendConfig_unmarshal","langs":{"zh":"智能体recommend配置解析失败: %v"}}
 {"code":160001,"key":"assistant_copy","langs":{"zh":"智能体复制错误: %v"}}
 {"code":160001,"key":"assistant_snapshot","langs":{"zh":"智能体快照错误: %v"}}
 {"code":160001,"key":"assistant_tool","langs":{"zh":"智能体快照回滚tool错误: %v"}}
