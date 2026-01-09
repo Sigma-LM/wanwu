@@ -1248,7 +1248,6 @@ export default {
       if (res.code === 0) {
         this.startLoading(100);
         let data = res.data;
-        this.editForm.category = data.category;
         this.publishType = data.publishType;
         //兼容后端知识库数据返回null
         if (data.knowledgeBaseConfig) {
