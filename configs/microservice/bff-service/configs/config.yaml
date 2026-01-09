@@ -135,8 +135,10 @@ doc-center:
       val: 6.工作流/业务逻辑/选择器节点.md
     - key: workflow-9
       val: 6.工作流/工作流节点.md
+    - key: workflow-12
+      val: 6.工作流/数据库/SQL自定义节点.md
     - key: workflow-13
-      val: 6.工作流/输入与输出/输出节点.md
+      val: 6.工作流/输入&输出/输出节点.md
     - key: workflow-15
       val: 6.工作流/组件/文本处理节点.md
     - key: workflow-21
@@ -144,7 +146,7 @@ doc-center:
     - key: workflow-28
       val: 6.工作流/业务逻辑/批处理节点.md
     - key: workflow-30
-      val: 6.工作流/输入与输出/输入节点.md
+      val: 6.工作流/输入&输出/输入节点.md
     - key: workflow-32
       val: 6.工作流/业务逻辑/变量聚合节点.md
     - key: workflow-45
@@ -153,8 +155,10 @@ doc-center:
       val: 6.工作流/组件/JSON序列化节点.md
     - key: workflow-1004
       val: 6.工作流/组件/工具节点.md
+    - key: workflow-1005
+      val: 6.工作流/知识库&数据/问答库检索节点.md
     - key: workflow-1006
-      val: 6.工作流/知识库与数据/知识库节点.md
+      val: 6.工作流/知识库&数据/知识库节点.md
     - key: workflow-1007
       val: 6.工作流/文档/文档生成节点.md
     - key: workflow-1008
