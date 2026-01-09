@@ -554,6 +554,8 @@ def del_file():
     try:
         init_info = json.loads(request.get_data())
         file_name = init_info["fileName"]
+        if not kb_utils.is_safe_filename(file_name):
+            raise ValueError("fileName is not safe")
         user_id = init_info["userId"]
         kb_name = init_info.get("knowledgeBase", "")
         kb_id = init_info.get("kb_id", "")
@@ -606,6 +608,9 @@ def del_files():
         kb_name = init_info.get("knowledgeBase", "")
         kb_id = init_info.get("kb_id", "")
         file_names = init_info["fileNames"]
+        for file_name in file_names:
+            if not kb_utils.is_safe_filename(file_name):
+                raise ValueError("fileName is not safe")
 
         logger.info(repr(init_info))
 

@@ -37,6 +37,14 @@ MINIO_URL = 'http://localhost:15000/upload'
 MINIO_BUCKET_NAME = 'rag-doc'
 CHROME_PATH = "/opt/chrome-linux/chrome"
 
+def is_safe_filename(name: str) -> bool:
+    if "/" in name or "\\" in name:
+        return False
+    if ".." in name:
+        return False
+    return True
+
+
 def clean_text(text):
     """清除文本中的特殊字符和多余的空白，以及HTML标签。"""
     patterns = [
@@ -190,6 +198,8 @@ def url_insert_data():
     # separators = data.get("separators", ['。'])
     task_id = data.get("task_id")
     try:
+        if not is_safe_filename(file_name):
+            raise FileExistsError("文件名不合法")
         name = file_name+'.txt'
         old_file_path = os.path.join(TEMP_URL_FILES_DIR, name)
         new_file_path = os.path.join(TEMP_URL_FILES_DIR, task_id+'.txt')
