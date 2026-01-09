@@ -135,7 +135,7 @@
   </div>
 </template>
 <script>
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 import { getRecommendsList, getToolDetail, changeApiKey } from '@/api/mcp';
 import { avatarSrc, formatTools } from '@/utils/util';
 

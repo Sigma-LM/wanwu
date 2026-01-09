@@ -119,7 +119,7 @@ export default {
       this.selection = selection;
     },
     handCellClick(row, column, cell, event) {
-      var params = {
+      const params = {
         row: row,
         column: column,
         cell: cell,

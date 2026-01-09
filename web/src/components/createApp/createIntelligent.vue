@@ -9,7 +9,7 @@
     >
       <el-form ref="form" :model="form" label-width="120px" :rules="rules">
         <el-form-item
-          :label="$t('agentDiglog.agentLogo') + ':'"
+          :label="$t('agentDialog.agentLogo') + ':'"
           prop="avatar.path"
         >
           <el-upload
@@ -35,18 +35,18 @@
             </div>
           </el-upload>
         </el-form-item>
-        <el-form-item :label="$t('agentDiglog.agentName') + ':'" prop="name">
+        <el-form-item :label="$t('agentDialog.agentName') + ':'" prop="name">
           <el-input
-            :placeholder="$t('agentDiglog.nameplaceholder')"
+            :placeholder="$t('agentDialog.nameplaceholder')"
             v-model="form.name"
             maxlength="30"
             show-word-limit
           ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('agentDiglog.agentDesc') + ':'" prop="desc">
+        <el-form-item :label="$t('agentDialog.agentDesc') + ':'" prop="desc">
           <el-input
             type="textarea"
-            :placeholder="$t('agentDiglog.descplaceholder')"
+            :placeholder="$t('agentDialog.descplaceholder')"
             v-model="form.desc"
             show-word-limit
             maxlength="600"
@@ -69,6 +69,7 @@
 import { uploadAvatar } from '@/api/user';
 import { createAgent, updateAgent } from '@/api/agent';
 import { mapActions, mapGetters } from 'vuex';
+import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
 export default {
   props: {
     type: {
@@ -81,6 +82,20 @@ export default {
   },
   data() {
     return {
+      agentCategoryList: [
+        {
+          category: SINGLE_AGENT,
+          img: 'agent_single.png',
+          text: this.$t('agentDialog.singleAgent'),
+          desc: this.$t('agentDialog.singleAgentDesc'),
+        },
+        {
+          category: MULTIPLE_AGENT,
+          img: 'agent_multiple.png',
+          text: this.$t('agentDialog.multipleAgent'),
+          desc: this.$t('agentDialog.multipleAgentDesc'),
+        },
+      ],
       isLoading: false,
       defaultLogo: '',
       logoFileList: [],
@@ -88,6 +103,7 @@ export default {
       dialogVisible: false,
       assistantId: '',
       form: {
+        category: SINGLE_AGENT,
         name: '',
         desc: '',
         avatar: {
@@ -99,7 +115,7 @@ export default {
         name: [
           {
             required: true,
-            message: this.$t('agentDiglog.nameRules'),
+            message: this.$t('agentDialog.nameRules'),
             trigger: 'blur',
           },
           {
@@ -107,33 +123,33 @@ export default {
               if (/^[A-Za-z0-9.\u4e00-\u9fa5_-]+$/.test(value)) {
                 callback();
               } else {
-                callback(new Error(this.$t('agentDiglog.nameplaceholder')));
+                callback(new Error(this.$t('agentDialog.nameplaceholder')));
               }
             },
             trigger: 'blur',
           },
           {
             max: 30,
-            message: this.$t('agentDiglog.pluginNameRules'),
+            message: this.$t('agentDialog.pluginNameRules'),
             trigger: 'blur',
           },
         ],
         desc: [
           {
             required: true,
-            message: this.$t('agentDiglog.descplaceholder'),
+            message: this.$t('agentDialog.descplaceholder'),
             trigger: 'blur',
           },
           {
             max: 600,
-            message: this.$t('agentDiglog.descRules'),
+            message: this.$t('agentDialog.descRules'),
             trigger: 'blur',
           },
         ],
       },
       titleMap: {
-        edit: this.$t('agentDiglog.editApp'),
-        create: this.$t('agentDiglog.createApp'),
+        edit: this.$t('agentDialog.editApp'),
+        create: this.$t('agentDialog.createApp'),
       },
     };
   },
@@ -181,6 +197,7 @@ export default {
     },
     clearForm() {
       this.form = {
+        category: SINGLE_AGENT,
         name: '',
         desc: '',
         avatar: {
@@ -290,6 +307,55 @@ export default {
         line-height: 26px;
         z-index: 10;
       }
+    }
+  }
+}
+
+.agentCategoryList {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 15px;
+
+  .agentCategoryItem {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    gap: 15px;
+    width: 50%;
+
+    &.active {
+      border-color: $color;
+    }
+
+    .itemImg {
+      width: 45px;
+      height: 45px;
+      border: 1px solid #eeeded;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+
+      img {
+        width: 25px;
+        height: fit-content;
+      }
+    }
+
+    .agentCategoryItem_text {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.8;
+    }
+
+    .agentCategoryItem_desc {
+      line-height: 1.2;
+      color: #b4b3b3;
+      font-weight: unset;
     }
   }
 }

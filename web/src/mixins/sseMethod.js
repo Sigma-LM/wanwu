@@ -7,9 +7,8 @@ import { i18n } from '@/lang';
 
 var originalFetch = window.fetch;
 
-import { md } from './marksown-it';
+import { md } from './markdown-it';
 import $ from './jquery.min.js';
-import { file } from 'jszip';
 import { OPENURL_API, USER_API } from '@/utils/requestConstants';
 
 const AGENT_API_URL = `${USER_API}/assistant/stream`;
@@ -225,14 +224,25 @@ export default {
       this.sendEventStream(this.inputVal, '', _history.length);
     },
     sendEventStream(prompt, msgStr, lastIndex) {
-      if (this.sessionStatus === 0) {
+      let sessionCom = this.sessionComRef || this.$refs['session-com'];
+      if (!sessionCom) {
+        console.warn('[sseMethod] session-com ref missing');
+        return;
+      }
+      if (this.getCurrentSessionStatus() === 0) {
         this.$message.warning('上个问题没有回答完！');
         return;
       }
 
+      // if (this.sessionStatus === 0) {
+      //   this.$message.warning('上个问题没有回答完！');
+      //   return;
+      // }
+
       this.sseResponse = {};
       this.setStoreSessionStatus(0);
       this.clearInput();
+
       let params = {
         query: prompt,
         pending: true,
@@ -241,7 +251,9 @@ export default {
         fileList: this.fileList,
         pendingResponse: '',
       };
-      this.$refs['session-com'].pushHistory(params);
+      // this.$refs['session-com'].pushHistory(params);
+      sessionCom.pushHistory(params);
+
       let endStr = '';
       this._print = new Print({
         onPrintEnd: () => {
@@ -249,7 +261,8 @@ export default {
         },
       });
 
-      let history_list = this.$refs['session-com'].getSessionData();
+      // let history_list = this.$refs['session-com'].getSessionData();
+      let history_list = sessionCom.getSessionData();
       const history =
         history_list['history'].length > 1
           ? history_list['history'][history_list['history'].length - 2][
@@ -282,7 +295,8 @@ export default {
                 ...commonData,
                 response: errorData.msg,
               };
-              this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              // this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              sessionCom.replaceLastData(lastIndex, fillData);
             } catch (e) {
               const text = await e.text();
               this.$message.error(text || '未知错误');
@@ -336,7 +350,7 @@ export default {
                   this.setStoreSessionStatus(0);
                   endStr += worldObj.world;
                   endStr = convertLatexSyntax(endStr);
-                  endStr = parseSub(endStr, lastIndex);
+                  endStr = parseSub(endStr, lastIndex, search_list);
                   let fillData = {
                     ...commonData,
                     response: md.render(endStr),
@@ -350,10 +364,11 @@ export default {
                           }))
                         : [],
                   };
-                  this.$refs['session-com'].replaceLastData(
-                    lastIndex,
-                    fillData,
-                  );
+                  // this.$refs['session-com'].replaceLastData(
+                  //   lastIndex,
+                  //   fillData,
+                  // );
+                  sessionCom.replaceLastData(lastIndex, fillData);
                   if (worldObj.isEnd && worldObj.finish === 1) {
                     this.setStoreSessionStatus(-1);
                   }
@@ -365,7 +380,8 @@ export default {
                 ...commonData,
                 response: data.message,
               };
-              this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              // this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              sessionCom.replaceLastData(lastIndex, fillData);
             }
           }
         },
@@ -406,9 +422,7 @@ export default {
       }
 
       this.sseResponse = {};
-      //发送问题后不允许继续提问
       this.setStoreSessionStatus(0);
-
       this.clearInput();
 
       let params = {
@@ -531,17 +545,11 @@ export default {
                   this.setStoreSessionStatus(0);
                   endStr += worldObj.world;
                   endStr = convertLatexSyntax(endStr);
-                  endStr = parseSub(endStr, lastIndex);
+                  endStr = parseSub(endStr, lastIndex, search_list);
                   const finalResponse = String(endStr);
                   let fillData = {
                     ...commonData,
-                    response: [0, 1, 2, 3, 4, 6, 20, 21, 10].includes(
-                      commonData.qa_type,
-                    )
-                      ? md.render(finalResponse)
-                      : finalResponse
-                          .replaceAll('\n-', '<br/>•')
-                          .replaceAll('\n', '<br/>'),
+                    response: md.render(finalResponse),
                     finish: worldObj.finish,
                     oriResponse: endStr,
                     searchList:
@@ -567,16 +575,12 @@ export default {
                     }
                     this.setStoreSessionStatus(-1);
                   }
-                  if (worldObj.isEnd && worldObj.finish === 1) {
+                  //&& worldObj.finish === 1
+                  if (worldObj.isEnd) {
                     this.setStoreSessionStatus(-1);
                   }
                 },
               );
-
-              /*this.$nextTick(()=>{
-                                // this.$refs['session-com'].scrollBottom()
-                                sessionCom.scrollBottom()
-                            })*/
             } else if (data.code === 7 || data.code === -1 || data.code === 1) {
               this.setStoreSessionStatus(-1);
               let fillData = {

@@ -6,7 +6,7 @@
       :before-close="handleClose"
     >
       <template slot="title">
-        <div class="diglog_title">
+        <div class="dialog_title">
           <h3>
             {{
               category === 0
@@ -144,7 +144,6 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@use '@/style/markdown.scss';
 ::v-deep {
   .el-dialog__body {
     padding: 10px 20px;
@@ -157,7 +156,7 @@ export default {
     }
   }
 }
-.diglog_title {
+.dialog_title {
   display: flex;
   justify-content: space-between;
   align-items: center;

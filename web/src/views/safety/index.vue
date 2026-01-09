@@ -7,7 +7,7 @@
     </div>
     <div style="padding: 0 20px 20px 20px">
       <safetyList
-        :appData="knowledgeData"
+        :appData="safetyData"
         @editItem="showCreate"
         @reloadData="getTableData"
         ref="knowledgeList"
@@ -25,7 +25,7 @@ export default {
   components: { safetyList, createSafety },
   data() {
     return {
-      knowledgeData: [],
+      safetyData: [],
       tableLoading: false,
     };
   },
@@ -37,7 +37,7 @@ export default {
       this.tableLoading = true;
       getSensitiveList()
         .then(res => {
-          this.knowledgeData = res.data.list || [];
+          this.safetyData = res.data.list || [];
           this.tableLoading = false;
         })
         .catch(error => {

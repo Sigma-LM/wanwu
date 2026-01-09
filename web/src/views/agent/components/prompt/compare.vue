@@ -35,7 +35,7 @@
         </div>
       </div>
       <div class="compare-bottom">
-        <EditableDivV3
+        <streamInputField
           ref="editable"
           source="promptCompare"
           :fileTypeArr="fileTypeArr"
@@ -49,7 +49,8 @@
 
 <script>
 import PromptField from './promptField.vue';
-import EditableDivV3 from '../EditableDivV3';
+// import EditableDivV3 from '../EditableDivV3';
+import streamInputField from '@/components/stream/streamInputField';
 import { getAgentInfo } from '@/api/agent';
 
 export default {
@@ -61,7 +62,8 @@ export default {
   },
   components: {
     PromptField,
-    EditableDivV3,
+    streamInputField
+    // EditableDivV3,
   },
   data() {
     return {

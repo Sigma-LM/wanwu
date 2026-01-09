@@ -5,7 +5,7 @@ import { parseSub, isSub } from '@/utils/util.js';
 const Print = function (opt) {
   this.sentenceArr = []; //存储待打印的句子的数组
   this.sIndexMap = {};
-  this.timer = opt.timer || 10; //打印速度
+  this.timer = opt.timer || 5; //打印速度
   this.t = null;
   this.sIndex = 0; //记录已打印句子的索引（避免重复打印）
   this.printStatus = 0;

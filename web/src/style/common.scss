@@ -1,0 +1,65 @@
+// [智能体][文本问答]引文标签样式
+.citation-container {
+  position: relative;
+  display: inline-block;
+  .citation-tips {
+    // display: none;
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: -10px;
+    left: 100%;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #e8e8ee;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    z-index: 1000;
+    transition:
+      visibility 0.2s,
+      opacity 0.2s;
+    .citation-tips-content {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .citation-tips-content-text {
+        flex: 1;
+      }
+    }
+    .citation-tips-title {
+      height: 30px;
+      line-height: 30px;
+      color: #999999;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .el-icon-document {
+        font-size: 14px;
+        color: $color;
+      }
+      .citation-tips-content-icon {
+        color: $color;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    }
+  }
+}
+.citation-container:hover .citation-tips,
+.citation-tips:hover {
+  visibility: visible;
+  opacity: 1;
+}
+.citation-container:hover::before {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  display: block;
+  z-index: 999;
+}

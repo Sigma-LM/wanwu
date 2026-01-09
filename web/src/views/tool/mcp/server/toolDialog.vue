@@ -44,7 +44,7 @@
                   <div class="tool_img">
                     <img
                       :src="'/user/api/' + item.avatar.path"
-                      v-show="item.avatar && item.avatar.path"
+                      v-if="item.avatar && item.avatar.path"
                     />
                   </div>
                   <h3>{{ item.toolName }}</h3>

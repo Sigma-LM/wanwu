@@ -80,7 +80,7 @@
 
 <script>
 import { formatScore } from '@/utils/util';
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 
 export default {
   name: 'SectionShow',

@@ -155,11 +155,42 @@ export function isSub(data) {
   return /\【([0-9]{0,2})\^\】/.test(data);
 }
 
-export function parseSub(data, index) {
+export function parseSub(data, index, searchList) {
   return data.replace(/\【([0-9]{0,2})\^\】/g, item => {
     let result = item.match(/\【([0-9]{0,2})\^\】/)[1];
     return `<sup class='citation' data-parents-index='${index}'>${result}</sup>`;
   });
+  /*if (!searchList || !Array.isArray(searchList)) {
+    searchList = [];
+  }
+  const result = data.match(/\【([0-9]{0,2})\^\】/g);
+  if (!result) return data;
+  return data.replace(/\【([0-9]{0,2})\^\】/g, item => {
+    const num = item.replace(/\【|\^\】/g, '');
+    if (!num) return item;
+    const searchItem = searchList[Number(num)-1];
+    if (!searchItem) return item;
+    const snippet = searchItem ? searchItem.snippet : '';
+    const title = searchItem ? searchItem.title : '';
+    const displaySnippet = snippet.length >= 25 ? snippet.substring(0, 25) + '...' : snippet;
+    return `
+      <div class="citation-container" data-citation-index="${index}" data-citation-number="${num}">
+        <sup class='citation' data-parents-index="${index}">${num}</sup>
+        <div class="citation-tips">
+          <div class="citation-tips-content">
+            <div class="citation-tips-content-text">${displaySnippet}</div>
+          </div>
+          <div class="citation-tips-title">
+            <span>
+              <span class="el-icon-document"></span>
+              <span>${title}</span>
+            </span>
+            <span class="el-icon-arrow-right citation-tips-content-icon" data-index="${index}" data-citation="${num}"></span>
+          </div>
+        </div>
+      </div>
+    `;
+  });*/
 }
 
 /**

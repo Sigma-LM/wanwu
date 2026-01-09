@@ -187,7 +187,7 @@
 <script>
 import { hitTest } from '@/api/knowledge';
 import { qaHitTest } from '@/api/qaDatabase';
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 import { formatScore } from '@/utils/util';
 import searchConfig from '@/components/searchConfig.vue';
 import LinkIcon from '@/components/linkIcon.vue';

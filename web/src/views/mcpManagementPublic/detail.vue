@@ -225,7 +225,7 @@
 </template>
 <script>
 import sendDialog from './sendDialog';
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 import {
   getRecommendsList,
   getPublicMcpInfo,

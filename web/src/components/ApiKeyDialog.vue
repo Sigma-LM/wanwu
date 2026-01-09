@@ -1,32 +1,32 @@
 <template>
   <div>
     <el-dialog
-      title="API密钥"
+      :title="$t('tool.server.detail.apiKey')"
       :visible.sync="dialogVisible"
       width="50%"
       :before-close="handleClose"
     >
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column label="密钥" prop="apiKey" width="300">
+        <el-table-column :label="$t('tool.server.detail.key')" prop="apiKey" width="300">
           <template slot-scope="scope">
             <span>{{ scope.row.apiKey.slice(0, 6) + '******' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createdAt" />
-        <el-table-column label="操作" width="200">
+        <el-table-column :label="$t('tool.server.detail.createTime')" prop="createdAt" />
+        <el-table-column :label="$t('tool.server.detail.operate')" width="200">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleCopy(scope.row) && copycb()">
-              复制
+              {{$t('list.copy')}}
             </el-button>
             <el-button size="mini" @click="handleDelete(scope.row)">
-              删除
+              {{$t('list.delete')}}
             </el-button>
           </template>
         </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleCreate">创 建</el-button>
+        <el-button @click="dialogVisible = false">{{$t('common.button.cancel')}}</el-button>
+        <el-button type="primary" @click="handleCreate">{{$t('common.button.create')}}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -78,7 +78,7 @@ export default {
       return res;
     },
     copycb() {
-      this.$message.success('内容已复制到粘贴板');
+      this.$message.success(this.$t('common.copy.success'));
     },
     handleCreate() {
       const data = { appId: this.appId, appType: this.appType };
@@ -98,18 +98,18 @@ export default {
     },
     handleDelete(row) {
       this.$confirm(
-        '确定要删除当前APIkey吗？',
+        this.$t('tool.server.detail.deleteHint'),
         this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+          confirmButtonText: this.$t('common.button.confirm.confirm'),
+          cancelButtonText: this.$t('common.button.confirm.cancel'),
           type: 'warning',
         },
       )
         .then(() => {
           delApiKey({ apiId: row.apiId }).then(res => {
             if (res.code === 0) {
-              this.$message.success('删除成功');
+              this.$message.success(this.$t('common.info.delete'));
               this.getTableData();
             }
           });

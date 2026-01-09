@@ -28,20 +28,53 @@
             prop="name"
             :label="$t('role.table.name')"
             align="left"
+            width="150"
           />
+          <el-table-column
+            prop="permissions"
+            :label="$t('role.dialog.perm')"
+            align="left"
+          >
+            <template slot-scope="scope">
+              {{
+                scope.row.permissions && scope.row.permissions.length
+                  ? getRolePermissions(scope.row.permissions)
+                      .map(item => item.name)
+                      .join(', ')
+                  : '--'
+              }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="remark"
+            :label="$t('role.dialog.remark')"
+            width="150"
+            align="left"
+          >
+            <template slot-scope="scope">
+              {{ scope.row.remark || '--' }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="creator.name"
             :label="$t('role.table.creator')"
+            width="120"
             align="left"
-          />
+          >
+            <template slot-scope="scope">
+              {{ scope.row.creator ? scope.row.creator.name || '--' : '--' }}
+            </template>
+          </el-table-column>
           <el-table-column
             prop="createdAt"
             :label="$t('role.table.createAt')"
+            width="180"
             align="left"
           />
           <el-table-column
             v-if="isAdmin"
             align="left"
+            width="150"
             :label="$t('role.table.status')"
           >
             <template slot-scope="scope">
@@ -64,7 +97,7 @@
             v-if="isAdmin"
             align="left"
             :label="$t('common.table.operation')"
-            width="240"
+            width="120"
           >
             <template slot-scope="scope">
               <el-button
@@ -265,13 +298,10 @@ export default {
       this.defaultPermValue = [];
       this.dialogVisible = true;
     },
-    preUpdate(row) {
-      this.row = row;
-      this.isEdit = true;
-      // 处理一级权限返回问题
-      const perms = row.permissions || [];
+    getRolePermissions(permissions) {
+      const perms = permissions || [];
       const permKeys = perms.map(item => item.perm);
-      const permissions =
+      return (
         perms
           .map(item => {
             if (permKeys.some(key => key.includes(`${item.perm}.`))) {
@@ -280,7 +310,14 @@ export default {
               return item;
             }
           })
-          .filter(item => item) || [];
+          .filter(item => item) || []
+      );
+    },
+    preUpdate(row) {
+      this.row = row;
+      this.isEdit = true;
+      // 处理一级权限返回问题
+      const permissions = this.getRolePermissions(row.permissions);
       this.setFormValue({
         ...row,
         permissions: permissions.map(item => item.perm),

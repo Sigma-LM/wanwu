@@ -9,7 +9,7 @@
     >
       <el-form ref="form" :model="form" label-width="120px" :rules="rules">
         <el-form-item
-          :label="$t('ragDiglog.agentLogo') + ':'"
+          :label="$t('ragDialog.agentLogo') + ':'"
           prop="avatar.path"
         >
           <el-upload
@@ -35,18 +35,18 @@
             </div>
           </el-upload>
         </el-form-item>
-        <el-form-item :label="$t('ragDiglog.agentName') + ':'" prop="name">
+        <el-form-item :label="$t('ragDialog.agentName') + ':'" prop="name">
           <el-input
-            :placeholder="$t('ragDiglog.nameplaceholder')"
+            :placeholder="$t('ragDialog.nameplaceholder')"
             v-model="form.name"
             maxlength="30"
             show-word-limit
           ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('ragDiglog.agentDesc') + ':'" prop="desc">
+        <el-form-item :label="$t('ragDialog.agentDesc') + ':'" prop="desc">
           <el-input
             type="textarea"
-            :placeholder="$t('ragDiglog.descplaceholder')"
+            :placeholder="$t('ragDialog.descplaceholder')"
             v-model="form.desc"
             show-word-limit
             maxlength="600"
@@ -99,7 +99,7 @@ export default {
         name: [
           {
             required: true,
-            message: this.$t('ragDiglog.nameRules'),
+            message: this.$t('ragDialog.nameRules'),
             trigger: 'blur',
           },
           {
@@ -107,25 +107,29 @@ export default {
               if (/^[A-Za-z0-9.\u4e00-\u9fa5_-]+$/.test(value)) {
                 callback();
               } else {
-                callback(new Error(this.$t('ragDiglog.nameplaceholder')));
+                callback(new Error(this.$t('ragDialog.nameplaceholder')));
               }
             },
             trigger: 'change',
           },
           {
             max: 30,
-            message: this.$t('ragDiglog.pluginNameRules'),
+            message: this.$t('ragDialog.pluginNameRules'),
             trigger: 'blur',
           },
         ],
         desc: [
-          { required: true, message: '请输入文本描述', trigger: 'blur' },
-          { max: 600, message: '文本描述限制600字符以内', trigger: 'blur' },
+          {
+            required: true,
+            message: this.$t('app.inputTextDesc'),
+            trigger: 'blur',
+          },
+          { max: 600, message: this.$t('app.descLimit600'), trigger: 'blur' },
         ],
       },
       titleMap: {
-        edit: this.$t('ragDiglog.editApp'),
-        create: this.$t('ragDiglog.createApp'),
+        edit: this.$t('ragDialog.editApp'),
+        create: this.$t('ragDialog.createApp'),
       },
     };
   },

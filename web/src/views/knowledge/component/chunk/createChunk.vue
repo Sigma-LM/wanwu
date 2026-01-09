@@ -170,7 +170,7 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-    showDiglog(docId, isChildChunk = false) {
+    showDialog(docId, isChildChunk = false) {
       this.dialogVisible = true;
       this.isChildChunk = isChildChunk;
       this.ruleForm.docId = docId;

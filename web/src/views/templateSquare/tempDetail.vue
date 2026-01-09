@@ -105,7 +105,7 @@
   </div>
 </template>
 <script>
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 import {
   downloadWorkflow,
   getWorkflowRecommendsList,

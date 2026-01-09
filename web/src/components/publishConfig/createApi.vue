@@ -2,29 +2,29 @@
   <div>
     <div class="header">
       <div class="header-api">
-        <el-tag effect="plain" class="root-url">API根地址</el-tag>
+        <el-tag effect="plain" class="root-url">{{ $t('rag.form.apiRootUrl') }}</el-tag>
         {{ apiURL }}
       </div>
       <el-button size="small" @click="openApiDialog" class="apikeyBtn">
         <img :src="require('@/assets/imgs/apikey.png')" />
-        API密钥
+        {{ $t('rag.form.apiKey') }}
       </el-button>
-      <div class="show-doc" @click="jumpApiDoc">查看API文档</div>
+      <div class="show-doc" @click="jumpApiDoc">{{ $t('rag.form.viewApiKey') }}</div>
     </div>
     <el-table :data="tableData" style="width: 100%">
-      <el-table-column label="密钥" prop="apiKey" width="300">
+      <el-table-column :label="$t('tool.detail.key')" prop="apiKey" width="300">
         <template slot-scope="scope">
           <span>{{ scope.row.apiKey.slice(0, 6) + '******' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createdAt" />
-      <el-table-column label="操作" width="200">
+      <el-table-column :label="$t('tool.detail.createTime')" prop="createdAt" />
+      <el-table-column :label="$t('tool.detail.operate')" width="200">
         <template slot-scope="scope">
           <el-button size="mini" @click="handleCopy(scope.row) && copycb()">
-            复制
+            {{$t('list.copy')}}
           </el-button>
           <el-button size="mini" @click="handleDelete(scope.row)">
-            删除
+            {{$t('list.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -93,7 +93,7 @@ export default {
       return res;
     },
     copycb() {
-      this.$message.success('内容已复制到粘贴板');
+      this.$message.success(this.$t('agent.copyTips'));
     },
     handleCreate() {
       const data = { appId: this.appId, appType: this.appType };
@@ -113,7 +113,7 @@ export default {
     },
     handleDelete(row) {
       this.$confirm(
-        '确定要删除当前APIkey吗？',
+        this.$t('tool.detail.deleteHint'),
         this.$t('knowledgeManage.tip'),
         {
           confirmButtonText: this.$t('common.confirm.confirm'),
@@ -124,7 +124,7 @@ export default {
         .then(() => {
           delApiKey({ apiId: row.apiId }).then(res => {
             if (res.code === 0) {
-              this.$message.success('删除成功');
+              this.$message.success(this.$t('list.delSuccess'));
               this.getTableData();
             }
           });

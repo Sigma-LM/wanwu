@@ -13,10 +13,6 @@
             <img class="logo" :src="userAvatarSrc" />
             <div class="answer-content">
               <div class="answer-content-query">
-                <!-- <span
-                  class="session-setting-id"
-                  v-if="$route.params && $route.params.id && (type && type !=='webChat')"
-                >智能体ID: {{$route.params.id}}</span> -->
                 <el-popover
                   placement="bottom-start"
                   trigger="hover"
@@ -331,12 +327,12 @@
 
 <script>
 import smoothscroll from 'smoothscroll-polyfill';
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 import { marked } from 'marked';
 var highlight = require('highlight.js');
 import 'highlight.js/styles/atom-one-dark.css';
 import commonMixin from '@/mixins/common';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -354,7 +350,7 @@ marked.setOptions({
 
 export default {
   mixins: [commonMixin],
-  props: ['sessionStatus', 'defaultUrl', 'type'],
+  props: ['defaultUrl', 'type'], //'sessionStatus',
   data() {
     return {
       md: md,
@@ -403,6 +399,7 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['userAvatar']),
+    ...mapState('app', ['sessionStatus']),
     userAvatarSrc() {
       return this.userAvatar
         ? '/user/api/' + this.userAvatar
@@ -410,10 +407,6 @@ export default {
     },
   },
   watch: {
-    sessionStatus: {
-      handler(val, oldVal) {},
-      immediate: true,
-    },
     'session_data.history': {
       handler() {
         this.$nextTick(() => {

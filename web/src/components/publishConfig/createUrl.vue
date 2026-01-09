@@ -7,16 +7,22 @@
         size="mini"
         @click="showDialog(null)"
       >
-        创建
+        {{ $t('common.button.add') }}
       </el-button>
       <el-table
         :data="tableData"
         style="width: 100%; margin-top: 15px"
         :header-cell-style="{ background: '#F9F9F9', color: '#999999' }"
       >
-        <el-table-column prop="name" label="应用名称"></el-table-column>
-        <el-table-column prop="description" label="描述"></el-table-column>
-        <el-table-column prop="suffix" label="访问Url">
+        <el-table-column
+          prop="name"
+          :label="$t('app.appName')"
+        ></el-table-column>
+        <el-table-column
+          prop="description"
+          :label="$t('oauth.desc')"
+        ></el-table-column>
+        <el-table-column prop="suffix" :label="$t('app.accessUrl')">
           <template slot-scope="scope">
             <span>{{ scope.row.suffix }}</span>
             <span
@@ -27,10 +33,10 @@
         </el-table-column>
         <el-table-column
           prop="expiredAt"
-          label="过期时间"
+          :label="$t('apiKeyManage.table.expiredAt')"
           width="180"
         ></el-table-column>
-        <el-table-column prop="status" label="状态" width="180">
+        <el-table-column prop="status" :label="$t('list.status')" width="180">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.status"
@@ -42,7 +48,7 @@
         <el-table-column :label="$t('knowledgeManage.operate')" width="260">
           <template slot-scope="scope">
             <el-button size="mini" round @click="showDialog(scope.row)">
-              编辑
+              {{ $t('common.button.edit') }}
             </el-button>
             <el-button size="mini" round @click="handleDel(scope.row)">
               {{ $t('common.button.delete') }}
@@ -59,18 +65,21 @@
     >
       <el-form ref="form" :model="form" class="formUrl" label-width="100px">
         <el-form-item
-          label="应用名称"
+          :label="$t('app.appName')"
           prop="name"
           :rules="[
-            { required: true, message: '请输入应用名称', trigger: 'blur' },
+            { required: true, message: $t('app.appNameMsg'), trigger: 'blur' },
           ]"
         >
-          <el-input v-model="form.name" placeholder="请输入应用名称"></el-input>
+          <el-input
+            v-model="form.name"
+            :placeholder="$t('app.appNameMsg')"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="应用描述" prop="description">
+        <el-form-item :label="$t('app.appDesc')" prop="description">
           <el-input
             v-model="form.description"
-            placeholder="请输入应用描述"
+            :placeholder="$t('app.appDescMsg')"
             type="textarea"
             :rows="2"
           ></el-input>
@@ -80,7 +89,7 @@
             v-model="form.expiredAt"
             type="datetime"
             value-format="yyyy-MM-dd HH:mm:ss"
-            placeholder="url生效时间"
+            :placeholder="$t('app.urlEffectiveTime')"
           ></el-date-picker>
         </el-form-item>
         <!--<el-form-item label="知识库出处详情">
@@ -100,11 +109,11 @@
         <div class="online-item">
           <el-form-item prop="copyright">
             <template #label>
-              <span>版权</span>
+              <span>{{ $t('app.copyRight') }}</span>
               <el-tooltip
                 class="item"
                 effect="dark"
-                content="是否在界面中显示版权信息"
+                :content="$t('app.copyrightEnable')"
                 placement="top-start"
               >
                 <span class="el-icon-question tips"></span>
@@ -112,7 +121,7 @@
             </template>
             <el-input
               v-model="form.copyright"
-              placeholder="请输入版权信息"
+              :placeholder="$t('app.copyrightMsg')"
             ></el-input>
           </el-form-item>
           <el-form-item prop="copyrightEnable">
@@ -126,11 +135,11 @@
         <div class="online-item">
           <el-form-item prop="privacyPolicy">
             <template #label>
-              <span>隐私协议</span>
+              <span>{{ $t('app.privacyPolicy') }}</span>
               <el-tooltip
                 class="item"
                 effect="dark"
-                content="是否在界面中显示隐私协议信息"
+                :content="$t('app.privacyPolicyEnable')"
                 placement="top-start"
               >
                 <span class="el-icon-question tips"></span>
@@ -138,7 +147,7 @@
             </template>
             <el-input
               v-model="form.privacyPolicy"
-              placeholder="请输入隐私政策链接"
+              :placeholder="$t('app.privacyPolicyMsg')"
               @blur="urlBlur"
             ></el-input>
           </el-form-item>
@@ -153,11 +162,11 @@
         <div class="online-item">
           <el-form-item prop="disclaimer">
             <template #label>
-              <span>免责声明</span>
+              <span>{{ $t('app.disclaimer') }}</span>
               <el-tooltip
                 class="item"
                 effect="dark"
-                content="是否在界面中显示免责声明"
+                :content="$t('app.disclaimerEnable')"
                 placement="top-start"
               >
                 <span class="el-icon-question tips"></span>
@@ -167,7 +176,7 @@
               v-model="form.disclaimer"
               type="textarea"
               :rows="2"
-              placeholder="请输入免责声明"
+              :placeholder="$t('app.disclaimerMsg')"
             ></el-input>
           </el-form-item>
           <el-form-item prop="disclaimerEnable">
@@ -180,8 +189,12 @@
         </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="submit('form')">确 定</el-button>
+        <el-button @click="handleClose">
+          {{ $t('common.button.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="submit('form')">
+          {{ $t('common.button.confirm') }}
+        </el-button>
       </span>
     </el-dialog>
   </div>
@@ -211,7 +224,7 @@ export default {
         privacyPolicy: '',
         privacyPolicyEnable: false,
       },
-      title: '创建URL',
+      title: this.$t('app.createUrl'),
       dialogVisible: false,
       tableData: [],
       urlId: '',
@@ -226,7 +239,7 @@ export default {
     urlBlur() {
       const text = this.form.privacyPolicy;
       if (!this.isValidUrl(text)) {
-        this.$message.warning('链接效验不合格');
+        this.$message.warning(this.$t('app.linkCheck'));
         this.form.privacyPolicy = '';
       }
     },
@@ -247,7 +260,7 @@ export default {
       return res;
     },
     copycb() {
-      this.$message.success('内容已复制到粘贴板');
+      this.$message.success(this.$t('agent.copyTips'));
     },
     getList() {
       getOpenurl({ appId: this.appId, appType: this.appType })
@@ -262,7 +275,7 @@ export default {
       switchOpenurl({ status, urlId: row.urlId })
         .then(res => {
           if (res.code === 0) {
-            this.$message.success('操作成功');
+            this.$message.success(this.$t('commom.message.success'));
             this.getList();
           }
         })
@@ -271,7 +284,7 @@ export default {
     showDialog(row = null) {
       this.dialogVisible = true;
       if (row === null) {
-        this.title = '创建URL';
+        this.title = this.$t('app.createUrl');
         this.urlId = '';
         this.$nextTick(() => {
           if (this.$refs.form) {
@@ -281,7 +294,7 @@ export default {
           }
         });
       } else {
-        this.title = '编辑URL';
+        this.title = this.$t('app.editUrl');
         this.urlId = row.urlId;
         Object.keys(row).forEach(key => {
           if (this.form.hasOwnProperty(key)) {
@@ -317,7 +330,7 @@ export default {
       createOpenurl(this.form)
         .then(res => {
           if (res.code === 0) {
-            this.$message.success('操作成功');
+            this.$message.success(this.$t('commom.message.success'));
             this.dialogVisible = false;
             this.getList();
           }
@@ -332,7 +345,7 @@ export default {
       editOpenurl(data)
         .then(res => {
           if (res.code === 0) {
-            this.$message.success('操作成功');
+            this.$message.success(this.$t('commom.message.success'));
             this.dialogVisible = false;
             this.getList();
           }
@@ -341,18 +354,18 @@ export default {
     },
     handleDel(row) {
       this.$confirm(
-        '确定要删除当前访问URL吗？',
+        this.$t('app.delUrlConfirm'),
         this.$t('knowledgeManage.tip'),
         {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+          confirmButtonText: this.$t('common.confirm.confirm'),
+          cancelButtonText: this.$t('common.confirm.cancel'),
           type: 'warning',
         },
       )
         .then(() => {
           delOpenurl({ urlId: row.urlId }).then(res => {
             if (res.code === 0) {
-              this.$message.success('删除成功');
+              this.$message.success(this.$t('list.delSuccess'));
               this.getList();
             }
           });

@@ -70,7 +70,7 @@ export default {
       toolList: [
         {
           name: 'Web URL',
-          desc: '分享链接后，可通过网页直接访问智能体应用',
+          desc: this.$t('app.shareTip'),
           type: 'url',
         },
         /*{
@@ -79,8 +79,8 @@ export default {
           type: 'api',
         },*/
         {
-          name: '发布范围',
-          desc: '支持配置应用发布范围',
+          name: this.$t('list.version.publishType'),
+          desc: this.$t('app.publishTypeDesc'),
           type: 'scope',
         },
       ],

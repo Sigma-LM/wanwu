@@ -258,5 +258,5 @@ export default {
 </script>
 
 <style lang="scss">
-@use "@/style/echart" as *;
+@import '@/style/echart';
 </style>

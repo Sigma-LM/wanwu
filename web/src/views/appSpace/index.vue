@@ -113,15 +113,9 @@ export default {
   watch: {
     $route: {
       handler(val) {
-        const { type } = val ? val.params || {} : {};
-        const { type: flowType } = val.query || {};
-        this.type = flowType || type;
-        this.tabActive = flowType || WORKFLOW;
-
         this.listData = [];
         this.$refs.searchInput.value = '';
-        this.justifyRenderPage(type);
-        this.getTableData();
+        this.initialPage(val);
       },
       // 深度观察监听
       deep: true,
@@ -139,14 +133,25 @@ export default {
     ...mapGetters('app', ['fromList']),
   },
   mounted() {
-    const { type } = this.$route.params || {};
-    const { type: flowType } = this.$route.query || {};
-    this.type = flowType || type;
-    this.tabActive = flowType || WORKFLOW;
-    this.justifyRenderPage(type);
-    this.getTableData();
+    this.initialPage(this.$route);
   },
   methods: {
+    initialPage(val) {
+      const route = val || this.$route || {};
+      const { type } = route.params || {};
+      const { type: flowType } = route.query || {};
+
+      const judgeFlowType = this.justifyFlowType(flowType);
+      this.type = judgeFlowType || type;
+      this.tabActive = judgeFlowType || WORKFLOW;
+
+      this.justifyRenderPage(type);
+      this.getTableData();
+    },
+    justifyFlowType(flowType) {
+      // 判断工作流、对话流 query:type 是否是正确的，如果有问题则返回 ''，默认展示工作流
+      return [CHAT, WORKFLOW].includes(flowType) ? flowType : '';
+    },
     justifyRenderPage(type) {
       if (![WORKFLOW, AGENT, RAG].includes(type)) {
         const { path } = fetchPermFirPath();

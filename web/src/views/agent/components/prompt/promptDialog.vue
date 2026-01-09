@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { md } from '@/mixins/marksown-it.js';
+import { md } from '@/mixins/markdown-it.js';
 export default {
   name: 'PromptDialog',
   inject: ['getPrompt'],
@@ -119,7 +119,7 @@ export default {
     },
   },
   methods: {
-    showDiglog(data, type) {
+    showDialog(data, type) {
       this.dialogVisible = true;
       this.activeTab = type;
       if (data && data.length) {

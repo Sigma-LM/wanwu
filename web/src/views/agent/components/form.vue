@@ -42,6 +42,22 @@
         </div>
       </div>
       <div class="header-right">
+        <div class="header-api" v-if="publishType">
+          <el-tag effect="plain" class="root-url">
+            {{ $t('rag.form.apiRootUrl') }}
+          </el-tag>
+          {{ apiURL }}
+        </div>
+        <el-button
+          v-if="publishType"
+          @click="$router.push('/openApiKey')"
+          plain
+          class="apikeyBtn"
+          size="small"
+        >
+          <img :src="require('@/assets/imgs/apikey.png')" />
+          {{ $t('rag.form.apiKey') }}
+        </el-button>
         <VersionPopover
           ref="versionPopover"
           v-if="publishType"
@@ -245,6 +261,34 @@
               >
                 {{ $t('agent.form.functionCallTips') }}
               </div>
+            </div>
+          </div>
+          <div class="box">
+            <p class="block-title common-set">
+              <span class="common-set-label">
+                <img
+                  :src="require('@/assets/imgs/require.png')"
+                  class="required-label"
+                />
+                {{ $t('agent.form.maxHistory') }}
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('agent.form.maxHistoryTips')"
+                  placement="top"
+                >
+                  <span class="el-icon-question question-tips"></span>
+                </el-tooltip>
+              </span>
+            </p>
+            <div class="rl">
+              <el-slider
+                v-model="editForm.memoryConfig.maxHistoryLength"
+                show-input
+                :step="1"
+                :min="0"
+                :max="100"
+              ></el-slider>
             </div>
           </div>
           <div class="box">
@@ -498,7 +542,7 @@
 </template>
 
 <script>
-import { appPublish } from '@/api/appspace';
+import { appPublish, getApiKeyRoot } from '@/api/appspace';
 import { store } from '@/store/index';
 import { mapGetters, mapActions } from 'vuex';
 import CreateIntelligent from '@/components/createApp/createIntelligent';
@@ -508,6 +552,7 @@ import metaSet from '@/components/metaSet';
 import ModelSet from './modelSetDialog';
 import { selectModelList, getRerankList } from '@/api/modelAccess';
 import { AGENT } from '@/utils/commonSet';
+import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
 import {
   deleteMcp,
   enableMcp,
@@ -592,6 +637,7 @@ export default {
     ...mapGetters('user', ['commonInfo']),
     agentFormParams() {
       const {
+        memoryConfig,
         modelParams,
         modelConfig,
         prologue,
@@ -602,6 +648,7 @@ export default {
       } = this.editForm;
 
       return {
+        memoryConfig,
         modelParams,
         modelConfig,
         prologue,
@@ -618,6 +665,8 @@ export default {
   data() {
     return {
       AGENT,
+      SINGLE_AGENT,
+      MULTIPLE_AGENT,
       disableClick: false,
       version: '',
       promptType: 'create',
@@ -629,7 +678,8 @@ export default {
       activeIndex: -1,
       rerankOptions: [],
       initialEditForm: null,
-      publishType: this.$route.query.publishType,
+      apiURL: '',
+      publishType: '', // 为空表示未发布，private表示私密，organization表示组织内可见，public表示公开
       publishForm: {
         publishType: 'private',
         version: '',
@@ -672,6 +722,9 @@ export default {
         avatar: {},
         name: '',
         desc: '',
+        memoryConfig: {
+          maxHistoryLength: 5,
+        },
         rerankParams: '',
         modelParams: '',
         prologue: '', //开场白
@@ -771,7 +824,8 @@ export default {
     if (this.$route.query.id) {
       this.editForm.assistantId = this.$route.query.id;
       setTimeout(() => {
-        this.getAppDetail();
+        this.getAppDetail(); //获取详情
+        this.apiKeyRootUrl(); //获取api根地址
       }, 500);
     }
     //判断是否有插件管理的权限
@@ -1026,6 +1080,14 @@ export default {
         }
       });
     },
+    apiKeyRootUrl() {
+      const data = { appId: this.editForm.assistantId, appType: 'agent' };
+      getApiKeyRoot(data).then(res => {
+        if (res.code === 0) {
+          this.apiURL = res.data || '';
+        }
+      });
+    },
     setModelSet(data) {
       this.editForm.modelConfig = data;
     },
@@ -1124,6 +1186,7 @@ export default {
       );
       const params = {
         assistantId: this.editForm.assistantId,
+        memoryConfig: this.editForm.memoryConfig,
         prologue: this.editForm.prologue,
         recommendQuestion:
           recommendQuestion.length > 0 && recommendQuestion[0] !== ''
@@ -1187,17 +1250,14 @@ export default {
         let data = res.data;
         this.publishType = data.publishType;
         //兼容后端知识库数据返回null
-        if (
-          res.data.knowledgeBaseConfig &&
-          res.data.knowledgeBaseConfig !== null
-        ) {
+        if (data.knowledgeBaseConfig) {
           this.editForm.knowledgeBaseConfig.knowledgebases =
-            res.data.knowledgeBaseConfig.knowledgebases;
+            data.knowledgeBaseConfig.knowledgebases;
           this.editForm.knowledgeBaseConfig.config =
-            res.data.knowledgeBaseConfig.config === null ||
-            !res.data.knowledgeBaseConfig.config.matchType
+            data.knowledgeBaseConfig.config === null ||
+            !data.knowledgeBaseConfig.config.matchType
               ? this.editForm.knowledgeBaseConfig.config
-              : res.data.knowledgeBaseConfig.config;
+              : data.knowledgeBaseConfig.config;
         }
 
         this.editForm = {
@@ -1208,6 +1268,10 @@ export default {
           prologue: data.prologue || '', //开场白
           name: data.name || '',
           desc: data.desc || '',
+          memoryConfig: {
+            ...this.editForm.memoryConfig,
+            ...data.memoryConfig,
+          },
           instructions: data.instructions || '', //系统提示词
           rerankParams: data.rerankConfig.modelId || '',
           visionConfig: data.visionConfig, //图片配置
@@ -1230,7 +1294,7 @@ export default {
         };
 
         this.editForm.knowledgeBaseConfig.config.rerankModelId =
-          res.data.rerankConfig.modelId;
+          data.rerankConfig.modelId;
         //设置模型信息
         this.setModelInfo(data.modelConfig.modelId);
 

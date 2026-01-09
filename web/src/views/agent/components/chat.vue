@@ -2,28 +2,27 @@
   <div class="full-content flex">
     <el-main class="scroll">
       <div class="smart-center" style="padding: 0">
-        <!--基础配置回显-->
+        <!--开场白设置-->
         <div v-show="echo" class="session rl echo">
-          <Prologue
+          <streamGreetingField
             :editForm="editForm"
             @setProloguePrompt="setProloguePrompt"
-            :isBigModel="true"
           />
         </div>
         <!--对话-->
         <div v-show="!echo" class="center-session">
-          <SessionComponentSe
+          <streamMessageField
             ref="session-com"
             class="component"
+            :chatType="'agent'"
             :sessionStatus="sessionStatus"
             @clearHistory="clearHistory"
             @refresh="refresh"
-            :type="type"
             @queryCopy="queryCopy"
             :defaultUrl="editForm.avatar.path"
           />
         </div>
-        <!--输入框-->
+        <!--停止生成-重新生成-->
         <div class="center-editable">
           <div v-show="stopBtShow" class="stop-box">
             <span v-show="sessionStatus === 0" class="stop" @click="preStop">
@@ -41,25 +40,22 @@
               <span class="mdl">{{ $t('agent.refresh') }}</span>
             </span>
           </div>
-          <EditableDivV3
+          <!-- 输入框 -->
+          <streamInputField
             ref="editable"
             source="perfectReminder"
             :fileTypeArr="fileTypeArr"
-            :currentModel="currentModel"
-            :isModelDisable="isModelDisable"
-            :showModelSelect="false"
             :type="type"
-            :disableClick="disableClick"
             @preSend="preSend"
-            @modelChange="modelChange"
             @setSessionStatus="setSessionStatus"
           />
+          <!-- 版权信息 -->
           <div v-if="appUrlInfo" class="appUrlInfo">
             <span v-if="appUrlInfo.copyrightEnable">
-              版权所有: {{ appUrlInfo.copyright }}
+              {{ $t('app.copyright') }}: {{ appUrlInfo.copyright }}
             </span>
             <span v-if="appUrlInfo.privacyPolicyEnable">
-              隐私协议:
+              {{ $t('app.privacyPolicy') }}:
               <a
                 :href="appUrlInfo.privacyPolicy"
                 target="_blank"
@@ -69,7 +65,7 @@
               </a>
             </span>
             <span v-if="appUrlInfo.disclaimerEnable">
-              免责声明: {{ appUrlInfo.disclaimer }}
+              {{ $t('app.disclaimer') }}: {{ appUrlInfo.disclaimer }}
             </span>
           </div>
         </div>
@@ -79,8 +75,13 @@
 </template>
 
 <script>
-import SessionComponentSe from './SessionComponentSe';
-import EditableDivV3 from './EditableDivV3';
+// import SessionComponentSe from './SessionComponentSe';
+// import EditableDivV3 from './EditableDivV3';
+// import Prologue from './Prologue';
+import streamMessageField from '@/components/stream/streamMessageField';
+import streamInputField from '@/components/stream/streamInputField';
+import streamGreetingField from '@/components/stream/streamGreetingField';
+import { parseSub, convertLatexSyntax } from '@/utils/util.js';
 import {
   delConversation,
   createConversation,
@@ -89,9 +90,8 @@ import {
   openurlConversation,
   OpenurlConverHistory,
 } from '@/api/agent';
-import Prologue from './Prologue';
 import sseMethod from '@/mixins/sseMethod';
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 import { mapGetters } from 'vuex';
 export default {
   inject: {
@@ -116,15 +116,14 @@ export default {
       type: Object,
       default: null,
     },
-    disableClick: {
-      type: Boolean,
-      default: false,
-    },
   },
   components: {
-    SessionComponentSe,
-    EditableDivV3,
-    Prologue,
+    // SessionComponentSe,
+    // EditableDivV3,
+    streamMessageField,
+    streamInputField,
+    streamGreetingField,
+    // Prologue,
   },
   mixins: [sseMethod],
   computed: {
@@ -134,9 +133,6 @@ export default {
   },
   data() {
     return {
-      amswerNum: 0,
-      isModelDisable: false,
-      currentModel: null,
       echo: true,
       fileTypeArr: ['doc/*', 'image/*'],
       hasDrawer: false,
@@ -149,7 +145,7 @@ export default {
       if (this.echo) {
         this.$message({
           type: 'info',
-          message: '已切换最新会话',
+          message: this.$t('app.switchSession'),
           customClass: 'dark-message',
           iconClass: 'none',
           duration: 1500,
@@ -163,9 +159,7 @@ export default {
     },
     //切换对话
     conversionClick(n) {
-      // this.isModelDisable = true;
       if (this.sessionStatus === 0) {
-        //this.$message.warning('上个问题未答完')
         return;
       } else {
         this.stopBtShow = false;
@@ -199,20 +193,21 @@ export default {
 
       if (res.code === 0) {
         let history = res.data.list
-          ? res.data.list.map(n => {
+          ? res.data.list.map((n, index) => {
               return {
                 ...n,
                 query: n.prompt,
-                response: [0, 1, 2, 3, 4, 5, 6, 20, 21, 10].includes(n.qa_type)
-                  ? md.render(n.response)
-                  : n.response.replaceAll('\n-', '\n•'),
+                finish: 1, //兼容流式问答
+                response: md.render(
+                  parseSub(convertLatexSyntax(n.response), index),
+                ),
                 oriResponse: n.response,
-                searchList: n.searchList ? n.searchList : [],
+                searchList: n.searchList || [],
                 fileList: n.requestFiles,
                 gen_file_url_list: n.responseFileUrls || [],
                 isOpen: true,
-                toolText: '已使用工具',
-                thinkText: '已深度思考',
+                toolText: this.$t('agent.tooled'),
+                thinkText: this.$t('agent.thinked'),
                 showScrollBtn: null,
               };
             })
@@ -256,7 +251,7 @@ export default {
       this.isTestChat = this.chatType === 'test' ? true : false;
       this.fileList = fileList || this.$refs['editable'].getFileList();
       if (!this.inputVal) {
-        this.$message.warning('请输入内容');
+        this.$message.warning(this.$t('agent.inputContent'));
         return;
       }
       if (!this.verifiyFormParams()) {
@@ -291,8 +286,14 @@ export default {
     verifiyFormParams() {
       if (this.chatType === 'chat') return true;
       const conditions = [
-        { check: !this.editForm.modelParams, message: '请选择模型' },
-        { check: !this.editForm.prologue, message: '请输入开场白' },
+        {
+          check: !this.editForm.modelParams,
+          message: this.$t('agent.form.selectModel'),
+        },
+        {
+          check: !this.editForm.prologue,
+          message: this.$t('agent.form.inputPrologue'),
+        },
       ];
       for (const condition of conditions) {
         if (condition.check) {
@@ -302,18 +303,10 @@ export default {
       }
       return true;
     },
-    modelChange() {
-      //切换模型新建对话
-      this.preCreateConversation();
-    },
     setParams() {
-      ++this.amswerNum;
-      if (this.amswerNum > 0) {
-        this.isModelDisable = true;
-      }
       const fileInfo = this.$refs['editable'].getFileIdList();
       let fileId = !fileInfo.length ? this.fileId : fileInfo;
-      this.useSearch = this.$refs['editable'].sendUseSearch();
+      // this.useSearch = this.$refs['editable'].sendUseSearch();
       this.setSseParams({
         conversationId: this.conversationId,
         fileInfo: fileId,

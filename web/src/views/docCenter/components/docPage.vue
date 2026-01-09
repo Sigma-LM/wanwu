@@ -1,33 +1,16 @@
 <template>
   <div class="main-content docs-page-content">
-    <div class="mark__content">
-      <div class="markdown-body" v-html="mdContent"></div>
-    </div>
+    <MdContent :content="mdContent" />
   </div>
 </template>
 <script>
-const highlight = require('highlight.js');
-import 'highlight.js/styles/github.css';
-import { marked } from 'marked';
 import { getMarkdown } from '@/api/docs';
-import { DOC_FIRST_KEY } from '../constants';
 import { Loading } from 'element-ui';
-
-marked.setOptions({
-  renderer: new marked.Renderer(),
-  gfm: true,
-  tables: true,
-  breaks: false,
-  pedantic: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false,
-  highlight: function (code) {
-    return highlight.highlightAuto(code).value;
-  },
-});
+import { DOC_FIRST_KEY } from '../constants';
+import MdContent from '@/components/mdContent.vue';
 
 export default {
+  components: { MdContent },
   data() {
     return {
       mdContent: '',
@@ -62,13 +45,12 @@ export default {
       });
       getMarkdown({ path })
         .then(res => {
-          const mdContent = marked(res.data || this.$t('common.noData'));
-          this.mdContent = mdContent;
+          this.mdContent = res.data || '';
           loadingInstance.close();
           this.docContentScrollTop();
         })
         .catch(() => {
-          this.mdContent = this.$t('common.noData');
+          this.mdContent = '';
           loadingInstance.close();
         });
     },
@@ -77,7 +59,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/showDocs/showdoc.scss';
 .docs-page-content {
   margin: 0 0 50px;
 }

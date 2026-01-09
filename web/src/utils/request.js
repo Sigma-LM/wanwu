@@ -36,8 +36,8 @@ service.interceptors.request.use(
     return config;
   },
   error => {
-    console.log(error);
-    return Promise.resolve(error);
+    // return Promise.resolve(error);
+    throw new Error(error);
   },
 );
 
@@ -102,7 +102,9 @@ service.interceptors.response.use(
     } else {
       Message.error(error.message || errMessage[500]);
     }
-    return Promise.resolve(error);
+    // return Promise.resolve(error);
+    // 解决错误无法在 catch 异常中捕捉问题
+    throw new Error(error);
   },
 );
 

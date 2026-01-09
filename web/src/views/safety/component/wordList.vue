@@ -155,12 +155,12 @@ export default {
     },
     async download(url, name) {
       const res = await downDoc(url);
-      const blobUrl = window.URL.createObjectURL(res); // 将blob对象转为一个URL
+      const blobUrl = window.URL.createObjectURL(res);
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = name;
-      link.click(); // 启动下载
-      window.URL.revokeObjectURL(link.href); // 下载完毕删除a标签
+      link.click();
+      window.URL.revokeObjectURL(link.href);
     },
     handleUpload() {
       this.$router.push({

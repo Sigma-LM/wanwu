@@ -96,7 +96,7 @@
       </el-table>
     </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible = false">取 消</el-button>
+      <!-- <el-button @click="dialogVisible = false">取 消</el-button> -->
       <el-button @click="addItem" type="primary">+ 创建元数据</el-button>
       <el-button
         type="primary"
@@ -243,7 +243,7 @@ export default {
       index.option = 'delete';
       this.submitDialog('delete');
     },
-    showDiglog(data, id) {
+    showDialog(data, id) {
       this.dialogVisible = true;
       this.docId = id;
       this.tableData = data.map(item => ({

@@ -158,6 +158,9 @@
               <i class="el-icon-more icon edit-icon" @click.stop />
             </span>
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="copy">
+                {{ $t('common.button.copy') }}
+              </el-dropdown-item>
               <el-dropdown-item command="export">
                 {{ $t('common.button.export') }}
               </el-dropdown-item>
@@ -310,7 +313,11 @@ export default {
     },
     async workflowCopy(row) {
       const params = { workflow_id: row.appId };
-      const res = await copyWorkFlow(params, row.appType);
+      const res = await copyWorkFlow(
+        params,
+        row.appType,
+        this.appFrom !== 'explore',
+      );
 
       if (res.code === 0) {
         this.$router.push({
@@ -458,14 +465,7 @@ export default {
       }
     },
     intelligentEdit(row) {
-      this.$router.push({
-        path: '/agent/test',
-        query: {
-          id: row.appId,
-          ...(row.publishType !== '' && { publish: true }),
-          publishType: row.publishType,
-        },
-      });
+      this.$router.push({ path: `/agent/test?id=${row.appId}` });
     },
     intelligentDelete(row) {
       this.row = row;
@@ -509,14 +509,7 @@ export default {
       }
     },
     txtQuesEdit(row) {
-      this.$router.push({
-        path: '/rag/test',
-        query: {
-          id: row.appId,
-          ...(row.publishType !== '' && { publish: true }),
-          publishType: row.publishType,
-        },
-      });
+      this.$router.push({ path: `/rag/test?id=${row.appId}` });
     },
     txtQuesDelete(row) {
       this.row = row;

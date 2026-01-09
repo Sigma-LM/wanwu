@@ -1,27 +1,39 @@
-<!--批量插件-->
+<!--问答输入框-->
 <template>
   <div class="rl">
     <div class="editable-box">
+      <!-- image file -->
       <div v-if="fileType === 'image/*'" class="echo-img-box">
-        <el-image
-          class="echo-img"
-          :src="fileUrl"
-          @click="showBigImg(fileUrl)"
-          :preview-src-list="[fileUrl]"
-        ></el-image>
-        <i class="el-icon-close echo-close" @click="clearFile"></i>
+        <div
+          v-for="(file, i) in fileList"
+          class="echo-img-item"
+          :key="'file' + i"
+        >
+          <el-image
+            class="echo-img"
+            :src="file.fileUrl"
+            :preview-src-list="[file.imgUrl]"
+          ></el-image>
+          <i class="el-icon-close echo-close" @click="clearFile"></i>
+          <span
+            class="el-icon-loading loading-icon-img"
+            v-if="fileLoading"
+          ></span>
+        </div>
       </div>
+      <!-- audio file -->
       <div v-if="fileType === 'audio/*'" class="echo-audio-box">
         <audio id="audio" controls>
           <source :src="fileUrl" type="video/mp3" />
           <source :src="fileUrl" type="audio/ogg" />
           <source :src="fileUrl" type="audio/mpeg" />
-          {{ $t('editavleDiv.autioTips') }}
+          {{ $t('agent.autioTips') }}
         </audio>
         <i class="el-icon-close echo-close" @click="clearFile"></i>
       </div>
+      <!-- document file -->
       <div v-if="fileType === 'doc/*'" class="echo-img-box echo-doc-box">
-        <img :src="require('@/assets/imgs/docFile.png')" class="docIcon" />
+        <img :src="require('@/assets/imgs/fileicon.png')" class="docIcon" />
         <div class="docInfo">
           <p class="docInfo_name">
             {{ $t('knowledgeManage.fileName') }}：{{ fileList[0]['name'] }}
@@ -29,100 +41,72 @@
           <p class="docInfo_size">
             {{ $t('knowledgeManage.fileSize') }}：{{
               fileList[0]['size'] > 1024
-                ? (fileList[0]['size'] / (1024 * 1024)).toFixed(2) + ' MB'
+                ? (fileList[0]['size'] / (1024 * 1024)).toFixed(5) + ' MB'
                 : fileList[0]['size'] + ' bytes'
             }}
           </p>
         </div>
+        <span class="el-icon-loading loading-icon" v-if="fileLoading"></span>
         <i class="el-icon-close echo-close" @click="clearFile"></i>
       </div>
       <!-- 问答输入框 -->
-      <div class="editable-wp flex">
+      <div
+        class="editable-wp flex"
+        :style="{
+          'pointer-events': fileLoading || disableClick ? 'none' : 'auto',
+        }"
+      >
         <div class="editable-wp-left rl">
-          <!-- <i  class="el-icon-upload2 upload-icon" @click="preUpload"></i> -->
+          <!-- 文件上传按钮 -->
+          <img
+            class="upload-icon"
+            :src="require('@/assets/imgs/uploadIcon.png')"
+            @click="preUpload"
+            v-if="type !== 'webChat'"
+          />
         </div>
-        <div class="editable-wp-right rl">
+        <div class="editable-wp-right rl" draggable="true">
           <div
             class="aibase-textarea editable--input"
             ref="editor"
+            @input="getPrompt"
             @blur="onBlur"
-            v-on:input="getPrompt"
             @keydown="textareaKeydown($event)"
+            @dragenter.prevent
+            @dragover.prevent
+            @drop.prevent.stop="handleDrop"
             contenteditable="true"
           ></div>
-          <span class="editable--placeholder" v-if="!promptValue">
+          <span
+            class="editable--placeholder"
+            v-if="!promptValue || !promptValue.trim()"
+          >
             {{ placeholder }}
           </span>
-          <i
-            v-if="promptValue"
-            class="el-icon-close editable--close"
-            @click.stop="clearInput"
-          ></i>
+          <i class="el-icon-close editable--close" @click.stop="clearInput"></i>
           <div class="edtable--wrap">
-            <el-button
-              size="mini"
-              :class="{ btnActive: isActive, btnAnactive: !isActive }"
-              @click="linkSearch"
-              v-if="showModelSelect && !isPower && isLink"
-            >
-              {{ $t('editavleDiv.connectInternect') }}
-            </el-button>
-            <!-- <img class="editable--send" :src="require('@/assets/imgs/send.png')" @click="preSend" /> -->
             <el-button type="primary" class="editable--send" @click="preSend">
               <span>{{ $t('agent.send') }}</span>
               <img :src="require('@/assets/imgs/sendIcon.png')" />
             </el-button>
           </div>
         </div>
-        <!-- 覆盖层，模型下线禁止点击 -->
-        <!-- <div class="overlay" v-if="modelParams === null"></div> -->
       </div>
     </div>
-    <transition name="el-zoom-in-bottom">
-      <div class="perfectReminder-item-box" v-show="randomReminderShow">
-        <div
-          class="perfectReminder-item"
-          v-for="n in randomReminderList"
-          :key="n.id"
-          :style="`background-color:${colorArr[n.random]}`"
-        >
-          <el-popover
-            placement="top-start"
-            width="300"
-            :visible-arrow="false"
-            trigger="hover"
-            :open-delay="500"
-            :content="
-              n.prompt && n.prompt.replaceAll('{', '').replaceAll('}', '')
-            "
-          >
-            <span
-              style="font-size: 15px"
-              slot="reference"
-              @click="setRandomReminder(n)"
-            >
-              {{ n.title }}
-            </span>
-          </el-popover>
-        </div>
-        <span class="refresh" @click="getReminderList">
-          <i class="el-icon-loading" v-show="refreshLoading"></i>
-          &nbsp;{{ $t('agent.next') }}
-        </span>
-      </div>
-    </transition>
-
-    <upload-dialog
+    <!-- 文件上传弹窗 -->
+    <streamUploadField
       ref="upload"
       :fileTypeArr="fileTypeArr"
       @setFileId="setFileId"
       @setFile="setFile"
-    ></upload-dialog>
+    />
   </div>
 </template>
-
 <script>
-import uploadDialog from './uploadBatchDialog';
+import commonMixin from '@/mixins/common';
+import uploadChunk from '@/mixins/uploadChunk';
+import streamUploadField from './streamUploadField';
+import { mapGetters } from 'vuex';
 export default {
   props: {
     source: { type: String },
@@ -133,60 +117,135 @@ export default {
         return [];
       },
     },
-    showModelSelect: { type: Boolean, default: true },
-    currentModel: {
-      type: Object,
-      default: () => {
-        return null;
-      },
-    },
-    isModelDisable: { type: Boolean, default: false },
+    type: { type: String },
+    disableClick: { type: Boolean, default: false },
   },
-  components: { uploadDialog },
+  mixins: [commonMixin, uploadChunk],
+  components: { streamUploadField },
   data() {
     return {
-      basePath: this.$basePath,
-      isActive: false,
-      isPower: this.$platform === 'YWD_RAG' || this.$platform === 'HW_RAG',
-      isLink: false,
-      modelParams: null,
-      modelOptions: [],
-      colorArr: [
-        '#dca3c2',
-        '#aaa9db',
-        '#d1a69b',
-        '#7894cf',
-        '#4fbed9',
-        '#ebb8bd',
-        '#9b9655',
-        '#3bb4b7',
-        '#61aac5',
-        '#d79ae5',
-        '#51a2da',
-        '#89b0f9',
-        '#738cbd',
-      ],
       placeholder: '请输入内容,用Ctrl+Enter可换行',
-      promptHtml: '',
       promptValue: '',
-      randomReminderList: [], //随机8个提示词
       randomReminderShow: false,
       refreshLoading: false,
-      //文件
       hasFile: false,
       fileIdList: [],
       fileType: '',
       fileList: [],
       fileUrl: '',
-      modelType: '',
+      fileLoading: false,
+      isDragging: false,
+      lastFileType: '',
+      dragConfigured: false,
     };
   },
-  methods: {
-    linkSearch() {
-      this.isActive = !this.isActive;
+  watch: {
+    maxPicNum: {
+      handler(val) {
+        if (!val || this.dragConfigured) return;
+        this.initDrag(val);
+        this.dragConfigured = true;
+      },
+      immediate: true,
     },
-    showBigImg(url) {
-      console.log(url);
+  },
+  computed: {
+    ...mapGetters('app', ['maxPicNum']),
+  },
+  methods: {
+    initDrag(maxFiles) {
+      this.$nextTick(() => {
+        this.$setupDragAndDrop({
+          containerSelector: '.editable-wp',
+          maxImageFiles: maxFiles,
+          onFiles: files => {
+            this.isDragging = true;
+            this.processFiles(files);
+          },
+        });
+      });
+    },
+    processFiles(files) {
+      if (!files || files.length === 0) return;
+      const picked = files;
+      const fileObjs = picked.map(f => ({
+        raw: f,
+        uid: f.uid || this.$guid(),
+        percentage: 0,
+        progressStatus: 'active',
+        fileName: f.name,
+        name: f.name,
+        size: f.size,
+        type: f.type,
+        fileUrl: URL.createObjectURL(f),
+        imgUrl: URL.createObjectURL(f),
+      }));
+      const ext = (picked[0].name.split('.').pop() || '').toLowerCase();
+      const mime = picked[0].type;
+      let ftype = '';
+      if (
+        (mime && mime.indexOf('image/') === 0) ||
+        ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].indexOf(ext) > -1
+      )
+        ftype = 'image/*';
+      else if (
+        (mime && mime.indexOf('audio/') === 0) ||
+        ['mp3', 'wav', 'ogg'].indexOf(ext) > -1
+      )
+        ftype = 'audio/*';
+      else ftype = 'doc/*';
+      this.fileType = ftype;
+      this.fileList = fileObjs;
+      this.fileUrl = fileObjs[0].fileUrl;
+      this.hasFile = true;
+      this.fileLoading = true;
+      if (this.fileList.length > 0) {
+        this.maxSizeBytes = 0;
+        this.isExpire = true;
+        for (let i = 0; i < this.fileList.length; i++) {
+          if (!this.fileList[i].uploaded) {
+            this.startUpload(i);
+            this.fileList[i].uploaded = true;
+          }
+        }
+      }
+    },
+    uploadFile(fileName, oldFileName, fiePath) {
+      //文件上传完之后
+      if (this.lastFileType && this.lastFileType !== this.fileType) {
+        this.fileIdList = [];
+      }
+      this.lastFileType = this.fileType;
+      this.fileLoading = false;
+      this.fileIdList.push({
+        fileName,
+        fileSize: this.fileList[this.fileIndex]['size'],
+        fileUrl: fiePath,
+      });
+    },
+    // 处理拖拽到输入框的文件
+    handleDrop(event) {
+      const dt = event.dataTransfer;
+      if (!dt || !dt.files) return;
+
+      const fileList = dt.files;
+      const files = Array.prototype.slice.call(fileList);
+      if (files.length === 0) return;
+
+      // 调用文件处理方法
+      this.processFiles(files);
+    },
+    setPrompt(data) {
+      this.clearInput();
+      this.promptValue = data;
+      this.$refs.editor.innerHTML = data
+        .replaceAll('{', '<div class="light-input" contenteditable="true">')
+        .replaceAll('}', '</div>');
+    },
+    getPrompt() {
+      let prompt = this.$refs.editor.innerText;
+      this.promptValue = prompt;
+      return prompt;
     },
     clearFile() {
       this.fileIdList = [];
@@ -195,21 +254,17 @@ export default {
       this.fileUrl = '';
       this.hasFile = false;
     },
-    /*showFileUpload(status){
-      this.hasFile = status
-    },*/
     preUpload() {
       this.$refs['upload'].openDialog();
     },
     setFileId(fileIdList) {
       this.fileIdList = fileIdList;
-      this.fileUrl = fileIdList[0].downloadUrl;
-
+      this.fileUrl = this.fileIdList[this.fileIdList.length - 1].fileUrl;
       let fileType =
-        this.fileUrl.split('.')[this.fileUrl.split('.').length - 1];
-      if (
-        ['jpeg', 'PNG', 'png', 'JPG', 'jpg', 'bmp', 'webp'].includes(fileType)
-      ) {
+        this.fileIdList[this.fileIdList.length - 1]['fileName']
+          .split('.')
+          .pop() || '';
+      if (['jpeg', 'PNG', 'png', 'JPG', 'jpg'].includes(fileType)) {
         this.fileType = 'image/*';
       }
       if (['mp3', 'wav'].includes(fileType)) {
@@ -235,133 +290,38 @@ export default {
     getFileIdList() {
       return this.fileIdList;
     },
-    setRandomReminder(n) {
-      this.setPrompt(n.prompt);
-      this.randomReminderShow = false;
-    },
     clearInput() {
       this.$refs.editor.innerHTML = '';
-      this.promptHtml = '';
       this.promptValue = '';
-      this.randomReminderShow && (this.randomReminderShow = false);
-    },
-    getContentInBraces(str) {
-      const regex = /{([^}]+)}/g;
-      let match;
-      const matches = [];
-
-      while ((match = regex.exec(str))) {
-        matches.push(match[1]);
-      }
-
-      return matches;
-    },
-    setPrompt(data) {
-      this.clearInput();
-      this.promptValue = data;
-      this.$refs.editor.innerHTML = data
-        .replaceAll('{', '<div class="light-input" contenteditable="true">')
-        .replaceAll('}', '</div>');
-    },
-    getPrompt() {
-      if (this.source === 'perfectReminder') {
-        if (this.$refs.editor.innerHTML === '/') {
-          this.getReminderList();
-        } else {
-          this.randomReminderShow = false;
-        }
-      }
-      let prompt = this.$refs.editor.innerText;
-      this.promptValue = prompt;
-      return prompt;
-    },
-    getPromptBak() {
-      let prompt = '';
-      if (this.source === 'perfectReminder') {
-        if (this.$refs.editor.innerHTML === '/') {
-          this.getReminderList();
-        } else {
-          this.randomReminderShow = false;
-        }
-        prompt = this.$refs.editor.innerHTML
-          .replaceAll('<div class="light-input" contenteditable="true">', '')
-          .replaceAll('</div>', '')
-          .replaceAll(' ', '');
-      } else {
-        prompt = this.$refs.editor.innerHTML; //从对话框复制过来的会换行，临时处理，后期优化
-      }
-      let prompt2 = prompt.replace('<div><br></div>', '');
-      this.promptValue = this.$refs.editor.innerHTML;
-      return prompt2;
     },
     onBlur() {
       //勿删，定义此方法用于获取焦点
     },
-    async getReminderList() {
-      //显示8个提示词
-      this.refreshLoading = true;
-      let res = await this.$api.expand.getPerfectReminderV2({
-        pageNo: 1,
-        pageSize: 1000,
-        randomNum: 8,
-      });
-      if (res.code === 0) {
-        this.refreshLoading = false;
-        this.randomReminderShow = true;
-        this.randomReminderList = res.data.list.map(item => {
-          return {
-            ...item,
-            random: parseInt(Math.random(13) * 10),
-          };
-        });
-      }
-    },
     //换行并重新定位光标位置
     textareaRange() {
-      var el = this.$refs.editor;
-      var range = document.createRange();
-      //返回用户当前的选区
-      var sel = document.getSelection();
-      //获取当前光标位置
-      var offset = sel.focusOffset;
-      //div当前内容
-      var content = el.innerHTML; //添加换行符\n
-      el.innerHTML = content.slice(0, offset) + '\n' + content.slice(offset); //设置光标为当前位置
+      let el = this.$refs.editor;
+      let range = document.createRange();
+      let sel = document.getSelection();
+      let offset = sel.focusOffset;
+      let content = el.innerHTML;
+      el.innerHTML = content.slice(0, offset) + '\n' + content.slice(offset);
       range.setStart(el.childNodes[0], offset + 1);
-      //使得选区(光标)开始与结束位置重叠
       range.collapse(true);
-      //移除现有其他的选区
       sel.removeAllRanges();
-      //加入光标的选区
       sel.addRange(range);
     },
-    //监听按键操作
     textareaKeydown(event) {
       if (event.ctrlKey && event.keyCode === 13) {
-        //ctrl+enter
         this.textareaRange();
       } else if (event.keyCode === 13) {
-        //enter
         this.preSend();
-        event.preventDefault(); // 阻止浏览器默认换行操作
+        event.preventDefault();
         return false;
       }
-    },
-    getModelInfo() {
-      return this.modelParams || null;
-    },
-    sendUseSearch() {
-      return this.isActive;
     },
     preSend() {
       this.hasFile = false;
       this.$emit('preSend');
-    },
-    goModelList() {
-      //跳转到服务管理
-      location.href =
-        window.location.origin +
-        `${this.$basePath}/aibase/portal/training/releaseTable`;
     },
   },
 };
@@ -370,24 +330,46 @@ export default {
 .tips {
   color: #ccc;
 }
-//模型选择框自适应
 .auto-width-select {
   min-width: 250px;
   max-width: 450px;
 }
 .editable-box {
   border: 1px solid #d3d7dd;
+  .loading-icon {
+    font-size: 18px;
+    color: $color;
+    margin-left: 10px;
+  }
   .echo-img-box {
     position: absolute;
-    width: 90px;
-    height: 90px;
-    top: -95px;
+    display: flex;
+    top: -65px;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    .echo-img-item {
+      height: 60px;
+      width: 60px;
+      display: flex;
+      position: relative;
+      .loading-icon-img {
+        position: absolute;
+        right: 50%;
+        top: 50%;
+        transform: translate(50%, -50%);
+        color: $color;
+        font-size: 18px;
+        animation: loading 1s linear infinite;
+      }
+    }
     .echo-img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       background: #ffff;
       box-shadow: 1px 1px 10px #9b9a9a;
+      border-radius: 4px;
     }
     .echo-close {
       position: absolute;
@@ -419,11 +401,10 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2px 50px 5px 5px;
+    padding: 10px 50px 10px 5px;
     .docIcon {
       width: 30px;
       height: 30px;
-      margin-right: 10px;
     }
     .docInfo {
       .docInfo_name {
@@ -468,13 +449,10 @@ export default {
   .editable-wp-left {
     min-width: 20px;
     .upload-icon {
-      margin: 11px;
+      margin: 5px 5px 5px 11px;
       padding: 3px;
       border-radius: 4px;
-      border: 1px solid $color;
-      color: #fff;
-      background: $color;
-      font-size: 13px;
+      cursor: pointer;
     }
   }
   .editable-wp-right {
@@ -512,7 +490,6 @@ export default {
     #fff 69%,
     rgba(255, 58, 58, 0.2) 100%
   ) !important;
-  // background: (111deg, rgba(255, 58, 58, 0.2) -12%, #fff 25%, #fff 69%, rgba(255, 58, 58, 0.2) 113%)
 }
 .btnAnactive {
   color: #606266 !important;
@@ -547,7 +524,6 @@ export default {
     margin: 5px 10px;
     display: inline-block;
     background-color: #dfebfb;
-    /*color: #3888f9;*/
     color: #fff;
     cursor: pointer;
     border-radius: 9px;

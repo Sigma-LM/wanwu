@@ -98,7 +98,13 @@
           <span>{{ res.segmentImportStatus || '-' }}</span>
         </el-descriptions-item>
         <el-descriptions-item :label="$t('knowledgeManage.parsingMethod')">
-          <span>{{ res.docAnalyzerText.join(', ') }}</span>
+          <span>
+            {{
+              res.docAnalyzerText && res.docAnalyzerText.length > 0
+                ? res.docAnalyzerText.join(', ')
+                : '-'
+            }}
+          </span>
         </el-descriptions-item>
       </el-descriptions>
 
@@ -595,7 +601,7 @@ export default {
   },
   methods: {
     createChunk(isChildChunk) {
-      this.$refs.createChunk.showDiglog(this.obj.id, isChildChunk);
+      this.$refs.createChunk.showDialog(this.obj.id, isChildChunk);
     },
     updateChildData() {
       setTimeout(() => {
@@ -799,7 +805,7 @@ export default {
       this.getList();
     },
     showDatabase(data) {
-      this.$refs.dataBase.showDiglog(data, this.obj.id);
+      this.$refs.dataBase.showDialog(data, this.obj.id);
     },
     filterData(data) {
       return data

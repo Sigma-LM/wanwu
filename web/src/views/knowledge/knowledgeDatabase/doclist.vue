@@ -355,9 +355,9 @@
         class="mataData"
       />
       <span slot="footer" class="dialog-footer">
-        <el-button @click="handleClose">
+        <!-- <el-button @click="handleClose">
           {{ $t('common.button.cancel') }}
-        </el-button>
+        </el-button> -->
         <el-button type="primary" @click="createMeta">
           {{ $t('common.button.create') }}
         </el-button>

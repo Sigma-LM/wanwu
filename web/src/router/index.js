@@ -249,17 +249,17 @@ const constantRoutes = [
       },
       {
         path: '/agent/publishSet',
-        component: resolve => require(['@/components/web-URL'], resolve),
+        component: resolve => require(['@/components/publishConfig'], resolve),
         meta: { perm: [PERMS.AGENT] },
       },
       {
         path: '/workflow/publishSet',
-        component: resolve => require(['@/components/web-URL'], resolve),
+        component: resolve => require(['@/components/publishConfig'], resolve),
         meta: { perm: [PERMS.WORKFLOW] },
       },
       {
         path: '/rag/publishSet',
-        component: resolve => require(['@/components/web-URL'], resolve),
+        component: resolve => require(['@/components/publishConfig'], resolve),
         meta: { perm: [PERMS.RAG] },
       },
       {

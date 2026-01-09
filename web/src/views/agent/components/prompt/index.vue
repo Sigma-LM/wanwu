@@ -143,7 +143,7 @@
 
 <script>
 import promptDialog from './promptDialog.vue';
-import { md } from '@/mixins/marksown-it.js';
+import { md } from '@/mixins/markdown-it.js';
 import {
   getPromptTemplateList,
   getPromptBuiltInList,
@@ -237,7 +237,7 @@ export default {
     handleTabChange(tab) {
       const cards =
         tab === 'builtIn' ? this.recommendedCards : this.personalCards;
-      this.$refs.promptDialog.showDiglog(cards, tab);
+      this.$refs.promptDialog.showDialog(cards, tab);
     },
     getPromptTemplateList(name = '') {
       getPromptTemplateList({ name }).then(res => {
@@ -390,7 +390,7 @@ export default {
         this.activeTab === 'builtIn'
           ? this.recommendedCards
           : this.personalCards;
-      this.$refs.promptDialog.showDiglog(cards, this.activeTab);
+      this.$refs.promptDialog.showDialog(cards, this.activeTab);
     },
     scrollLeft() {
       const container = this.$refs.cardsContainer;

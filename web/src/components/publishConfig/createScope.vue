@@ -47,7 +47,12 @@
 
     <div class="version-history">
       <h3>{{ $t('list.version.history') }}</h3>
-      <VersionTimeLine :appId="appId" :appType="appType" where="webUrl" />
+      <VersionTimeLine
+        ref="versionTimeline"
+        :appId="appId"
+        :appType="appType"
+        where="webUrl"
+      />
     </div>
   </div>
 </template>
@@ -127,6 +132,7 @@ export default {
           }).then(res => {
             if (res.code === 0) {
               this.$message.success(this.$t('common.info.save'));
+              this.$refs.versionTimeline.getAppVersionList();
             }
           });
         }

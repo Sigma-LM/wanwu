@@ -1,7 +1,8 @@
 import MarkdownIt from 'markdown-it';
 import mk from '@ruanyf/markdown-it-katex';
+import { i18n } from '@/lang';
 
-var hljs = require('highlight.js');
+let hljs = require('highlight.js');
 hljs.configure({
   lineNumbers: true,
 });
@@ -43,7 +44,7 @@ export const md = MarkdownIt({
     let htmlCode = `<div style="color: #888;border-radius: 0 0 5px 5px;">`;
 
     htmlCode += `<div class="code-header">`;
-    htmlCode += `${lang}<a class="copy-btn mk-copy-btn" style="cursor: pointer;">复制 </a>`;
+    htmlCode += `${lang}<a class="copy-btn mk-copy-btn" style="cursor: pointer;">${i18n.t('common.button.copy')} </a>`;
     htmlCode += `</div>`;
 
     htmlCode += `<pre class="hljs" style="padding:0 10px!important;margin-bottom:5px;overflow: auto;display: block;border-radius: 5px;"><code>${html}</code></pre>`;

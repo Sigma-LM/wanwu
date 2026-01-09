@@ -76,9 +76,11 @@ module.exports = {
     open: false,
     hot: true,
     client: {
+      // 禁用错误覆盖层
       overlay: {
         warnings: false,
-        errors: true,
+        errors: false,
+        runtimeErrors: false,
       },
     },
     headers: {
@@ -166,6 +168,12 @@ module.exports = {
     sourceMap: false,
     loaderOptions: {
       scss: {
+        implementation: require('sass'),
+        sassOptions: {
+          outputStyle: 'compressed',
+          sourceMap: false,
+          quietDeps: true,
+        },
         additionalData: `
             @use "@/style/theme/vars_blue.scss" as *;
             @use "@/style/theme/common.scss" as *;
@@ -173,6 +181,7 @@ module.exports = {
       },
     },
   },
+  parallel: false,
   configureWebpack: {
     cache: {
       type: 'filesystem',

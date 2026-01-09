@@ -24,28 +24,12 @@
       </div>
       <div>
         <el-tabs v-model="activeName" @tab-click="handleClick">
-          <el-tab-pane :label="$t('menu.app.agent')" name="agent">
-            <AppList
-              :appData="listData"
-              :isShowTool="false"
-              :appFrom="'explore'"
-            />
-          </el-tab-pane>
-          <el-tab-pane :label="$t('menu.app.rag')" name="rag">
-            <AppList
-              :appData="listData"
-              :isShowTool="false"
-              :appFrom="'explore'"
-            />
-          </el-tab-pane>
-          <el-tab-pane :label="$t('menu.app.workflow')" name="workflow">
-            <AppList
-              :appData="listData"
-              :isShowTool="false"
-              :appFrom="'explore'"
-            />
-          </el-tab-pane>
-          <el-tab-pane :label="$t('menu.app.chatflow')" name="chatflow">
+          <el-tab-pane
+            v-for="item in appList"
+            :key="item.type"
+            :label="item.name"
+            :name="item.type"
+          >
             <AppList
               :appData="listData"
               :isShowTool="false"
@@ -63,6 +47,7 @@ import SearchInput from '@/components/searchInput.vue';
 import AppList from '@/components/appList.vue';
 import CreateTotalDialog from '@/components/createTotalDialog.vue';
 import { getExplorList } from '@/api/explore';
+import { AGENT, WORKFLOW, RAG, CHAT } from '@/utils/commonSet';
 
 export default {
   components: { SearchInput, CreateTotalDialog, AppList },
@@ -101,6 +86,12 @@ export default {
       ],
       historyList: [],
       listData: [],
+      appList: [
+        { name: this.$t('menu.app.agent'), type: AGENT },
+        { name: this.$t('menu.app.rag'), type: RAG },
+        { name: this.$t('menu.app.workflow'), type: WORKFLOW },
+        { name: this.$t('menu.app.chatflow'), type: CHAT },
+      ],
     };
   },
   watch: {
@@ -113,6 +104,8 @@ export default {
     },
   },
   created() {
+    const { type } = this.$route.query || {};
+    this.activeName = [WORKFLOW, RAG, CHAT].includes(type) ? type : AGENT;
     this.getExplorData(this.activeName, this.active);
   },
   mounted() {},
@@ -127,6 +120,11 @@ export default {
     },
     handleClick() {
       this.getExplorData(this.activeName, this.active);
+      if (this.activeName === AGENT) {
+        this.$router.replace({ query: {} });
+      } else {
+        this.$router.replace({ query: { type: this.activeName } });
+      }
     },
     handleTagClick(item) {
       this.active = item.value;

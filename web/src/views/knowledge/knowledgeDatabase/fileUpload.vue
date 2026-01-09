@@ -197,7 +197,7 @@
                 </div>
               </el-form-item>
               <el-form-item
-                v-if="ruleForm.docSegment.segmentType == '1'"
+                v-if="ruleForm.docSegment.segmentType === '1'"
                 prop="docSegment.splitter"
                 :rules="
                   ruleForm.docSegment.segmentType === '1'
@@ -248,7 +248,7 @@
                 </el-button>
               </el-form-item>
               <el-form-item
-                v-if="ruleForm.docSegment.segmentType == '1'"
+                v-if="ruleForm.docSegment.segmentType === '1'"
                 prop="docSegment.maxSplitter"
                 :rules="[
                   {
@@ -291,7 +291,7 @@
                 </div>
               </el-form-item>
               <el-form-item
-                v-if="ruleForm.docSegment.segmentType == '1'"
+                v-if="ruleForm.docSegment.segmentType === '1'"
                 :label="$t('knowledgeManage.overLapNum')"
                 prop="docSegment.overlap"
                 :rules="[
@@ -415,7 +415,10 @@
             <el-form-item
               :label="$t('knowledgeManage.textPreprocessing')"
               prop="docPreprocess"
-              v-if="ruleForm.docSegment.segmentType == '1'"
+              v-if="
+                ruleForm.docSegment.segmentType === '1' ||
+                ruleForm.docSegment.segmentMethod === '1'
+              "
             >
               <el-checkbox-group v-model="ruleForm.docPreprocess">
                 <el-checkbox label="replaceSymbols">
@@ -675,7 +678,7 @@ export default {
         docMetaData: [], //元数据管理数据
         docPreprocess: ['replaceSymbols'], //'deleteLinks','replaceSymbols'
         docSegment: {
-          segmentType: '0',
+          segmentType: '0', //0是自动分段，1是自定义分段
           // splitter: ["！", "。", "？", "?", "!", ".", "......"],
           splitter: ['\n\n'],
           maxSplitter: 1024,
@@ -1063,7 +1066,7 @@ export default {
         this.ruleForm.docInfoList = this.docInfoList;
         let data = null;
         if (
-          this.ruleForm.docSegment.segmentType == '0' &&
+          this.ruleForm.docSegment.segmentType === '0' &&
           this.ruleForm.docSegment.segmentMethod !== '1'
         ) {
           data = this.ruleForm;

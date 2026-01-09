@@ -11,7 +11,6 @@
           <h2 class="dialog-title">
             {{ actionDetail.action && actionDetail.action.name }}
           </h2>
-          <!-- <p class="dialog-subtitle">{{actionDetail.action && actionDetail.action.description}}</p> -->
         </div>
       </div>
     </template>

@@ -15,6 +15,7 @@
               @click="previewVersion(item, $event)"
               :style="{
                 backgroundColor: version === item.version ? '#E6E9FF' : '',
+                pointerEvents: where === 'webUrl' ? 'none' : 'auto',
               }"
             >
               <div class="version-status current">
@@ -28,6 +29,7 @@
               style="cursor: pointer"
               :style="{
                 backgroundColor: version === item.version ? '#E6E9FF' : '',
+                pointerEvents: where === 'webUrl' ? 'none' : 'auto',
               }"
               @click.native="previewVersion(item, $event)"
             >
@@ -59,6 +61,7 @@
                   v-if="
                     !(where === 'webUrl' && !showExportList.includes(appType))
                   "
+                  style="pointer-events: auto"
                   trigger="click"
                   @command="handleCommand"
                 >

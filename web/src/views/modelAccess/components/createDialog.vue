@@ -252,7 +252,7 @@ export default {
     };
     return {
       basePath: this.$basePath,
-      defaultLogo: require('@/assets/imgs/bg-logo.png'),
+      defaultLogo: require('@/assets/imgs/model_default_icon.png'),
       dialogVisible: false,
       modelType: [],
       functionCalling: FUNC_CALLING,

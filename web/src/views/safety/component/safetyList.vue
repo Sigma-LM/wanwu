@@ -27,18 +27,26 @@
           @click.stop="toWordList(n)"
         >
           <div class="info rl">
-            <p class="name" :title="n.tableName">
-              {{ n.tableName }}
-            </p>
-            <el-tooltip
-              v-if="n.remark"
-              popper-class="instr-tooltip tooltip-cover-arrow"
-              effect="dark"
-              :content="n.remark"
-              placement="bottom-start"
-            >
-              <p class="desc">{{ n.remark }}</p>
-            </el-tooltip>
+            <div class="logo-wrap">
+              <img
+                class="logo"
+                :src="require('@/assets/imgs/safety.png')"
+              />
+            </div>
+            <div>
+              <p class="name" :title="n.tableName">
+                {{ n.tableName }}
+              </p>
+              <el-tooltip
+                v-if="n.remark"
+                popper-class="instr-tooltip tooltip-cover-arrow"
+                effect="dark"
+                :content="n.remark"
+                placement="bottom-start"
+              >
+                <p class="desc">{{ n.remark }}</p>
+              </el-tooltip>
+            </div>
           </div>
           <div class="tags">
             <span :class="['smartDate', 'tagList']">{{ n.createdAt }}</span>
@@ -166,6 +174,8 @@ export default {
     }
     .info {
       padding-right: 0;
+      display: flex;
+      justify-content: flex-start;
     }
     .desc {
       padding-top: 5px;

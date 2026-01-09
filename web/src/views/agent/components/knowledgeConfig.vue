@@ -212,7 +212,7 @@ export default {
       return res.code === 0;
     },
     async onSuccess(response, file, fileList) {
-      console.log('===>', response, file, fileList);
+      // console.log('===>', response, file, fileList);
       //await getKnowledgeFileList({assistantId:this.assistantId,pageNo:1,pageSize:1000})
       if (response.code === 0) {
         this.fileList = fileList;
