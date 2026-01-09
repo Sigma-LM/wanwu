@@ -1385,7 +1385,7 @@ export default {
 
   .history-box {
     height: calc(100% - 46px);
-    // overflow-y: auto;
+    overflow-y: auto !important;
     padding: 20px;
   }
   /*删除历史...*/

@@ -104,7 +104,7 @@ export default {
   mixins: [uploadChunk],
   data() {
     return {
-      fileList: [],
+      // fileList: [],
     };
   },
   methods: {

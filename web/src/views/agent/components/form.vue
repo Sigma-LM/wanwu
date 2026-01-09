@@ -49,7 +49,6 @@
           {{ apiURL }}
         </div>
         <el-button
-          v-if="publishType"
           @click="$router.push('/openApiKey')"
           plain
           class="apikeyBtn"
@@ -342,7 +341,7 @@
           </div>
         </div>
         <!-- 知识库库配置 -->
-        <div class="block">
+        <div class="block" v-if="editForm.category === SINGLE_AGENT">
           <knowledgeDataField
             :knowledgeConfig="editForm.knowledgeBaseConfig"
             :category="0"
@@ -356,7 +355,7 @@
           />
         </div>
 
-        <div class="block">
+        <div class="block" v-if="editForm.category === SINGLE_AGENT">
           <p class="block-title common-set">
             <span class="common-set-label">
               {{ $t('agent.form.tool') }}
@@ -679,7 +678,7 @@ export default {
       rerankOptions: [],
       initialEditForm: null,
       apiURL: '',
-      publishType: '', // 为空表示未发布，private表示私密，organization表示组织内可见，public表示公开
+      publishType: this.$route.query.publishType,
       publishForm: {
         publishType: 'private',
         version: '',
@@ -714,6 +713,7 @@ export default {
         ],
       },
       editForm: {
+        // category: SINGLE_AGENT,
         newAgent: false,
         functionCalling: '',
         visionsupport: '',
