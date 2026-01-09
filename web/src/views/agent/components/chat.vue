@@ -25,6 +25,7 @@
         <!--停止生成-重新生成-->
         <div class="center-editable">
           <div v-show="stopBtShow" class="stop-box">
+            {{ sessionStatus }}
             <span v-show="sessionStatus === 0" class="stop" @click="preStop">
               <img
                 class="stop-icon mdl"
