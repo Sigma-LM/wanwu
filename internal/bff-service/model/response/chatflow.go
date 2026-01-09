@@ -5,6 +5,7 @@ type CozeGetDraftIntelligenceListResponse struct {
 	Code int32                         `json:"code"`
 	Msg  string                        `json:"msg"`
 }
+
 type CozeDraftIntelligenceListData struct {
 	Intelligences []*CozeIntelligenceData `json:"intelligences"`
 	Total         int32                   `json:"total"`

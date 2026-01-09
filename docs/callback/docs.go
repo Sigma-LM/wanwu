@@ -1982,6 +1982,10 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "instruction": {
+                    "description": "指令内容（适配元景qwen_rerank）",
+                    "type": "string"
+                },
                 "model": {
                     "type": "string"
                 },

@@ -20,6 +20,7 @@ func (cfg *Asr) Tags() []mp_common.Tag {
 	}
 	return tags
 }
+
 func (cfg *Asr) NewReq(req *mp_common.AsrReq) (mp_common.IAsrReq, error) {
 	return mp_common.NewAsrReq(req), nil
 }

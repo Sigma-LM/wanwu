@@ -597,6 +597,7 @@ func buildMetaValueType(valueType string) string {
 	}
 	return valueType
 }
+
 func convertMetaValue(meta *model.KnowledgeDocMeta) (interface{}, error) {
 	if len(meta.ValueMain) == 0 {
 		return nil, nil

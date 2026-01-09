@@ -714,6 +714,7 @@ func transMetaFilterParams(metaFilterList []*request.MetaFilterParams) []*assist
 	}
 	return metaList
 }
+
 func transSafetyConfig2Proto(tables []request.SensitiveTable) []*assistant_service.SensitiveTable {
 	if tables == nil {
 		return nil

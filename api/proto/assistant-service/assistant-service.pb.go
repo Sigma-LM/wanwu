@@ -7,13 +7,12 @@
 package assistant_service
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	common "github.com/UnicomAI/wanwu/api/proto/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

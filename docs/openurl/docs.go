@@ -749,6 +749,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.MemoryConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistoryLength": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.MetaDataFilterParams": {
             "type": "object",
             "properties": {
@@ -969,6 +977,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.AssistantMCPInfo"
                     }
+                },
+                "memoryConfig": {
+                    "description": "记忆配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.MemoryConfig"
+                        }
+                    ]
                 },
                 "modelConfig": {
                     "description": "模型",

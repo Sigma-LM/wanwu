@@ -27,6 +27,7 @@ func (c *Client) DeleteRag(ctx context.Context, req *rag_service.RagDeleteReq) *
 		return nil
 	})
 }
+
 func (c *Client) GetRag(ctx context.Context, req *rag_service.RagDetailReq) (*rag_service.RagInfo, *err_code.Status) {
 	info := &model.RagInfo{}
 	// 获取 rag 信息

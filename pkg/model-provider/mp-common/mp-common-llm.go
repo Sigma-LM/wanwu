@@ -203,6 +203,7 @@ type FunctionCall struct {
 	Name      string `json:"name,omitempty"`
 	Arguments string `json:"arguments,omitempty"`
 }
+
 type OpenAIResponseFormat struct {
 	Type string `json:"type"` // "text" | "json"
 }
@@ -223,6 +224,7 @@ type OpenAIFunctionParameters struct {
 	Properties map[string]OpenAIFunctionParametersProperty `json:"properties"`
 	Required   []string                                    `json:"required,omitempty"`
 }
+
 type OpenAIFunctionParametersProperty struct {
 	Description string `json:"description"`
 	Type        string `json:"type"`

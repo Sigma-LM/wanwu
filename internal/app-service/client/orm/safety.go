@@ -300,6 +300,7 @@ func (c *Client) GetSensitiveWordTableByID(ctx context.Context, tableId uint32) 
 	}
 	return &table, nil
 }
+
 func getSensitiveTableVersion() string {
 	return util.Int2Str(time.Now().UnixMilli())
 }

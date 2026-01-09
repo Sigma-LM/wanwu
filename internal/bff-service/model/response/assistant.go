@@ -83,11 +83,13 @@ type ConversationDetailInfo struct {
 	FileSize       int64                  `json:"fileSize"`
 	FileName       string                 `json:"fileName"`
 }
+
 type AssistantRequestFile struct {
 	FileName string `json:"name"`
 	FileSize int64  `json:"size"`
 	FileUrl  string `json:"fileUrl"`
 }
+
 type ConversationCreateResp struct {
 	ConversationId string `json:"conversationId"`
 }

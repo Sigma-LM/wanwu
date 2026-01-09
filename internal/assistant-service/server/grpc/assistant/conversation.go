@@ -866,6 +866,7 @@ func (s *Service) setToolAndWorkflowParamsNew(ctx context.Context, sseReq *confi
 	log.Debugf("智能体tool_plugin_list，assistantId: %s, tool_plugin_list: %s", assistantId, allPlugin)
 	return nil
 }
+
 func (s *Service) setMemoryParams(_ context.Context, sseReq *config.AgentSSERequest, assistant *model.Assistant) error {
 	memoryConfig := &assistant_service.AssistantMemoryConfig{}
 	if assistant.MemoryConfig == "" || assistant.MemoryConfig == "{}" {

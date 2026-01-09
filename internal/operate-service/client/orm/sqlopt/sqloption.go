@@ -24,6 +24,7 @@ type funcSQLOption func(db *gorm.DB) *gorm.DB
 func (f funcSQLOption) Apply(db *gorm.DB) *gorm.DB {
 	return f(db)
 }
+
 func WithID(id uint32) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("id = ?", id)

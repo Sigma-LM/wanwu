@@ -10138,62 +10138,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/proxy/file/upload": {
-            "post": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "代理文件上传",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "common.file"
-                ],
-                "summary": "代理文件上传",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "原始文件名",
-                        "name": "fileName",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "文件",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.ProxyUploadFileResp"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/rag/chat": {
             "post": {
                 "security": [
@@ -14333,6 +14277,14 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "memoryConfig": {
+                    "description": "记忆配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.MemoryConfig"
+                        }
+                    ]
+                },
                 "modelConfig": {
                     "description": "模型",
                     "allOf": [
@@ -16783,6 +16735,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.MemoryConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistoryLength": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.MergeFileReq": {
             "type": "object",
             "required": [
@@ -18168,6 +18128,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.AssistantMCPInfo"
                     }
+                },
+                "memoryConfig": {
+                    "description": "记忆配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.MemoryConfig"
+                        }
+                    ]
                 },
                 "modelConfig": {
                     "description": "模型",
@@ -21328,15 +21296,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "templateId": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ProxyUploadFileResp": {
-            "type": "object",
-            "properties": {
-                "download_link": {
-                    "description": "上传文件链接",
                     "type": "string"
                 }
             }

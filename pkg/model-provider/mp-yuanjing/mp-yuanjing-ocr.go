@@ -20,6 +20,7 @@ func (cfg *Ocr) Tags() []mp_common.Tag {
 	}
 	return tags
 }
+
 func (cfg *Ocr) NewReq(req *mp_common.OcrReq) (mp_common.IOcrReq, error) {
 	return mp_common.NewOcrReq(req), nil
 }

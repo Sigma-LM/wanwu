@@ -53,6 +53,7 @@ type Text2ImageResp struct {
 	Result  []string `json:"result"`
 	Usage   T2IUsage `json:"usage"`
 }
+
 type T2IUsage struct {
 	TotalPatches int `json:"total_patches"`
 }

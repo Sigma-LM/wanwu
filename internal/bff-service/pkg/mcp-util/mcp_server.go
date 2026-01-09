@@ -22,6 +22,7 @@ type mcpServer struct {
 	streamableHandler   *transport.StreamableHTTPHandler
 	streamableTransport transport.ServerTransport
 }
+
 type mcpServerMgr struct {
 	mcpServers map[string]*mcpServer
 	mu         sync.RWMutex

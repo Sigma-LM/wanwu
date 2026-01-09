@@ -69,6 +69,7 @@ func initAssistantUUID(dbClient *gorm.DB) error {
 
 	return nil
 }
+
 func (c *Client) transaction(ctx context.Context, fc func(tx *gorm.DB) *err_code.Status) *err_code.Status {
 	var status *err_code.Status
 	_ = c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {

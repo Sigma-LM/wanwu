@@ -21,6 +21,7 @@ type AssistantConfig struct {
 	VisionConfig        VisionConfig           `json:"visionConfig"`        // 视觉配置
 	MemoryConfig        MemoryConfig           `json:"memoryConfig"`        // 记忆配置
 }
+
 type MemoryConfig struct {
 	MaxHistoryLength int32 `json:"maxHistoryLength"`
 }

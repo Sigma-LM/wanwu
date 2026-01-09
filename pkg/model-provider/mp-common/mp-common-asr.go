@@ -68,9 +68,11 @@ type AsrResp struct {
 	Uuid    string    `json:"uuid"`
 	Result  AsrResult `json:"result"`
 }
+
 type AsrResult struct {
 	Diarization []DiarizationObj `json:"diarization"`
 }
+
 type DiarizationObj struct {
 	Start   float32 `json:"start"`
 	End     float32 `json:"end"`

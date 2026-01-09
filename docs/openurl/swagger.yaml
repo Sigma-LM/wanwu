@@ -227,6 +227,11 @@ definitions:
     required:
     - conversationId
     type: object
+  request.MemoryConfig:
+    properties:
+      maxHistoryLength:
+        type: integer
+    type: object
   request.MetaDataFilterParams:
     properties:
       filterEnable:
@@ -374,6 +379,10 @@ definitions:
         items:
           $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
+      memoryConfig:
+        allOf:
+        - $ref: '#/definitions/request.MemoryConfig'
+        description: 记忆配置
       modelConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'

@@ -128,6 +128,7 @@ func (s *Service) AssistantSnapshotLatest(ctx context.Context, req *assistant_se
 		CreateAt:    snapshotInfo.CreatedAt,
 	}, nil
 }
+
 func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_service.AssistantSnapshotInfoReq) (*assistant_service.AssistantInfo, error) {
 	snapshotInfo, status := s.cli.GetAssistantSnapshot(ctx, util.MustU32(req.AssistantId), req.Version)
 

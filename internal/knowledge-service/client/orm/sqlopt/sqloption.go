@@ -250,6 +250,7 @@ func WithGraphStatusList(graphStatus []int) SQLOption {
 		return db.Where("graph_status IN ?", graphStatus)
 	})
 }
+
 func WithStatus(status int) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if status == -1 {

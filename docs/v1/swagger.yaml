@@ -1045,6 +1045,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppKnowledgebaseConfig'
         description: 知识库
+      memoryConfig:
+        allOf:
+        - $ref: '#/definitions/request.MemoryConfig'
+        description: 记忆配置
       modelConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
@@ -2711,6 +2715,11 @@ definitions:
     - name
     - sseUrl
     type: object
+  request.MemoryConfig:
+    properties:
+      maxHistoryLength:
+        type: integer
+    type: object
   request.MergeFileReq:
     properties:
       chunkName:
@@ -3660,6 +3669,10 @@ definitions:
         items:
           $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
+      memoryConfig:
+        allOf:
+        - $ref: '#/definitions/request.MemoryConfig'
+        description: 记忆配置
       modelConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
@@ -5761,12 +5774,6 @@ definitions:
     required:
     - name
     - templateId
-    type: object
-  response.ProxyUploadFileResp:
-    properties:
-      download_link:
-        description: 上传文件链接
-        type: string
     type: object
   response.QAHitSearchList:
     properties:
@@ -12387,39 +12394,6 @@ paths:
       summary: 获取提示词模板列表
       tags:
       - guest
-  /proxy/file/upload:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 代理文件上传
-      parameters:
-      - description: 原始文件名
-        in: formData
-        name: fileName
-        required: true
-        type: string
-      - description: 文件
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.ProxyUploadFileResp'
-              type: object
-      security:
-      - JWT: []
-      summary: 代理文件上传
-      tags:
-      - common.file
   /rag/chat:
     post:
       consumes:

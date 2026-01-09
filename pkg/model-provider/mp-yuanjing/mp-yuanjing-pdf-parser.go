@@ -20,6 +20,7 @@ func (cfg *PdfParser) Tags() []mp_common.Tag {
 	}
 	return tags
 }
+
 func (cfg *PdfParser) NewReq(req *mp_common.PdfParserReq) (mp_common.IPdfParserReq, error) {
 	return mp_common.NewPdfParserReq(req), nil
 }

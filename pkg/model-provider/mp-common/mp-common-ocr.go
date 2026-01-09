@@ -46,6 +46,7 @@ type OcrResp struct {
 	TimeCost  float64   `json:"time_cost"`
 	OcrData   []OcrData `json:"data" validate:"required,dive"`
 }
+
 type OcrData struct {
 	PageNum []int  `json:"page_num" validate:"required,min=1"`
 	Type    string `json:"type" validate:"required"`

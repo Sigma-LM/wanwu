@@ -54,6 +54,7 @@ func (s *Service) AssistantMCPEnableSwitch(ctx context.Context, req *assistant_s
 
 	return &emptypb.Empty{}, nil
 }
+
 func (s *Service) AssistantMCPGetList(ctx context.Context, req *assistant_service.AssistantMCPGetListReq) (*assistant_service.AssistantMCPList, error) {
 	assistantId := util.MustU32(req.AssistantId)
 

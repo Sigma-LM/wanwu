@@ -58,6 +58,7 @@ type KnowledgeParams struct {
 	MetaFilterConditions []*config.MetadataFilterParam `json:"metadata_filtering_conditions"` // 元数据过滤条件
 	UseGraph             bool                          `json:"use_graph"`                     // 是否启动知识图谱查询
 }
+
 type CustomModelInfo struct {
 	LlmModelID string `json:"llm_model_id"`
 }
