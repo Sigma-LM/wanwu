@@ -39,6 +39,28 @@ definitions:
       precise:
         type: string
     type: object
+  model_service.ModelExperienceDialog:
+    properties:
+      createdAt:
+        type: integer
+      id:
+        type: string
+      modelId:
+        description: 模型
+        type: string
+      modelSetting:
+        description: 模型参数配置
+        type: string
+      orgId:
+        type: string
+      sessionId:
+        description: 会话 ID
+        type: string
+      title:
+        type: string
+      userId:
+        type: string
+    type: object
   mp.AppModelParams:
     properties:
       providerDeepSeek:
@@ -2175,6 +2197,18 @@ definitions:
     required:
     - modelId
     type: object
+  request.FileExtractRequest:
+    properties:
+      fileName:
+        description: 文件名
+        type: string
+      filePath:
+        description: 文件路径
+        type: string
+      fileSize:
+        description: 文件大小
+        type: integer
+    type: object
   request.GenAppKeyRequest:
     properties:
       appId:
@@ -2497,6 +2531,67 @@ definitions:
     - orgId
     - userId
     type: object
+  request.LlmRequest:
+    properties:
+      content:
+        description: 内容
+        type: string
+      fileIdList:
+        description: 文件ID列表
+        items:
+          type: string
+        type: array
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      modelExperienceId:
+        description: 体验对话ID
+        type: string
+      modelId:
+        description: 模型ID
+        type: string
+      parentId:
+        description: 父级ID
+        type: string
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      role:
+        description: 角色(user, assistant, system)
+        type: string
+      sessionId:
+        description: 会话 ID
+        type: string
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    required:
+    - content
+    - modelId
+    - role
+    - sessionId
+    type: object
   request.Login:
     properties:
       code:
@@ -2769,6 +2864,31 @@ definitions:
       value:
         description: value
         type: string
+    type: object
+  request.ModelExperienceDialogIDReq:
+    properties:
+      modelExperienceId:
+        description: 模型体验对话ID
+        type: string
+    required:
+    - modelExperienceId
+    type: object
+  request.ModelExperienceDialogRequest:
+    properties:
+      modelId:
+        description: 模型
+        type: string
+      modelSetting:
+        description: 模型参数配置
+      sessionId:
+        description: 会话 ID
+        type: string
+      title:
+        description: 对话标题
+        type: string
+    required:
+    - modelId
+    - sessionId
     type: object
   request.ModelStatusRequest:
     properties:
@@ -5611,6 +5731,62 @@ definitions:
         type: string
       filePath:
         description: minio文件的完整路径
+        type: string
+    type: object
+  response.ModelExperienceDialog:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      modelId:
+        type: string
+      modelSetting:
+        type: string
+      sessionId:
+        type: string
+      title:
+        type: string
+    type: object
+  response.ModelExperienceDialogRecord:
+    properties:
+      fileList:
+        description: 文件列表
+        items:
+          $ref: '#/definitions/response.ModelExperienceFile'
+        type: array
+      id:
+        type: string
+      modelExperienceId:
+        description: 模型体验 ID
+        type: string
+      modelId:
+        description: 模型 ID
+        type: string
+      originalContent:
+        description: 原始内容
+        type: string
+      parentID:
+        description: 父级 ID
+        type: string
+      reasoningContent:
+        description: 思考过程
+        type: string
+      role:
+        description: 角色
+        type: string
+    type: object
+  response.ModelExperienceFile:
+    properties:
+      fileExt:
+        type: string
+      fileName:
+        type: string
+      filePath:
+        type: string
+      fileSize:
+        type: integer
+      id:
         type: string
     type: object
   response.ModelInfo:
@@ -11471,6 +11647,171 @@ paths:
       summary: 导入模型更新
       tags:
       - model
+  /model/experience/dialog:
+    delete:
+      consumes:
+      - application/json
+      description: 删除模型体验对话
+      parameters:
+      - description: 模型体验对话ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ModelExperienceDialogIDReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除模型体验对话
+      tags:
+      - model experience
+    post:
+      consumes:
+      - application/json
+      description: 新建/保存对话
+      parameters:
+      - description: 模型体验对话
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ModelExperienceDialogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ModelExperienceDialog'
+              type: object
+      security:
+      - JWT: []
+      summary: 新建/保存对话
+      tags:
+      - model experience
+  /model/experience/dialog/records:
+    get:
+      consumes:
+      - application/json
+      description: 获取模型体验对话记录列表
+      parameters:
+      - description: 模型体验对话ID
+        in: query
+        name: modelExperienceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelExperienceDialogRecord'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取模型体验对话记录列表
+      tags:
+      - model experience
+  /model/experience/dialogs:
+    get:
+      consumes:
+      - application/json
+      description: 获取模型体验对话列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/model_service.ModelExperienceDialog'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取模型体验对话列表
+      tags:
+      - model experience
+  /model/experience/file/extract:
+    post:
+      consumes:
+      - application/json
+      description: 文本提取
+      parameters:
+      - description: 文件提取请求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.FileExtractRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ModelExperienceFile'
+              type: object
+      security:
+      - JWT: []
+      summary: 文本提取
+      tags:
+      - model experience
+  /model/experience/llm:
+    post:
+      consumes:
+      - application/json
+      description: LLM模型体验
+      parameters:
+      - description: LLM模型体验
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.LlmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 模型体验
+      tags:
+      - model experience
   /model/list:
     get:
       consumes:

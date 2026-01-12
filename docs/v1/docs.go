@@ -8515,6 +8515,297 @@ const docTemplate = `{
                 }
             }
         },
+        "/model/experience/dialog": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "新建/保存对话",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model experience"
+                ],
+                "summary": "新建/保存对话",
+                "parameters": [
+                    {
+                        "description": "模型体验对话",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ModelExperienceDialogRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.ModelExperienceDialog"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除模型体验对话",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model experience"
+                ],
+                "summary": "删除模型体验对话",
+                "parameters": [
+                    {
+                        "description": "模型体验对话ID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ModelExperienceDialogIDReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/model/experience/dialog/records": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取模型体验对话记录列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model experience"
+                ],
+                "summary": "获取模型体验对话记录列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "模型体验对话ID",
+                        "name": "modelExperienceId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "$ref": "#/definitions/response.ModelExperienceDialogRecord"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/model/experience/dialogs": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取模型体验对话列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model experience"
+                ],
+                "summary": "获取模型体验对话列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "$ref": "#/definitions/model_service.ModelExperienceDialog"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/model/experience/file/extract": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "文本提取",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model experience"
+                ],
+                "summary": "文本提取",
+                "parameters": [
+                    {
+                        "description": "文件提取请求",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.FileExtractRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.ModelExperienceFile"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/model/experience/llm": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "LLM模型体验",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model experience"
+                ],
+                "summary": "模型体验",
+                "parameters": [
+                    {
+                        "description": "LLM模型体验",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LlmRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/model/list": {
             "get": {
                 "security": [
@@ -12804,6 +13095,38 @@ const docTemplate = `{
                 }
             }
         },
+        "model_service.ModelExperienceDialog": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "modelId": {
+                    "description": "模型",
+                    "type": "string"
+                },
+                "modelSetting": {
+                    "description": "模型参数配置",
+                    "type": "string"
+                },
+                "orgId": {
+                    "type": "string"
+                },
+                "sessionId": {
+                    "description": "会话 ID",
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "mp.AppModelParams": {
             "type": "object",
             "properties": {
@@ -15949,6 +16272,23 @@ const docTemplate = `{
                 }
             }
         },
+        "request.FileExtractRequest": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "description": "文件名",
+                    "type": "string"
+                },
+                "filePath": {
+                    "description": "文件路径",
+                    "type": "string"
+                },
+                "fileSize": {
+                    "description": "文件大小",
+                    "type": "integer"
+                }
+            }
+        },
         "request.GenAppKeyRequest": {
             "type": "object",
             "required": [
@@ -16420,6 +16760,88 @@ const docTemplate = `{
                 }
             }
         },
+        "request.LlmRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "modelId",
+                "role",
+                "sessionId"
+            ],
+            "properties": {
+                "content": {
+                    "description": "内容",
+                    "type": "string"
+                },
+                "fileIdList": {
+                    "description": "文件ID列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "frequencyPenalty": {
+                    "description": "频率惩罚",
+                    "type": "number"
+                },
+                "frequencyPenaltyEnable": {
+                    "description": "频率惩罚(开关)",
+                    "type": "boolean"
+                },
+                "maxTokens": {
+                    "description": "最大标记",
+                    "type": "integer"
+                },
+                "maxTokensEnable": {
+                    "description": "最大标记(开关)",
+                    "type": "boolean"
+                },
+                "modelExperienceId": {
+                    "description": "体验对话ID",
+                    "type": "string"
+                },
+                "modelId": {
+                    "description": "模型ID",
+                    "type": "string"
+                },
+                "parentId": {
+                    "description": "父级ID",
+                    "type": "string"
+                },
+                "presencePenalty": {
+                    "description": "存在惩罚",
+                    "type": "number"
+                },
+                "presencePenaltyEnable": {
+                    "description": "存在惩罚(开关)",
+                    "type": "boolean"
+                },
+                "role": {
+                    "description": "角色(user, assistant, system)",
+                    "type": "string"
+                },
+                "sessionId": {
+                    "description": "会话 ID",
+                    "type": "string"
+                },
+                "temperature": {
+                    "description": "温度",
+                    "type": "number"
+                },
+                "temperatureEnable": {
+                    "description": "温度(开关)",
+                    "type": "boolean"
+                },
+                "topP": {
+                    "description": "Top P",
+                    "type": "number"
+                },
+                "topPEnable": {
+                    "description": "Top P(开关)",
+                    "type": "boolean"
+                }
+            }
+        },
         "request.Login": {
             "type": "object",
             "required": [
@@ -16809,6 +17231,42 @@ const docTemplate = `{
                 },
                 "value": {
                     "description": "value",
+                    "type": "string"
+                }
+            }
+        },
+        "request.ModelExperienceDialogIDReq": {
+            "type": "object",
+            "required": [
+                "modelExperienceId"
+            ],
+            "properties": {
+                "modelExperienceId": {
+                    "description": "模型体验对话ID",
+                    "type": "string"
+                }
+            }
+        },
+        "request.ModelExperienceDialogRequest": {
+            "type": "object",
+            "required": [
+                "modelId",
+                "sessionId"
+            ],
+            "properties": {
+                "modelId": {
+                    "description": "模型",
+                    "type": "string"
+                },
+                "modelSetting": {
+                    "description": "模型参数配置"
+                },
+                "sessionId": {
+                    "description": "会话 ID",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "对话标题",
                     "type": "string"
                 }
             }
@@ -21054,6 +21512,88 @@ const docTemplate = `{
                 },
                 "filePath": {
                     "description": "minio文件的完整路径",
+                    "type": "string"
+                }
+            }
+        },
+        "response.ModelExperienceDialog": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "modelId": {
+                    "type": "string"
+                },
+                "modelSetting": {
+                    "type": "string"
+                },
+                "sessionId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ModelExperienceDialogRecord": {
+            "type": "object",
+            "properties": {
+                "fileList": {
+                    "description": "文件列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ModelExperienceFile"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "modelExperienceId": {
+                    "description": "模型体验 ID",
+                    "type": "string"
+                },
+                "modelId": {
+                    "description": "模型 ID",
+                    "type": "string"
+                },
+                "originalContent": {
+                    "description": "原始内容",
+                    "type": "string"
+                },
+                "parentID": {
+                    "description": "父级 ID",
+                    "type": "string"
+                },
+                "reasoningContent": {
+                    "description": "思考过程",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "角色",
+                    "type": "string"
+                }
+            }
+        },
+        "response.ModelExperienceFile": {
+            "type": "object",
+            "properties": {
+                "fileExt": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "filePath": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                },
+                "id": {
                     "type": "string"
                 }
             }

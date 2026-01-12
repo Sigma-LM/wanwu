@@ -173,6 +173,12 @@ enum Code {
   ModelGetModelByIds = 250009; // 根据模型ID列表查询错误
   ModelGetModelByUUID = 250010; // 根据模型UUID查询错误
 
+  ModelExperienceDialog=250014; // 模型体验对话错误
+  ModelExperienceDialogRecord=250011; // 模型体验对话记录错误
+  ModelExperienceFile=250012; // 模型体验文件错误
+  ModelExperienceFileByIds=250013; // 根据文件ID列表查询错误
+
+
   // --- app-service ---
   // [300000, 309999]
   AppGeneral = 300000; // 通用错误

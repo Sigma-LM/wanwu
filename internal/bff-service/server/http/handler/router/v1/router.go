@@ -17,6 +17,9 @@ func Register(apiV1 *gin.RouterGroup) {
 	// model
 	registerModel(apiV1)
 
+	// model experience
+	registerModelExperience(apiV1)
+
 	// knowledge
 	registerKnowledge(apiV1)
 

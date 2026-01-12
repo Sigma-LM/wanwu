@@ -20,15 +20,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ModelService_ImportModel_FullMethodName       = "/model_service.ModelService/ImportModel"
-	ModelService_UpdateModel_FullMethodName       = "/model_service.ModelService/UpdateModel"
-	ModelService_DeleteModel_FullMethodName       = "/model_service.ModelService/DeleteModel"
-	ModelService_ChangeModelStatus_FullMethodName = "/model_service.ModelService/ChangeModelStatus"
-	ModelService_GetModel_FullMethodName          = "/model_service.ModelService/GetModel"
-	ModelService_GetModelByUuid_FullMethodName    = "/model_service.ModelService/GetModelByUuid"
-	ModelService_ListModels_FullMethodName        = "/model_service.ModelService/ListModels"
-	ModelService_GetModelByIds_FullMethodName     = "/model_service.ModelService/GetModelByIds"
-	ModelService_ListTypeModels_FullMethodName    = "/model_service.ModelService/ListTypeModels"
+	ModelService_ImportModel_FullMethodName                     = "/model_service.ModelService/ImportModel"
+	ModelService_UpdateModel_FullMethodName                     = "/model_service.ModelService/UpdateModel"
+	ModelService_DeleteModel_FullMethodName                     = "/model_service.ModelService/DeleteModel"
+	ModelService_ChangeModelStatus_FullMethodName               = "/model_service.ModelService/ChangeModelStatus"
+	ModelService_GetModel_FullMethodName                        = "/model_service.ModelService/GetModel"
+	ModelService_GetModelByUuid_FullMethodName                  = "/model_service.ModelService/GetModelByUuid"
+	ModelService_ListModels_FullMethodName                      = "/model_service.ModelService/ListModels"
+	ModelService_GetModelByIds_FullMethodName                   = "/model_service.ModelService/GetModelByIds"
+	ModelService_ListTypeModels_FullMethodName                  = "/model_service.ModelService/ListTypeModels"
+	ModelService_SaveModelExperienceDialog_FullMethodName       = "/model_service.ModelService/SaveModelExperienceDialog"
+	ModelService_GetModelExperienceDialogs_FullMethodName       = "/model_service.ModelService/GetModelExperienceDialogs"
+	ModelService_SaveModelExperienceDialogRecord_FullMethodName = "/model_service.ModelService/SaveModelExperienceDialogRecord"
+	ModelService_GetModelExperienceDialog_FullMethodName        = "/model_service.ModelService/GetModelExperienceDialog"
+	ModelService_DeleteModelExperienceDialog_FullMethodName     = "/model_service.ModelService/DeleteModelExperienceDialog"
+	ModelService_SaveModelExperienceFile_FullMethodName         = "/model_service.ModelService/SaveModelExperienceFile"
+	ModelService_GetModelExperienceFilesByIds_FullMethodName    = "/model_service.ModelService/GetModelExperienceFilesByIds"
+	ModelService_GetModelExperienceDialogRecords_FullMethodName = "/model_service.ModelService/GetModelExperienceDialogRecords"
 )
 
 // ModelServiceClient is the client API for ModelService service.
@@ -53,6 +61,22 @@ type ModelServiceClient interface {
 	GetModelByIds(ctx context.Context, in *GetModelByIdsReq, opts ...grpc.CallOption) (*ModelInfos, error)
 	// llm/rerank/embedding模型列表展示
 	ListTypeModels(ctx context.Context, in *ListTypeModelsReq, opts ...grpc.CallOption) (*ModelInfos, error)
+	// 保存模型体验对话
+	SaveModelExperienceDialog(ctx context.Context, in *ModelExperienceDialogReq, opts ...grpc.CallOption) (*ModelExperienceDialog, error)
+	// 获取模型体验对话列表
+	GetModelExperienceDialogs(ctx context.Context, in *GetModelExperienceDialogReq, opts ...grpc.CallOption) (*ModelExperienceDialogs, error)
+	// 保存模型体验对话记录
+	SaveModelExperienceDialogRecord(ctx context.Context, in *ModelExperienceDialogRecordReq, opts ...grpc.CallOption) (*ModelExperienceDialogRecord, error)
+	// 获取模型体验对话
+	GetModelExperienceDialog(ctx context.Context, in *ModelExperienceDialogIdReq, opts ...grpc.CallOption) (*ModelExperienceDialog, error)
+	// 删除模型体验对话
+	DeleteModelExperienceDialog(ctx context.Context, in *ModelExperienceDialogIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 保存模型体验上传文件解析结果
+	SaveModelExperienceFile(ctx context.Context, in *ModelExperienceFileReq, opts ...grpc.CallOption) (*ModelExperienceFile, error)
+	// 根据文件ID列表获取模型体验文件
+	GetModelExperienceFilesByIds(ctx context.Context, in *GetModelExperienceFilesByIdsReq, opts ...grpc.CallOption) (*ModelExperienceFiles, error)
+	// 获取模型体验对话记录列表
+	GetModelExperienceDialogRecords(ctx context.Context, in *GetModelExperienceDialogRecordReq, opts ...grpc.CallOption) (*ModelExperienceDialogRecords, error)
 }
 
 type modelServiceClient struct {
@@ -153,6 +177,86 @@ func (c *modelServiceClient) ListTypeModels(ctx context.Context, in *ListTypeMod
 	return out, nil
 }
 
+func (c *modelServiceClient) SaveModelExperienceDialog(ctx context.Context, in *ModelExperienceDialogReq, opts ...grpc.CallOption) (*ModelExperienceDialog, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceDialog)
+	err := c.cc.Invoke(ctx, ModelService_SaveModelExperienceDialog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) GetModelExperienceDialogs(ctx context.Context, in *GetModelExperienceDialogReq, opts ...grpc.CallOption) (*ModelExperienceDialogs, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceDialogs)
+	err := c.cc.Invoke(ctx, ModelService_GetModelExperienceDialogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) SaveModelExperienceDialogRecord(ctx context.Context, in *ModelExperienceDialogRecordReq, opts ...grpc.CallOption) (*ModelExperienceDialogRecord, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceDialogRecord)
+	err := c.cc.Invoke(ctx, ModelService_SaveModelExperienceDialogRecord_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) GetModelExperienceDialog(ctx context.Context, in *ModelExperienceDialogIdReq, opts ...grpc.CallOption) (*ModelExperienceDialog, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceDialog)
+	err := c.cc.Invoke(ctx, ModelService_GetModelExperienceDialog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) DeleteModelExperienceDialog(ctx context.Context, in *ModelExperienceDialogIdReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ModelService_DeleteModelExperienceDialog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) SaveModelExperienceFile(ctx context.Context, in *ModelExperienceFileReq, opts ...grpc.CallOption) (*ModelExperienceFile, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceFile)
+	err := c.cc.Invoke(ctx, ModelService_SaveModelExperienceFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) GetModelExperienceFilesByIds(ctx context.Context, in *GetModelExperienceFilesByIdsReq, opts ...grpc.CallOption) (*ModelExperienceFiles, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceFiles)
+	err := c.cc.Invoke(ctx, ModelService_GetModelExperienceFilesByIds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *modelServiceClient) GetModelExperienceDialogRecords(ctx context.Context, in *GetModelExperienceDialogRecordReq, opts ...grpc.CallOption) (*ModelExperienceDialogRecords, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelExperienceDialogRecords)
+	err := c.cc.Invoke(ctx, ModelService_GetModelExperienceDialogRecords_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ModelServiceServer is the server API for ModelService service.
 // All implementations must embed UnimplementedModelServiceServer
 // for forward compatibility.
@@ -175,6 +279,22 @@ type ModelServiceServer interface {
 	GetModelByIds(context.Context, *GetModelByIdsReq) (*ModelInfos, error)
 	// llm/rerank/embedding模型列表展示
 	ListTypeModels(context.Context, *ListTypeModelsReq) (*ModelInfos, error)
+	// 保存模型体验对话
+	SaveModelExperienceDialog(context.Context, *ModelExperienceDialogReq) (*ModelExperienceDialog, error)
+	// 获取模型体验对话列表
+	GetModelExperienceDialogs(context.Context, *GetModelExperienceDialogReq) (*ModelExperienceDialogs, error)
+	// 保存模型体验对话记录
+	SaveModelExperienceDialogRecord(context.Context, *ModelExperienceDialogRecordReq) (*ModelExperienceDialogRecord, error)
+	// 获取模型体验对话
+	GetModelExperienceDialog(context.Context, *ModelExperienceDialogIdReq) (*ModelExperienceDialog, error)
+	// 删除模型体验对话
+	DeleteModelExperienceDialog(context.Context, *ModelExperienceDialogIdReq) (*emptypb.Empty, error)
+	// 保存模型体验上传文件解析结果
+	SaveModelExperienceFile(context.Context, *ModelExperienceFileReq) (*ModelExperienceFile, error)
+	// 根据文件ID列表获取模型体验文件
+	GetModelExperienceFilesByIds(context.Context, *GetModelExperienceFilesByIdsReq) (*ModelExperienceFiles, error)
+	// 获取模型体验对话记录列表
+	GetModelExperienceDialogRecords(context.Context, *GetModelExperienceDialogRecordReq) (*ModelExperienceDialogRecords, error)
 	mustEmbedUnimplementedModelServiceServer()
 }
 
@@ -211,6 +331,30 @@ func (UnimplementedModelServiceServer) GetModelByIds(context.Context, *GetModelB
 }
 func (UnimplementedModelServiceServer) ListTypeModels(context.Context, *ListTypeModelsReq) (*ModelInfos, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTypeModels not implemented")
+}
+func (UnimplementedModelServiceServer) SaveModelExperienceDialog(context.Context, *ModelExperienceDialogReq) (*ModelExperienceDialog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveModelExperienceDialog not implemented")
+}
+func (UnimplementedModelServiceServer) GetModelExperienceDialogs(context.Context, *GetModelExperienceDialogReq) (*ModelExperienceDialogs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelExperienceDialogs not implemented")
+}
+func (UnimplementedModelServiceServer) SaveModelExperienceDialogRecord(context.Context, *ModelExperienceDialogRecordReq) (*ModelExperienceDialogRecord, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveModelExperienceDialogRecord not implemented")
+}
+func (UnimplementedModelServiceServer) GetModelExperienceDialog(context.Context, *ModelExperienceDialogIdReq) (*ModelExperienceDialog, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelExperienceDialog not implemented")
+}
+func (UnimplementedModelServiceServer) DeleteModelExperienceDialog(context.Context, *ModelExperienceDialogIdReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteModelExperienceDialog not implemented")
+}
+func (UnimplementedModelServiceServer) SaveModelExperienceFile(context.Context, *ModelExperienceFileReq) (*ModelExperienceFile, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveModelExperienceFile not implemented")
+}
+func (UnimplementedModelServiceServer) GetModelExperienceFilesByIds(context.Context, *GetModelExperienceFilesByIdsReq) (*ModelExperienceFiles, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelExperienceFilesByIds not implemented")
+}
+func (UnimplementedModelServiceServer) GetModelExperienceDialogRecords(context.Context, *GetModelExperienceDialogRecordReq) (*ModelExperienceDialogRecords, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelExperienceDialogRecords not implemented")
 }
 func (UnimplementedModelServiceServer) mustEmbedUnimplementedModelServiceServer() {}
 func (UnimplementedModelServiceServer) testEmbeddedByValue()                      {}
@@ -395,6 +539,150 @@ func _ModelService_ListTypeModels_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ModelService_SaveModelExperienceDialog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelExperienceDialogReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).SaveModelExperienceDialog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_SaveModelExperienceDialog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).SaveModelExperienceDialog(ctx, req.(*ModelExperienceDialogReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_GetModelExperienceDialogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetModelExperienceDialogReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).GetModelExperienceDialogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_GetModelExperienceDialogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).GetModelExperienceDialogs(ctx, req.(*GetModelExperienceDialogReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_SaveModelExperienceDialogRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelExperienceDialogRecordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).SaveModelExperienceDialogRecord(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_SaveModelExperienceDialogRecord_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).SaveModelExperienceDialogRecord(ctx, req.(*ModelExperienceDialogRecordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_GetModelExperienceDialog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelExperienceDialogIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).GetModelExperienceDialog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_GetModelExperienceDialog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).GetModelExperienceDialog(ctx, req.(*ModelExperienceDialogIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_DeleteModelExperienceDialog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelExperienceDialogIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).DeleteModelExperienceDialog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_DeleteModelExperienceDialog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).DeleteModelExperienceDialog(ctx, req.(*ModelExperienceDialogIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_SaveModelExperienceFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelExperienceFileReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).SaveModelExperienceFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_SaveModelExperienceFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).SaveModelExperienceFile(ctx, req.(*ModelExperienceFileReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_GetModelExperienceFilesByIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetModelExperienceFilesByIdsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).GetModelExperienceFilesByIds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_GetModelExperienceFilesByIds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).GetModelExperienceFilesByIds(ctx, req.(*GetModelExperienceFilesByIdsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ModelService_GetModelExperienceDialogRecords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetModelExperienceDialogRecordReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ModelServiceServer).GetModelExperienceDialogRecords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ModelService_GetModelExperienceDialogRecords_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ModelServiceServer).GetModelExperienceDialogRecords(ctx, req.(*GetModelExperienceDialogRecordReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ModelService_ServiceDesc is the grpc.ServiceDesc for ModelService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -437,6 +725,38 @@ var ModelService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListTypeModels",
 			Handler:    _ModelService_ListTypeModels_Handler,
+		},
+		{
+			MethodName: "SaveModelExperienceDialog",
+			Handler:    _ModelService_SaveModelExperienceDialog_Handler,
+		},
+		{
+			MethodName: "GetModelExperienceDialogs",
+			Handler:    _ModelService_GetModelExperienceDialogs_Handler,
+		},
+		{
+			MethodName: "SaveModelExperienceDialogRecord",
+			Handler:    _ModelService_SaveModelExperienceDialogRecord_Handler,
+		},
+		{
+			MethodName: "GetModelExperienceDialog",
+			Handler:    _ModelService_GetModelExperienceDialog_Handler,
+		},
+		{
+			MethodName: "DeleteModelExperienceDialog",
+			Handler:    _ModelService_DeleteModelExperienceDialog_Handler,
+		},
+		{
+			MethodName: "SaveModelExperienceFile",
+			Handler:    _ModelService_SaveModelExperienceFile_Handler,
+		},
+		{
+			MethodName: "GetModelExperienceFilesByIds",
+			Handler:    _ModelService_GetModelExperienceFilesByIds_Handler,
+		},
+		{
+			MethodName: "GetModelExperienceDialogRecords",
+			Handler:    _ModelService_GetModelExperienceDialogRecords_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

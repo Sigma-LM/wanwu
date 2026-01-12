@@ -82,6 +82,7 @@ export default {
     userInfo: '个人信息',
     org: '组织管理',
     modelAccess: '模型管理',
+    modelExprience: '模型体验',
     about: '关于',
     helpDoc: '帮助文档',
     back: '返回',
@@ -171,6 +172,9 @@ export default {
     input: {
       placeholder: '请输入',
       inputDesc: '请输入描述',
+      modelExpriencePlaceholder1: '请输入内容,用Ctrl+Enter可换行',
+      modelExpriencePlaceholder2:
+        '请输入内容，输入“/”获取模板，用Ctrl+Enter可换行',
     },
     hint: {
       nameHint: '仅支持中文、英文、数字、下划线、中划线、英文（.）',
@@ -542,6 +546,37 @@ export default {
     hint: {
       urlError: 'URL格式不正确',
       yuanjing: '可前往 https://maas.ai-yuanjing.com/ 申请API Key',
+    },
+  },
+  modelExprience: {
+    title: '模型体验',
+    createSession: '新建对话',
+    modelComparison: '模型对比',
+    createConversation: '模型体验',
+    selectModel: '选择模型',
+    addModel: '+模型',
+    exitModelComparison: '退出模型对比',
+    warning: {
+      deleteModel: '移除模型后不保留历史记录，是否移除?',
+      deleteHistory: '是否确认删除该对话历史记录？',
+      exitModelComparison: '退出后不保留历史记录，是否退出？',
+      minSelectModel: '请至少选择一个模型！',
+      maxSelectModel: '最多只能选择4个模型！',
+      fileExtracting: '文件解析中，请稍后！',
+      rejectEmpty: '请输入内容',
+      chatGenerating: '上个问题没有回答完！',
+      loadingModel: '模型信息加载中，请稍后！',
+      chatGenerating: '正在创建会话，请稍后！',
+    },
+    tip: {
+      exError: '发生错误',
+      deleteModel: '移除模型',
+      modelConfig: '模型配置',
+      replaceModel: '更换模型',
+      exInterrupted: '回答已经被中断',
+      selectModelPlaceholder: '输入模型名称搜索',
+      maxSelectModel: '最多可选@个模型',
+      modelSupplier: '模型供应商',
     },
   },
   tempSquare: {

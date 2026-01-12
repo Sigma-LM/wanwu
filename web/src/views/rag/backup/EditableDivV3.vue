@@ -101,7 +101,7 @@
               slot="reference"
               @click="setRandomReminder(n)"
             >
-              {{ n.title }}
+              {{ n.title || n.name }}
             </span>
           </el-popover>
         </div>
@@ -115,8 +115,18 @@
 </template>
 
 <script>
+import uploadDialog from './uploadBatchDialog';
+import {
+  getPromptTemplateList,
+  getPromptBuiltInList,
+} from '@/api/promptTemplate';
+const recommendCount = 8;
 export default {
   props: {
+    mode: {
+      type: String,
+      default: '', // modelExprience
+    },
     source: { type: String },
     fileTypeArr: {
       type: Array,
@@ -157,7 +167,7 @@ export default {
         '#89b0f9',
         '#738cbd',
       ],
-      placeholder: '请输入内容,用Ctrl+Enter可换行',
+      // placeholder: '请输入内容,用Ctrl+Enter可换行',
       promptHtml: '',
       promptValue: '',
       randomReminderList: [], //随机8个提示词
@@ -171,6 +181,19 @@ export default {
       fileUrl: '',
       modelType: '',
     };
+  },
+  computed: {
+    placeholder() {
+      return this.mode === 'modelExprience'
+        ? this.$t('common.input.modelExpriencePlaceholder2')
+        : this.$t('common.input.modelExpriencePlaceholder1');
+    },
+  },
+  mounted() {
+    if (this.mode === 'modelExprience') {
+      this.originPromptList = [];
+      this.getExprienceReminderList();
+    }
   },
   methods: {
     linkSearch() {
@@ -289,6 +312,10 @@ export default {
       //勿删，定义此方法用于获取焦点
     },
     async getReminderList() {
+      if (this.mode === 'modelExprience') {
+        this.getRandomReminderList();
+        return;
+      }
       //显示8个提示词
       this.refreshLoading = true;
       let res = await this.$api.expand.getPerfectReminderV2({
@@ -306,6 +333,67 @@ export default {
           };
         });
       }
+    },
+    // 模型体验场景下，获取全量的提示词列表
+    getExprienceReminderList() {
+      this.refreshLoading = true;
+      const p1 = new Promise(resolve => {
+        getPromptTemplateList({
+          name: '',
+        })
+          .then(res => {
+            if (res.code === 0) {
+              resolve(res.data.list || []);
+              return;
+            }
+            resolve([]);
+          })
+          .catch(() => {
+            resolve([]);
+          });
+      });
+      const p2 = new Promise(resolve => {
+        getPromptBuiltInList({
+          name: '',
+          category: 'all',
+        })
+          .then(res => {
+            if (res.code === 0) {
+              resolve(res.data.list || []);
+              return;
+            }
+            resolve([]);
+          })
+          .catch(() => {
+            resolve([]);
+          });
+      });
+      Promise.all([p1, p2])
+        .then(([list1, list2]) => {
+          this.originPromptList = [...list1, ...list2];
+        })
+        .finally(() => {
+          this.refreshLoading = false;
+          this.randomReminderShow && this.getRandomReminderList();
+        });
+    },
+    // 从全量提示词中随机获取8个
+    getRandomReminderList() {
+      this.randomReminderShow = true;
+      if (this.refreshLoading) {
+        return;
+      }
+      if (this.originPromptList.length <= recommendCount)
+        return this.originPromptList.slice();
+      const shuffled = this.originPromptList.slice();
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const index = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[index]] = [shuffled[index], shuffled[i]];
+      }
+      this.randomReminderList = shuffled.slice(0, recommendCount).map(item => ({
+        ...item,
+        random: parseInt(Math.random(13) * 10),
+      }));
     },
     //换行并重新定位光标位置
     textareaRange() {

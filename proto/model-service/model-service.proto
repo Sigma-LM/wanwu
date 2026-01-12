@@ -25,6 +25,30 @@ service ModelService {
     rpc GetModelByIds(GetModelByIdsReq) returns (ModelInfos) {}
     // llm/rerank/embedding模型列表展示
     rpc ListTypeModels(ListTypeModelsReq) returns (ModelInfos) {}
+
+    // 保存模型体验对话
+    rpc SaveModelExperienceDialog(ModelExperienceDialogReq) returns (ModelExperienceDialog) {}
+
+    // 获取模型体验对话列表
+    rpc GetModelExperienceDialogs(GetModelExperienceDialogReq) returns (ModelExperienceDialogs) {}
+
+    // 保存模型体验对话记录
+    rpc SaveModelExperienceDialogRecord(ModelExperienceDialogRecordReq) returns (ModelExperienceDialogRecord) {}
+
+    // 获取模型体验对话
+    rpc GetModelExperienceDialog(ModelExperienceDialogIdReq) returns (ModelExperienceDialog) {}
+
+    // 删除模型体验对话
+    rpc DeleteModelExperienceDialog(ModelExperienceDialogIdReq) returns (google.protobuf.Empty) {}
+
+    // 保存模型体验上传文件解析结果
+    rpc SaveModelExperienceFile(ModelExperienceFileReq) returns (ModelExperienceFile) {}
+
+    // 根据文件ID列表获取模型体验文件
+    rpc GetModelExperienceFilesByIds(GetModelExperienceFilesByIdsReq) returns (ModelExperienceFiles) {}
+
+    // 获取模型体验对话记录列表
+    rpc GetModelExperienceDialogRecords(GetModelExperienceDialogRecordReq) returns (ModelExperienceDialogRecords) {}
 }
 
 message ModelInfo {
@@ -92,4 +116,114 @@ message ListTypeModelsReq {
     string userId = 1;
     string orgId = 2;
     string modelType = 3;       // 模型类型
+}
+
+message ModelExperienceDialogReq {
+    string id=1;     // 模型体验对话ID
+    string modelId=2;     // 模型
+    string sessionId=3;       //会话 ID
+    string title=5;
+    string modelSetting = 6;  // 模型参数配置
+    string userId = 7;
+    string orgId = 8;
+    }
+
+message GetModelExperienceDialogReq {
+    string userId = 1;
+    string orgId = 2;
+}
+
+message ModelExperienceDialogIdReq {
+    string modelExperienceId = 1;
+    string userId = 2;
+    string orgId = 3;
+}
+
+message ModelExperienceDialog {
+    string modelId=1;     // 模型
+    string sessionId=2;       //会话 ID
+    string title=4;
+    string modelSetting = 5;  // 模型参数配置
+    string userId = 6;
+    string orgId = 7;
+    string id=8;
+    int64 createdAt = 9;
+}
+
+message ModelExperienceDialogs {
+    repeated ModelExperienceDialog modelExperienceDialog = 1;
+    int64 total = 2;
+}
+
+message ModelExperienceDialogRecordReq {
+    string modelExperienceId=1;     // 模型体验 ID
+    string modelId=2;     // 模型
+    string originalContent=3; // 原始内容
+    string handledContent = 4;  // 处理后的内容
+    string reasoningContent = 5;  // 思考过程
+    string role = 6;  // 角色
+    string parentID = 7;  // 父级 ID
+    string fileIdList = 8;  // 文件 ID 列表
+    string userId = 9;
+    string orgId = 10;
+    string sessionId=11;       //会话 ID
+}
+
+message GetModelExperienceDialogRecordReq {
+    string modelExperienceId=1;     // 模型体验 ID
+    string sessionId=2;       //会话 ID
+    string modelId=3;     // 模型
+    string userId = 4;
+    string orgId = 5;
+}
+
+message ModelExperienceDialogRecord {
+    string modelExperienceId=1;     // 模型体验 ID
+    string modelId=2;     // 模型
+    string originalContent=3; // 原始内容
+    string handledContent = 4;  // 处理后的内容
+    string reasoningContent = 5;  // 思考过程
+    string role = 6;  // 角色
+    string parentID = 7;  // 父级 ID
+    string fileIdList = 8;  // 文件 ID 列表
+    string userId = 9;
+    string orgId = 10;
+    string id=11;
+}
+
+message ModelExperienceDialogRecords {
+    repeated ModelExperienceDialogRecord record = 1;
+    int64 total = 2;
+}
+
+message ModelExperienceFileReq {
+    string fileName=1;     // 文件名
+    string filePath=2;       // 文件路径
+    string fileExt=3;    // 文件扩展名
+    string extractText = 4;  // 提取文件内容
+    int64 fileSize = 5;     // 文件大小
+    string orgId =6;
+    string userId = 7;
+}
+
+message ModelExperienceFile {
+    string fileName=1;     // 文件名
+    string filePath=2;       // 文件路径
+    string fileExt=3;    // 文件扩展名
+    string extractText = 4;  // 提取文件内容
+    int64 fileSize = 5;     // 文件大小
+    string userId = 6;
+    string orgId = 7;
+    string id=8;
+}
+
+message GetModelExperienceFilesByIdsReq {
+    repeated string fileIds = 1;    // 文件ID列表
+    string userId = 2;
+    string orgId = 3;
+}
+
+message ModelExperienceFiles {
+    repeated ModelExperienceFile files = 1;
+    int64 total = 2;
 }

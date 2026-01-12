@@ -18,6 +18,9 @@ func NewClient(ctx context.Context, db *gorm.DB) (*Client, error) {
 	// auto migrate
 	if err := db.AutoMigrate(
 		model.ModelImported{},
+		model.ModelExperienceDialog{},
+		model.ModelExperienceFile{},
+		model.ModelExperienceDialogRecord{},
 	); err != nil {
 		return nil, err
 	}

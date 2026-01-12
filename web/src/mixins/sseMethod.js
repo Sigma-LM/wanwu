@@ -13,6 +13,7 @@ import { OPENURL_API, USER_API } from '@/utils/requestConstants';
 
 const AGENT_API_URL = `${USER_API}/assistant/stream`;
 const RAG_API_URL = `${USER_API}/rag/chat`;
+const EXPRIENCE_API_URL = `${USER_API}/model/experience/llm`;
 export default {
   data() {
     return {
@@ -34,6 +35,7 @@ export default {
       isEnd: true,
       sseApi: AGENT_API_URL,
       rag_sseApi: RAG_API_URL,
+      exprience_sseApi: EXPRIENCE_API_URL,
       token: store.getters['user/token'],
       lastIndex: 0,
       query: '',
@@ -608,6 +610,180 @@ export default {
           this.setStoreSessionStatus(-1); //关闭后改变状态
         },
       });
+    },
+    doExprienceSend(params) {
+      this.stopBtShow = true;
+      this.isStoped = false;
+      let _history = this.$refs['session-com'].getList();
+      this.sendExprienceEventStream(params.inputVal, '', _history.length);
+    },
+    sendExprienceEventStream(prompt, msgStr, lastIndex) {
+      this.sseResponse = {};
+      this.setStoreSessionStatus(0);
+      let params = {
+        query: prompt,
+        pending: true,
+        responseLoading: true,
+        requestFileUrls: [],
+        fileList: this.fileList,
+        pendingResponse: '',
+      };
+      this.$refs['session-com'].pushHistory(params);
+      let endStr = '';
+      this._print = new Print({
+        onPrintEnd: () => {
+          // this.setStoreSessionStatus(-1)
+        },
+      });
+      this.ctrlAbort = new AbortController();
+      const userInfo = this.$store.state.user.userInfo || {};
+      this.eventSource = new fetchEventSource(
+        this.origin + this.exprience_sseApi,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + this.token,
+            'x-user-id': userInfo.uid,
+            'x-org-id': userInfo.orgId,
+          },
+          signal: this.ctrlAbort.signal,
+          body: JSON.stringify({
+            ...this.apiParams,
+            content: prompt,
+          }),
+          openWhenHidden: true, //页面退至后台保持连接
+          onopen: async e => {
+            //console.log("已建立SSE连接~",new Date().getTime());
+            if (e.status !== 200) {
+              try {
+                const errorData = await e.json();
+                let commonData = {
+                  ...this.sseParams,
+                  query: prompt,
+                };
+                let fillData = {
+                  ...commonData,
+                  response: errorData.msg,
+                };
+                this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              } catch (e) {
+                const text = await e.text();
+                this.$message.error(text || '未知错误');
+              }
+
+              this.stopEventSource();
+              this.setStoreSessionStatus(-1);
+              return;
+            }
+          },
+          onmessage: e => {
+            if (e && e.data) {
+              let data;
+              try {
+                data = JSON.parse(e.data);
+                // console.log('===>', new Date().getTime(), data);
+              } catch (error) {
+                return; // 如果解析失败，直接返回，不处理这条消息
+              }
+              if (
+                Array.isArray(data.choices) &&
+                data.choices[0] &&
+                data.choices[0].delta
+              ) {
+                data.response = data.choices[0].delta.content;
+                data.finish =
+                  data.choices[0].finish_reason === 'stop' ||
+                  data.choices[0].delta.content === 'stop';
+              } else {
+                data.response = '';
+                data.finish = true;
+              }
+              this.setStoreSessionStatus(0);
+              this.sseResponse = data;
+              //待替换的数据，需要前端组装
+              let commonData = {
+                ...this.sseResponse,
+                ...this.sseParams,
+                query: prompt,
+                fileName: '',
+                fileSize: '',
+                response: '',
+                filepath: '',
+                requestFileUrls: '',
+                searchList:
+                  this.sseResponse.data && this.sseResponse.data.searchList
+                    ? this.sseResponse.data.searchList
+                    : [],
+                gen_file_url_list: [],
+                thinkText: '思考中',
+                isOpen: true,
+                citations: [],
+                qa_type: 0, // 为了组件复用，前端加了标识
+              };
+              if ([7, -1].includes(data.code)) {
+                this.setStoreSessionStatus(-1);
+                let fillData = {
+                  ...commonData,
+                  response: data.message,
+                };
+                this.$refs['session-com'].replaceLastData(lastIndex, fillData);
+              } else {
+                //finish 0：进行中  1：关闭   2:敏感词关闭
+                this._print.print(
+                  {
+                    response: data.response,
+                    finish: data.finish,
+                  },
+                  commonData,
+                  (worldObj, search_list) => {
+                    this.setStoreSessionStatus(0);
+                    endStr += worldObj.world;
+                    endStr = convertLatexSyntax(endStr);
+                    endStr = parseSub(endStr, lastIndex);
+                    let fillData = {
+                      ...commonData,
+                      response: md.render(endStr),
+                      oriResponse: endStr,
+                      finish: worldObj.finish,
+                      searchList:
+                        search_list && search_list.length
+                          ? search_list.map(n => ({
+                              ...n,
+                              snippet: n.snippet ? md.render(n.snippet) : '',
+                            }))
+                          : [],
+                    };
+                    this.$refs['session-com'].replaceLastData(
+                      lastIndex,
+                      fillData,
+                    );
+                    if (worldObj.isEnd && worldObj.finish) {
+                      this.setStoreSessionStatus(-1);
+                    }
+                  },
+                );
+              }
+            }
+          },
+          onclose: () => {
+            this.setStoreSessionStatus(-1); //关闭后改变状态
+            this.sseOnCloseCallBack();
+          },
+          onerror: e => {
+            /**
+            console.log('服务连接异常请重试！');
+            if (e.readyState === EventSource.CLOSED) {
+              console.log('connection is closed');
+            } else {
+              console.log('Error occured', e);
+            }
+          * */
+            this.stopEventSource(); //前端主动关闭连接
+            this.setStoreSessionStatus(-1); //关闭后改变状态
+          },
+        },
+      );
     },
     preStop() {
       //获取已经拿到的全部回答,一次性回显出来
