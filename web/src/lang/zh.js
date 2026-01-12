@@ -965,6 +965,7 @@ export default {
       processing: '解析中',
       finished: '解析成功',
       failed: '解析失败',
+      initial: '-',
     },
     graph: {
       refresh: '刷新数据',
