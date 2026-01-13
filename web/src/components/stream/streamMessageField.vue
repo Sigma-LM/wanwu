@@ -143,7 +143,7 @@
           <div class="session-answer-wrapper">
             <img
               class="logo"
-              :src="modelIconUrl || '/user/api/' + defaultUrldefaultUrl"
+              :src="modelIconUrl || '/user/api/' + defaultUrl"
             />
             <div class="session-wrap" style="width: calc(100% - 30px)">
               <!-- <div
@@ -504,8 +504,6 @@ export default {
     ...mapGetters('user', ['userAvatar']),
     // ...mapState('app', ['sessionStatus']),
     sessionStatus() {
-      console.log('typeof this.modelSessionStatus-=-=-==-=-=-');
-      console.log(typeof this.modelSessionStatus);
       return ['number', 'string'].includes(typeof this.modelSessionStatus)
         ? this.modelSessionStatus
         : this.$store.state.app.sessionStatus;
@@ -805,11 +803,11 @@ export default {
         );
         let elm = null;
         if (name === 'el-icon-arrow-up' || name === 'el-icon-arrow-down') {
-          elm = event.target.parentNode.parentNode
+          elm = event.target.parentNode.parentNode.parentNode
             .getElementsByClassName('answer-content')[0]
             .getElementsByTagName('section')[0];
         } else {
-          elm = event.target.parentNode
+          elm = event.target.parentNode.parentNode
             .getElementsByClassName('answer-content')[0]
             .getElementsByTagName('section')[0];
         }
@@ -1498,7 +1496,7 @@ export default {
       background: #ddd;
       left: -8px;
     }
-    ::v-deep.hideDs {
+    ::v-deep .hideDs {
       display: none;
     }
   }
