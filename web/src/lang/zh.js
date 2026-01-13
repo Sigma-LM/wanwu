@@ -563,7 +563,6 @@ export default {
       maxSelectModel: '最多只能选择4个模型！',
       fileExtracting: '文件解析中，请稍后！',
       rejectEmpty: '请输入内容',
-      chatGenerating: '上个问题没有回答完！',
       loadingModel: '模型信息加载中，请稍后！',
       chatGenerating: '正在创建会话，请稍后！',
     },
