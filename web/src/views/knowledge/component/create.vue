@@ -525,7 +525,7 @@ export default {
     handleRemove(item, index) {
       if (item.percentage < 100) {
         this.fileList.splice(index, 1);
-        this.cancelAllRequests();
+        this.cancelAndRestartNextRequests();
         return;
       }
       // 如果文件已上传成功，需要删除服务器上的文件
