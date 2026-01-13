@@ -107,14 +107,20 @@
         <!--loading-->
         <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrl" />
+            <img
+              class="logo"
+              :src="modelIconUrl || '/user/api/' + defaultUrl"
+            />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
         <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrl" />
+            <img
+              class="logo"
+              :src="modelIconUrl || '/user/api/' + defaultUrl"
+            />
             <div class="answer-content" style="padding: 10px; color: #e6a23c">
               {{ n.pendingResponse }}
             </div>
@@ -135,7 +141,10 @@
         >
           <!-- v-if="[0].includes(n.qa_type)" -->
           <div class="session-answer-wrapper">
-            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrldefaultUrl" />
+            <img
+              class="logo"
+              :src="modelIconUrl || '/user/api/' + defaultUrldefaultUrl"
+            />
             <div class="session-wrap" style="width: calc(100% - 30px)">
               <!-- <div
                 v-if="showDSBtn(n.response)"
@@ -331,7 +340,9 @@
           <div class="answer-operation">
             <div class="opera-left">
               <span
-                v-if="i === session_data.history.length - 1 && sessionStatus !== 0"
+                v-if="
+                  i === session_data.history.length - 1 && sessionStatus !== 0
+                "
                 class="restart"
                 @click="refresh"
               >
@@ -375,7 +386,10 @@
           class="session-answer"
         >
           <div class="session-answer-wrapper">
-            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrl" />
+            <img
+              class="logo"
+              :src="modelIconUrl || '/user/api/' + defaultUrl"
+            />
             <div class="answer-content">
               <div
                 v-if="n.gen_file_url_list && n.gen_file_url_list.length"
@@ -444,7 +458,7 @@ export default {
     supportClear: {
       type: Boolean,
       default: true,
-    }
+    },
   },
   // [
   //   'defaultUrl',
@@ -490,9 +504,11 @@ export default {
     ...mapGetters('user', ['userAvatar']),
     // ...mapState('app', ['sessionStatus']),
     sessionStatus() {
-      console.log('typeof this.modelSessionStatus-=-=-==-=-=-')
-      console.log(typeof this.modelSessionStatus)
-      return ['number', 'string'].includes(typeof this.modelSessionStatus) ? this.modelSessionStatus : this.$store.state.app.sessionStatus;
+      console.log('typeof this.modelSessionStatus-=-=-==-=-=-');
+      console.log(typeof this.modelSessionStatus);
+      return ['number', 'string'].includes(typeof this.modelSessionStatus)
+        ? this.modelSessionStatus
+        : this.$store.state.app.sessionStatus;
     },
     userAvatarSrc() {
       return this.userAvatar

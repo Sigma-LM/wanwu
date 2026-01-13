@@ -173,8 +173,7 @@ export default {
       placeholder: '请输入',
       inputDesc: '请输入描述',
       modelChatPlaceholder1: '请输入内容,用Ctrl+Enter可换行',
-      modelChatPlaceholder2:
-        '请输入内容，输入“/”获取模板，用Ctrl+Enter可换行',
+      modelChatPlaceholder2: '请输入内容，输入“/”获取模板，用Ctrl+Enter可换行',
     },
     hint: {
       nameHint: '仅支持中文、英文、数字、下划线、中划线、英文（.）',

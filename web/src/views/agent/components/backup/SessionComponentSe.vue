@@ -383,7 +383,7 @@ export default {
     'type',
     'modelIconUrl',
     'supportStop',
-    'modelSessionStatus'
+    'modelSessionStatus',
   ], //'sessionStatus',
   data() {
     return {
@@ -435,7 +435,9 @@ export default {
     ...mapGetters('user', ['userAvatar']),
     // ...mapState('app', ['sessionStatus']),
     sessionStatus() {
-      return ['number', 'string'].includes(typeof this.modelSessionStatus) ? this.modelSessionStatus : this.$store.state.app.sessionStatus;
+      return ['number', 'string'].includes(typeof this.modelSessionStatus)
+        ? this.modelSessionStatus
+        : this.$store.state.app.sessionStatus;
     },
     userAvatarSrc() {
       return this.userAvatar

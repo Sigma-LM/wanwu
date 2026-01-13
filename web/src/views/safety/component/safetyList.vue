@@ -28,10 +28,7 @@
         >
           <div class="info rl">
             <div class="logo-wrap">
-              <img
-                class="logo"
-                :src="require('@/assets/imgs/safety.png')"
-              />
+              <img class="logo" :src="require('@/assets/imgs/safety.png')" />
             </div>
             <div>
               <p class="name" :title="n.tableName">
