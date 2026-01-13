@@ -280,7 +280,7 @@
                 class="preStop"
                 @click="preStop"
                 v-if="
-                  supportSingleStop &&
+                  supportStop &&
                   i === session_data.history.length - 1 &&
                   sessionStatus === 0
                 "
@@ -378,7 +378,13 @@ marked.setOptions({
 
 export default {
   mixins: [commonMixin],
-  props: ['defaultUrl', 'type'], //'sessionStatus',
+  props: [
+    'defaultUrl',
+    'type',
+    'modelIconUrl',
+    'supportStop',
+    'modelSessionStatus'
+  ], //'sessionStatus',
   data() {
     return {
       md: md,
@@ -427,7 +433,10 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['userAvatar']),
-    ...mapState('app', ['sessionStatus']),
+    // ...mapState('app', ['sessionStatus']),
+    sessionStatus() {
+      return ['number', 'string'].includes(typeof this.modelSessionStatus) ? this.modelSessionStatus : this.$store.state.app.sessionStatus;
+    },
     userAvatarSrc() {
       return this.userAvatar
         ? '/user/api/' + this.userAvatar

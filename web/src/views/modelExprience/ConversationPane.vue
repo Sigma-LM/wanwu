@@ -45,7 +45,7 @@
             :modelSetting="chat.modelSetting"
             :pending="chat.pending"
             :supportDelete="modelChatList.length > 1"
-            :supportSingleStop="modelChatList.length > 1"
+            :supportStop="modelChatList.length > 1"
             :modelSessionStatus.sync="chat.sessionStatus"
             @modelSet="openModelSetDialog(chat.modelId, chat.modelSetting)"
             @modelReplace="openReplaceModelDialog(chat.modelId)"
@@ -63,13 +63,11 @@
               <span class="mdl">停止生成</span>
             </span>
           </div>
-          <EditableDivV3
+          <StreamInputField
             ref="editable"
             type="webChat"
-            :showModelSelect="false"
             :fileLimit="100"
-            mode="modelExprience"
-            source="perfectReminder"
+            :supportReminder="true"
             @preSend="preSend"
           />
         </div>
@@ -93,13 +91,13 @@
 <script>
 import { mapGetters } from 'vuex';
 import { generateChatConfig } from './helper';
-import EditableDivV3 from '@/views/rag/components/EditableDivV3.vue';
+import StreamInputField from '@/components/stream/streamInputField.vue';
 import ModelChatPane from './components/ModelChatPane.vue';
 import ModelSetDialog from '@/views/agent/components/modelSetDialog.vue';
 import SelectModelDialog from './components/SelectModelDialog.vue';
 import { createAndUpdateChat, getExprienceDetail } from '@/api/modelExprience';
 import { getModelDetail } from '@/api/modelAccess';
-import { md } from '@/mixins/marksown-it';
+import { md } from '@/mixins/markdown-it';
 export default {
   name: 'ConversationPane',
   props: {
@@ -125,7 +123,7 @@ export default {
   },
   components: {
     ModelSetDialog,
-    EditableDivV3,
+    StreamInputField,
     ModelChatPane,
     SelectModelDialog,
   },

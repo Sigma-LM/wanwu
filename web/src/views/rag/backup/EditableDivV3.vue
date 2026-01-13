@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import uploadDialog from './uploadBatchDialog';
+// import uploadDialog from './uploadBatchDialog';
 import {
   getPromptTemplateList,
   getPromptBuiltInList,

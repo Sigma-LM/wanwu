@@ -1,7 +1,7 @@
 <!--问答消息框-->
 <template>
   <div class="session rl">
-    <div class="session-setting">
+    <div v-if="supportClear" class="session-setting">
       <el-link
         class="right-setting"
         @click="gropdownClick"
@@ -107,14 +107,14 @@
         <!--loading-->
         <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrl" />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
         <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrl" />
             <div class="answer-content" style="padding: 10px; color: #e6a23c">
               {{ n.pendingResponse }}
             </div>
@@ -135,7 +135,7 @@
         >
           <!-- v-if="[0].includes(n.qa_type)" -->
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrldefaultUrl" />
             <div class="session-wrap" style="width: calc(100% - 30px)">
               <!-- <div
                 v-if="showDSBtn(n.response)"
@@ -331,11 +331,22 @@
           <div class="answer-operation">
             <div class="opera-left">
               <span
-                v-if="i === session_data.history.length - 1"
+                v-if="i === session_data.history.length - 1 && sessionStatus !== 0"
                 class="restart"
                 @click="refresh"
               >
                 <img :src="require('@/assets/imgs/refresh-icon.png')" />
+              </span>
+              <span
+                class="preStop"
+                @click="preStop"
+                v-if="
+                  supportStop &&
+                  i === session_data.history.length - 1 &&
+                  sessionStatus === 0
+                "
+              >
+                <img :src="require('@/assets/imgs/stop-icon.png')" />
               </span>
             </div>
             <div
@@ -364,7 +375,7 @@
           class="session-answer"
         >
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="modelIconUrl || '/user/api/' + defaultUrl" />
             <div class="answer-content">
               <div
                 v-if="n.gen_file_url_list && n.gen_file_url_list.length"
@@ -424,7 +435,24 @@ marked.setOptions({
 
 export default {
   mixins: [commonMixin],
-  props: ['defaultUrl', 'chatType'],
+  props: {
+    defaultUrl: {},
+    chatType: {},
+    modelIconUrl: {},
+    supportStop: {},
+    modelSessionStatus: {},
+    supportClear: {
+      type: Boolean,
+      default: true,
+    }
+  },
+  // [
+  //   'defaultUrl',
+  //   'chatType',
+  //   'modelIconUrl',
+  //   'supportStop',
+  //   'modelSessionStatus'
+  // ], //'sessionStatus',
   data() {
     return {
       md: md,
@@ -460,7 +488,12 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['userAvatar']),
-    ...mapState('app', ['sessionStatus']),
+    // ...mapState('app', ['sessionStatus']),
+    sessionStatus() {
+      console.log('typeof this.modelSessionStatus-=-=-==-=-=-')
+      console.log(typeof this.modelSessionStatus)
+      return ['number', 'string'].includes(typeof this.modelSessionStatus) ? this.modelSessionStatus : this.$store.state.app.sessionStatus;
+    },
     userAvatarSrc() {
       return this.userAvatar
         ? '/user/api/' + this.userAvatar
@@ -864,6 +897,9 @@ export default {
       });
       this.scrollBottom();
     },
+    removeLastHistory() {
+      this.session_data.history.pop();
+    },
     replaceHistoryWithImg(data) {
       this.session_data.history = data;
       this.$nextTick(() => {
@@ -926,6 +962,11 @@ export default {
         return;
       }
       this.$emit('refresh');
+    },
+    preStop() {
+      if (this.sessionStatus === 0) {
+        this.$emit('preStop');
+      }
     },
     preZan(index, item) {
       if (this.sessionStatus === 0) {
@@ -1015,6 +1056,13 @@ export default {
       this.c.height = currImg.h;
       this.$nextTick(() => {
         this.cv && this.cv.resizeCurrImg(currImg);
+      });
+    },
+    // 暴露出去，初始化history列表
+    initHistoryList(list) {
+      this.$set(this.session_data, 'history', list);
+      this.$nextTick(() => {
+        this.updateAllFileScrollStates();
       });
     },
   },
@@ -1294,7 +1342,8 @@ export default {
       color: #777;
       .opera-left {
         // flex: 8;
-        .restart {
+        .restart,
+        .preStop {
           cursor: pointer;
           img {
             width: 20px;

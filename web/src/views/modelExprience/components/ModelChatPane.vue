@@ -46,11 +46,12 @@
         />
       </el-tooltip>
     </div>
-    <SessionComponentSe
+    <StreamMessageField
       ref="session-com"
-      :sessionStatus="modelSessionStatus"
+      :modelSessionStatus="modelSessionStatus"
       :modelIconUrl="modelIconUrl"
-      :supportSingleStop="supportSingleStop"
+      :supportStop="supportStop"
+      :supportClear="false"
       @queryCopy="handleSetQuery"
       @refresh="refresh"
       @preStop="preStop"
@@ -58,13 +59,13 @@
   </div>
 </template>
 <script>
-import SessionComponentSe from '@/views/agent/components/SessionComponentSe.vue';
+import StreamMessageField from '@/components/stream/streamMessageField.vue';
 import sseMethod from '@/mixins/sseMethod.js';
 export default {
   name: 'ModelChatPane',
   mixins: [sseMethod],
   components: {
-    SessionComponentSe,
+    StreamMessageField,
   },
   props: {
     // 获取模型信息的接口是否在加载中
@@ -104,7 +105,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    supportSingleStop: {
+    supportStop: {
       // 是否支持单个停止体验
       type: Boolean,
       default: false,
