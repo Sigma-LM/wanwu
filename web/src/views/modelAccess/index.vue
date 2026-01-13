@@ -444,8 +444,6 @@ export default {
   }
 }
 .card-item:hover {
-  /*background-image: url('../../assets/imgs/cardBg.png');
-  background-size: cover;*/
   border: 1px solid $color;
 }
 .card-item-create {

@@ -575,8 +575,8 @@ export default {
                     }
                     this.setStoreSessionStatus(-1);
                   }
-                  //&& worldObj.finish === 1
-                  if (worldObj.isEnd) {
+
+                  if (worldObj.isEnd && worldObj.finish === 1) {
                     this.setStoreSessionStatus(-1);
                   }
                 },
