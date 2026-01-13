@@ -140,6 +140,10 @@
   pointer-events: none;
 }
 
+.disable-clicks .form-header .header-left .el-icon-arrow-left {
+  pointer-events: auto;
+}
+
 .agent-from-content {
   height: 100%;
   width: 100%;
