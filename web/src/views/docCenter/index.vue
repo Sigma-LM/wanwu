@@ -5,7 +5,7 @@
         <img
           v-if="homeLogoPath"
           style="height: 50px"
-          :src="basePath + '/user/api' + homeLogoPath"
+          :src="avatarSrc(homeLogoPath)"
         />
         <span v-if="homeTitle">
           {{ homeTitle }}
@@ -175,7 +175,11 @@ import MdContent from '@/components/mdContent.vue';
 import { checkPerm } from '@/router/permission';
 import { DOC_FIRST_KEY } from './constants';
 import { getDocMenu, getDocSearchContent } from '@/api/docs';
-import { fetchPermFirPath, fetchCurrentPathIndex } from '@/utils/util';
+import {
+  fetchPermFirPath,
+  fetchCurrentPathIndex,
+  avatarSrc,
+} from '@/utils/util';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -219,6 +223,7 @@ export default {
     this.getCurrentMenu();
   },
   methods: {
+    avatarSrc,
     checkPerm,
     jumpMenu(url) {
       // location.href = url

@@ -202,6 +202,7 @@ import {
   PROVIDER_TYPE,
   MODEL_TYPE,
 } from './constants';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   components: { Pagination, CreateSelectDialog, CreateDialog },

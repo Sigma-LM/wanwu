@@ -8,7 +8,7 @@
             <img
               :src="
                 editForm.avatar.path
-                  ? `/user/api` + editForm.avatar.path
+                  ? avatarSrc(editForm.avatar.path)
                   : require('@/assets/imgs/bg-logo.png')
               "
             />
@@ -292,6 +292,7 @@ import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 import { RAG } from '@/utils/commonSet';
 import CopyIcon from '@/components/copyIcon.vue';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: {
     CopyIcon,
@@ -475,6 +476,7 @@ export default {
     }
   },
   methods: {
+    avatarSrc,
     reloadData() {
       this.disableClick = false;
       this.getDetail();
