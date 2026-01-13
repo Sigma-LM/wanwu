@@ -49,32 +49,68 @@ func AssistantUpdate(ctx *gin.Context, userId, orgId string, req request.Assista
 }
 
 func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.AssistantConfig) (interface{}, error) {
-	modelConfig, err := appModelConfigModel2Proto(req.ModelConfig)
-	if err != nil {
-		return nil, err
+	var modelConfig, rerankConfig *common.AppModelConfig
+	var err error
+	if req.ModelConfig != nil {
+		if req.ModelConfig.ModelId == "" {
+			// 如果 modelId 为空，则认为用户想要清空模型配置，构造一个空的 AppModelConfig
+			modelConfig = &common.AppModelConfig{}
+		} else {
+			modelConfig, err = appModelConfigModel2Proto(*req.ModelConfig)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
-	rerankConfig, err := appModelConfigModel2Proto(req.RerankConfig)
-	if err != nil {
-		return nil, err
+	if req.RerankConfig != nil {
+		if req.RerankConfig.ModelId == "" {
+			// 如果 modelId 为空，则认为用户想要清空模型配置，构造一个空的 AppModelConfig
+			rerankConfig = &common.AppModelConfig{}
+		} else {
+			rerankConfig, err = appModelConfigModel2Proto(*req.RerankConfig)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
+	var safetyConfig *assistant_service.AssistantSafetyConfig
+	if req.SafetyConfig != nil {
+		safetyConfig = &assistant_service.AssistantSafetyConfig{
+			Enable:         req.SafetyConfig.Enable,
+			SensitiveTable: transSafetyConfig2Proto(req.SafetyConfig.Tables),
+		}
+	}
+
+	var visionConfig *assistant_service.AssistantVisionConfig
+	if req.VisionConfig != nil {
+		visionConfig = &assistant_service.AssistantVisionConfig{
+			PicNum: req.VisionConfig.PicNum,
+		}
+	}
+
+	var memoryConfig *assistant_service.AssistantMemoryConfig
+	if req.MemoryConfig != nil {
+		memoryConfig = &assistant_service.AssistantMemoryConfig{
+			MaxHistoryLength: req.MemoryConfig.MaxHistoryLength,
+		}
+	}
+
+	var knowledgeBaseConfig *assistant_service.AssistantKnowledgeBaseConfig
+	if req.KnowledgeBaseConfig != nil {
+		knowledgeBaseConfig = transKnowledgebases2Proto(*req.KnowledgeBaseConfig)
+	}
+
 	_, err = assistant.AssistantConfigUpdate(ctx.Request.Context(), &assistant_service.AssistantConfigUpdateReq{
 		AssistantId:         req.AssistantId,
 		Prologue:            req.Prologue,
 		Instructions:        req.Instructions,
 		RecommendQuestion:   req.RecommendQuestion,
 		ModelConfig:         modelConfig,
-		KnowledgeBaseConfig: transKnowledgebases2Proto(req.KnowledgeBaseConfig),
+		KnowledgeBaseConfig: knowledgeBaseConfig,
 		RerankConfig:        rerankConfig,
-		SafetyConfig: &assistant_service.AssistantSafetyConfig{
-			Enable:         req.SafetyConfig.Enable,
-			SensitiveTable: transSafetyConfig2Proto(req.SafetyConfig.Tables),
-		},
-		VisionConfig: &assistant_service.AssistantVisionConfig{
-			PicNum: req.VisionConfig.PicNum,
-		},
-		MemoryConfig: &assistant_service.AssistantMemoryConfig{
-			MaxHistoryLength: req.MemoryConfig.MaxHistoryLength,
-		},
+		SafetyConfig:        safetyConfig,
+		VisionConfig:        visionConfig,
+		MemoryConfig:        memoryConfig,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
