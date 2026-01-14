@@ -259,8 +259,8 @@ export default {
                       label {
                         padding: 3px 7px;
                         font-size: 12px;
-                        color: #3562e7;
-                        background: #e6f0ff;
+                        color: $tag_color;
+                        background: $tag_bg;
                         border-radius: 3px;
                         display: block;
                         height: 22px;
