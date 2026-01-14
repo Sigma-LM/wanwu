@@ -109,7 +109,7 @@
                 class="card-img"
                 :src="
                   item.avatar && item.avatar.path
-                    ? basePath + '/user/api/' + item.avatar.path
+                    ? avatarSrc(item.avatar.path)
                     : require('@/assets/imgs/model_default_icon.png')
                 "
               />
@@ -195,6 +195,7 @@ import {
 } from '@/api/modelAccess';
 import CreateDialog from './components/createDialog.vue';
 import CreateSelectDialog from './components/createSelectDialog.vue';
+import { avatarSrc } from '@/utils/util';
 import {
   MODEL_TYPE_OBJ,
   PROVIDER_OBJ,
@@ -225,6 +226,7 @@ export default {
     this.getTableData();
   },
   methods: {
+    avatarSrc,
     async getTableData(params) {
       this.loading = true;
       try {
