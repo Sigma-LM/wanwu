@@ -1001,7 +1001,7 @@ export default {
         '支持上传csv格式文件，单个文件不超过10MB;最多上传1个文件，文件中问答对最多添加1000条。',
       uploadTips1: '批量导入的问答对内容都将被处理成纯文本形式',
       exportRecord: '导出记录',
-      exportData: '导出数据',
+      exportData: '导出全部',
       linkQaDatabase: '关联问答库',
     },
     qaExport: {

@@ -107,14 +107,14 @@
         <!--loading-->
         <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
         <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="answer-content" style="padding: 10px; color: #e6a23c">
               {{ n.pendingResponse }}
             </div>
@@ -135,7 +135,7 @@
         >
           <!-- v-if="[0].includes(n.qa_type)" -->
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="session-wrap" style="width: calc(100% - 30px)">
               <!-- <div
                 v-if="showDSBtn(n.response)"
@@ -227,7 +227,7 @@
             </div>
           </div>
           <!-- <div v-else class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div v-if="n.code === 7" class="answer-content session-error">
               <i class="el-icon-warning"></i>
               &nbsp;{{ n.response }}
@@ -364,7 +364,7 @@
           class="session-answer"
         >
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="answer-content">
               <div
                 v-if="n.gen_file_url_list && n.gen_file_url_list.length"
@@ -407,6 +407,7 @@ var highlight = require('highlight.js');
 import 'highlight.js/styles/atom-one-dark.css';
 import commonMixin from '@/mixins/common';
 import { mapGetters, mapState } from 'vuex';
+import { avatarSrc } from '@/utils/util';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -463,7 +464,7 @@ export default {
     ...mapState('app', ['sessionStatus']),
     userAvatarSrc() {
       return this.userAvatar
-        ? '/user/api/' + this.userAvatar
+        ? avatarSrc(this.userAvatar)
         : require('@/assets/imgs/robot-icon.png');
     },
   },
@@ -508,6 +509,7 @@ export default {
     }
   },
   methods: {
+    avatarSrc,
     getTitle(type) {
       if (type === 'qa_start') {
         return this.$t('app.qaSearching');

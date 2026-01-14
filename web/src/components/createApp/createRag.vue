@@ -69,6 +69,7 @@
 import { uploadAvatar } from '@/api/user';
 import { createRag, updateRag } from '@/api/rag';
 import { mapActions, mapGetters } from 'vuex';
+import { avatarSrc } from '@/utils/util';
 export default {
   props: {
     type: {
@@ -152,11 +153,9 @@ export default {
     getImageSrc() {
       if (this.imageUrl) return this.imageUrl;
       if (this.type === 'create') {
-        return this.defaultLogo ? `/user/api/${this.defaultLogo}` : '';
+        return avatarSrc(this.defaultLogo);
       } else {
-        return this.form.avatar.path
-          ? `/user/api/${this.form.avatar.path}`
-          : '';
+        return avatarSrc(this.form.avatar.path);
       }
     },
     openDialog() {

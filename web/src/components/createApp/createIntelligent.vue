@@ -70,6 +70,7 @@ import { uploadAvatar } from '@/api/user';
 import { createAgent, updateAgent } from '@/api/agent';
 import { mapActions, mapGetters } from 'vuex';
 import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
+import { avatarSrc } from '@/utils/util';
 export default {
   props: {
     type: {
@@ -172,11 +173,9 @@ export default {
     getImageSrc() {
       if (this.imageUrl) return this.imageUrl;
       if (this.type === 'create') {
-        return this.defaultLogo ? `/user/api/${this.defaultLogo}` : '';
+        return avatarSrc(this.defaultLogo);
       } else {
-        return this.form.avatar.path
-          ? `/user/api/${this.form.avatar.path}`
-          : '';
+        return avatarSrc(this.form.avatar.path);
       }
     },
     openDialog() {

@@ -35,7 +35,7 @@
                     <img
                       class="card-logo"
                       v-if="item.avatar && item.avatar.path"
-                      :src="basePath + '/user/api/' + item.avatar.path"
+                      :src="avatarSrc(item.avatar.path)"
                     />
                     <div class="mcp_detailBox">
                       <span class="mcp_name">{{ item.name }}</span>
@@ -75,6 +75,7 @@
 import { getPromptTempList } from '@/api/templateSquare';
 import SearchInput from '@/components/searchInput.vue';
 import CreatePrompt from '@/components/createApp/createPrompt.vue';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: { SearchInput, CreatePrompt },
   props: {
@@ -108,6 +109,7 @@ export default {
     this.doGetPromptTempList();
   },
   methods: {
+    avatarSrc,
     changeTab(key) {
       this.typeRadio = key;
       this.$refs.searchInput.value = '';

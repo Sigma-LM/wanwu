@@ -18,7 +18,7 @@
         <!--问题-->
         <div v-if="n.query" class="session-question">
           <div :class="['session-item', 'rl']">
-            <img class="logo" :src="'/user/api/' + userAvatar" />
+            <img class="logo" :src="avatarSrc(userAvatar)" />
             <div class="answer-content">
               <div class="answer-content-query">
                 <el-popover
@@ -47,14 +47,14 @@
         <!--loading-->
         <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
         <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="answer-content" style="padding: 0 10px; color: #e6a23c">
               {{ n.pendingResponse }}
             </div>
@@ -73,7 +73,7 @@
           :id="'message-container' + i"
         >
           <div class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div class="session-wrap" style="width: calc(100% - 30px)">
               <div
                 class="deepseek"
@@ -217,6 +217,7 @@ var highlight = require('highlight.js');
 import 'highlight.js/styles/atom-one-dark.css';
 import commonMixin from '@/mixins/common';
 import { mapGetters } from 'vuex';
+import { avatarSrc } from '@/utils/util';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -293,6 +294,7 @@ export default {
     clearTimeout(this.scrollTimeout);
   },
   methods: {
+    avatarSrc,
     handleRecommendedQuestion(m) {
       this.$emit('handleRecommendedQuestion', m.question);
     },

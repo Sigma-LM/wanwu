@@ -210,7 +210,8 @@ export default {
                 padding: 20px 16px;
                 border-radius: 12px;
                 height: fit-content;
-                background: #fff;
+                background: #fff url('@/assets/imgs/card_bg.png');
+                background-size: 100% 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -258,8 +259,8 @@ export default {
                       label {
                         padding: 3px 7px;
                         font-size: 12px;
-                        color: #84868c;
-                        background: #f2f5f9;
+                        color: #3562e7;
+                        background: #e6f0ff;
                         border-radius: 3px;
                         display: block;
                         height: 22px;

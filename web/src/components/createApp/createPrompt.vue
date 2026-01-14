@@ -23,7 +23,7 @@
               class="upload-img"
               :src="
                 form.avatar && form.avatar.path
-                  ? basePath + '/user/api/' + form.avatar.path
+                  ? avatarSrc(form.avatar.path)
                   : defaultIcon || defaultLogo
               "
             />
@@ -99,6 +99,7 @@ import {
 } from '@/api/templateSquare';
 import { PROMPT } from '@/views/tool/constants';
 import PromptOptimize from '@/components/promptOptimize.vue';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   components: { PromptOptimize },
@@ -180,11 +181,10 @@ export default {
   },
   created() {
     const { defaultIcon = {} } = this.$store.state.user.commonInfo.data || {};
-    this.defaultIcon = defaultIcon.promptIcon
-      ? this.$basePath + '/user/api/' + defaultIcon.promptIcon
-      : '';
+    this.defaultIcon = avatarSrc(defaultIcon.promptIcon);
   },
   methods: {
+    avatarSrc,
     uploadAvatar(file, key) {
       const formData = new FormData();
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };

@@ -39,11 +39,7 @@
           <div class="card-title">
             <img
               class="card-logo"
-              :src="
-                item.avatar.path
-                  ? basePath + '/user/api/' + item.avatar.path
-                  : defaultAvatar
-              "
+              :src="avatarSrc(item.avatar.path, defaultAvatar)"
             />
             <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
@@ -95,6 +91,7 @@ import {
   copyCustomPrompt,
   copyPromptTemplate,
 } from '@/api/templateSquare';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: { SearchInput, CreatePrompt },
   data() {
@@ -109,6 +106,7 @@ export default {
     this.fetchList();
   },
   methods: {
+    avatarSrc,
     fetchList() {
       const searchInput = this.$refs.searchInput;
       const params = {

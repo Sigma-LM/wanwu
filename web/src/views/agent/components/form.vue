@@ -8,7 +8,7 @@
             <img
               :src="
                 editForm.avatar.path
-                  ? `/user/api` + editForm.avatar.path
+                  ? avatarSrc(editForm.avatar.path)
                   : require('@/assets/imgs/bg-logo.png')
               "
             />
@@ -380,7 +380,7 @@
                   <div class="name">
                     <div class="toolImg">
                       <img
-                        :src="'/user/api/' + n.avatar.path"
+                        :src="avatarSrc(n.avatar.path)"
                         v-show="n.avatar && n.avatar.path"
                       />
                     </div>
@@ -577,6 +577,7 @@ import PromptOptimize from '@/components/promptOptimize.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 import VersionPopover from '@/components/versionPopover.vue';
 import CopyIcon from '@/components/copyIcon.vue';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: {
     CopyIcon,
@@ -840,6 +841,7 @@ export default {
     this.clearMaxPicNum();
   },
   methods: {
+    avatarSrc,
     reloadData() {
       this.disableClick = false;
       this.getAppDetail();
