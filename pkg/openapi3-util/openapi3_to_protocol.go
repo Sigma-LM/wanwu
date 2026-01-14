@@ -13,13 +13,7 @@ func Schema2ProtocolTools(ctx context.Context, schema []byte) ([]*protocol.Tool,
 	if err != nil {
 		return nil, err
 	}
-	var rets []*protocol.Tool
-	for _, pathItem := range doc.Paths {
-		for _, operation := range pathItem.Operations() {
-			rets = append(rets, Operation2ProtocolTool(operation))
-		}
-	}
-	return rets, nil
+	return Doc2ProtocolTools(doc)
 }
 
 func Schema2ProtocolTool(ctx context.Context, schema []byte, operationID string) (*protocol.Tool, error) {
@@ -88,8 +82,7 @@ func Operation2ProtocolTool(operation *openapi3.Operation) *protocol.Tool {
 	if operation.RequestBody != nil && operation.RequestBody.Value != nil {
 		for _, mediaType := range operation.RequestBody.Value.Content {
 			if mediaType.Schema != nil && mediaType.Schema.Value != nil {
-				properties := SchemaProperties2ProtocolProperties(mediaType.Schema.Value.Properties)
-				for field, property := range properties {
+				for field, property := range Schemas2ProtocolProperties(mediaType.Schema.Value.Properties) {
 					ret.InputSchema.Properties[field] = property
 				}
 				ret.InputSchema.Required = append(ret.InputSchema.Required, mediaType.Schema.Value.Required...)
@@ -106,122 +99,115 @@ func Parameters2ProtocolProperties(parameters openapi3.Parameters) (map[string]*
 
 	rets := make(map[string]*protocol.Property)
 	var requireds []string
-	for _, param := range parameters {
-		if param.Value == nil {
+	for _, parameter := range parameters {
+		if parameter.Value == nil {
 			continue
 		}
-
-		propType := ParameterType2ProtocolDataType(param.Value)
-		ret := &protocol.Property{
-			Type:        propType,
-			Description: param.Value.Description,
-		}
-		switch propType {
-		case protocol.ObjectT:
-			if param.Value.Schema != nil && param.Value.Schema.Value != nil {
-				ret.Properties = SchemaProperties2ProtocolProperties(param.Value.Schema.Value.Properties)
-				ret.Required = param.Value.Schema.Value.Required
-			}
-		case protocol.Array:
-			if param.Value.Schema != nil && param.Value.Schema.Value != nil && param.Value.Schema.Value.Items != nil && param.Value.Schema.Value.Items.Value != nil {
-				ret.Items = &protocol.Property{
-					Type:        SchemaType2ProtocolDataType(param.Value.Schema.Value.Items.Value),
-					Description: param.Value.Schema.Value.Items.Value.Description,
-					Properties:  SchemaProperties2ProtocolProperties(param.Value.Schema.Value.Items.Value.Properties),
-					Required:    param.Value.Schema.Value.Items.Value.Required,
-				}
-			}
-		default:
-		}
-
-		field := param.Value.In + "-" + param.Value.Name
-		rets[field] = ret
-		if param.Value.Required {
+		field := parameter.Value.In + "-" + parameter.Value.Name
+		rets[field] = Parameter2ProtocolProperty(parameter.Value)
+		if parameter.Value.Required {
 			requireds = append(requireds, field)
 		}
 	}
+
 	return rets, requireds
 }
 
-func SchemaProperties2ProtocolProperties(properties openapi3.Schemas) map[string]*protocol.Property {
-	if properties == nil {
+func Parameter2ProtocolProperty(parameter *openapi3.Parameter) *protocol.Property {
+	if parameter == nil {
+		return nil
+	}
+
+	dataType := ParameterType2ProtocolDataType(parameter)
+	ret := &protocol.Property{
+		Type:        dataType,
+		Description: parameter.Description,
+		Required:    parameter.Schema.Value.Required,
+		// todo enum
+	}
+	switch dataType {
+	case protocol.ObjectT:
+		if parameter.Schema != nil && parameter.Schema.Value != nil {
+			ret.Properties = Schemas2ProtocolProperties(parameter.Schema.Value.Properties)
+		}
+	case protocol.Array:
+		if parameter.Schema != nil && parameter.Schema.Value != nil && parameter.Schema.Value.Items != nil {
+			ret.Items = Schema2ProtocolProperty(parameter.Schema.Value.Items.Value)
+		}
+	default:
+	}
+
+	return ret
+}
+
+func Schemas2ProtocolProperties(schemas openapi3.Schemas) map[string]*protocol.Property {
+	if schemas == nil {
 		return nil
 	}
 
 	rets := make(map[string]*protocol.Property)
-	for propName, propSchema := range properties {
-		if propSchema.Value == nil {
+	for propName, propSchema := range schemas {
+		if propSchema == nil || propSchema.Value == nil {
 			continue
 		}
-
-		propType := SchemaType2ProtocolDataType(propSchema.Value)
-		ret := &protocol.Property{
-			Type:        propType,
-			Description: propSchema.Value.Description,
-			Properties:  SchemaProperties2ProtocolProperties(propSchema.Value.Properties),
-			Required:    propSchema.Value.Required,
-		}
-		switch propType {
-		case protocol.Array:
-			if propSchema.Value.Items != nil && propSchema.Value.Items.Value != nil {
-				ret.Items = &protocol.Property{
-					Type:        SchemaType2ProtocolDataType(propSchema.Value.Items.Value),
-					Description: propSchema.Value.Items.Value.Description,
-					Properties:  SchemaProperties2ProtocolProperties(propSchema.Value.Items.Value.Properties),
-					Required:    propSchema.Value.Items.Value.Required,
-				}
-			}
-		default:
-		}
-
-		rets[propName] = ret
+		rets[propName] = Schema2ProtocolProperty(propSchema.Value)
 	}
+
 	return rets
 }
 
-// ParameterType2ProtocolDataType 获取参数类型
-func ParameterType2ProtocolDataType(param *openapi3.Parameter) protocol.DataType {
-	if param.Schema != nil && param.Schema.Value != nil {
-		return SchemaType2ProtocolDataType(param.Schema.Value)
+func Schema2ProtocolProperty(schema *openapi3.Schema) *protocol.Property {
+	if schema == nil {
+		return nil
 	}
-	return protocol.String
+
+	dataType := SchemaType2ProtocolDataType(schema)
+	ret := &protocol.Property{
+		Type:        dataType,
+		Description: schema.Description,
+		Required:    schema.Required,
+		// todo enum
+	}
+	switch dataType {
+	case protocol.ObjectT:
+		ret.Properties = Schemas2ProtocolProperties(schema.Properties)
+	case protocol.Array:
+		if schema.Items != nil {
+			ret.Items = Schema2ProtocolProperty(schema.Items.Value)
+		}
+	default:
+	}
+
+	return ret
+}
+
+// ParameterType2ProtocolDataType 获取参数类型
+func ParameterType2ProtocolDataType(parameter *openapi3.Parameter) protocol.DataType {
+	if parameter.Schema == nil {
+		return protocol.Null
+	}
+	return SchemaType2ProtocolDataType(parameter.Schema.Value)
 }
 
 // SchemaType2ProtocolDataType 获取 schema 的类型
 func SchemaType2ProtocolDataType(schema *openapi3.Schema) protocol.DataType {
-	if schema.Type != "" {
-		// 检查类型切片中的具体类型
-		switch schema.Type {
-		case openapi3.TypeObject:
-			return protocol.ObjectT
-		case openapi3.TypeArray:
-			return protocol.Array
-		case openapi3.TypeString:
-			return protocol.String
-		case openapi3.TypeNumber:
-			return protocol.Number
-		case openapi3.TypeInteger:
-			return protocol.Integer
-		case openapi3.TypeBoolean:
-			return protocol.Boolean
-		default:
-			return protocol.Null
-		}
+	if schema == nil {
+		return protocol.Null
 	}
-
-	if len(schema.AnyOf) > 0 {
-		return "anyOf"
+	switch schema.Type {
+	case openapi3.TypeObject:
+		return protocol.ObjectT
+	case openapi3.TypeArray:
+		return protocol.Array
+	case openapi3.TypeString:
+		return protocol.String
+	case openapi3.TypeNumber:
+		return protocol.Number
+	case openapi3.TypeInteger:
+		return protocol.Integer
+	case openapi3.TypeBoolean:
+		return protocol.Boolean
+	default:
+		return protocol.Null
 	}
-	if len(schema.AllOf) > 0 {
-		return "allOf"
-	}
-	if len(schema.OneOf) > 0 {
-		return "oneOf"
-	}
-
-	if schema.Format != "" {
-		return protocol.DataType(schema.Format)
-	}
-
-	return protocol.String
 }
