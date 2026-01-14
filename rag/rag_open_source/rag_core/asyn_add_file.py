@@ -300,6 +300,7 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
         logger.error('文件名不合法')
         master_control_logger.error('文件名不合法')
         mq_rel_utils.update_doc_status(file_id, status=53)
+        return
     try:
         filepath = os.path.join(user_data_path, user_id, kb_name)
         logger.info('add_files_filepath=%s' % filepath)
