@@ -265,12 +265,14 @@ def del_knowledge_base_files(user_id, kb_name, file_names, kb_id=""):
 
     # --------------2、路径文档
     for file_name in success_files:
-        del_file_path = os.path.join(filepath, file_name)
-        if os.path.isfile(del_file_path): os.remove(del_file_path)
+        if is_safe_filename(file_name):
+            del_file_path = os.path.join(filepath, file_name)
+            if os.path.isfile(del_file_path): os.remove(del_file_path)
     for i in failed_files:
         if '文档不存在' in i[1]:
-            del_file_path = os.path.join(filepath, i[0])
-            if os.path.isfile(del_file_path): os.remove(del_file_path)
+            if is_safe_filename(i[0]):
+                del_file_path = os.path.join(filepath, i[0])
+                if os.path.isfile(del_file_path): os.remove(del_file_path)
 
     if len(failed_files) == 0:
         return response_info
