@@ -26,6 +26,7 @@ from logging_config import setup_logging
 from settings import MONGO_URL, USE_DATA_FLYWHEEL
 from qa import index as qa_index
 from qa import search as qa_search
+from utils.http_util import validate_request
 
 # 定义路径
 paths = ["./parser_data"]
@@ -55,11 +56,12 @@ collection = client['rag']['rag_user_logs']
 redis_client = redis_utils.get_redis_connection()
 chunk_label_redis_client = redis_utils.get_redis_connection(redis_db=5)
 
-@app.route('/rag/init-knowledge-base', methods=['POST'])  # 初始化 done
-def init_kb():
+@app.route('/rag/init-knowledge-base', methods=['POST'])
+@validate_request
+def init_kb(request_json=None):
     logger.info('---------------初始化知识库---------------')
     try:
-        init_info = json.loads(request.get_data())
+        init_info = request_json
         user_id = init_info["userId"]
         kb_name = init_info.get("knowledgeBase", "")
         kb_id = init_info.get("kb_id", "")
@@ -140,61 +142,16 @@ def add_konwledge_temp():
     return response
 
 
-# @app.route("/rag/batch-add-knowledge", methods=["POST","GET"]) #添加多个文件
-# def batch_add_konwledge():
-#     logger.info('---------------批量上传文件---------------')
-#     response_info = {
-#         'code': 0,
-#         "message": "成功"
-#     }
-#     try:
-#         files = request.files.getlist('files')
-#         user_id = request.form["userId"]
-#         kb_name = request.form["knowledgeBase"]
-#         sentence_size = int(request.form.get("sentenceSize", 500))
-#         overlap_size = float(request.form.get("overlap_size", 0))
-
-#         filepath = os.path.join(user_data_path, user_id, kb_name, 'content')
-
-#         logger.info(repr(files))
-#         logger.info(repr(request.form))
-
-#         if files is None:
-#             response_info["code"] = 1
-#             response_info["message"] = "文件上传失败"
-#             json_str = json.dumps(response_info, ensure_ascii=False)
-#             response = make_response(json_str)
-#             response.headers['Access-Control-Allow-Origin'] = '*'
-#             return response
-
-#         response_info = add_files(user_id,kb_name,files,sentence_size,overlap_size)
-#         json_str = json.dumps(response_info, ensure_ascii=False)
-#         response = make_response(json_str)
-#         response.headers['Access-Control-Allow-Origin'] = '*'
-#         return response
-
-#     except Exception as e:
-#         logger.info(repr(e))
-#         response_info["code"] = 1
-#         response_info["msg"] = repr(e)
-
-#         json_str = json.dumps(response_info, ensure_ascii=False)
-#         response = make_response(json_str)
-#     response.headers['Access-Control-Allow-Origin'] = '*'
-#     return response
-
-# # ************************* 同步上传 API 接口，关闭不使用 ******************************
-
 @app.route("/rag/del-knowledge-base", methods=["POST"])  # 删除知识库 done
-def del_kb():
+@validate_request
+def del_kb(request_json=None):
     logger.info('---------------删除知识库---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-        kb_name = init_info.get("knowledgeBase", "")
-        kb_id = init_info.get("kb_id", "")
+        user_id = request_json.get("userId")
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
 
         assert len(user_id) > 0
         assert len(kb_name) > 0 or len(kb_id) > 0
@@ -232,16 +189,16 @@ def del_kb():
     return response
 
 @app.route("/rag/update-file-tags", methods=['POST'])
-def updateFileTags():
+@validate_request
+def updateFileTags(request_json=None):
     logger.info('---------------更新文件元数据---------------')
     try:
-        req_info = json.loads(request.get_data())
-        user_id = req_info.get('userId')
-        kb_name = req_info.get("knowledgeBase", "")
-        kb_id = req_info.get("kb_id", "")
-        file_name = req_info.get('fileName')
-        tags = req_info.get("tags", None)
-        logger.info(repr(req_info))
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('fileName')
+        tags = request_json.get("tags", None)
+        logger.info(repr(request_json))
 
         if tags is None:
             raise ValueError("tags must be not None")
@@ -265,15 +222,15 @@ def updateFileTags():
 
 
 @app.route("/rag/update-file-metas", methods=['POST'])
-def updateFileMetas():
+@validate_request
+def updateFileMetas(request_json=None):
     logger.info('---------------批量更新文件元数据---------------')
     try:
-        req_info = json.loads(request.get_data())
-        user_id = req_info.get('userId')
-        kb_name = req_info.get("knowledgeBase", "")
-        kb_id = req_info.get("kb_id", "")
-        metas = req_info.get("metas", [])
-        logger.info(repr(req_info))
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        metas = request_json.get("metas", [])
+        logger.info(repr(request_json))
 
         if not isinstance(metas, list):
             raise ValueError("metas must be a list")
@@ -290,15 +247,15 @@ def updateFileMetas():
     return response
 
 @app.route("/rag/delete-meta-by-keys", methods=['POST'])
-def deleteMetaByKeys():
+@validate_request
+def deleteMetaByKeys(request_json=None):
     logger.info('---------------知识库删除元数据key---------------')
     try:
-        req_info = json.loads(request.get_data())
-        user_id = req_info.get('userId')
-        kb_name = req_info.get("knowledgeBase", "")
-        kb_id = req_info.get("kb_id", "")
-        keys = req_info.get("keys", [])
-        logger.info(repr(req_info))
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        keys = request_json.get("keys", [])
+        logger.info(repr(request_json))
 
         if not isinstance(keys, list):
             raise ValueError("keys must be a list")
@@ -315,15 +272,15 @@ def deleteMetaByKeys():
     return response
 
 @app.route("/rag/rename-meta-keys", methods=['POST'])
-def renameMetaKeys():
+@validate_request
+def renameMetaKeys(request_json=None):
     logger.info('---------------重命名知识库元数据key---------------')
     try:
-        req_info = json.loads(request.get_data())
-        user_id = req_info.get('userId')
-        kb_name = req_info.get("knowledgeBase", "")
-        kb_id = req_info.get("kb_id", "")
-        key_mappings = req_info.get("mappings", [])
-        logger.info(repr(req_info))
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        key_mappings = request_json.get("mappings", [])
+        logger.info(repr(request_json))
 
         if not isinstance(key_mappings, list):
             raise ValueError("key_mappings must be a list")
@@ -340,17 +297,17 @@ def renameMetaKeys():
     return response
 
 @app.route("/rag/update-chunk-labels", methods=['POST'])
-def updateChunkLabels():
+@validate_request
+def updateChunkLabels(request_json=None):
     logger.info('---------------更新分片标签---------------')
     try:
-        req_info = json.loads(request.get_data())
-        user_id = req_info.get('userId')
-        kb_name = req_info.get("knowledgeBase", "")
-        kb_id = req_info.get("kb_id", "")
-        file_name = req_info.get('fileName')
-        chunk_id = req_info.get("chunk_id")
-        labels = req_info.get("labels", None)
-        logger.info(repr(req_info))
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('fileName')
+        chunk_id = request_json.get("chunk_id")
+        labels = request_json.get("labels", None)
+        logger.info(repr(request_json))
 
         if labels is None or not isinstance(labels, list):
             raise ValueError("labels must specified as an array")
@@ -372,7 +329,8 @@ def updateChunkLabels():
 
 
 @app.route("/rag/search-knowledge-base", methods=["POST"])  # 查询 done
-def search_knowledge_base():
+@validate_request
+def search_knowledge_base(request_json=None):
     logger.info('---------------问题查询---------------')
     response_info = {
         'code': 0,
@@ -381,40 +339,35 @@ def search_knowledge_base():
                  "searchList": []}
     }
     try:
-        init_info = json.loads(request.get_data())
-
-        return_meta = init_info.get("return_meta", False)
-        prompt_template = init_info.get("prompt_template", '')
-        # user_id = init_info['userId']
-        # kb_name = init_info.get("knowledgeBase", "")
-        # kb_id = init_info.get("kb_id", "")
-        knowledge_base_info = init_info.get("knowledge_base_info", {})
-        question = init_info['question']
-        rate = float(init_info.get('threshold', 0))
-        top_k = int(init_info.get('topK', 5))
-        chunk_conent = int(init_info.get('extend', '1'))
-        chunk_size = int(init_info.get('extendedLength', CHUNK_SIZE))
-        search_field = init_info.get('search_field', 'con')
+        return_meta = request_json.get("return_meta", False)
+        prompt_template = request_json.get("prompt_template", '')
+        knowledge_base_info = request_json.get("knowledge_base_info", {})
+        question = request_json.get('question')
+        rate = float(request_json.get('threshold', 0))
+        top_k = int(request_json.get('topK', 5))
+        chunk_conent = int(request_json.get('extend', '1'))
+        chunk_size = int(request_json.get('extendedLength', CHUNK_SIZE))
+        search_field = request_json.get('search_field', 'con')
         # if user_id == '': user_id = str(request.headers.get('X-Uid', ''))
-        default_answer = init_info.get("default_answer", '根据已知信息，无法回答您的问题。')
+        default_answer = request_json.get("default_answer", '根据已知信息，无法回答您的问题。')
         # 是否开启自动引文，此参数与prompt_template互斥，当开启auto_citation时，prompt_template用户传参不生效
-        auto_citation = init_info.get("auto_citation", False)
+        auto_citation = request_json.get("auto_citation", False)
         # 是否query改写
-        rewrite_query = init_info.get("rewrite_query", False)
-        use_graph = init_info.get("use_graph", False)
-        filter_file_name_list = init_info.get("filter_file_name_list", [])
-        rerank_mod = init_info.get("rerank_mod", "rerank_model")
+        rewrite_query = request_json.get("rewrite_query", False)
+        use_graph = request_json.get("use_graph", False)
+        filter_file_name_list = request_json.get("filter_file_name_list", [])
+        rerank_mod = request_json.get("rerank_mod", "rerank_model")
         # Dify开源版本问答时需指定rerank模型
-        rerank_model_id = init_info.get("rerank_model_id", '')
-        weights = init_info.get("weights", None)
-        retrieve_method = init_info.get("retrieve_method", "hybrid_search")
+        rerank_model_id = request_json.get("rerank_model_id", '')
+        weights = request_json.get("weights", None)
+        retrieve_method = request_json.get("retrieve_method", "hybrid_search")
 
         #metadata filtering params
-        metadata_filtering = init_info.get("metadata_filtering", False)
-        metadata_filtering_conditions = init_info.get("metadata_filtering_conditions", [])
+        metadata_filtering = request_json.get("metadata_filtering", False)
+        metadata_filtering_conditions = request_json.get("metadata_filtering_conditions", [])
         if not metadata_filtering:
             metadata_filtering_conditions = []
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
 
         # 检查 knowledge_base_info 是否为空
         if not knowledge_base_info:
@@ -435,14 +388,6 @@ def search_knowledge_base():
         # assert len(kb_name) > 0 or len(kb_id) > 0
         assert len(question) > 0
 
-        # if isinstance(kb_name, str):
-        #     kb_names = [kb_name]
-        # else:
-        #     kb_names = kb_name
-        # if isinstance(kb_id, str):
-        #     kb_ids = [kb_id]
-        # else:
-        #     kb_ids = kb_id
         if rewrite_query:
             for user_id, kb_info_list in knowledge_base_info.items():
                 kb_names = [kb_info['kb_name'] for kb_info in kb_info_list]
@@ -479,13 +424,12 @@ def search_knowledge_base():
 
 
 @app.route("/rag/list-knowledge-base", methods=["POST"])  # 查询用户下所有的知识库名称 done
-def list_kb():
+@validate_request
+def list_kb(request_json=None):
     logger.info('---------------查询所有知识库---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-
-        logger.info(repr(init_info))
+        user_id = request_json["userId"]
+        logger.info(repr(request_json))
 
         assert len(user_id) > 0
 
@@ -501,15 +445,15 @@ def list_kb():
 
 
 @app.route("/rag/list-knowledge-file", methods=["POST"])  # 显示用户知识库下所有的文件 done
-def list_file():
+@validate_request
+def list_file(request_json=None):
     logger.info('---------------查询所有知识库文件---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-        kb_name = init_info.get("knowledgeBase", "")
-        kb_id = init_info.get("kb_id", "")
+        user_id = request_json["userId"]
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
         assert len(user_id) > 0
         assert len(kb_name) > 0 or len(kb_id) > 0
 
@@ -526,15 +470,15 @@ def list_file():
 
 
 @app.route("/rag/list-knowledge-file-download-link", methods=["POST"])  # 显示用户知识库下所有的文件 done
-def list_file_download_link():
+@validate_request
+def list_file_download_link(request_json=None):
     logger.info('---------------查询所有知识库文件的 download_link---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-        kb_name = init_info.get("knowledgeBase", "")
-        kb_id = init_info.get("kb_id", "")
+        user_id = request_json["userId"]
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
         assert len(user_id) > 0
         assert len(kb_name) > 0 or len(kb_id) > 0
 
@@ -549,18 +493,18 @@ def list_file_download_link():
     return response
 
 @app.route("/rag/del-knowledge-file", methods=["POST"])  # 删除某个知识库下的单个文件 done
-def del_file():
+@validate_request
+def del_file(request_json=None):
     logger.info('---------------删除知识库文件---------------')
     try:
-        init_info = json.loads(request.get_data())
-        file_name = init_info["fileName"]
+        file_name = request_json.get("fileName")
         if not kb_utils.is_safe_filename(file_name):
             raise ValueError("fileName is not safe")
-        user_id = init_info["userId"]
-        kb_name = init_info.get("knowledgeBase", "")
-        kb_id = init_info.get("kb_id", "")
+        user_id = request_json.get("userId")
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
 
         assert len(file_name) > 0
         assert len(kb_name) > 0 or len(kb_id) > 0
@@ -600,19 +544,19 @@ def del_file():
 
 
 @app.route("/rag/batch_del_knowfiles", methods=["POST"])  # 删除某个知识库下的多个文件 done
-def del_files():
+@validate_request
+def del_files(request_json=None):
     logger.info('---------------批量删除知识库文件---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-        kb_name = init_info.get("knowledgeBase", "")
-        kb_id = init_info.get("kb_id", "")
-        file_names = init_info["fileNames"]
+        user_id = request_json.get("userId")
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_names = request_json.get("fileNames")
         for file_name in file_names:
             if not kb_utils.is_safe_filename(file_name):
                 raise ValueError("fileName is not safe")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
 
         assert len(file_names) > 0
         assert len(kb_name) > 0 or len(kb_id) > 0
@@ -640,15 +584,15 @@ def del_files():
 
 
 @app.route("/rag/check-knowledge-base", methods=["POST"])  # 查询某个知识库是否在某个用户下 done
-def check_kb():
+@validate_request
+def check_kb(request_json=None):
     logger.info('---------------校验知识库是否存在---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-        kb_name = init_info.get("knowledgeBase", "")
-        kb_id = init_info.get("kb_id", "")
+        user_id = request_json.get("userId")
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
 
         assert len(user_id) > 0
 
@@ -664,15 +608,15 @@ def check_kb():
 
 
 @app.route("/split_text", methods=['POST'])
-def split_text():
-    data = request.get_json()
-    text = data.get('text', '')
-    chunk_type = data.get('chunk_type')
-    sentence_size = data.get('sentence_size', 500)
-    overlap_size = data.get('overlap_size', 0.2)
-    separators = data.get('separators', ["。", "！", "？", ".", "!", "?", "……", "|\n"])
-    pdf = data.get('pdf', False)
-    excel = data.get('excel', False)
+@validate_request
+def split_text(request_json=None):
+    text = request_json.get('text', '')
+    chunk_type = request_json.get('chunk_type')
+    sentence_size = request_json.get('sentence_size', 500)
+    overlap_size = request_json.get('overlap_size', 0.2)
+    separators = request_json.get('separators', ["。", "！", "？", ".", "!", "?", "……", "|\n"])
+    pdf = request_json.get('pdf', False)
+    excel = request_json.get('excel', False)
 
     splitter = ChineseTextSplitter(chunk_type=chunk_type, sentence_size=sentence_size, overlap_size=overlap_size,
                                    pdf=pdf, excel=excel, separators=separators)
@@ -682,16 +626,16 @@ def split_text():
 
 
 @app.route("/rag/get-content-list", methods=['POST'])
-def getContentList():
+@validate_request
+def getContentList(request_json=None):
     logger.info('---------------获取某个文件的文本分块列表---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        page_size = data['page_size']
-        search_after = data['search_after']
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('fileName')
+        page_size = request_json.get('page_size')
+        search_after = request_json.get('search_after')
         # 获取分页文件内容列表
         response_info = kb_utils.get_file_content_list(user_id, kb_name, file_name, page_size, search_after, kb_id=kb_id)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -705,15 +649,15 @@ def getContentList():
 
 
 @app.route("/rag/get-child-content-list", methods=['POST'])
-def getChildContentList():
+@validate_request
+def getChildContentList(request_json=None):
     logger.info('---------------获取某个文件的子文本分块列表---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['file_name']
-        chunk_id = data['chunk_id']
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        chunk_id = request_json.get('chunk_id')
 
         response_info = kb_utils.get_file_child_content_list(user_id, kb_name, file_name, chunk_id, kb_id=kb_id)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -726,18 +670,18 @@ def getChildContentList():
     return response
 
 @app.route("/rag/batch-add-chunks", methods=['POST'])
-def batchAddChunks():
+@validate_request
+def batchAddChunks(request_json=None):
     logger.info('---------------批量新增文本分块---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        max_sentence_size = data['max_sentence_size']
-        chunks = data['chunks']
-        split_type = data.get("split_type", "common")
-        child_chunk_config = data.get("child_chunk_config", None)
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        max_sentence_size = request_json.get('max_sentence_size')
+        chunks = request_json.get('chunks')
+        split_type = request_json.get("split_type", "common")
+        child_chunk_config = request_json.get("child_chunk_config", None)
 
         if not chunks or not isinstance(chunks, list):
             raise ValueError("chunks must be a list and not empty")
@@ -757,16 +701,16 @@ def batchAddChunks():
     return response
 
 @app.route("/rag/batch-add-child-chunks", methods=['POST'])
-def batchAddChildChunks():
+@validate_request
+def batchAddChildChunks(request_json=None):
     logger.info('---------------批量新增文本子分块---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        chunk_id = data['chunk_id']
-        child_contents = data.get("child_contents", None)
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        chunk_id = request_json.get('chunk_id')
+        child_contents = request_json.get("child_contents", None)
 
         if not child_contents or not isinstance(child_contents, list):
             raise ValueError("child_contents must be a list and not empty")
@@ -783,18 +727,18 @@ def batchAddChildChunks():
     return response
 
 @app.route("/rag/update-chunk", methods=['POST'])
-def updateChunk():
+@validate_request
+def updateChunk(request_json=None):
     logger.info('---------------更新分段---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        max_sentence_size = data['max_sentence_size']
-        chunk = data.get('chunk', None)
-        split_type = data.get("split_type", "common")
-        child_chunk_config = data.get("child_chunk_config", None)
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        max_sentence_size = request_json.get('max_sentence_size')
+        chunk = request_json.get('chunk', None)
+        split_type = request_json.get("split_type", "common")
+        child_chunk_config = request_json.get("child_chunk_config", None)
 
         if not chunk or not isinstance(chunk, dict):
             raise ValueError("chunk must be a dict and not empty")
@@ -819,17 +763,17 @@ def updateChunk():
     return response
 
 @app.route("/rag/update-child-chunk", methods=['POST'])
-def updateChildChunk():
+@validate_request
+def updateChildChunk(request_json=None):
     logger.info('---------------更新子分段---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        child_chunk = data.get('child_chunk', None)
-        chunk_id = data.get('chunk_id')
-        chunk_current_num = data.get('chunk_current_num')
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        child_chunk = request_json.get('child_chunk', None)
+        chunk_id = request_json.get('chunk_id')
+        chunk_current_num = request_json.get('chunk_current_num')
 
         if not child_chunk or not isinstance(child_chunk, dict):
             raise ValueError("child_chunk must be a dict and not empty")
@@ -845,15 +789,15 @@ def updateChildChunk():
     return response
 
 @app.route("/rag/batch-delete-chunks", methods=['POST'])
-def batchDeleteChunks():
+@validate_request
+def batchDeleteChunks(request_json=None):
     logger.info('---------------批量删除文本分段---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        chunk_ids = data.get('chunk_ids', [])
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        chunk_ids = request_json.get('chunk_ids', [])
 
         if not chunk_ids or not isinstance(chunk_ids, list):
             raise ValueError("chunk_ids must be a list and not empty")
@@ -868,17 +812,17 @@ def batchDeleteChunks():
     return response
 
 @app.route("/rag/batch-delete-child-chunks", methods=['POST'])
-def batchDeleteChildChunks():
+@validate_request
+def batchDeleteChildChunks(request_json=None):
     logger.info('---------------批量删除文本子分段---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        chunk_id = data.get('chunk_id')
-        chunk_current_num = data.get('chunk_current_num')
-        child_chunk_current_nums = data.get('child_chunk_current_nums', [])
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        chunk_id = request_json.get('chunk_id')
+        chunk_current_num = request_json.get('chunk_current_num')
+        child_chunk_current_nums = request_json.get('child_chunk_current_nums', [])
 
         if not child_chunk_current_nums or not isinstance(child_chunk_current_nums, list):
             raise ValueError("child_chunk_current_nums must be a list and not empty")
@@ -895,17 +839,18 @@ def batchDeleteChildChunks():
 
 
 @app.route("/rag/update-content-status", methods=['POST'])
-def updateContentStatus():
+@validate_request
+def updateContentStatus(request_json=None):
     logger.info('---------------更新文本分块状态---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        file_name = data['fileName']
-        content_id = data['content_id']
-        status = data['status']
-        on_off_switch = data.get('on_off_switch', None)  # 没有传递则默认为 None
+
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        file_name = request_json.get('file_name')
+        content_id = request_json.get('content_id')
+        status = request_json.get('status')
+        on_off_switch = request_json.get('on_off_switch', None)  # 没有传递则默认为 None
         response_info = kb_utils.update_content_status(user_id, kb_name, file_name, content_id, status, on_off_switch, kb_id=kb_id)
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
@@ -918,13 +863,13 @@ def updateContentStatus():
 
 
 @app.route("/rag/update-kb-name", methods=['POST'])
-def updateKbName():
+@validate_request
+def updateKbName(request_json=None):
     logger.info('---------------更新知识库名接口---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        old_kb_name = data['old_kb_name']
-        new_kb_name = data['new_kb_name']
+        user_id = request_json.get('userId')
+        old_kb_name = request_json.get('old_kb_name')
+        new_kb_name = request_json.get('new_kb_name')
         response_info = kb_utils.update_kb_name(user_id, old_kb_name, new_kb_name)
         headers = {'Access-Control-Allow-Origin': '*'}
         response = make_response(json.dumps(response_info, ensure_ascii=False), headers)
@@ -936,15 +881,15 @@ def updateKbName():
     return response
 
 
-@app.route("/rag/del-knowledge-cache", methods=["POST"])  
-def del_knowledge_cache():
+@app.route("/rag/del-knowledge-cache", methods=["POST"])
+@validate_request
+def del_knowledge_cache(request_json=None):
     logger.info('---------------删除知识库数据飞轮缓存---------------')
     try:
-        init_info = json.loads(request.get_data())
-        user_id = init_info["userId"]
-        kb_name = init_info["knowledgeBase"]
+        user_id = request_json.get("userId")
+        kb_name = request_json.get("knowledgeBase")
 
-        logger.info(repr(init_info))
+        logger.info(repr(request_json))
 
         assert len(user_id) > 0
         assert len(kb_name) > 0
@@ -977,7 +922,8 @@ def truncate_filename(filename, max_length=200):
     return truncated_base + ext
 
 @app.route('/rag/doc_parser', methods=['POST'])
-def doc_parser():
+@validate_request
+def doc_parser(request_json=None):
     logger.info('---------------给定文件解析内容并切分，返回切分的chunklist---------------')
     response_info = {
         'code': 200,
@@ -987,8 +933,7 @@ def doc_parser():
     parser_data_path = './parser_data/'
     max_length = 200
     try:
-        init_info = json.loads(request.get_data())
-        download_link = init_info.get("url", '')
+        download_link = request_json.get("url", '')
         if not download_link:
             response_info['code'] = 0
             response_info['message'] = "文件下载链接为空！"
@@ -1008,11 +953,11 @@ def doc_parser():
 
         with open(file_path, "wb") as file:
             file.write(file_response.content)
-        overlap_size = init_info.get('overlap_size', 0)
-        sentence_size = init_info.get('sentence_size', 8096)
-        separators = init_info.get('separators', ['。'])
-        parser_choices = init_info.get('parser_choices', ['text','ocr'])
-        ocr_model_id = init_info.get('ocr_model_id',"")
+        overlap_size = request_json.get('overlap_size', 0)
+        sentence_size = request_json.get('sentence_size', 8096)
+        separators = request_json.get('separators', ['。'])
+        parser_choices = request_json.get('parser_choices', ['text','ocr'])
+        ocr_model_id = request_json.get('ocr_model_id',"")
         chunk_type = 'split_by_design'
 
         split_config = file_utils.SplitConfig(
@@ -1051,7 +996,8 @@ def doc_parser():
 
 
 @app.route('/rag/user_feedback', methods=['POST'])
-def user_feedback():
+@validate_request
+def user_feedback(request_json=None):
     logger.info('--------------rag点赞与/点踩,用户反馈接口---------------')
     response_info = {
         'code': 200,
@@ -1059,15 +1005,14 @@ def user_feedback():
     }
 
     try:
-        init_info = json.loads(request.get_data())
-        msg_id = init_info.get("msg_id", "")
-        action = init_info.get("action", "")  # like:点赞；stomp：点踩; cancel：取消
-        answer = init_info.get("answer", "") # 答案
-        error_type = init_info.get("error_type", "") #all_error:全部错误; part_error:部分错误; other:其他
-        other_reason = init_info.get("other_reason", "") # 其他原因说明
-        source = init_info.get("source", "") # 调用来源: ChatConsult 或 Agent 值为空可能API调用
+        msg_id = request_json.get("msg_id", "")
+        action = request_json.get("action", "")  # like:点赞；stomp：点踩; cancel：取消
+        answer = request_json.get("answer", "") # 答案
+        error_type = request_json.get("error_type", "") #all_error:全部错误; part_error:部分错误; other:其他
+        other_reason = request_json.get("other_reason", "") # 其他原因说明
+        source = request_json.get("source", "") # 调用来源: ChatConsult 或 Agent 值为空可能API调用
         # 是否开启数据飞轮
-        data_flywheel = init_info.get("data_flywheel", False)
+        data_flywheel = request_json.get("data_flywheel", False)
         if msg_id and action:
             u_condition = {'id': msg_id}
             data = {}
@@ -1137,7 +1082,8 @@ def user_feedback():
 
 
 @app.route('/rag/proper_noun', methods=['POST'])
-def proper_noun():
+@validate_request
+def proper_noun(request_json=None):
     logger.info('--------------平台专名词表同步更新至redis接口---------------')
     response_info = {
         'code': 200,
@@ -1145,15 +1091,12 @@ def proper_noun():
     }
 
     try:
-        init_info = json.loads(request.get_data())
-        msg_id = int(init_info.get("id", "-1"))
+        msg_id = int(request_json.get("id", "-1"))
         # user_id = init_info.get("user_id", "")
-        action = init_info.get("action", "")  # add：新增；delete:删除; update:修改
-        name = init_info.get("name", "")  # 专名词
-        alias = init_info.get("alias", [])  # 别名词表
-        # apply_type = init_info.get("apply_type", [])  # 作用域：user 或 knowledgebase 或 user + knowledgebase
-        # knowledge_base = init_info.get("knowledge_base_list", []) # 若作用域为knowledgebase需传 知识库名称列表
-        knowledge_base_info = init_info.get("knowledge_base_info", {})
+        action = request_json.get("action", "")  # add：新增；delete:删除; update:修改
+        name = request_json.get("name", "")  # 专名词
+        alias = request_json.get("alias", [])  # 别名词表
+        knowledge_base_info = request_json.get("knowledge_base_info", {})
         if knowledge_base_info:  # 整理格式
             for user_id, kb_info_list in knowledge_base_info.items():
                 knowledge_base_info[user_id] = [kb_info['kb_id'] if kb_info.get('kb_id') else kb_utils.get_kb_name_id(user_id, kb_info['kb_name']) for kb_info in kb_info_list]
@@ -1204,14 +1147,14 @@ def proper_noun():
 
 
 @app.route("/rag/batch-add-reports", methods=['POST'])
-def batchAddReports():
+@validate_request
+def batchAddReports(request_json=None):
     logger.info('---------------批量新增社区报告---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        reports = data.get("reports", None)
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        reports = request_json.get("reports", None)
 
         if not reports or not isinstance(reports, list):
             raise ValueError("reports must be a list and not empty")
@@ -1227,14 +1170,14 @@ def batchAddReports():
     return response
 
 @app.route("/rag/update-report", methods=['POST'])
-def updateReport():
+@validate_request
+def updateReport(request_json=None):
     logger.info('---------------更新community report---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        report = data.get('reports', None)
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        report = request_json.get('reports', None)
 
         if not report or not isinstance(report, dict):
             raise ValueError("reports must be a dict and not empty")
@@ -1250,14 +1193,14 @@ def updateReport():
     return response
 
 @app.route("/rag/batch-delete-reports", methods=['POST'])
-def batchDeleteReports():
+@validate_request
+def batchDeleteReports(request_json=None):
     logger.info('---------------批量删除community reports---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        report_ids = data.get('report_ids', [])
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        report_ids = request_json.get('report_ids', [])
 
         if not report_ids or not isinstance(report_ids, list):
             raise ValueError("report_ids must be a list and not empty")
@@ -1273,15 +1216,15 @@ def batchDeleteReports():
 
 
 @app.route("/rag/get-community-report-list", methods=['POST'])
-def getReportsList():
+@validate_request
+def getReportsList(request_json=None):
     logger.info('---------------获取community reports列表---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
-        page_size = data['page_size']
-        search_after = data['search_after']
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
+        page_size = request_json.get('page_size')
+        search_after = request_json.get('search_after')
         # 获取分页文件内容列表
         response_info = graph_utils.get_community_report_list(user_id, kb_name, page_size, search_after, kb_id=kb_id)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1294,13 +1237,13 @@ def getReportsList():
     return response
 
 @app.route("/rag/knowledgeBase-graph", methods=['POST'])
-def knowledgeBaseGraph():
+@validate_request
+def knowledgeBaseGraph(request_json=None):
     logger.info('---------------获取知识库知识图谱---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        kb_name = data.get("knowledgeBase", "")
-        kb_id = data.get("kb_id", "")
+        user_id = request_json.get('userId')
+        kb_name = request_json.get("knowledgeBase", "")
+        kb_id = request_json.get("kb_id", "")
 
         graph_data = graph_utils.get_kb_graph_data(user_id, kb_name, kb_id=kb_id)
         response_info = {'code': 0, "message": "", "data": graph_data}
@@ -1317,15 +1260,15 @@ def knowledgeBaseGraph():
 # ================= QA 知识库相关接口 =================
 # 1. 创建问答库
 @app.route("/rag/init-QA-base", methods=['POST'])
-def init_qa_base():
+@validate_request
+def init_qa_base(request_json=None):
     """ 创建问答库 """
     logger.info('---------------初始化问答库---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        embedding_model_id = data["embedding_model_id"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        embedding_model_id = request_json.get("embedding_model_id")
         logger.info(f"[init_qa_base] uid={user_id}, qa_base={qa_base}, qa_id={qa_id}, embed_id={embedding_model_id}")
         response_info = qa_index.init_qa_base(user_id, qa_base, qa_id, embedding_model_id)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1340,14 +1283,14 @@ def init_qa_base():
 
 # 2. 删除问答库
 @app.route("/rag/delete-QA-base", methods=['POST'])
-def delete_qa_base():
+@validate_request
+def delete_qa_base(request_json=None):
     """ 删除问答库 """
     logger.info('---------------删除问答库---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
         logger.info(f"[delete_qa_base] uid={user_id}, base={qa_base}, qaid={qa_id}")
         response_info = qa_index.delete_qa_base(user_id, qa_base, qa_id)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1362,15 +1305,15 @@ def delete_qa_base():
 
 # 3. 批量新增问答对
 @app.route("/rag/batch-add-QAs", methods=['POST'])
-def batch_add_qas():
+@validate_request
+def batch_add_qas(request_json=None):
     """ 批量新增问答对 """
     logger.info('-------------- 批量新增问答对---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        qa_pairs = data["QAPairs"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        qa_pairs = request_json.get("QAPairs")
         logger.info(f"[batch_add_qas] uid={user_id}, base={qa_base}, qaid={qa_id}, count={len(qa_pairs)}")
         response_info = qa_index.batch_add_qas(user_id, qa_base, qa_id, qa_pairs)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1385,16 +1328,16 @@ def batch_add_qas():
 
 # 4. 查看问答对列表
 @app.route("/rag/get-QA-list", methods=['POST'])
-def get_qa_list():
+@validate_request
+def get_qa_list(request_json=None):
     """ 查看问答对列表 """
     logger.info('---------------分页获取问答对列表---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        page_size = data["page_size"]
-        search_after = data["search_after"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        page_size = request_json.get("page_size")
+        search_after = request_json.get("search_after")
         logger.info(
             f"[get_qa_list] uid={user_id}, base={qa_base}, qaid={qa_id}, size={page_size}, after={search_after}")
         response_info = qa_index.get_qa_list(user_id, qa_base, qa_id, page_size, search_after)
@@ -1410,15 +1353,15 @@ def get_qa_list():
 
 # 5. 更新问答对
 @app.route("/rag/update-QA", methods=['POST'])
-def update_qa():
+@validate_request
+def update_qa(request_json=None):
     """ 更新问答对 """
     logger.info('---------------更新问答对---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        qa_pair = data["QAPair"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        qa_pair = request_json.get("QAPair")
         logger.info(f"[update_qa] uid={user_id}, base={qa_base}, qaid={qa_id}, qa_pair={qa_pair}")
         response_info = qa_index.update_qa(user_id, qa_base, qa_id, qa_pair)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1433,15 +1376,15 @@ def update_qa():
 
 # 6. 删除问答对
 @app.route("/rag/batch-delete-QAs", methods=['POST'])
-def batch_delete_qas():
+@validate_request
+def batch_delete_qas(request_json=None):
     """ 批量删除问答对 """
     logger.info('---------------批量删除问答对---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        qa_pair_ids = data["QAPairIds"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        qa_pair_ids = request_json.get("QAPairIds")
         logger.info(f"[batch_delete_qas] uid={user_id}, base={qa_base}, qaid={qa_id}, ids={qa_pair_ids}")
         response_info = qa_index.batch_delete_qas(user_id, qa_base, qa_id, qa_pair_ids)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1456,16 +1399,16 @@ def batch_delete_qas():
 
 # 7. 启停问答对
 @app.route("/rag/update-QA-status", methods=['POST'])
-def update_qa_status():
+@validate_request
+def update_qa_status(request_json=None):
     """ 启停问答对 """
     logger.info('---------------更新问答对启停状态---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        qa_pair_id = data["QAPairId"]
-        status = data["status"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        qa_pair_id = request_json.get("QAPairId")
+        status = request_json.get("status")
         logger.info(
             f"[update_qa_status] uid={user_id}, base={qa_base}, qaid={qa_id}, pair={qa_pair_id}, status={status}")
         response_info = qa_index.update_qa_status(user_id, qa_base, qa_id, qa_pair_id, status)
@@ -1481,15 +1424,15 @@ def update_qa_status():
 
 # 8.1 批量更新元数据
 @app.route("/rag/update-QA-metas", methods=['POST'])
-def update_qa_metas():
+@validate_request
+def update_qa_metas(request_json=None):
     """ 批量更新元数据 """
     logger.info('---------------更新问答对元数据---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        metas = data["metas"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        metas = request_json.get("metas")
         logger.info(f"[update_qa_metas] uid={user_id}, base={qa_base}, qaid={qa_id}, metas={len(metas)}")
         response_info = qa_index.update_qa_metas(user_id, qa_base, qa_id, metas)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1504,15 +1447,15 @@ def update_qa_metas():
 
 # 8.2 批量删除元数据
 @app.route("/rag/delete-QA-meta-by-keys", methods=['POST'])
-def delete_qa_meta_by_keys():
+@validate_request
+def delete_qa_meta_by_keys(request_json=None):
     """ 批量删除元数据 """
     logger.info('---------------删除问答库元数据key---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        keys = data["keys"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        keys = request_json.get("keys")
         logger.info(f"[delete_meta_by_keys] uid={user_id}, base={qa_base}, qaid={qa_id}, keys={keys}")
         response_info = qa_index.delete_meta_by_keys(user_id, qa_base, qa_id, keys)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1527,15 +1470,15 @@ def delete_qa_meta_by_keys():
 
 # 8.3 批量重命名元数据 Key
 @app.route("/rag/rename-QA-meta-keys", methods=['POST'])
-def rename_qa_meta_keys():
+@validate_request
+def rename_qa_meta_keys(request_json=None):
     """ 批量重命名元数据 Key """
     logger.info('---------------重命名问答库元数据key name---------------')
     try:
-        data = request.get_json()
-        user_id = data['userId']
-        qa_base = data["QABase"]
-        qa_id = data["QAId"]
-        mappings = data["mappings"]
+        user_id = request_json.get('userId')
+        qa_base = request_json.get("QABase")
+        qa_id = request_json.get("QAId")
+        mappings = request_json.get("mappings")
         logger.info(f"[rename_meta_keys] uid={user_id}, base={qa_base}, qaid={qa_id}, mappings={mappings}")
         response_info = qa_index.rename_meta_keys(user_id, qa_base, qa_id, mappings)
         headers = {'Access-Control-Allow-Origin': '*'}
@@ -1549,29 +1492,28 @@ def rename_qa_meta_keys():
 
 
 @app.route("/rag/search-QA-base", methods=["POST"])  # 查询 done
-def search_qa_base():
+@validate_request
+def search_qa_base(request_json=None):
     logger.info('---------------问答库问题查询---------------')
     try:
-        req_info = json.loads(request.get_data())
-
-        return_meta = req_info.get("returnMeta", False)
-        qa_base_info = req_info.get("QABaseInfo", {})
-        question = req_info['question']
-        rate = float(req_info.get('threshold', 0))
-        top_k = int(req_info.get('topK', 5))
+        return_meta = request_json.get("returnMeta", False)
+        qa_base_info = request_json.get("QABaseInfo", {})
+        question = request_json.get('question')
+        rate = float(request_json.get('threshold', 0))
+        top_k = int(request_json.get('topK', 5))
         # 是否query改写
-        rewrite_query = req_info.get("rewriteQuery", False)
-        rerank_mod = req_info.get("rerankMod", "rerank_model")
-        rerank_model_id = req_info.get("rerankModelId", '')
-        weights = req_info.get("weights", None)
-        retrieve_method = req_info.get("retrieveMethod", "hybrid_search")
+        rewrite_query = request_json.get("rewriteQuery", False)
+        rerank_mod = request_json.get("rerankMod", "rerank_model")
+        rerank_model_id = request_json.get("rerankModelId", '')
+        weights = request_json.get("weights", None)
+        retrieve_method = request_json.get("retrieveMethod", "hybrid_search")
 
         #metadata filtering params
-        metadata_filtering = req_info.get("metadataFiltering", False)
-        metadata_filtering_conditions = req_info.get("metadataFilteringConditions", [])
+        metadata_filtering = request_json.get("metadataFiltering", False)
+        metadata_filtering_conditions = request_json.get("metadataFilteringConditions", [])
         if not metadata_filtering:
             metadata_filtering_conditions = []
-        logger.info(repr(req_info))
+        logger.info(repr(request_json))
 
         # 检查 qa_base_info 是否为空
         if not qa_base_info:
