@@ -16,6 +16,7 @@ import argparse
 import re
 
 from logging_config import setup_logging
+from utils.http_util import validate_request
 
 
 TEMP_URL_FILES_DIR = os.path.join(os.path.dirname(__name__), 'temp_url_files')
@@ -80,10 +81,10 @@ def fetch_html_with_chromium(url: str, wait_until="networkidle"):
 
 #解析服务
 @app.route('/url_pra', methods=["POST","GET"])
-def url_add():
-    data = request.json
-    url = data.get('url')
-    logger.info(f"入参是: {data}")
+@validate_request
+def url_add(request_json=None):
+    url = request_json.get('url')
+    logger.info(f"入参是: {request_json}")
     url = unquote_plus(url) 
     
     logger.info(f"The value of url is: {url}")
@@ -185,18 +186,11 @@ def url_add():
 
 #解析出内容入库
 @app.route('/url_insert', methods=["POST","GET"])
-def url_insert_data():
+@validate_request
+def url_insert_data(request_json=None):
     logger.info('进入入库')
-    data = request.json
-    file_name = data.get('file_name')
-    # overlap_size = data.get('overlap_size',0.0)
-    # sentence_size = data.get('sentence_size', 300)    
-    # chunk_type = data.get('chunk_type', 'split_by_default') 
-    # user_id = data.get("userId")
-    # kb_name = data.get("knowledgeBase")
-    # is_enhanced = data.get("is_enhanced", 'false')
-    # separators = data.get("separators", ['。'])
-    task_id = data.get("task_id")
+    file_name = request_json.get('file_name')
+    task_id = request_json.get("task_id")
     try:
         if not is_safe_filename(file_name):
             raise FileExistsError("文件名不合法")
@@ -243,8 +237,6 @@ def url_insert_data():
         return jsonify({'error': str(e)}), 500
     logger.info(f"insert sucess: {response}")
     return response,200
-
-
 
 
 if __name__ == '__main__':
