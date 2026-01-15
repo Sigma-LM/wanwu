@@ -1,0 +1,408 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Bocha Search API",
+    "description": "Bocha 多模态搜索服务接口文档",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://callback-wanwu:8669/v1",
+      "description": "本地开发服务器"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Bocha Search",
+      "description": "多模态与垂直领域搜索接口"
+    }
+  ],
+  "paths": {
+    "/bocha/comprehensive": {
+      "post": {
+        "summary": "全面综合搜索",
+        "operationId": "bocha_comprehensive_search",
+        "description": "全面综合搜索: 执行一次标准的、包含所有信息类型的综合搜索。返回网页、图片、AI总结、追问建议和可能的模态卡。这是最常用的通用搜索工具。",
+        "tags": [
+          "Bocha Search"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvancedSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/bocha/web-only": {
+      "post": {
+        "summary": "纯网页搜索",
+        "operationId": "bocha_web_search_only",
+        "description": "纯网页搜索: 只获取网页链接和摘要，不请求AI生成答案。适用于需要快速获取原始网页信息，而不需要AI额外分析的场景。速度更快，成本更低。",
+        "tags": [
+          "Bocha Search"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AdvancedSearchRequest"
+                  }
+                ],
+                "example": {
+                  "query": "Python Flask 教程",
+                  "max_results": 15
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/bocha/structured": {
+      "post": {
+        "summary": "结构化数据查询",
+        "operationId": "bocha_search_structured",
+        "description": "触发特定领域的结构化模态卡数据。当Agent意图是查询天气、股票、汇率、百科定义、火车票、汽车参数等结构化信息时，应优先使用此工具。它会返回所有信息，但Agent应重点关注结果中的 `modal_cards` 部分。",
+        "tags": [
+          "Bocha Search"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/bocha/day": {
+      "post": {
+        "summary": "搜索24小时内信息",
+        "operationId": "bocha_search_day",
+        "description": "此工具专门查找过去24小时内发布的内容。适用于追踪突发事件或最新进展。",
+        "tags": [
+          "Bocha Search"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleSearchRequest"
+              },
+              "example": {
+                "query": "今天的新闻热点"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/bocha/week": {
+      "post": {
+        "summary": "搜索本周信息",
+        "operationId": "bocha_search_last_week",
+        "description": "搜索本周信息: 获取关于某个主题过去一周内的主要报道。适用于进行周度舆情总结或回顾。",
+        "tags": [
+          "Bocha Search"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleSearchRequest"
+              },
+              "example": {
+                "query": "本周科技圈大事"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API_KEY",
+        "description": "请在 Header 中提供 Bearer Token"
+      }
+    },
+    "schemas": {
+      "SimpleSearchRequest": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "搜索关键词",
+            "example": "DeepSeek R1"
+          }
+        }
+      },
+      "AdvancedSearchRequest": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "搜索关键词",
+            "example": "DeepSeek R1 模型特点"
+          },
+          "max_results": {
+            "type": "integer",
+            "description": "返回结果数量限制",
+            "default": 10,
+            "example": 10
+          }
+        }
+      },
+      "WebPageItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "网页标题"
+          },
+          "url": {
+            "type": "string",
+            "description": "链接地址"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "摘要片段"
+          },
+          "display_url": {
+            "type": "string",
+            "description": "展示链接"
+          },
+          "date_last_crawled": {
+            "type": "string",
+            "description": "最后爬取时间"
+          }
+        }
+      },
+      "ImageItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "图片标题"
+          },
+          "content_url": {
+            "type": "string",
+            "description": "图片原始链接"
+          },
+          "host_page_url": {
+            "type": "string",
+            "description": "图片来源网页"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "description": "缩略图链接"
+          },
+          "width": {
+            "type": "integer"
+          },
+          "height": {
+            "type": "integer"
+          }
+        }
+      },
+      "ModalCardItem": {
+        "type": "object",
+        "properties": {
+          "card_type": {
+            "type": "string",
+            "description": "卡片类型"
+          },
+          "content": {
+            "type": "object",
+            "description": "结构化数据内容 (Schema根据card_type动态变化)"
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "原始查询词"
+          },
+          "conversation_id": {
+            "type": "string",
+            "description": "会话ID"
+          },
+          "answer": {
+            "type": "string",
+            "description": "AI生成的总结回答"
+          },
+          "follow_ups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "推荐追问列表"
+          },
+          "webpages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebPageItem"
+            },
+            "description": "网页搜索结果列表"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageItem"
+            },
+            "description": "图片结果列表"
+          },
+          "modal_cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalCardItem"
+            },
+            "description": "模态卡片列表"
+          }
+        }
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Unauthorized: Missing API Key",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Unauthorized: Missing Api Key"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,720 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Tavily News Search API",
+    "description": "基于 Tavily 的新闻搜索服务接口，支持基础搜索、深度搜索、图片搜索及按时间维度的搜索。",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/tavily/news": {
+      "post": {
+        "summary": "基础新闻搜索",
+        "operationId": "tavily_basic_search",
+        "deprecated": false,
+        "description": "基础新闻搜索: 执行一次标准、快速的新闻搜索。这是最常用的通用搜索工具，适用于不确定需要何种特定搜索时。Agent可提供搜索查询(query)和可选的最大结果数(max_results)。",
+        "tags": [
+          "Tavily News"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "OpenAI 最新动态"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果的最大数量 (默认 7)",
+                    "default": 7,
+                    "example": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "搜索关键词"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "AI总结的答案"
+                    },
+                    "response_time": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "score": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "raw_content": {
+                            "type": "string"
+                          },
+                          "published_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误 (缺少 query)"
+          },
+          "401": {
+            "description": "API Key 无效或缺失"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tavily/news/deep": {
+      "post": {
+        "summary": "深度新闻搜索",
+        "operationId": "tavily_deep_search",
+        "deprecated": false,
+        "description": "深度新闻分析，对一个主题进行最全面、最深入的搜索。返回AI生成的“高级”详细摘要答案和最多20条最相关的新闻结果。适用于需要全面了解某个事件背景的场景。Agent需提供搜索查询(query)和可选的最大结果数(max_results)。",
+        "tags": [
+          "Tavily News"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "量子计算突破"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果的最大数量 (默认 20)",
+                    "default": 20,
+                    "example": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "搜索关键词"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "AI总结的答案"
+                    },
+                    "response_time": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "score": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "raw_content": {
+                            "type": "string"
+                          },
+                          "published_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tavily/news/day": {
+      "post": {
+        "summary": "搜索最近一天的新闻",
+        "operationId": "tavily_day_search",
+        "deprecated": false,
+        "description": "搜索24小时内新闻: 获取关于某个主题的最新动态。此工具专门查找过去24小时内发布的新闻。适用于追踪突发事件或最新进展。Agent需提供搜索查询(query)和可选的最大结果数(max_results)。",
+        "tags": [
+          "Tavily News"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "纳斯达克今日行情"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果的最大数量 (默认 10)",
+                    "default": 10,
+                    "example": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "搜索关键词"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "AI总结的答案"
+                    },
+                    "response_time": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "score": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "raw_content": {
+                            "type": "string"
+                          },
+                          "published_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tavily/news/week": {
+      "post": {
+        "summary": "搜索最近一周的新闻",
+        "operationId": "tavily_week_search",
+        "deprecated": false,
+        "description": "搜索本周新闻: 获取关于某个主题过去一周内的主要新闻报道。适用于进行周度舆情总结或回顾。Agent需提供搜索查询(query)和可选的最大结果数(max_results)。",
+        "tags": [
+          "Tavily News"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "纳斯达克今日行情"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果的最大数量 (默认 10)",
+                    "default": 10,
+                    "example": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "搜索关键词"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "AI总结的答案"
+                    },
+                    "response_time": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "score": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "raw_content": {
+                            "type": "string"
+                          },
+                          "published_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tavily/news/image": {
+      "post": {
+        "summary": "查找新闻图片",
+        "operationId": "tavily_image_search",
+        "deprecated": false,
+        "description": "搜索与某个新闻主题相关的图片。此工具会返回图片链接及描述，适用于需要为报告或文章配图的场景。Agent只需提供搜索查询(query)和可选的最大结果数(max_results)。",
+        "tags": [
+          "Tavily News"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "OpenAI 最新动态"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果的最大数量 (默认 5)",
+                    "default": 5,
+                    "example": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "搜索关键词"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "AI总结的答案"
+                    },
+                    "response_time": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "score": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "raw_content": {
+                            "type": "string"
+                          },
+                          "published_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误 (缺少 query)"
+          },
+          "401": {
+            "description": "API Key 无效或缺失"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/tavily/news/date": {
+      "post": {
+        "summary": "按指定日期范围搜索新闻",
+        "operationId": "tavily_date_search",
+        "deprecated": false,
+        "description": "按指定日期范围搜索新闻: 在一个明确的历史时间段内搜索新闻。这是唯一需要Agent提供详细时间参数的工具。适用于需要对特定历史事件进行分析的场景。Agent需要提供查询(query)、开始日期(start_date)和结束日期(end_date)，格式均为 'YYYY-MM-DD'，和可选的最大结果数(max_results)。",
+        "tags": [
+          "Tavily News"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query",
+                  "start_date",
+                  "end_date"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "OpenAI 最新动态"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "开始日期，格式 'YYYY-MM-DD'",
+                    "example": "2026-01-01"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "结束日期，格式 'YYYY-MM-DD'",
+                    "example": "2026-01-07"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果的最大数量 (默认 15)",
+                    "default": 15,
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "搜索成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "搜索关键词"
+                    },
+                    "answer": {
+                      "type": "string",
+                      "description": "AI总结的答案"
+                    },
+                    "response_time": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "score": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "raw_content": {
+                            "type": "string"
+                          },
+                          "published_date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误 (缺少 query)"
+          },
+          "401": {
+            "description": "API Key 无效或缺失"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "请在 Header 中传入 'Authorization: Bearer <Your-API-Key>'"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://callback-wanwu:8669/v1",
+      "description": "Local Server"
+    }
+  ]
+}
