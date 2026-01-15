@@ -152,7 +152,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <div class="editor" v-if="isExploreShowTool(n)">
+        <div class="editor editor-explore" v-if="isExploreShowTool(n)">
           <el-dropdown @command="handleClick($event, n)" placement="top">
             <span class="el-dropdown-link">
               <i class="el-icon-more icon edit-icon" @click.stop />
