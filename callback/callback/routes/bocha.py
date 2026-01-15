@@ -1,14 +1,14 @@
-from calendar import c
 import http
 import json
-from flask import Flask, request, jsonify
-from dataclasses import asdict, is_dataclass
+from calendar import c
+from dataclasses import asdict
 
-# 假设 BizError 在你的 utils.response 模块中
+from flask import Flask, jsonify, request
+
+from callback.services import bocha
 from utils.response import BizError
 
 from . import callback_bp
-from callback.services import bocha
 
 # --- 初始化搜索客户端 ---
 search_client = bocha.BochaMultimodalSearch()
@@ -20,18 +20,20 @@ def get_api_key():
     从 Request Header 中提取 Bearer Token
     格式: Authorization: Bearer <API_KEY>
     """
-    auth_header = request.headers.get('Authorization')
+    auth_header = request.headers.get("Authorization")
     if not auth_header:
         return None
-    
+
     parts = auth_header.split()
-    if len(parts) == 2 and parts[0].lower() == 'bearer':
+    if len(parts) == 2 and parts[0].lower() == "bearer":
         return parts[1]
     return None
 
+
 # --- 接口路由定义 ---
 
-@callback_bp.route('/bocha/comprehensive', methods=['POST'])
+
+@callback_bp.route("/bocha/comprehensive", methods=["POST"])
 def bocha_comprehensive_search():
     """
     【工具】全面综合搜索
@@ -93,15 +95,15 @@ def bocha_comprehensive_search():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      url: 
+                      url:
                         type: string
-                      snippet: 
+                      snippet:
                         type: string
-                      display_url: 
+                      display_url:
                         type: string
-                      date_last_crawled: 
+                      date_last_crawled:
                         type: string
                 images:
                   type: array
@@ -109,17 +111,17 @@ def bocha_comprehensive_search():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      content_url: 
+                      content_url:
                         type: string
-                      host_page_url: 
+                      host_page_url:
                         type: string
-                      thumbnail_url: 
+                      thumbnail_url:
                         type: string
-                      width: 
+                      width:
                         type: integer
-                      height: 
+                      height:
                         type: integer
                 modal_cards:
                   type: array
@@ -127,32 +129,33 @@ def bocha_comprehensive_search():
                   items:
                     type: object
                     properties:
-                      card_type: 
+                      card_type:
                         type: string
                         description: 卡片类型
-                      content: 
+                      content:
                         type: object
                         description: 结构化数据内容
     """
     api_key = get_api_key()
     if not api_key:
-        raise BizError("Unauthorized: Missing Api Key",code=http.HTTPStatus.UNAUTHORIZED)
-    
+        raise BizError(
+            "Unauthorized: Missing Api Key", code=http.HTTPStatus.UNAUTHORIZED
+        )
+
     data = request.json or {}
-    query = data.get('query')
-    max_results = data.get('max_results', 10)
+    query = data.get("query")
+    max_results = data.get("max_results", 10)
 
     if not query:
-        raise BizError("Missing Query",code=http.HTTPStatus.BAD_REQUEST)
+        raise BizError("Missing Query", code=http.HTTPStatus.BAD_REQUEST)
 
     result = search_client.comprehensive_search(
-        api_key=api_key, 
-        query=query, 
-        max_results=max_results
+        api_key=api_key, query=query, max_results=max_results
     )
     return asdict(result)
 
-@callback_bp.route('/bocha/web-only', methods=['POST'])
+
+@callback_bp.route("/bocha/web-only", methods=["POST"])
 def bocha_web_search_only():
     """
     【工具】纯网页搜索
@@ -213,15 +216,15 @@ def bocha_web_search_only():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      url: 
+                      url:
                         type: string
-                      snippet: 
+                      snippet:
                         type: string
-                      display_url: 
+                      display_url:
                         type: string
-                      date_last_crawled: 
+                      date_last_crawled:
                         type: string
                 images:
                   type: array
@@ -229,17 +232,17 @@ def bocha_web_search_only():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      content_url: 
+                      content_url:
                         type: string
-                      host_page_url: 
+                      host_page_url:
                         type: string
-                      thumbnail_url: 
+                      thumbnail_url:
                         type: string
-                      width: 
+                      width:
                         type: integer
-                      height: 
+                      height:
                         type: integer
                 modal_cards:
                   type: array
@@ -247,32 +250,33 @@ def bocha_web_search_only():
                   items:
                     type: object
                     properties:
-                      card_type: 
+                      card_type:
                         type: string
                         description: 卡片类型
-                      content: 
+                      content:
                         type: object
                         description: 结构化数据内容
     """
     api_key = get_api_key()
     if not api_key:
-        raise BizError("Unauthorized: Missing Api Key",code=http.HTTPStatus.UNAUTHORIZED)
+        raise BizError(
+            "Unauthorized: Missing Api Key", code=http.HTTPStatus.UNAUTHORIZED
+        )
 
     data = request.json or {}
-    query = data.get('query')
-    max_results = data.get('max_results', 15)
+    query = data.get("query")
+    max_results = data.get("max_results", 15)
 
     if not query:
-        raise BizError("Missing query",code=http.HTTPStatus.BAD_REQUEST)
+        raise BizError("Missing query", code=http.HTTPStatus.BAD_REQUEST)
 
     result = search_client.web_search_only(
-        api_key=api_key, 
-        query=query, 
-        max_results=max_results
+        api_key=api_key, query=query, max_results=max_results
     )
     return asdict(result)
 
-@callback_bp.route('/bocha/structured', methods=['POST'])
+
+@callback_bp.route("/bocha/structured", methods=["POST"])
 def bocha_search_structured():
     """
     【工具】结构化数据查询
@@ -328,15 +332,15 @@ def bocha_search_structured():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      url: 
+                      url:
                         type: string
-                      snippet: 
+                      snippet:
                         type: string
-                      display_url: 
+                      display_url:
                         type: string
-                      date_last_crawled: 
+                      date_last_crawled:
                         type: string
                 images:
                   type: array
@@ -344,17 +348,17 @@ def bocha_search_structured():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      content_url: 
+                      content_url:
                         type: string
-                      host_page_url: 
+                      host_page_url:
                         type: string
-                      thumbnail_url: 
+                      thumbnail_url:
                         type: string
-                      width: 
+                      width:
                         type: integer
-                      height: 
+                      height:
                         type: integer
                 modal_cards:
                   type: array
@@ -362,30 +366,30 @@ def bocha_search_structured():
                   items:
                     type: object
                     properties:
-                      card_type: 
+                      card_type:
                         type: string
                         description: 卡片类型
-                      content: 
+                      content:
                         type: object
                         description: 结构化数据内容
     """
     api_key = get_api_key()
     if not api_key:
-        raise BizError("Unauthorized: Missing Api Key",code=http.HTTPStatus.UNAUTHORIZED)
+        raise BizError(
+            "Unauthorized: Missing Api Key", code=http.HTTPStatus.UNAUTHORIZED
+        )
 
     data = request.json or {}
-    query = data.get('query')
+    query = data.get("query")
 
     if not query:
-        raise BizError("缺少必填参数: query",code=http.HTTPStatus.BAD_REQUEST)
+        raise BizError("缺少必填参数: query", code=http.HTTPStatus.BAD_REQUEST)
 
-    result = search_client.search_for_structured_data(
-        api_key=api_key, 
-        query=query
-    )
+    result = search_client.search_for_structured_data(api_key=api_key, query=query)
     return asdict(result)
 
-@callback_bp.route('/bocha/day', methods=['POST'])
+
+@callback_bp.route("/bocha/day", methods=["POST"])
 def bocha_search_day():
     """
     【工具】搜索24小时内信息
@@ -441,15 +445,15 @@ def bocha_search_day():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      url: 
+                      url:
                         type: string
-                      snippet: 
+                      snippet:
                         type: string
-                      display_url: 
+                      display_url:
                         type: string
-                      date_last_crawled: 
+                      date_last_crawled:
                         type: string
                 images:
                   type: array
@@ -457,17 +461,17 @@ def bocha_search_day():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      content_url: 
+                      content_url:
                         type: string
-                      host_page_url: 
+                      host_page_url:
                         type: string
-                      thumbnail_url: 
+                      thumbnail_url:
                         type: string
-                      width: 
+                      width:
                         type: integer
-                      height: 
+                      height:
                         type: integer
                 modal_cards:
                   type: array
@@ -475,30 +479,30 @@ def bocha_search_day():
                   items:
                     type: object
                     properties:
-                      card_type: 
+                      card_type:
                         type: string
                         description: 卡片类型
-                      content: 
+                      content:
                         type: object
                         description: 结构化数据内容
     """
     api_key = get_api_key()
     if not api_key:
-        raise BizError("Unauthorized: Missing Api Key",code=http.HTTPStatus.UNAUTHORIZED)
+        raise BizError(
+            "Unauthorized: Missing Api Key", code=http.HTTPStatus.UNAUTHORIZED
+        )
 
     data = request.json or {}
-    query = data.get('query')
+    query = data.get("query")
 
     if not query:
-        raise BizError("Missing query",code=http.HTTPStatus.BAD_REQUEST)
+        raise BizError("Missing query", code=http.HTTPStatus.BAD_REQUEST)
 
-    result = search_client.search_last_24_hours(
-        api_key=api_key, 
-        query=query
-    )
+    result = search_client.search_last_24_hours(api_key=api_key, query=query)
     return asdict(result)
 
-@callback_bp.route('/bocha/week', methods=['POST'])
+
+@callback_bp.route("/bocha/week", methods=["POST"])
 def bocha_search_last_week():
     """
     【工具】搜索本周信息
@@ -554,15 +558,15 @@ def bocha_search_last_week():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      url: 
+                      url:
                         type: string
-                      snippet: 
+                      snippet:
                         type: string
-                      display_url: 
+                      display_url:
                         type: string
-                      date_last_crawled: 
+                      date_last_crawled:
                         type: string
                 images:
                   type: array
@@ -570,17 +574,17 @@ def bocha_search_last_week():
                   items:
                     type: object
                     properties:
-                      name: 
+                      name:
                         type: string
-                      content_url: 
+                      content_url:
                         type: string
-                      host_page_url: 
+                      host_page_url:
                         type: string
-                      thumbnail_url: 
+                      thumbnail_url:
                         type: string
-                      width: 
+                      width:
                         type: integer
-                      height: 
+                      height:
                         type: integer
                 modal_cards:
                   type: array
@@ -588,42 +592,43 @@ def bocha_search_last_week():
                   items:
                     type: object
                     properties:
-                      card_type: 
+                      card_type:
                         type: string
                         description: 卡片类型
-                      content: 
+                      content:
                         type: object
                         description: 结构化数据内容
     """
     api_key = get_api_key()
     if not api_key:
-        raise BizError("Unauthorized: Missing Api Key",code=http.HTTPStatus.UNAUTHORIZED)
+        raise BizError(
+            "Unauthorized: Missing Api Key", code=http.HTTPStatus.UNAUTHORIZED
+        )
 
     data = request.json or {}
-    query = data.get('query')
+    query = data.get("query")
 
     if not query:
-        raise BizError("Missing query",code=http.HTTPStatus.BAD_REQUEST)
+        raise BizError("Missing query", code=http.HTTPStatus.BAD_REQUEST)
 
-    result = search_client.search_last_week(
-        api_key=api_key, 
-        query=query
-    )
+    result = search_client.search_last_week(api_key=api_key, query=query)
     return asdict(result)
 
+
 # --- 关键：配置 Flasgger 以支持 OpenAPI 3.0 ---
-if __name__ == '__main__':
+if __name__ == "__main__":
     from flasgger import Swagger
+
     app = Flask(__name__)
-    
+
     # 你必须配置 'openapi': '3.0.0'，否则 Flasgger 默认按 Swagger 2.0 解析
     # 导致 requestBody 无法识别
     swagger_config = {
         "headers": [],
         "specs": [
             {
-                "endpoint": 'apispec_1',
-                "route": '/apispec_1.json',
+                "endpoint": "apispec_1",
+                "route": "/apispec_1.json",
                 "rule_filter": lambda rule: True,
                 "model_filter": lambda tag: True,
             }
@@ -631,9 +636,9 @@ if __name__ == '__main__':
         "static_url_path": "/flasgger_static",
         "swagger_ui": True,
         "specs_route": "/apidocs/",
-        "openapi": "3.0.0"  # <--- 这里是重点
+        "openapi": "3.0.0",  # <--- 这里是重点
     }
 
     Swagger(app, config=swagger_config)
     app.register_blueprint(callback_bp)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

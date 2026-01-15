@@ -1,21 +1,19 @@
 # app.py
-from flask import Flask, request, jsonify, g
-from dataclasses import asdict
 import http
-# 从工具包导入装饰器
+from dataclasses import asdict
+
+from flask import Flask, g, jsonify, request
+
 from callback.utils.decorators import require_api_key
-# 导入 Response 类型用于类型提示（可选）
-from callback.services.tavily_news import TavilyResponse
+from utils.log import logger
 from utils.response import BizError
 
 from . import callback_bp
-from utils.log import logger
-
-
 
 # --- 路由接口 ---
 
-@callback_bp.route('/tavily/news', methods=['POST'])
+
+@callback_bp.route("/tavily/news", methods=["POST"])
 @require_api_key  # 直接使用导入的装饰器
 def tavily_basic_search():
     """
@@ -26,13 +24,13 @@ def tavily_basic_search():
     summary: 执行基础新闻搜索
     description: 根据关键词搜索新闻，支持指定返回结果数量。
     parameters:
-      - name: Authorization   
-        in: header            
+      - name: Authorization
+        in: header
         description: "API Key"
-        required: true        
-        schema:               
+        required: true
+        schema:
           type: string
-          default: "Bearer "  
+          default: "Bearer "
     requestBody:
       required: true
       content:
@@ -70,8 +68,8 @@ def tavily_basic_search():
                 images:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       description:
                         type: string
                       url:
@@ -79,8 +77,8 @@ def tavily_basic_search():
                 results:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       title:
                         type: string
                       url:
@@ -93,28 +91,27 @@ def tavily_basic_search():
                       raw_content:
                         type: string
                       published_date:
-                        type: string  
+                        type: string
       400:
         description: 参数错误 (缺少 query)
       401:
         description: API Key 无效或缺失
     """
     data = request.get_json() or {}
-    query = data.get('query')
-    
+    query = data.get("query")
+
     if not query:
-        raise BizError("Missing query",code=http.status_code.BAD_REQUEST)
+        raise BizError("Missing query", code=http.status_code.BAD_REQUEST)
 
     # g.agency 已经在装饰器里准备好了
     result = g.agency.basic_search_news(
-        query=query, 
-        max_results=data.get('max_results')
+        query=query, max_results=data.get("max_results")
     )
     logger.info(f"Tavily News Basic Search Result: {result}")
     return jsonify(result)
 
 
-@callback_bp.route('/tavily/news/deep', methods=['POST'])
+@callback_bp.route("/tavily/news/deep", methods=["POST"])
 @require_api_key
 def tavily_deep_search():
     """
@@ -125,13 +122,13 @@ def tavily_deep_search():
     summary: 执行深度新闻搜索
     description: 对关键词进行更深入的挖掘和搜索。
     parameters:
-      - name: Authorization   
-        in: header            
+      - name: Authorization
+        in: header
         description: "API Key"
-        required: true        
-        schema:               
+        required: true
+        schema:
           type: string
-          default: "Bearer "  
+          default: "Bearer "
     security:
       - BearerAuth: []
     requestBody:
@@ -171,8 +168,8 @@ def tavily_deep_search():
                 images:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       description:
                         type: string
                       url:
@@ -180,8 +177,8 @@ def tavily_deep_search():
                 results:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       title:
                         type: string
                       url:
@@ -194,21 +191,22 @@ def tavily_deep_search():
                       raw_content:
                         type: string
                       published_date:
-                        type: string 
+                        type: string
       400:
         description: 参数错误
     """
     data = request.get_json() or {}
-    query = data.get('query')
-    max_results=data.get('max_results')
+    query = data.get("query")
+    max_results = data.get("max_results")
 
     if not query:
-        raise BizError("Missing 'query'",code=http.status_code.BAD_REQUEST)
+        raise BizError("Missing 'query'", code=http.status_code.BAD_REQUEST)
 
-    result = g.agency.deep_search_news(query=query,max_results=max_results)
+    result = g.agency.deep_search_news(query=query, max_results=max_results)
     return jsonify(result)
 
-@callback_bp.route('/tavily/news/day', methods=['POST'])
+
+@callback_bp.route("/tavily/news/day", methods=["POST"])
 @require_api_key
 def tavily_day_search():
     """
@@ -219,13 +217,13 @@ def tavily_day_search():
     summary: 搜索最近一天的新闻
     description: 仅返回过去 24 小时内发布的相关新闻。
     parameters:
-      - name: Authorization   
-        in: header            
+      - name: Authorization
+        in: header
         description: "API Key"
-        required: true        
-        schema:               
+        required: true
+        schema:
           type: string
-          default: "Bearer "  
+          default: "Bearer "
     security:
       - BearerAuth: []
     requestBody:
@@ -265,8 +263,8 @@ def tavily_day_search():
                 images:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       description:
                         type: string
                       url:
@@ -274,8 +272,8 @@ def tavily_day_search():
                 results:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       title:
                         type: string
                       url:
@@ -288,22 +286,22 @@ def tavily_day_search():
                       raw_content:
                         type: string
                       published_date:
-                        type: string 
+                        type: string
       400:
         description: 参数错误
     """
     data = request.get_json() or {}
-    query = data.get('query')
-    max_results=data.get('max_results')
-    
+    query = data.get("query")
+    max_results = data.get("max_results")
 
     if not query:
-        raise BizError("Missing query",code=http.status_code.BAD_REQUEST)
+        raise BizError("Missing query", code=http.status_code.BAD_REQUEST)
 
-    result = g.agency.search_news_last_24_hours(query=query,max_results=max_results)
+    result = g.agency.search_news_last_24_hours(query=query, max_results=max_results)
     return jsonify(result)
 
-@callback_bp.route('/tavily/news/week', methods=['POST'])
+
+@callback_bp.route("/tavily/news/week", methods=["POST"])
 @require_api_key
 def tavily_week_search():
     """
@@ -314,13 +312,13 @@ def tavily_week_search():
     summary: 搜索最近一周的新闻
     description: 仅返回过去一周内发布的相关新闻。
     parameters:
-      - name: Authorization   
-        in: header            
+      - name: Authorization
+        in: header
         description: "API Key"
-        required: true        
-        schema:               
+        required: true
+        schema:
           type: string
-          default: "Bearer "  
+          default: "Bearer "
     security:
       - BearerAuth: []
     requestBody:
@@ -360,8 +358,8 @@ def tavily_week_search():
                 images:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       description:
                         type: string
                       url:
@@ -369,8 +367,8 @@ def tavily_week_search():
                 results:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       title:
                         type: string
                       url:
@@ -383,21 +381,22 @@ def tavily_week_search():
                       raw_content:
                         type: string
                       published_date:
-                        type: string 
+                        type: string
       400:
         description: 参数错误
     """
     data = request.get_json() or {}
-    query = data.get('query')
-    max_results=data.get('max_results')
+    query = data.get("query")
+    max_results = data.get("max_results")
 
     if not query:
-        raise BizError("Missing query",code=http.status_code.BAD_REQUEST)
+        raise BizError("Missing query", code=http.status_code.BAD_REQUEST)
 
-    result = g.agency.search_news_last_week(query=query,max_results=max_results)
+    result = g.agency.search_news_last_week(query=query, max_results=max_results)
     return jsonify(result)
 
-@callback_bp.route('/tavily/news/image', methods=['POST'])
+
+@callback_bp.route("/tavily/news/image", methods=["POST"])
 @require_api_key
 def tavily_image_search():
     """
@@ -408,13 +407,13 @@ def tavily_image_search():
     summary: 查找新闻图片
     description: 搜索与某个新闻主题相关的图片。此工具会返回图片链接及描述，适用于需要为报告或文章配图的场景。Agent只需提供搜索查询(query)。
     parameters:
-      - name: Authorization   
-        in: header            
+      - name: Authorization
+        in: header
         description: "API Key"
-        required: true        
-        schema:               
+        required: true
+        schema:
           type: string
-          default: "Bearer "  
+          default: "Bearer "
     security:
       - BearerAuth: []
     requestBody:
@@ -454,8 +453,8 @@ def tavily_image_search():
                 images:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       description:
                         type: string
                       url:
@@ -463,8 +462,8 @@ def tavily_image_search():
                 results:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       title:
                         type: string
                       url:
@@ -477,23 +476,24 @@ def tavily_image_search():
                       raw_content:
                         type: string
                       published_date:
-                        type: string 
+                        type: string
       400:
         description: 参数错误 (缺少 query)
       401:
         description: API Key 无效或缺失
     """
     data = request.get_json() or {}
-    query = data.get('query')
-    max_results=data.get('max_results')
+    query = data.get("query")
+    max_results = data.get("max_results")
 
     if not query:
-        raise BizError("Missing query",code=http.status_code.BAD_REQUEST)
+        raise BizError("Missing query", code=http.status_code.BAD_REQUEST)
 
-    result = g.agency.search_images_for_news(query=query,max_results=max_results)
+    result = g.agency.search_images_for_news(query=query, max_results=max_results)
     return jsonify(result)
 
-@callback_bp.route('/tavily/news/date', methods=['POST'])
+
+@callback_bp.route("/tavily/news/date", methods=["POST"])
 @require_api_key
 def tavily_date_search():
     """
@@ -504,13 +504,13 @@ def tavily_date_search():
     summary: 按指定日期范围搜索新闻
     description: 在一个明确的历史时间段内搜索新闻。这是唯一需要Agent提供详细时间参数的工具。适用于需要对特定历史事件进行分析的场景。Agent需要提供查询(query)、开始日期(start_date)和结束日期(end_date)，格式均为 'YYYY-MM-DD'。
     parameters:
-      - name: Authorization   
-        in: header            
+      - name: Authorization
+        in: header
         description: "API Key"
-        required: true        
-        schema:               
+        required: true
+        schema:
           type: string
-          default: "Bearer "  
+          default: "Bearer "
     security:
       - BearerAuth: []
     requestBody:
@@ -558,8 +558,8 @@ def tavily_date_search():
                 images:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       description:
                         type: string
                       url:
@@ -567,8 +567,8 @@ def tavily_date_search():
                 results:
                   type: array
                   items:
-                    type: object 
-                    properties: 
+                    type: object
+                    properties:
                       title:
                         type: string
                       url:
@@ -581,18 +581,18 @@ def tavily_date_search():
                       raw_content:
                         type: string
                       published_date:
-                        type: string 
+                        type: string
       400:
         description: 参数错误 (缺少 query)
       401:
         description: API Key 无效或缺失
     """
     data = request.get_json() or {}
-    query = data.get('query')
-    max_results=data.get('max_results')
+    query = data.get("query")
+    max_results = data.get("max_results")
 
     if not query:
-        raise BizError("Missing query",code=http.status_code.BAD_REQUEST)
+        raise BizError("Missing query", code=http.status_code.BAD_REQUEST)
 
-    result = g.agency.search_news_by_date(query=query,max_results=max_results)
+    result = g.agency.search_news_by_date(query=query, max_results=max_results)
     return jsonify(result)

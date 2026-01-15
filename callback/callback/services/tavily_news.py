@@ -23,19 +23,19 @@
 
 import os
 import sys
-from typing import List, Dict, Any, Optional
-
-
+from typing import Any, Dict, List, Optional
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(os.path.dirname(current_dir)) 
+parent_dir = os.path.dirname(os.path.dirname(current_dir))
 
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
+from dataclasses import dataclass, field
+
 from utils.log import logger
 from utils.response import BizError
-from dataclasses import dataclass, field
+
 # 运行前请确保已安装Tavily库: pip install tavily-python
 try:
     from tavily import TavilyClient
@@ -44,12 +44,14 @@ except ImportError:
 
 # --- 1. 数据结构定义 ---
 
+
 @dataclass
 class SearchResult:
     """
     网页搜索结果数据类
     包含 published_date 属性来存储新闻发布日期
     """
+
     title: str
     url: str
     content: str
@@ -57,15 +59,19 @@ class SearchResult:
     raw_content: Optional[str] = None
     published_date: Optional[str] = None
 
+
 @dataclass
 class ImageResult:
     """图片搜索结果数据类"""
+
     url: str
     description: Optional[str] = None
+
 
 @dataclass
 class TavilyResponse:
     """封装Tavily API的完整返回结果，以便在工具间传递"""
+
     query: str
     answer: Optional[str] = None
     results: List[SearchResult] = field(default_factory=list)
@@ -74,6 +80,7 @@ class TavilyResponse:
 
 
 # --- 2. 核心客户端与专用工具集 ---
+
 
 class TavilyNewsAgency:
     """
@@ -88,33 +95,41 @@ class TavilyNewsAgency:
             api_key: Tavily API密钥
         """
         if api_key is None:
-            raise ValueError("Tavily API Key未找到！请设置TAVILY_API_KEY环境变量或在初始化时提供")
+            raise ValueError(
+                "Tavily API Key未找到！请设置TAVILY_API_KEY环境变量或在初始化时提供"
+            )
         self._client = TavilyClient(api_key=api_key)
 
     def _search_internal(self, **kwargs) -> TavilyResponse:
         """内部通用的搜索执行器，所有工具最终都调用此方法"""
         try:
-            kwargs['topic'] = 'general'
+            kwargs["topic"] = "general"
             api_params = {k: v for k, v in kwargs.items() if v is not None}
             response_dict = self._client.search(**api_params)
-            
+
             search_results = [
                 SearchResult(
-                    title=item.get('title'),
-                    url=item.get('url'),
-                    content=item.get('content'),
-                    score=item.get('score'),
-                    raw_content=item.get('raw_content'),
-                    published_date=item.get('published_date')
-                ) for item in response_dict.get('results', [])
+                    title=item.get("title"),
+                    url=item.get("url"),
+                    content=item.get("content"),
+                    score=item.get("score"),
+                    raw_content=item.get("raw_content"),
+                    published_date=item.get("published_date"),
+                )
+                for item in response_dict.get("results", [])
             ]
-            
-            image_results = [ImageResult(url=item.get('url'), description=item.get('description')) for item in response_dict.get('images', [])]
+
+            image_results = [
+                ImageResult(url=item.get("url"), description=item.get("description"))
+                for item in response_dict.get("images", [])
+            ]
 
             return TavilyResponse(
-                query=response_dict.get('query'), answer=response_dict.get('answer'),
-                results=search_results, images=image_results,
-                response_time=response_dict.get('response_time')
+                query=response_dict.get("query"),
+                answer=response_dict.get("answer"),
+                results=search_results,
+                images=image_results,
+                response_time=response_dict.get("response_time"),
             )
         except Exception as e:
             raise e
@@ -132,7 +147,7 @@ class TavilyNewsAgency:
             query=query,
             max_results=max_results,
             search_depth="basic",
-            include_answer=False
+            include_answer=False,
         )
 
     def deep_search_news(self, query: str, max_results: int = 20) -> TavilyResponse:
@@ -143,28 +158,41 @@ class TavilyNewsAgency:
         """
         print(f"--- TOOL: 深度新闻分析 (query: {query}) ---")
         return self._search_internal(
-            query=query, search_depth="advanced", max_results=max_results, include_answer="advanced"
+            query=query,
+            search_depth="advanced",
+            max_results=max_results,
+            include_answer="advanced",
         )
 
-    def search_news_last_24_hours(self, query: str, max_results: int = 10) -> TavilyResponse:
+    def search_news_last_24_hours(
+        self, query: str, max_results: int = 10
+    ) -> TavilyResponse:
         """
         【工具】搜索24小时内新闻: 获取关于某个主题的最新动态。
         此工具专门查找过去24小时内发布的新闻。适用于追踪突发事件或最新进展。
         Agent只需提供搜索查询(query)。
         """
         print(f"--- TOOL: 搜索24小时内新闻 (query: {query}) ---")
-        return self._search_internal(query=query, time_range='d', max_results=max_results)
+        return self._search_internal(
+            query=query, time_range="d", max_results=max_results
+        )
 
-    def search_news_last_week(self, query: str, max_results: int = 10) -> TavilyResponse:
+    def search_news_last_week(
+        self, query: str, max_results: int = 10
+    ) -> TavilyResponse:
         """
         【工具】搜索本周新闻: 获取关于某个主题过去一周内的主要新闻报道。
         适用于进行周度舆情总结或回顾。
         Agent只需提供搜索查询(query)。
         """
         print(f"--- TOOL: 搜索本周新闻 (query: {query}) ---")
-        return self._search_internal(query=query, time_range='w', max_results=max_results)
+        return self._search_internal(
+            query=query, time_range="w", max_results=max_results
+        )
 
-    def search_images_for_news(self, query: str, max_results: int = 5) -> TavilyResponse:
+    def search_images_for_news(
+        self, query: str, max_results: int = 5
+    ) -> TavilyResponse:
         """
         【工具】查找新闻图片: 搜索与某个新闻主题相关的图片。
         此工具会返回图片链接及描述，适用于需要为报告或文章配图的场景。
@@ -172,43 +200,58 @@ class TavilyNewsAgency:
         """
         print(f"--- TOOL: 查找新闻图片 (query: {query}) ---")
         return self._search_internal(
-            query=query, include_images=True, include_image_descriptions=True, max_results=max_results
+            query=query,
+            include_images=True,
+            include_image_descriptions=True,
+            max_results=max_results,
         )
 
-    def search_news_by_date(self, query: str, start_date: str, end_date: str,max_results: int = 15) -> TavilyResponse:
+    def search_news_by_date(
+        self, query: str, start_date: str, end_date: str, max_results: int = 15
+    ) -> TavilyResponse:
         """
         【工具】按指定日期范围搜索新闻: 在一个明确的历史时间段内搜索新闻。
         这是唯一需要Agent提供详细时间参数的工具。适用于需要对特定历史事件进行分析的场景。
         Agent需要提供查询(query)、开始日期(start_date)和结束日期(end_date)，格式均为 'YYYY-MM-DD'。
         """
-        print(f"--- TOOL: 按指定日期范围搜索新闻 (query: {query}, from: {start_date}, to: {end_date}) ---")
+        print(
+            f"--- TOOL: 按指定日期范围搜索新闻 (query: {query}, from: {start_date}, to: {end_date}) ---"
+        )
         return self._search_internal(
-            query=query, start_date=start_date, end_date=end_date, max_results=max_results
+            query=query,
+            start_date=start_date,
+            end_date=end_date,
+            max_results=max_results,
         )
 
 
 # --- 3. 测试与使用示例 ---
+
 
 def print_response_summary(response: TavilyResponse):
     """简化的打印函数，用于展示测试结果，现在会显示发布日期"""
     if not response or not response.query:
         print("未能获取有效响应。")
         return
-        
+
     print(f"\n查询: '{response.query}' | 耗时: {response.response_time}s")
     if response.answer:
         print(f"AI摘要: {response.answer[:120]}...")
     print(f"找到 {len(response.results)} 条网页, {len(response.images)} 张图片。")
     if response.results:
         first_result = response.results[0]
-        date_info = f"(发布于: {first_result.published_date})" if first_result.published_date else ""
+        date_info = (
+            f"(发布于: {first_result.published_date})"
+            if first_result.published_date
+            else ""
+        )
         print(f"第一条结果: {first_result.title} {date_info}")
     print("-" * 60)
 
 
 if __name__ == "__main__":
     # 在运行前，请确保您已设置 TAVILY_API_KEY 环境变量
-    
+
     try:
         # 初始化“新闻社”客户端，它内部包含了所有工具
         agency = TavilyNewsAgency("tvly-dev-api-key-placeholder")
@@ -224,20 +267,18 @@ if __name__ == "__main__":
         # 场景3: Agent 需要追踪“GTC大会”的最新消息
         response3 = agency.search_news_last_24_hours(query="Nvidia GTC大会 最新发布")
         print_response_summary(response3)
-        
+
         # 场景4: Agent 需要为一篇关于“自动驾驶”的周报查找素材
         response4 = agency.search_news_last_week(query="自动驾驶商业化落地")
         print_response_summary(response4)
-        
+
         # 场景5: Agent 需要查找“韦伯太空望远镜”的新闻图片
         response5 = agency.search_images_for_news(query="韦伯太空望远镜最新发现")
         print_response_summary(response5)
 
         # 场景6: Agent 需要研究2025年第一季度关于“人工智能法规”的新闻
         response6 = agency.search_news_by_date(
-            query="人工智能法规",
-            start_date="2025-01-01",
-            end_date="2025-03-31"
+            query="人工智能法规", start_date="2025-01-01", end_date="2025-03-31"
         )
         print_response_summary(response6)
 
