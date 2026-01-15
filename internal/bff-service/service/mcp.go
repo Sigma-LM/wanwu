@@ -220,7 +220,7 @@ func GetMCPActionList(ctx *gin.Context, userID, orgID string, req request.MCPAct
 			return nil, err
 		}
 		for _, tool := range mcpServerList.List {
-			toolActions, err := openapi3_util.Schema2ProtocolTools(ctx.Request.Context(), []byte(tool.Schema))
+			toolActions, err := openapi3_util.Schema2MCPProtocolTools(ctx.Request.Context(), []byte(tool.Schema))
 			if err != nil {
 				return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, err.Error())
 			}
