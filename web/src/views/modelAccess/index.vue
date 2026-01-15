@@ -195,7 +195,6 @@ import {
 } from '@/api/modelAccess';
 import CreateDialog from './components/createDialog.vue';
 import CreateSelectDialog from './components/createSelectDialog.vue';
-import { avatarSrc } from '@/utils/util';
 import {
   MODEL_TYPE_OBJ,
   PROVIDER_OBJ,
