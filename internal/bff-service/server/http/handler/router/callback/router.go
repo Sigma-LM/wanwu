@@ -17,7 +17,11 @@ func Register(callbackAPI *gin.RouterGroup) {
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId", http.MethodGet, callback.GetModelById, "根据modelId获取模型")
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/chat/completions", http.MethodPost, callback.ModelChatCompletions, "Model Chat Completions")
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/embeddings", http.MethodPost, callback.ModelEmbeddings, "Model Embeddings")
-	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/rerank", http.MethodPost, callback.ModelRerank, "Model rerank")
+	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/multimodal-embeddings", http.MethodPost, callback.ModelMultiModalEmbeddings, "Model multimodal-Embeddings")
+
+	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/rerank", http.MethodPost, callback.ModelTextRerank, "Model rerank")
+	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/multimodal-rerank", http.MethodPost, callback.ModelMultiModalRerank, "Model multimodal-rerank")
+
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/ocr", http.MethodPost, callback.ModelOcr, "Model ocr")
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/gui", http.MethodPost, callback.ModelGui, "Model gui")
 	mid.Sub("callback").Reg(callbackAPI, "/model/:modelId/pdf-parser", http.MethodPost, callback.ModelPdfParser, "Model pdf文档解析")

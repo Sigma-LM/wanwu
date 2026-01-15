@@ -1,4 +1,4 @@
-package mp_ollama
+package mp_jina
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type Embedding struct {
 func (cfg *Embedding) Tags() []mp_common.Tag {
 	tags := []mp_common.Tag{
 		{
-			Text: mp_common.TagEmbedding,
+			Text: mp_common.TagTextEmbedding,
 		},
 	}
 	tags = append(tags, mp_common.GetTagsByContentSize(cfg.ContextSize)...)
@@ -32,7 +32,7 @@ func (cfg *Embedding) NewReq(req *mp_common.EmbeddingReq) (mp_common.IEmbeddingR
 }
 
 func (cfg *Embedding) Embeddings(ctx context.Context, req mp_common.IEmbeddingReq, headers ...mp_common.Header) (mp_common.IEmbeddingResp, error) {
-	b, err := mp_common.Embeddings(ctx, "ollama", cfg.ApiKey, cfg.embeddingsUrl(), req.Data(), headers...)
+	b, err := mp_common.Embeddings(ctx, "jina", cfg.ApiKey, cfg.embeddingsUrl(), req.Data(), headers...)
 	if err != nil {
 		return nil, err
 	}

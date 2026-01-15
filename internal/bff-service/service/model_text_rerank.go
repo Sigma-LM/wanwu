@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ModelRerank(ctx *gin.Context, modelID string, req *mp_common.RerankReq) {
+func ModelTextRerank(ctx *gin.Context, modelID string, req *mp_common.TextRerankReq) {
 	// modelInfo by modelID
 	modelInfo, err := model.GetModel(ctx.Request.Context(), &model_service.GetModelReq{ModelId: modelID})
 	if err != nil {

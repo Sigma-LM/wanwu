@@ -16,7 +16,7 @@ type Embedding struct {
 func (cfg *Embedding) Tags() []mp_common.Tag {
 	tags := []mp_common.Tag{
 		{
-			Text: mp_common.TagEmbedding,
+			Text: mp_common.TagTextEmbedding,
 		},
 	}
 	tags = append(tags, mp_common.GetTagsByContentSize(cfg.ContextSize)...)
