@@ -10,16 +10,16 @@ type AssistantBrief struct {
 func (a *AssistantBrief) Check() error { return nil }
 
 type AssistantConfig struct {
-	AssistantId         string                 `json:"assistantId"  validate:"required"`
-	Prologue            string                 `json:"prologue"`            // 开场白
-	Instructions        string                 `json:"instructions"`        // 系统提示词
-	RecommendQuestion   []string               `json:"recommendQuestion"`   // 推荐问题
-	ModelConfig         AppModelConfig         `json:"modelConfig"`         // 模型
-	KnowledgeBaseConfig AppKnowledgebaseConfig `json:"knowledgeBaseConfig"` // 知识库
-	SafetyConfig        AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
-	RerankConfig        AppModelConfig         `json:"rerankConfig"`        // Rerank模型
-	VisionConfig        VisionConfig           `json:"visionConfig"`        // 视觉配置
-	MemoryConfig        MemoryConfig           `json:"memoryConfig"`        // 记忆配置
+	AssistantId         string                  `json:"assistantId"  validate:"required"`
+	Prologue            string                  `json:"prologue"`            // 开场白
+	Instructions        string                  `json:"instructions"`        // 系统提示词
+	RecommendQuestion   []string                `json:"recommendQuestion"`   // 推荐问题
+	ModelConfig         *AppModelConfig         `json:"modelConfig"`         // 模型
+	KnowledgeBaseConfig *AppKnowledgebaseConfig `json:"knowledgeBaseConfig"` // 知识库
+	SafetyConfig        *AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
+	RerankConfig        *AppModelConfig         `json:"rerankConfig"`        // Rerank模型
+	VisionConfig        *VisionConfig           `json:"visionConfig"`        // 视觉配置
+	MemoryConfig        *MemoryConfig           `json:"memoryConfig"`        // 记忆配置
 }
 
 type MemoryConfig struct {
