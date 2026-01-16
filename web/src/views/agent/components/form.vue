@@ -158,7 +158,9 @@
               <span
                 style="margin-left: 5px"
                 class="el-icon-s-help"
-                @click="showPromptOptimize"
+                @click="
+                  showPromptOptimize('instructions', editForm.instructions)
+                "
               ></span>
             </el-tooltip>
             <el-tooltip
@@ -323,8 +325,6 @@
             <div
               class="recommend-item"
               v-for="(n, i) in editForm.recommendQuestion"
-              @mouseenter="activeIndex = i"
-              @mouseleave="activeIndex = -1"
               :key="`${i}rml`"
             >
               <el-input
@@ -332,12 +332,13 @@
                 v-model.lazy="n.value"
                 maxlength="50"
                 :key="`${i}rml`"
-              ></el-input>
-              <span
-                class="el-icon-delete recommend-del"
-                @click="clearRecommend(n, i)"
-                v-if="activeIndex === i"
-              ></span>
+              >
+                <span
+                  slot="suffix"
+                  class="el-icon-delete recommend-del"
+                  @click="clearRecommend(n, i)"
+                ></span>
+              </el-input>
             </div>
           </div>
         </div>
@@ -466,6 +467,110 @@
             </span>
           </p>
         </div>
+        <!-- 追问配置 -->
+        <div class="block form-recommend-wrapper">
+          <p class="block-title common-set">
+            <span class="common-set-label">
+              {{ $t('agent.form.recommendConfig.configEnable') }}
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="$t('agent.form.recommendConfig.configEnableTips')"
+                placement="top"
+              >
+                <span class="el-icon-question question-tips"></span>
+              </el-tooltip>
+            </span>
+            <span class="common-add">
+              <el-switch
+                v-model="editForm.recommendConfig.recommendEnable"
+                @change="handleRecommendEnableChange"
+              ></el-switch>
+            </span>
+          </p>
+          <template v-if="editForm.recommendConfig.recommendEnable">
+            <div>
+              <ModelSelector
+                v-model="editForm.recommendConfig.modelConfig.modelId"
+                @change="handleRecommendModelChange"
+              />
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="block-title common-set">
+                <span class="common-set-label">
+                  {{ $t('agent.form.recommendConfig.promptEnable') }}
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('agent.form.recommendConfig.promptEnableTips')"
+                    placement="top"
+                  >
+                    <span class="el-icon-question question-tips"></span>
+                  </el-tooltip>
+                </span>
+                <span class="common-add">
+                  <el-switch
+                    v-model="editForm.recommendConfig.promptEnable"
+                  ></el-switch>
+                </span>
+              </div>
+              <div
+                v-if="editForm.recommendConfig.promptEnable"
+                class="recommend-prompt-wrapper"
+              >
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('tempSquare.promptOptimize')"
+                  placement="top-start"
+                >
+                  <span
+                    class="el-icon-s-help recommend-prompt-icon"
+                    @click="
+                      showPromptOptimize(
+                        'recommendPrompt',
+                        editForm.recommendConfig.prompt,
+                      )
+                    "
+                  ></span>
+                </el-tooltip>
+                <el-input
+                  v-model="editForm.recommendConfig.prompt"
+                  type="textarea"
+                  :rows="5"
+                  :placeholder="
+                    $t('agent.form.recommendConfig.promptPlaceholder')
+                  "
+                  maxlength="5000"
+                  show-word-limit
+                ></el-input>
+              </div>
+              <div class="block-title recommend-history-wrapper">
+                <span class="common-set-label">
+                  {{ $t('agent.form.recommendConfig.maxHistory') }}
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('agent.form.recommendConfig.maxHistoryTips')"
+                    placement="top"
+                  >
+                    <span class="el-icon-question question-tips"></span>
+                  </el-tooltip>
+                </span>
+                <span class="common-add">
+                  <el-input-number
+                    v-model="editForm.recommendConfig.maxHistory"
+                    :min="0"
+                    :max="5"
+                    :step="1"
+                    step-strictly
+                    size="small"
+                  ></el-input-number>
+                </span>
+              </div>
+            </div>
+          </template>
+        </div>
         <div class="block" v-if="editForm.visionsupport === 'support'">
           <p class="block-title common-set">
             <span class="common-set-label">
@@ -552,7 +657,12 @@ import metaSet from '@/components/metaSet';
 import ModelSet from './modelSetDialog';
 import { selectModelList, getRerankList } from '@/api/modelAccess';
 import { AGENT } from '@/utils/commonSet';
-import { MULTIPLE_AGENT, SINGLE_AGENT } from '@/views/agent/constants';
+import {
+  MULTIPLE_AGENT,
+  SINGLE_AGENT,
+  AGENT_CONFIG_RECOMMEND_CONFIG_DEFAULT_PROMPT,
+  AGENT_CONFIG_RECOMMEND_CONFIG_MODEL_CONFIG_DEFAULT_CONFIG,
+} from '@/views/agent/constants';
 import {
   deleteMcp,
   enableMcp,
@@ -577,8 +687,12 @@ import PromptOptimize from '@/components/promptOptimize.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 import VersionPopover from '@/components/versionPopover.vue';
 import CopyIcon from '@/components/copyIcon.vue';
+import ModelSelector from './ModelSelector.vue';
+import commonMixin from '@/mixins/common';
+
 import { avatarSrc } from '@/utils/util';
 export default {
+  mixins: [commonMixin],
   components: {
     CopyIcon,
     VersionPopover,
@@ -595,6 +709,7 @@ export default {
     createPrompt,
     PromptOptimize,
     knowledgeDataField,
+    ModelSelector,
   },
   provide() {
     return {
@@ -619,14 +734,8 @@ export default {
           const changed =
             JSON.stringify(newVal) !==
             JSON.stringify(this.initialAutoSaveSnapshot);
-
           if (changed) {
-            if (
-              this.editForm.modelParams !== '' &&
-              this.editForm.prologue !== ''
-            ) {
-              this.updateInfo();
-            }
+            this.updateInfo();
           }
         }, 500);
       },
@@ -646,6 +755,7 @@ export default {
         safetyConfig,
         recommendQuestion,
         visionConfig,
+        recommendConfig,
       } = this.editForm;
 
       return {
@@ -657,6 +767,7 @@ export default {
         safetyConfig,
         recommendQuestion,
         visionConfig,
+        recommendConfig,
       };
     },
     useToolNum() {
@@ -771,6 +882,31 @@ export default {
           enable: false,
           tables: [],
         },
+        recommendConfig: {
+          recommendEnable: false,
+          modelConfig: {
+            config: {
+              temperature: 0.7,
+              temperatureEnable: true,
+              topP: 1,
+              topPEnable: true,
+              frequencyPenalty: 0,
+              frequencyPenaltyEnable: true,
+              presencePenalty: 0,
+              presencePenaltyEnable: true,
+              maxTokens: 512,
+              maxTokensEnable: true,
+            },
+            displayName: '',
+            model: '',
+            modelId: '',
+            modelType: '',
+            provider: '',
+          },
+          promptEnable: false,
+          prompt: '',
+          maxHistory: 3,
+        },
       },
       hasPluginPermission: false,
       modelLoading: false,
@@ -784,6 +920,7 @@ export default {
       modelOptions: [],
       selectKnowledge: [],
       knowledgeData: [],
+      optimizeTarget: 'instructions',
       loadingPercent: 10,
       nameStatus: '',
       saved: false, //按钮
@@ -897,17 +1034,22 @@ export default {
         prompt: this.editForm.instructions,
       });
     },
-    showPromptOptimize() {
-      if (!this.editForm.instructions) {
+    showPromptOptimize(target = 'instructions', originalPrompt) {
+      this.optimizeTarget = target;
+      if (!originalPrompt) {
         this.$message.warning(this.$t('tempSquare.promptOptimizeHint'));
         return;
       }
       this.$refs.promptOptimize.openDialog({
-        prompt: this.editForm.instructions,
+        prompt: originalPrompt,
       });
     },
     promptSubmit(prompt) {
-      this.editForm.instructions = prompt;
+      if (this.optimizeTarget === 'instructions') {
+        this.editForm.instructions = prompt;
+      } else if (this.optimizeTarget === 'recommendPrompt') {
+        this.editForm.recommendConfig.prompt = prompt;
+      }
       this.updateInfo();
     },
     getPrompt(prompt) {
@@ -1064,6 +1206,15 @@ export default {
         this.$message.warning(this.$t('agent.form.inputPrologue'));
         return false;
       }
+      if (
+        this.editForm.recommendConfig.recommendEnable &&
+        this.editForm.recommendConfig.modelConfig.modelId === ''
+      ) {
+        this.$message.warning(
+          this.$t('agent.form.recommendConfig.requiredModelTips'),
+        );
+        return false;
+      }
 
       this.$refs.publishForm.validate(valid => {
         if (valid) {
@@ -1198,11 +1349,11 @@ export default {
         knowledgeBaseConfig: this.editForm.knowledgeBaseConfig,
         modelConfig: {
           config: this.editForm.modelConfig,
-          displayName: modeInfo.displayName,
-          model: modeInfo.model,
-          modelId: modeInfo.modelId,
-          modelType: modeInfo.modelType,
-          provider: modeInfo.provider,
+          displayName: modeInfo ? modeInfo.displayName : '',
+          model: modeInfo ? modeInfo.model : '',
+          modelId: modeInfo ? modeInfo.modelId : '',
+          modelType: modeInfo ? modeInfo.modelType : '',
+          provider: modeInfo ? modeInfo.provider : '',
         },
         safetyConfig: this.editForm.safetyConfig,
         visionConfig: {
@@ -1217,6 +1368,7 @@ export default {
               provider: rerankInfo.provider,
             }
           : {},
+        recommendConfig: this.editForm.recommendConfig,
       };
       let res = await putAgentInfo(params);
       if (res.code === 0) {
@@ -1293,6 +1445,9 @@ export default {
             data.safetyConfig !== null
               ? data.safetyConfig
               : this.editForm.safetyConfig,
+          recommendConfig: data.recommendConfig
+            ? data.recommendConfig
+            : this.editForm.recommendConfig,
         };
 
         this.editForm.knowledgeBaseConfig.config.rerankModelId =
@@ -1378,12 +1533,79 @@ export default {
         })
         .catch(() => {});
     },
+    // 追问开关change
+    handleRecommendEnableChange(val) {
+      this.editForm.recommendConfig.modelConfig.config = this.$deepClone(
+        AGENT_CONFIG_RECOMMEND_CONFIG_MODEL_CONFIG_DEFAULT_CONFIG,
+      );
+      this.editForm.recommendConfig.prompt =
+        AGENT_CONFIG_RECOMMEND_CONFIG_DEFAULT_PROMPT;
+      if (!val) return;
+      let modelId = '';
+      const modelParams = this.editForm.modelParams;
+      if (typeof modelParams === 'string') {
+        modelId = modelParams;
+      } else if (modelParams && typeof modelParams === 'object') {
+        modelId = modelParams.modelId || '';
+      }
+
+      if (modelId) {
+        this.editForm.recommendConfig.modelConfig.modelId = modelId;
+        // 同步模型详情信息
+        const selectedModel = this.modelOptions.find(
+          item => item.modelId === modelId,
+        );
+        this.setRecommendConfigModelConfigInfo(selectedModel);
+      }
+    },
+    // 追问模型change
+    handleRecommendModelChange(val, modelRaw) {
+      this.setRecommendConfigModelConfigInfo(modelRaw);
+    },
+    // 设置推荐配置模型信息
+    setRecommendConfigModelConfigInfo(modelRow) {
+      const keys = ['displayName', 'model', 'modelType', 'provider'];
+      const config = this.editForm.recommendConfig.modelConfig;
+      const source = modelRow || {};
+      keys.forEach(key => {
+        const val = source[key];
+        config[key] = val !== undefined && val !== null ? val : '';
+      });
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 @import '@/style/draft.scss';
+
+.flex-col {
+  flex-direction: column;
+}
+
+$gap-scale: (
+  0: 0,
+  0\.5: 0.125rem,
+  1: 0.25rem,
+  1\.5: 0.375rem,
+  2: 0.5rem,
+  2\.5: 0.625rem,
+  3: 0.75rem,
+  3\.5: 0.875rem,
+  4: 1rem,
+  5: 1.25rem,
+  6: 1.5rem,
+  8: 2rem,
+  10: 2.5rem,
+  12: 3rem,
+  16: 4rem,
+);
+
+@each $key, $value in $gap-scale {
+  .gap-#{$key} {
+    gap: $value;
+  }
+}
 
 .agent_form {
   gap: 10px;
@@ -1555,14 +1777,16 @@ export default {
         position: relative;
 
         .recommend--input {
-          width: calc(100% - 30px);
-          margin-right: 30px;
+          ::v-deep {
+            .el-input__inner {
+              padding-right: 30px;
+            }
+          }
         }
 
         .recommend-del {
-          position: absolute;
-          right: 10px;
-          top: 10px;
+          width: 25px;
+          line-height: 32px;
           color: #595959;
           cursor: pointer;
         }
@@ -1572,6 +1796,30 @@ export default {
 
   .drawer-test {
     min-width: 670px;
+  }
+
+  .form-recommend-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .recommend-prompt-wrapper {
+    display: flex;
+    gap: 4px;
+    flex-direction: column;
+    .recommend-prompt-icon {
+      color: $color;
+      display: inline-flex;
+      margin-left: auto;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  }
+  .recommend-history-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 4px;
   }
 }
 </style>

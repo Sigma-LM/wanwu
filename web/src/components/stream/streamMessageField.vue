@@ -217,7 +217,10 @@
               <div
                 v-if="n.response"
                 class="answer-content"
-                v-bind:class="{ 'ds-res': showDSBtn(n.response) }"
+                v-bind:class="{
+                  'ds-res': showDSBtn(n.response),
+                  hideDs: !n.isOpen,
+                }"
                 v-html="
                   showDSBtn(n.response)
                     ? replaceHTML(n.response, n)
@@ -354,6 +357,39 @@
               {{ $t('agent.answerOperationTip') }}
             </div>
           </div>
+          <!-- 推荐问题 -仅最后一条回答显示 -->
+          <div
+            v-if="
+              sessionStatus === -1 &&
+              ((recommendConfig.list && recommendConfig.list.length) ||
+                recommendConfig.loading) &&
+              i === session_data.history.length - 1
+            "
+            class="session-section-wrapper recommend-question"
+          >
+            <div
+              v-for="(item, index) in recommendConfig.list"
+              :key="index"
+              :class="[
+                'recommend-question-item',
+                { 'is-tips': item.type === 'tips' },
+              ]"
+              @click="
+                item.type !== 'tips' &&
+                $emit('handleRecommendClick', item.content)
+              "
+            >
+              {{ item.content }}
+            </div>
+            <div
+              v-if="recommendConfig.loading"
+              class="text-loading recommend-question-loading"
+            >
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
         </div>
 
         <!-- 回答 仅图片-->
@@ -425,7 +461,24 @@ marked.setOptions({
 
 export default {
   mixins: [commonMixin],
-  props: ['defaultUrl', 'chatType'],
+  props: {
+    defaultUrl: {
+      type: String,
+      default: '',
+    },
+    chatType: {
+      type: String,
+      default: '',
+    },
+    recommendConfig: {
+      type: Object,
+      default: () => ({
+        reqController: null,
+        list: [],
+        loading: false,
+      }),
+    },
+  },
   data() {
     return {
       md: md,
@@ -466,6 +519,12 @@ export default {
       return this.userAvatar
         ? avatarSrc(this.userAvatar)
         : require('@/assets/imgs/robot-icon.png');
+    },
+    isStreaming() {
+      const history = this.session_data.history;
+      if (history.length === 0) return false;
+      const lastItem = history[history.length - 1];
+      return lastItem.finish === 0 && this.sessionStatus === 0;
     },
   },
   watch: {
@@ -756,21 +815,6 @@ export default {
           index,
           this.session_data.history[index],
         );
-        let elm = null;
-        if (name === 'el-icon-arrow-up' || name === 'el-icon-arrow-down') {
-          elm = event.target.parentNode.parentNode
-            .getElementsByClassName('answer-content')[0]
-            .getElementsByTagName('section')[0];
-        } else {
-          elm = event.target.parentNode
-            .getElementsByClassName('answer-content')[0]
-            .getElementsByTagName('section')[0];
-        }
-        if (!Boolean(this.session_data.history[index].isOpen)) {
-          elm.className = 'hideDs';
-        } else {
-          elm.className = '';
-        }
       }
     },
     queryCopy(text) {
@@ -1557,6 +1601,40 @@ img.failed::after {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+.session-section-wrapper {
+  padding: 5px 20px 15px 63px;
+}
+
+.recommend-question {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  &-item {
+    display: inline-flex;
+    font-size: 12px;
+    padding: 4px 6px;
+    background: #f2f2f2;
+    cursor: pointer;
+    border-radius: 8px;
+    align-items: center;
+    line-height: 14px;
+    &:hover {
+      background: #eceefe;
+    }
+    &.is-tips {
+      cursor: default;
+      opacity: 0.7;
+      &:hover {
+        background: #f2f2f2;
+      }
+    }
+  }
+  &-loading {
+    margin: 0;
   }
 }
 </style>

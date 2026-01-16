@@ -257,7 +257,7 @@ export default {
       let endStr = '';
       this._print = new Print({
         onPrintEnd: () => {
-          // this.setStoreSessionStatus(-1)
+          this.onMainPrintEnd && this.onMainPrintEnd();
         },
       });
 
@@ -439,7 +439,9 @@ export default {
 
       let endStr = '';
       this._print = new Print({
-        onPrintEnd: () => {},
+        onPrintEnd: () => {
+          this.onMainPrintEnd && this.onMainPrintEnd();
+        },
       });
 
       let data = null;
