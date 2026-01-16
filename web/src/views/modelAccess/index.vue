@@ -311,11 +311,11 @@ export default {
           let res = await changeModelStatus({ modelId, isActive: val });
           if (res.code === 0) {
             this.$message.success(this.$t('common.message.success'));
-            await this.getTableData();
+            await this.searchData();
           }
         })
         .catch(() => {
-          this.getTableData();
+          this.searchData();
         });
     },
   },
