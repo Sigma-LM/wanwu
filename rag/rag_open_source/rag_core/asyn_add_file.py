@@ -267,6 +267,8 @@ def parse_meta_data(docs, parse_rules):
                 text = doc["text"]
                 matches = re.findall(pattern, text)
                 for match in matches:
+                    if isinstance(match, tuple):
+                        raise ValueError(f"Regex rule returned tuple (capture group detected): {match}")
                     meta_datas.append(str(match.strip()))
             if meta_datas:
                 item["value"] = meta_datas[-1]
@@ -294,7 +296,11 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
     user_data_path = USER_DATA_PATH
     convert_dir = CONVERT_DIR
     res_filename = ""
-
+    if not is_safe_filename(file_name):
+        logger.error('文件名不合法')
+        master_control_logger.error('文件名不合法')
+        mq_rel_utils.update_doc_status(file_id, status=53)
+        return
     try:
         filepath = os.path.join(user_data_path, user_id, kb_name)
         logger.info('add_files_filepath=%s' % filepath)
@@ -547,6 +553,13 @@ def add_files(user_id, kb_name, file_name, object_name, file_id,
     master_control_logger.info("user_id=%s,kb_name=%s,file_name=%s,kb_id=%s" % (user_id, kb_name, file_name, kb_id) + '===== 文档上传成功且完成')
     mq_rel_utils.update_doc_status(file_id, status=10, meta_datas=meta_parsed)
 
+
+def is_safe_filename(name: str) -> bool:
+    if "/" in name or "\\" in name:
+        return False
+    if ".." in name:
+        return False
+    return True
 
 if __name__ == "__main__":
     kafkal()

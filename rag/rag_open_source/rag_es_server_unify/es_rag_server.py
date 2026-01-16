@@ -17,6 +17,7 @@ import utils.qa_util as qa_ops
 import utils.mapping_util as es_mapping
 from utils import emb_util
 from utils.util import get_qa_index_name
+from utils.http_util import validate_request
 
 app = Flask(__name__)
 
@@ -27,17 +28,17 @@ def batch_list(lst: list, batch_size=32):
 
 
 @app.route('/rag/kn/init_kb', methods=['POST'])
-def init_kb():
+@validate_request
+def init_kb(request_json=None):
     """ ES 模拟RAG主控 初始化 init_kb 接口"""
     logger.info("--------------------------启动向量库初始化---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
     content_index_name = 'content_control_' + index_name
-    userId = data.get("userId")
-    kb_name = data.get("kb_name")
-    kb_id = data["kb_id"]  # 必须字段
-    embedding_model_id = data["embedding_model_id"]  # 必须字段
-    enable_knowledge_graph = data.get("enable_knowledge_graph", False)
+    userId = request_json.get("userId")
+    kb_name = request_json.get("kb_name")
+    kb_id = request_json.get("kb_id")  # 必须字段
+    embedding_model_id = request_json.get("embedding_model_id")  # 必须字段
+    enable_knowledge_graph = request_json.get("enable_knowledge_graph", False)
     userId_kb_names = []
     dense_dim = 1024
     try:
@@ -89,17 +90,17 @@ def init_kb():
 
 
 @app.route('/rag/kn/add', methods=['POST'])
-def add_vector_data():
+@validate_request
+def add_vector_data(request_json=None):
     """ 往 ES 中建向量索引数据，当前方法要校验索引名 kb_name 是否已存在"""
     logger.info("--------------------------启动数据添加---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
     content_index_name = 'content_control_' + index_name
-    userId = data.get("userId")
-    kb_name = data.get("kb_name")
-    kb_id = data.get("kb_id")
+    userId = request_json.get("userId")
+    kb_name = request_json.get("kb_name")
+    kb_id = request_json.get("kb_id")
     embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, kb_name)
-    doc_list = data.get("data")
+    doc_list = request_json.get("data")
     userId_kb_names = []
     cc_doc_list = []  # content主控表的数据
     cc_duplicate_list = []
@@ -192,12 +193,12 @@ def add_vector_data():
         logger.info(f"{userId},{kb_name},bulk_add end")
 
 @app.route('/rag/kn/get_kb_info', methods=['POST'])
-def get_kb_info():
+@validate_request
+def get_kb_info(request_json=None):
     """ 查询知识库是否开启知识图谱"""
     logger.info("-----------------------启动知识库info查询-------------------\n")
-    data = request.get_json()
-    userId = data.get("userId")
-    kb_name = data.get("kb_name")
+    userId = request_json.get("userId")
+    kb_name = request_json.get("kb_name")
     try:
         # ******** 先检查 是否有新建 index ***********
         es_ops.create_index_if_not_exists(KBNAME_MAPPING_INDEX, mappings=es_mapping.uk_mappings)  # 确保 KBNAME_MAPPING_INDEX 已创建
@@ -223,11 +224,11 @@ def get_kb_info():
         return jsonarr
 
 @app.route('/rag/kn/list_kb_names', methods=['POST'])
-def list_kb_names():
+@validate_request
+def list_kb_names(request_json=None):
     logger.info("--------------------------启动知识库查询---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
     try:
         # ******** 先检查 是否有新建 index ***********
         es_ops.create_index_if_not_exists(KBNAME_MAPPING_INDEX, mappings=es_mapping.uk_mappings)  # 确保 KBNAME_MAPPING_INDEX 已创建
@@ -258,13 +259,13 @@ def list_kb_names():
 
 
 @app.route('/rag/kn/list_file_names', methods=['POST'])
-def list_file_names():
+@validate_request
+def list_file_names(request_json=None):
     logger.info("--------------------------启动文件查询---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    kb_id = data.get("kb_id")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    kb_id = request_json.get("kb_id")
     try:
         if not kb_id:  # 如果没有指定 kb_id，则从映射表中获取
             kb_id = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -304,14 +305,14 @@ def list_file_names():
 
 
 @app.route('/rag/kn/list_file_names_after_filtering', methods=['POST'])
-def list_file_names_after_filtering():
+@validate_request
+def list_file_names_after_filtering(request_json=None):
     logger.info("--------------------------启动文件过滤查询---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    kb_id = data.get("kb_id")
-    filtering_conditions = data.get("filtering_conditions")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    kb_id = request_json.get("kb_id")
+    filtering_conditions = request_json.get("filtering_conditions")
     try:
         if not kb_id:  # 如果没有指定 kb_id，则从映射表中获取
             kb_id = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -350,13 +351,13 @@ def list_file_names_after_filtering():
 
 
 @app.route('/rag/kn/list_file_download_links', methods=['POST'])
-def list_file_download_links():
+@validate_request
+def list_file_download_links(request_json=None):
     logger.info("--------------------------启动获取知识库里所有文档的下载链接查询---------------------------")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    kb_id = data.get("kb_id")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    kb_id = request_json.get("kb_id")
     try:
         if not kb_id:  # 如果没有指定 kb_id，则从映射表中获取
             kb_id = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -385,19 +386,19 @@ def list_file_download_links():
 
 
 @app.route('/rag/kn/search', methods=['POST'])
-def es_knn_search():
+@validate_request
+def es_knn_search(request_json=None):
     """ 多知识库 KNN检索 """
     logger.info("--------------------------启动向量库检索---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
     content_index_name = 'content_control_' + index_name
-    userId = data.get("userId")
-    display_kb_names = data.get("kb_names")  # list
-    top_k = data.get("topk", 10)
-    query = data.get("question")
-    min_score = data.get("threshold", 0)
-    filter_file_name_list = data.get("filter_file_name_list", [])
-    metadata_filtering_conditions = data.get("metadata_filtering_conditions", [])
+    userId = request_json.get("userId")
+    display_kb_names = request_json.get("kb_names")  # list
+    top_k = request_json.get("topk", 10)
+    query = request_json.get("question")
+    min_score = request_json.get("threshold", 0)
+    filter_file_name_list = request_json.get("filter_file_name_list", [])
+    metadata_filtering_conditions = request_json.get("metadata_filtering_conditions", [])
     kb_id_2_kb_name = {}
     emb_id2kb_names = {}
     logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names}")
@@ -499,12 +500,12 @@ def es_knn_search():
 
 
 @app.route('/rag/kn/del_kb', methods=['POST'])
-def del_kb():
+@validate_request
+def del_kb(request_json=None):
     logger.info("--------------------------启动知识库删除---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
     content_index_name = 'content_control_' + index_name
     file_index_name = 'file_control_' + index_name
     community_report_name = 'community_report_' + index_name
@@ -548,13 +549,13 @@ def del_kb():
 
 
 @app.route('/rag/kn/del_files', methods=['POST'])
-def del_files():
+@validate_request
+def del_files(request_json=None):
     logger.info("--------------------------启动文件删除---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_names = data.get("file_names")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_names = request_json.get("file_names")
     content_index_name = 'content_control_' + index_name
     file_index_name = 'file_control_' + index_name
 
@@ -614,17 +615,17 @@ def del_files():
 
 
 @app.route('/rag/kn/get_content_list', methods=['POST'])
-def get_content_list():
+@validate_request
+def get_content_list(request_json=None):
     """ 获取 主控表中 知识片段的分页展示 """
     logger.info("--------------------------获取主控表中知识片段的分页展示---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    page_size = data.get("page_size")
-    search_after = data.get("search_after")
-    content_type = data.get("content_type", "text")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    page_size = request_json.get("page_size")
+    search_after = request_json.get("search_after")
+    content_type = request_json.get("content_type", "text")
     try:
         kb_name = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
         logger.info(
@@ -662,15 +663,15 @@ def get_content_list():
 
 
 @app.route('/rag/kn/get_child_content_list', methods=['POST'])
-def get_child_content_list():
+@validate_request
+def get_child_content_list(request_json=None):
     """ 获取子片段"""
     logger.info("--------------------------获取子片段---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    chunk_id = data.get("chunk_id")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    chunk_id = request_json.get("chunk_id")
     try:
         kb_name = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
         logger.info(
@@ -698,17 +699,17 @@ def get_child_content_list():
 
 
 @app.route('/rag/kn/update_child_chunk', methods=['POST'])
-def update_child_chunk():
+@validate_request
+def update_child_chunk(request_json=None):
     logger.info("--------------------------更新知识库子段数据---------------------------\n")
-    data = request.get_json()
-    userId = data.get("userId")
+    userId = request_json.get("userId")
     index_name = INDEX_NAME_PREFIX + userId
-    display_kb_name = data.get("kb_name")  # 显示的名字
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
     embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, display_kb_name)
     snippet_index_name = SNIPPET_INDEX_NAME_PREFIX + userId.replace('-', '_')
-    chunk_id = data.get("chunk_id")
-    child_chunk = data.get("child_chunk")
-    chunk_current_num = data.get("chunk_current_num")
+    chunk_id = request_json.get("chunk_id")
+    child_chunk = request_json.get("child_chunk")
+    chunk_current_num = request_json.get("chunk_current_num")
     try:
         child_content = child_chunk["child_content"]
         child_chunk_current_num = child_chunk["child_chunk_current_num"]
@@ -763,13 +764,13 @@ def update_child_chunk():
 
 
 @app.route('/rag/kn/update_file_metas', methods=['POST'])
-def update_file_metas():
+@validate_request
+def update_file_metas(request_json=None):
     logger.info("--------------------------更新知识库元数据---------------------------\n")
-    data = request.get_json()
-    userId = data.get("userId")
+    userId = request_json.get("userId")
     index_name = INDEX_NAME_PREFIX + userId
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    update_datas = data.get("update_datas")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    update_datas = request_json.get("update_datas")
     file_index_name = 'file_control_' + index_name
     try:
         kb_name = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -794,14 +795,14 @@ def update_file_metas():
         return json_arr
 
 @app.route('/rag/kn/batch_delete_chunks', methods=['POST'])
-def batch_delete_chunks():
+@validate_request
+def batch_delete_chunks(request_json=None):
     logger.info("--------------------------根据fileName和chunk_ids删除分段---------------------------\n")
-    data = request.get_json()
-    userId = data.get("userId")
+    userId = request_json.get("userId")
     index_name = INDEX_NAME_PREFIX + userId
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    chunk_ids = data.get("chunk_ids")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    chunk_ids = request_json.get("chunk_ids")
     content_index_name = 'content_control_' + index_name
     snippet_index_name = SNIPPET_INDEX_NAME_PREFIX + userId.replace('-', '_')
     try:
@@ -853,16 +854,16 @@ def batch_delete_chunks():
         return jsonarr
 
 @app.route('/rag/kn/delete_child_chunks', methods=['POST'])
-def delete_child_chunks():
+@validate_request
+def delete_child_chunks(request_json=None):
     logger.info("--------------------------删除子分段---------------------------\n")
-    data = request.get_json()
-    userId = data.get("userId")
+    userId = request_json.get("userId")
     index_name = INDEX_NAME_PREFIX + userId
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    chunk_id = data.get("chunk_id")
-    chunk_current_num = data.get("chunk_current_num")
-    child_chunk_current_nums = data.get("child_chunk_current_nums")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    chunk_id = request_json.get("chunk_id")
+    chunk_current_num = request_json.get("chunk_current_num")
+    child_chunk_current_nums = request_json.get("child_chunk_current_nums")
     snippet_index_name = SNIPPET_INDEX_NAME_PREFIX + userId.replace('-', '_')
 
     try:
@@ -913,15 +914,15 @@ def delete_child_chunks():
 
 
 @app.route('/rag/kn/update_chunk_labels', methods=['POST'])
-def update_chunk_labels():
+@validate_request
+def update_chunk_labels(request_json=None):
     logger.info("--------------------------根据fileName和chunk_id更新标签---------------------------\n")
-    data = request.get_json()
-    userId = data.get("userId")
+    userId = request_json.get("userId")
     index_name = INDEX_NAME_PREFIX + userId
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    chunk_id = data.get("chunk_id")
-    labels = data.get("labels")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    chunk_id = request_json.get("chunk_id")
+    labels = request_json.get("labels")
     content_index_name = 'content_control_' + index_name
     try:
         kb_name = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -948,16 +949,16 @@ def update_chunk_labels():
         return jsonarr
 
 @app.route('/rag/kn/get_content_by_ids', methods=['POST'])
-def get_content_by_ids():
+@validate_request
+def get_content_by_ids(request_json=None):
     """ 根据content_id获取知识库文件片段 """
     logger.info("--------------------------根据content_id获取知识库文件片段信息---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    content_ids = data.get("content_ids")
-    kb_id = data.get("kb_id")
-    content_type = data.get("content_type", "text")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    content_ids = request_json.get("content_ids")
+    kb_id = request_json.get("kb_id")
+    content_type = request_json.get("content_type", "text")
     try:
         if not kb_id:  # 如果没有传入 kb_id,则从映射表中获取
             kb_id = kb_info_ops.get_uk_kb_id(userId, display_kb_name)
@@ -995,17 +996,17 @@ def get_content_by_ids():
 
 
 @app.route('/rag/kn/update_content_status', methods=['POST'])
-def update_content_status():
+@validate_request
+def update_content_status(request_json=None):
     """ 根据content_id更新知识库文件片段状态 """
     logger.info("--------------------------根据content_id更新知识库文件片段状态---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    content_id = data.get("content_id")
-    status = data.get("status")
-    on_off_switch = data.get("on_off_switch", -1)
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    content_id = request_json.get("content_id")
+    status = request_json.get("status")
+    on_off_switch = request_json.get("on_off_switch", -1)
     content_index_name = 'content_control_' + index_name
     try:
         kb_name = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -1030,14 +1031,14 @@ def update_content_status():
 
 
 @app.route('/rag/kn/get_useful_content_status', methods=['POST'])
-def get_content_status():
+@validate_request
+def get_content_status(request_json=None):
     """ 获取文本分块状态用于进行检索后过滤。 """
     logger.info("--------------------------获取文本分块状态用于进行检索后过滤---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    content_id_list = data.get("content_id_list")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    content_id_list = request_json.get("content_id_list")
     content_index_name = 'content_control_' + index_name
     try:
         kb_name = kb_info_ops.get_uk_kb_id(userId, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -1061,13 +1062,13 @@ def get_content_status():
 
 
 @app.route('/rag/kn/get_kb_id', methods=['POST'])
-def get_kb_id():
+@validate_request
+def get_kb_id(request_json=None):
     """ 获取某个知识库映射的 kb_id接口 """
     logger.info("--------------------------获取知识库映射的 kb_id接口---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    kb_name = data.get("kb_name")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    kb_name = request_json.get("kb_name")
     logger.info(f"用户:{userId},请求的kb_name为:{kb_name}")
     try:
         kb_id = kb_info_ops.get_uk_kb_id(userId, kb_name)
@@ -1087,14 +1088,14 @@ def get_kb_id():
 
 
 @app.route('/rag/kn/update_kb_name', methods=['POST'])
-def update_uk_kb_name():
+@validate_request
+def update_uk_kb_name(request_json=None):
     """ 更新 uk映射表 知识库名接口 """
     logger.info("--------------------------更新 uk映射表 知识库名接口---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    userId = data.get("userId")
-    old_kb_name = data.get("old_kb_name")
-    new_kb_name = data.get("new_kb_name")
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    userId = request_json.get("userId")
+    old_kb_name = request_json.get("old_kb_name")
+    new_kb_name = request_json.get("new_kb_name")
     logger.info(f"用户:{userId},请求的ole_kb_name为:{old_kb_name},请求的new_kb_name为:{new_kb_name}")
     try:
         result = kb_info_ops.update_uk_kb_name(userId, old_kb_name, new_kb_name)
@@ -1115,23 +1116,23 @@ def update_uk_kb_name():
 # ***************** 老的 ES snippet API servers **********************
 
 @app.route('/api/v1/rag/es/bulk_add', methods=['POST'])
-def snippet_bulk_add():
+@validate_request
+def snippet_bulk_add(request_json=None):
     logger.info("request: /api/v1/rag/es/bulk_add")
-    data = request.get_json()
     # logger.info('bulk_add request_params: '+ json.dumps(data, indent=4,ensure_ascii=False))
 
     # index_name = data.get('index_name') 之前拼接好的，弃用
-    user_id = data.get('user_id')
+    user_id = request_json.get('user_id')
     user_id = user_id.replace('-', '_')
     index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
-    kb_name = data.get('kb_name')
-    kb_id = data.get('kb_id')
-    doc_list = data.get('doc_list')
+    kb_name = request_json.get('kb_name')
+    kb_id = request_json.get('kb_id')
+    doc_list = request_json.get('doc_list')
     logger.info(f"request: bulk_add_data len:{len(doc_list)}")
     try:
         # ========= 往里面传入的 kb_name是真正指代的 kb_id =======
         if not kb_id:  # 如果没有传入 kb_id,则从映射表中获取
-            kb_id = kb_info_ops.get_uk_kb_id(data.get('user_id'), data.get('kb_name'))
+            kb_id = kb_info_ops.get_uk_kb_id(request_json.get('user_id'), request_json.get('kb_name'))
         es_ops.create_index_if_not_exists(index_name, mappings=es_mapping.snippet_mappings)
         result = es_ops.snippet_bulk_add_index_data(index_name, kb_id, doc_list)
         response = json.dumps({'code': 200, 'msg': 'Success', 'result': result}, indent=4, ensure_ascii=False)
@@ -1146,14 +1147,14 @@ def snippet_bulk_add():
 
 
 @app.route('/api/v1/rag/es/add_file', methods=['POST'])
-def add_file():
+@validate_request
+def add_file(request_json=None):
     logger.info("--------------------------新增文件---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("user_id")
+    user_id = request_json.get("user_id")
     index_name = INDEX_NAME_PREFIX + user_id
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    file_meta = data.get("file_meta")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    file_meta = request_json.get("file_meta")
     file_index_name = 'file_control_' + index_name
 
     try:
@@ -1179,15 +1180,15 @@ def add_file():
         return jsonarr
 
 @app.route('/api/v1/rag/es/allocate_chunks', methods=['POST'])
-def allocate_chunks():
+@validate_request
+def allocate_chunks(request_json=None):
     logger.info("--------------------------新增分段时分配chunk---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("user_id")
+    user_id = request_json.get("user_id")
     index_name = INDEX_NAME_PREFIX + user_id
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    count = data.get("count")
-    chunk_type = data.get("chunk_type", "text")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    count = request_json.get("count")
+    chunk_type = request_json.get("chunk_type", "text")
     content_index_name = 'content_control_' + index_name
     file_index_name = 'file_control_' + index_name
     report_index_name = 'community_report_' + index_name
@@ -1221,15 +1222,15 @@ def allocate_chunks():
 
 
 @app.route('/api/v1/rag/es/allocate_child_chunks', methods=['POST'])
-def allocate_child_chunks():
+@validate_request
+def allocate_child_chunks(request_json=None):
     logger.info("--------------------------新增子分段时分配chunk---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("user_id")
+    user_id = request_json.get("user_id")
     index_name = INDEX_NAME_PREFIX + user_id
-    display_kb_name = data.get("kb_name")  # 显示的名字
-    file_name = data.get("file_name")
-    chunk_id = data.get("chunk_id")
-    count = data.get("count")
+    display_kb_name = request_json.get("kb_name")  # 显示的名字
+    file_name = request_json.get("file_name")
+    chunk_id = request_json.get("chunk_id")
+    count = request_json.get("count")
     content_index_name = 'content_control_' + index_name
     try:
         kb_name = kb_info_ops.get_uk_kb_id(user_id, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
@@ -1255,26 +1256,26 @@ def allocate_child_chunks():
 
 
 @app.route('/api/v1/rag/es/search', methods=['POST'])
-def snippet_search():
+@validate_request
+def snippet_search(request_json=None):
     logger.info("request: /api/v1/rag/es/search")
-    data = request.get_json()
-    logger.info('search request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('search request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
-    user_id = data.get('user_id')
+    user_id = request_json.get('user_id')
     user_id = user_id.replace('-', '_')
     index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
     content_index_name = 'content_control_' + INDEX_NAME_PREFIX + user_id
-    kb_name = data.get('kb_name')
-    query = data.get('query')
-    top_k = int(data.get('top_k', 10))
-    min_score = float(data.get('min_score', 0.0))
-    search_by = data.get('search_by', "snippet")
-    filter_file_name_list = data.get("filter_file_name_list", [])
-    metadata_filtering_conditions = data.get("metadata_filtering_conditions", [])
+    kb_name = request_json.get('kb_name')
+    query = request_json.get('query')
+    top_k = int(request_json.get('top_k', 10))
+    min_score = float(request_json.get('min_score', 0.0))
+    search_by = request_json.get('search_by', "snippet")
+    filter_file_name_list = request_json.get("filter_file_name_list", [])
+    metadata_filtering_conditions = request_json.get("metadata_filtering_conditions", [])
     kb_id_2_kb_name = {}
     try:
         # ========= 往里面传入的 kb_name是真正指代的 kb_id =======
-        kb_id = kb_info_ops.get_uk_kb_id(data.get('user_id'), data.get('kb_name'))
+        kb_id = kb_info_ops.get_uk_kb_id(request_json.get('user_id'), request_json.get('kb_name'))
         kb_id_2_kb_name[kb_id] = kb_name
 
         final_conditions = []
@@ -1317,20 +1318,20 @@ def snippet_search():
 
 
 @app.route('/api/v1/rag/es/keyword_search', methods=['POST'])
-def keyword_search():
+@validate_request
+def keyword_search(request_json=None):
     logger.info("request: /api/v1/rag/es/keyword_search")
-    data = request.get_json()
-    logger.info('search request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
-    user_id = data.get('user_id')
-    index_name = INDEX_NAME_PREFIX + data.get('user_id')
+    logger.info('search request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
+    user_id = request_json.get('user_id')
+    index_name = INDEX_NAME_PREFIX + request_json.get('user_id')
     content_index_name = 'content_control_' + index_name
-    display_kb_name = data.get('kb_name')
-    keywords = data.get('keywords')
-    top_k = int(data.get('top_k', 10))
-    min_score = float(data.get('min_score', 0.0))
-    search_by = data.get('search_by', "labels")
-    filter_file_name_list = data.get('filter_file_name_list', [])
-    metadata_filtering_conditions = data.get('metadata_filtering_conditions', [])
+    display_kb_name = request_json.get('kb_name')
+    keywords = request_json.get('keywords')
+    top_k = int(request_json.get('top_k', 10))
+    min_score = float(request_json.get('min_score', 0.0))
+    search_by = request_json.get('search_by', "labels")
+    filter_file_name_list = request_json.get('filter_file_name_list', [])
+    metadata_filtering_conditions = request_json.get('metadata_filtering_conditions', [])
     try:
         kb_id = kb_info_ops.get_uk_kb_id(user_id, display_kb_name)  # 从映射表中获取 kb_id ，这是真正的名字
 
@@ -1374,15 +1375,15 @@ def keyword_search():
 
 
 @app.route('/api/v1/rag/es/rescore', methods=['POST'])
-def snippet_rescore():
+@validate_request
+def snippet_rescore(request_json=None):
     logger.info("request: /api/v1/rag/es/rescore")
-    data = request.get_json()
-    logger.info('rescore request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('rescore request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
-    search_by = data.get('search_by', "snippet")
-    search_list_infos = data.get("search_list_infos")
-    query = data.get('query')
-    weights = data.get('weights')
+    search_by = request_json.get('search_by', "snippet")
+    search_list_infos = request_json.get("search_list_infos")
+    query = request_json.get('query')
+    weights = request_json.get('weights')
 
     logger.info(f"query: {query}, weights: {weights}, search_list_infos:{search_list_infos}")
     try:
@@ -1448,23 +1449,23 @@ def snippet_rescore():
 
 
 @app.route('/api/v1/rag/es/search_text_title_list', methods=['POST'])
-def search_title_list():
+@validate_request
+def search_title_list(request_json=None):
     logger.info("request: /api/v1/rag/es/search_text_title_list")
-    data = request.get_json()
-    logger.info('search request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('search request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
     # index_name = data.get('index_name') 之前拼接好的，弃用
-    user_id = data.get('user_id')
+    user_id = request_json.get('user_id')
     user_id = user_id.replace('-', '_')
     index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
-    kb_name = data.get('kb_name')
-    query = data.get('query')
-    top_k = int(data.get('top_k', 10))
-    min_score = float(data.get('min_score', 0.0))
+    kb_name = request_json.get('kb_name')
+    query = request_json.get('query')
+    top_k = int(request_json.get('top_k', 10))
+    min_score = float(request_json.get('min_score', 0.0))
     kb_id_2_kb_name = {}
     try:
         # ========= 往里面传入的 kb_name是真正指代的 kb_id =======
-        kb_id = kb_info_ops.get_uk_kb_id(data.get('user_id'), data.get('kb_name'))
+        kb_id = kb_info_ops.get_uk_kb_id(request_json.get('user_id'), request_json.get('kb_name'))
         kb_id_2_kb_name[kb_id] = kb_name
         result = es_ops.search_text_title_list(index_name, kb_id, query, top_k, min_score)
         response = json.dumps({'code': 200, 'msg': 'Success', 'result': result}, indent=4, ensure_ascii=False)
@@ -1479,16 +1480,16 @@ def search_title_list():
 
 
 @app.route('/api/v1/rag/es/fetch_all', methods=['POST'])
-def snippet_fetch_all():
+@validate_request
+def snippet_fetch_all(request_json=None):
     logger.info("request: /api/v1/rag/es/fetch_all")
-    data = request.get_json()
-    logger.info('fetch_all request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('fetch_all request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
     # index_name = data.get('index_name') 之前拼接好的，弃用
-    user_id = data.get('user_id')
+    user_id = request_json.get('user_id')
     user_id = user_id.replace('-', '_')
     index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
-    kb_name = data.get('kb_name')
+    kb_name = request_json.get('kb_name')
     try:
         documents = es_ops.fetch_all_documents(index_name)
         documents_list = list(documents)
@@ -1504,20 +1505,20 @@ def snippet_fetch_all():
 
 
 @app.route('/api/v1/rag/es/delete_doc', methods=['POST'])
-def snippet_delete_doc_by_kbname_title():
+@validate_request
+def snippet_delete_doc_by_kbname_title(request_json=None):
     logger.info("request: /api/v1/rag/es/delete_doc")
-    data = request.get_json()
-    logger.info('delete_doc_by_title request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('delete_doc_by_title request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
     # index_name = data.get('index_name') 之前拼接好的，弃用
-    user_id = data.get('user_id')
+    user_id = request_json.get('user_id')
     user_id = user_id.replace('-', '_')
     index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
-    kb_name = data.get('kb_name')
-    title = data.get('title')
+    kb_name = request_json.get('kb_name')
+    title = request_json.get('title')
     try:
         # ========= 往里面传入的 kb_name是真正指代的 kb_id =======
-        kb_id = kb_info_ops.get_uk_kb_id(data.get('user_id'), data.get('kb_name'))
+        kb_id = kb_info_ops.get_uk_kb_id(request_json.get('user_id'), request_json.get('kb_name'))
         status = es_ops.delete_data_by_kbname_title(index_name, kb_id, title)
         response = json.dumps({'code': 200, 'msg': 'Success', 'result': status}, indent=4, ensure_ascii=False)
         logger.info("delete_doc_by_title response: %s", response)
@@ -1531,19 +1532,19 @@ def snippet_delete_doc_by_kbname_title():
 
 
 @app.route('/api/v1/rag/es/delete_index', methods=['POST'])
-def snippet_delete_index_kb_name():
+@validate_request
+def snippet_delete_index_kb_name(request_json=None):
     logger.info("request: /api/v1/rag/es/delete_index")
-    data = request.get_json()
-    logger.info('delete_index request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('delete_index request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
     # index_name = data.get('index_name') 之前拼接好的，弃用
-    user_id = data.get('user_id')
+    user_id = request_json.get('user_id')
     user_id = user_id.replace('-', '_')
     index_name = SNIPPET_INDEX_NAME_PREFIX + user_id
-    kb_name = data.get('kb_name')
+    kb_name = request_json.get('kb_name')
     try:
         # ========= 往里面传入的 kb_name是真正指代的 kb_id =======
-        kb_id = kb_info_ops.get_uk_kb_id(data.get('user_id'), data.get('kb_name'))
+        kb_id = kb_info_ops.get_uk_kb_id(request_json.get('user_id'), request_json.get('kb_name'))
         status = es_ops.delete_data_by_kbname(index_name, kb_id)
         response = json.dumps({'code': 200, 'msg': 'Success', 'result': status}, indent=4, ensure_ascii=False)
         logger.info("delete_index response: %s", response)
@@ -1557,17 +1558,17 @@ def snippet_delete_index_kb_name():
 
 
 @app.route('/rag/kn/add_community_reports', methods=['POST'])
-def add_community_reports_data():
+@validate_request
+def add_community_reports_data(request_json=None):
     logger.info("--------------------------启动community reports数据添加---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
     report_index_name = 'community_report_' + index_name
     file_index_name = 'file_control_' + index_name
-    user_id = data.get("userId")
-    kb_name = data.get("kb_name")
-    kb_id = data.get("kb_id")
+    user_id = request_json.get("userId")
+    kb_name = request_json.get("kb_name")
+    kb_id = request_json.get("kb_id")
     embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, kb_name)
-    doc_list = data.get("data")
+    doc_list = request_json.get("data")
     try:
         if not kb_id:  # 如果没有传入 kb_id,则从映射表中获取
             kb_id = kb_info_ops.get_uk_kb_id(user_id, kb_name)  # 从映射表中获取 kb_id ,添加往里传 kb_id
@@ -1613,17 +1614,17 @@ def add_community_reports_data():
 
 
 @app.route('/rag/kn/del_community_reports', methods=['POST'])
-def del_community_reports():
+@validate_request
+def del_community_reports(request_json=None):
     logger.info("--------------------------启动community reports删除---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
-    user_id = data.get("userId")
-    kb_id = data.get("kb_id")
-    kb_name = data.get("kb_name")  # 显示的名字
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
+    user_id = request_json.get("userId")
+    kb_id = request_json.get("kb_id")
+    kb_name = request_json.get("kb_name")  # 显示的名字
     report_index_name = 'community_report_' + index_name
     file_index_name = 'file_control_' + index_name
-    clear_reports = data.get("clear_reports", False)
-    content_ids = data.get("content_ids", [])
+    clear_reports = request_json.get("clear_reports", False)
+    content_ids = request_json.get("content_ids", [])
 
     try:
         if not kb_id:  # 如果没有传入 kb_id,则从映射表中获取
@@ -1667,17 +1668,17 @@ def del_community_reports():
         return jsonarr
 
 @app.route('/rag/kn/search_community_reports', methods=['POST'])
-def search_community_reports():
+@validate_request
+def search_community_reports(request_json=None):
     """ 多知识库 KNN检索 """
     logger.info("--------------------------启动community reports检索---------------------------\n")
-    data = request.get_json()
-    index_name = INDEX_NAME_PREFIX + data.get('userId')
+    index_name = INDEX_NAME_PREFIX + request_json.get('userId')
     report_index_name = 'community_report_' + index_name
-    userId = data.get("userId")
-    display_kb_names = data.get("kb_names")  # list
-    top_k = data.get("topk", 10)
-    query = data.get("question")
-    min_score = data.get("threshold", 0)
+    userId = request_json.get("userId")
+    display_kb_names = request_json.get("kb_names")  # list
+    top_k = request_json.get("topk", 10)
+    query = request_json.get("question")
+    min_score = request_json.get("threshold", 0)
     kb_id_2_kb_name = {}
     emb_id2kb_names = {}
     logger.info(f"用户:{index_name},请求查询的kb_names为:{display_kb_names}")
@@ -1742,15 +1743,15 @@ def search_community_reports():
 
 #-------------------------------       问答库       ------------------------------------
 @app.route('/api/v1/rag/es/init_QA_base', methods=['POST'])
-def init_qa_base():
+@validate_request
+def init_qa_base(request_json=None):
     """ 初始化 init_qa 接口"""
     logger.info("--------------------------启动问答库初始化---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
-    embedding_model_id = data["embedding_model_id"]
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
+    embedding_model_id = request_json["embedding_model_id"]
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
@@ -1801,13 +1802,13 @@ def init_qa_base():
 
 
 @app.route('/api/v1/rag/es/delete_QA_base', methods=['POST'])
-def del_qa_base():
+@validate_request
+def del_qa_base(request_json=None):
     logger.info("--------------------------启动问答库删除---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
@@ -1844,16 +1845,16 @@ def del_qa_base():
 
 
 @app.route('/api/v1/rag/es/add-QAs', methods=['POST'])
-def add_qa_data():
+@validate_request
+def add_qa_data(request_json=None):
     """ 往 ES 中建向量索引数据"""
     logger.info("--------------------------启动问答库数据添加---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
     embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, qa_base_name)
-    qa_list = data.get("data")
+    qa_list = request_json.get("data")
 
     try:
         if not qa_base_id:
@@ -1893,14 +1894,14 @@ def add_qa_data():
 
 
 @app.route('/api/v1/rag/es/batch-delete-QAs', methods=['POST'])
-def batch_delete_qas():
+@validate_request
+def batch_delete_qas(request_json=None):
     logger.info("--------------------------根据qa pair ids 删除问答对---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
-    qa_pair_ids = data["QAPairIds"]
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
+    qa_pair_ids = request_json["QAPairIds"]
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
@@ -1936,16 +1937,16 @@ def batch_delete_qas():
 
 
 @app.route('/api/v1/rag/es/update_QA', methods=['POST'])
-def update_qa():
+@validate_request
+def update_qa(request_json=None):
     """ 根据id更新问答片段状态 """
     logger.info("--------------------------根据qa pair id 更新问答对--------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
-    qa_pair_id = data["QAPairId"]
-    update_data = data["data"]
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
+    qa_pair_id = request_json["QAPairId"]
+    update_data = request_json["data"]
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
@@ -1983,16 +1984,16 @@ def update_qa():
         return jsonarr
 
 @app.route('/api/v1/rag/es/get_QA_list', methods=['POST'])
-def get_qa_list():
+@validate_request
+def get_qa_list(request_json=None):
     """ 获取 分页展示 """
     logger.info("--------------------------获取问答对的分页展示---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
-    page_size = data.get("page_size")
-    search_after = data.get("search_after")
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
+    page_size = request_json.get("page_size")
+    search_after = request_json.get("search_after")
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
@@ -2021,15 +2022,15 @@ def get_qa_list():
 
 
 @app.route('/api/v1/rag/es/update_QA_metas', methods=['POST'])
-def update_qa_metas():
+@validate_request
+def update_qa_metas(request_json=None):
     logger.info("--------------------------更新问答库元数据---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    qa_base_name = data.get("QABase")
-    qa_base_id = data["QAId"]
-    metas = data.get("metas")
-    update_type = data["update_type"]
+    qa_base_name = request_json.get("QABase")
+    qa_base_id = request_json["QAId"]
+    metas = request_json.get("metas")
+    update_type = request_json["update_type"]
     try:
         if not qa_base_id:
             qa_base_id = kb_info_ops.get_uk_kb_id(user_id, qa_base_name)
@@ -2066,14 +2067,14 @@ def update_qa_metas():
 
 
 @app.route('/api/v1/rag/es/qa_rescore', methods=['POST'])
-def qa_rescore():
+@validate_request
+def qa_rescore(request_json=None):
     logger.info("request: /api/v1/rag/es/qa_rescore")
-    data = request.get_json()
-    logger.info('qa rescore request_params: ' + json.dumps(data, indent=4, ensure_ascii=False))
+    logger.info('qa rescore request_params: ' + json.dumps(request_json, indent=4, ensure_ascii=False))
 
-    search_list_infos = data.get("search_list_infos")
-    query = data.get('query')
-    weights = data.get('weights')
+    search_list_infos = request_json.get("search_list_infos")
+    query = request_json.get('query')
+    weights = request_json.get('weights')
 
     try:
         search_list = []
@@ -2135,17 +2136,17 @@ def qa_rescore():
 
 
 @app.route('/api/v1/rag/es/vector_search', methods=['POST'])
-def vector_search():
+@validate_request
+def vector_search(request_json=None):
     """ 多知识库 KNN检索 """
     logger.info("--------------------------启动问答库向量检索---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    all_base_names = data.get("base_names")
-    top_k = data.get("topk", 10)
-    query = data.get("question")
-    min_score = data.get("threshold", 0)
-    metadata_filtering_conditions = data.get("metadata_filtering_conditions", [])
+    all_base_names = request_json.get("base_names")
+    top_k = request_json.get("topk", 10)
+    query = request_json.get("question")
+    min_score = request_json.get("threshold", 0)
+    metadata_filtering_conditions = request_json.get("metadata_filtering_conditions", [])
     emb_id2base_names = {}
     logger.info(f"用户:{user_id},请求查询的base_names为:{all_base_names}, query: {query}, topK: {top_k}, "
                 f"threshold: {min_score}, metadata_filtering_conditions: {metadata_filtering_conditions}")
@@ -2214,17 +2215,17 @@ def vector_search():
 
 
 @app.route('/api/v1/rag/es/text_search', methods=['POST'])
-def text_search():
+@validate_request
+def text_search(request_json=None):
     """ 多问答库库 text检索 """
     logger.info("--------------------------启动问答库全文检索---------------------------\n")
-    data = request.get_json()
-    user_id = data.get("userId")
+    user_id = request_json.get("userId")
     qa_index_name = get_qa_index_name(user_id)
-    base_names = data.get("base_names")
-    top_k = data.get("topk", 10)
-    query = data.get("question")
-    min_score = data.get("threshold", 0)
-    metadata_filtering_conditions = data.get("metadata_filtering_conditions", [])
+    base_names = request_json.get("base_names")
+    top_k = request_json.get("topk", 10)
+    query = request_json.get("question")
+    min_score = request_json.get("threshold", 0)
+    metadata_filtering_conditions = request_json.get("metadata_filtering_conditions", [])
     logger.info(f"用户:{user_id},请求查询的base_names为:{base_names}, query: {query}, topK: {top_k}, "
                 f"threshold: {min_score}, metadata_filtering_conditions: {metadata_filtering_conditions}")
     try:
