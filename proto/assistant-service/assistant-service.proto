@@ -157,6 +157,7 @@ message AssistantConfigUpdateReq {
   AssistantSafetyConfig safetyConfig = 10;
   AssistantVisionConfig visionConfig = 11;
   AssistantMemoryConfig memoryConfig = 12;
+  AssistantRecommendConfig recommendConfig = 13; //智能体问题推荐配置信息
 }
 
 message AssistantSafetyConfig {
@@ -258,6 +259,15 @@ message AssistantInfo {
   AssistantVisionConfig visionConfig = 19;
   string uuid = 20;
   AssistantMemoryConfig memoryConfig = 21;
+  AssistantRecommendConfig RecommendConfig = 22; //智能体问题推荐配置信息
+}
+
+message AssistantRecommendConfig {
+  bool recommendEnable = 1; // 追问配置开关
+  common.AppModelConfig modelConfig = 2; //模型信息
+  bool promptEnable = 3; // 提示词开关
+  string systemPrompt = 4;//系统提示词
+  int32 maxHistory = 5;//最大历史会话轮次
 }
 
 

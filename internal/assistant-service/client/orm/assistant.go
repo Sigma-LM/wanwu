@@ -44,6 +44,7 @@ func (c *Client) UpdateAssistant(ctx context.Context, assistant *model.Assistant
 			"safety_config":        assistant.SafetyConfig,
 			"vision_config":        assistant.VisionConfig,
 			"memory_config":        assistant.MemoryConfig,
+			"recommend_config":     assistant.RecommendConfig,
 		}).Error; err != nil {
 			return toErrStatus("assistant_update", err.Error())
 		}

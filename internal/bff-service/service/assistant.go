@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"sort"
+	"strings"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
@@ -73,6 +74,13 @@ func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.A
 			}
 		}
 	}
+	var recommendConfig *assistant_service.AssistantRecommendConfig
+	if req.RecommendConfig != nil {
+		recommendConfig, err = recommendConfigModel2Proto(*req.RecommendConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
 	var safetyConfig *assistant_service.AssistantSafetyConfig
 	if req.SafetyConfig != nil {
 		safetyConfig = &assistant_service.AssistantSafetyConfig{
@@ -111,6 +119,7 @@ func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.A
 		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -835,6 +844,12 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		MaxHistoryLength: resp.MemoryConfig.MaxHistoryLength,
 	}
 
+	// 转换Recommend配置
+	recommendConfig, err := assistantRecommendConvert(ctx, resp)
+	if err != nil {
+		return nil, err
+	}
+
 	assistantModel := response.Assistant{
 		AssistantId:         resp.AssistantId,
 		UUID:                resp.Uuid,
@@ -848,6 +863,7 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Scope:               resp.Scope,
 		WorkFlowInfos:       assistantWorkFlowInfos,
 		MCPInfos:            assistantMCPInfos,
@@ -860,6 +876,24 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 
 	log.Debugf("Assistant响应到模型转换完成，结果: %+v", assistantModel)
 	return &assistantModel, nil
+}
+
+func assistantRecommendConvert(ctx *gin.Context, resp *assistant_service.AssistantInfo) (recommendConfig response.RecommendConfig, err error) {
+	if resp.RecommendConfig != nil {
+		modelConfig, err := assistantModelConvert(ctx, resp.RecommendConfig.ModelConfig)
+		if err != nil {
+			recommendConfig.ModelConfig = modelConfig
+			return recommendConfig, err
+		}
+		recommendConfig = response.RecommendConfig{
+			ModelConfig:     modelConfig,
+			MaxHistory:      resp.RecommendConfig.MaxHistory,
+			RecommendEnable: resp.RecommendConfig.RecommendEnable,
+			Prompt:          resp.RecommendConfig.SystemPrompt,
+			PromptEnable:    resp.RecommendConfig.PromptEnable,
+		}
+	}
+	return recommendConfig, nil
 }
 
 func transKnowledgeBases2Model(ctx *gin.Context, kbConfig *assistant_service.AssistantKnowledgeBaseConfig) (request.AppKnowledgebaseConfig, error) {
@@ -987,4 +1021,23 @@ func transRequestFiles(files []*assistant_service.RequestFile) []response.Assist
 		})
 	}
 	return result
+}
+
+func recommendConfigModel2Proto(recommendConfig request.RecommendConfig) (ret *assistant_service.AssistantRecommendConfig, err error) {
+	modelConfig := &common.AppModelConfig{}
+	if recommendConfig.ModelConfig.ModelId != "" {
+		modelConfig, err = appModelConfigModel2Proto(recommendConfig.ModelConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+	ret = &assistant_service.AssistantRecommendConfig{
+		RecommendEnable: recommendConfig.RecommendEnable,
+		ModelConfig:     modelConfig,
+		SystemPrompt:    strings.TrimSpace(recommendConfig.Prompt),
+		PromptEnable:    recommendConfig.PromptEnable,
+		MaxHistory:      recommendConfig.MaxHistory,
+	}
+
+	return ret, nil
 }

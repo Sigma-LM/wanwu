@@ -2579,6 +2579,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/assistant/question/recommend": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "智能体问题推荐接口",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "智能体问题推荐接口",
+                "parameters": [
+                    {
+                        "description": "智能问题推荐请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.QuestionRecommendRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/assistant/stream": {
             "post": {
                 "security": [
@@ -14297,6 +14336,14 @@ const docTemplate = `{
                     "description": "开场白",
                     "type": "string"
                 },
+                "recommendConfig": {
+                    "description": "追问配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.RecommendConfig"
+                        }
+                    ]
+                },
                 "recommendQuestion": {
                     "description": "推荐问题",
                     "type": "array",
@@ -16952,6 +16999,31 @@ const docTemplate = `{
                 }
             }
         },
+        "request.QuestionRecommendRequest": {
+            "type": "object",
+            "required": [
+                "assistantId",
+                "query"
+            ],
+            "properties": {
+                "assistantId": {
+                    "description": "智能体id",
+                    "type": "string"
+                },
+                "conversationId": {
+                    "description": "会话id，如果非试用则不可为空",
+                    "type": "string"
+                },
+                "query": {
+                    "description": "用户问题",
+                    "type": "string"
+                },
+                "trial": {
+                    "description": "是否试用",
+                    "type": "boolean"
+                }
+            }
+        },
         "request.RagBrief": {
             "type": "object",
             "required": [
@@ -17055,6 +17127,35 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "string"
+                }
+            }
+        },
+        "request.RecommendConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistory": {
+                    "description": "最大历史会话轮次",
+                    "type": "integer"
+                },
+                "modelConfig": {
+                    "description": "模型信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
+                },
+                "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                },
+                "promptEnable": {
+                    "description": "提示词开关",
+                    "type": "boolean"
+                },
+                "recommendEnable": {
+                    "description": "追问配置开关",
+                    "type": "boolean"
                 }
             }
         },
@@ -18160,6 +18261,14 @@ const docTemplate = `{
                 "publishType": {
                     "description": "发布类型",
                     "type": "string"
+                },
+                "recommendConfig": {
+                    "description": "追问配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.RecommendConfig"
+                        }
+                    ]
                 },
                 "recommendQuestion": {
                     "description": "推荐问题",
@@ -21424,6 +21533,35 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppSafetyConfig"
                         }
                     ]
+                }
+            }
+        },
+        "response.RecommendConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistory": {
+                    "description": "最大历史会话轮次",
+                    "type": "integer"
+                },
+                "modelConfig": {
+                    "description": "模型信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
+                },
+                "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                },
+                "promptEnable": {
+                    "description": "提示词开关",
+                    "type": "boolean"
+                },
+                "recommendEnable": {
+                    "description": "追问配置开关",
+                    "type": "boolean"
                 }
             }
         },

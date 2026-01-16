@@ -17,6 +17,7 @@ type Assistant struct {
 	SafetyConfig           request.AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
 	VisionConfig           VisionConfig                   `json:"visionConfig"`        // 视觉配置
 	MemoryConfig           request.MemoryConfig           `json:"memoryConfig"`        // 记忆配置
+	RecommendConfig        RecommendConfig                `json:"recommendConfig"`     // 追问配置
 	Scope                  int32                          `json:"scope"`               // 作用域
 	WorkFlowInfos          []*AssistantWorkFlowInfo       `json:"workFlowInfos"`       // 工作流信息
 	MCPInfos               []*AssistantMCPInfo            `json:"mcpInfos"`            // MCP信息
