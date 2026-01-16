@@ -1,8 +1,8 @@
 import { i18n } from '@/lang';
 
 export const LLM = 'llm';
-export const RERANK = 'text-rerank';
-export const EMBEDDING = 'text-embedding';
+export const RERANK = 'rerank';
+export const EMBEDDING = 'embedding';
 export const MULTIMODAL_RERANK = 'multimodal-rerank';
 export const MULTIMODAL_EMBEDDING = 'multimodal-embedding';
 export const OCR = 'ocr';
