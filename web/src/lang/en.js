@@ -1364,6 +1364,17 @@ export default {
       selectModel: '请选择模型！',
       inputPrologue: '请输入开场白！',
       deleteSuccess: '删除成功',
+      recommendConfig: {
+        configEnable: '追问',
+        configEnableTips: '大模型根据用户对话内容自动生成推荐问题',
+        promptEnable: '提示词',
+        promptEnableTips: '利用提示词对追问内容进行限制',
+        promptPlaceholder: '请输入提示词',
+        maxHistory: '参考上下文记忆轮数',
+        maxHistoryTips:
+          '大模型在生成追问过程中参考的对话轮数，最多5轮，默认3轮',
+        requiredModelTips: '请选择追问模型',
+      },
     },
   },
   agentDialog: {
