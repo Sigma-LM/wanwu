@@ -208,7 +208,7 @@ func ListEmbeddingModels(ctx *gin.Context) {
 //	@Accept		json
 //	@Produce	json
 //	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
-//	@Router		/model/select/embedding [get]
+//	@Router		/model/select/multi-embedding [get]
 func ListMultiEmbeddingModels(ctx *gin.Context) {
 	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
 		ModelType: mp.ModelTypeMultiEmbedding,

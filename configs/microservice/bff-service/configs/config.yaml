@@ -98,9 +98,6 @@ default-icon:
   tool: "/v1/static/icon/custom-tool-default-icon.png"
   prompt: "/v1/static/icon/prompt-default-icon.png"
 
-bff-file-config:
-  local-file-path: "configs/microservice/bff-service/static/tmp/"
-
 doc-center:
   frontend_prefix: /aibase/docCenter/pages
   links:

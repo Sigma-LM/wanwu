@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -18,6 +17,7 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -125,7 +125,7 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 		log.Debugf("tool call: %v", string(data))
 	}
 
-	imageBase64, _, err := util.Img2base64(config.Cfg().Model.PngTestFilePath)
+	imageBase64, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -232,7 +232,7 @@ func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.Mode
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	_, imageBase64, err := util.Img2base64(config.Cfg().Model.PngTestFilePath)
+	_, imageBase64, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -307,7 +307,7 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	_, imageBase64, err := util.Img2base64(config.Cfg().Model.PngTestFilePath)
+	_, imageBase64, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}

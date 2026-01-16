@@ -2446,7 +2446,7 @@
                     "type": "string"
                 },
                 "graphStatus": {
-                    "description": "图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败",
+                    "description": "图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -",
                     "type": "integer"
                 },
                 "knowledgeId": {

@@ -3,6 +3,7 @@ package callback
 import (
 	"encoding/json"
 	"fmt"
+
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	minio_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/minio-util"
@@ -96,7 +97,7 @@ func ModelEmbeddings(ctx *gin.Context) {
 //	@Summary	Model MultiModal-Embeddings
 //	@Accept		json
 //	@Produce	json
-//	@Param		modelId	path		string						true	"模型ID"
+//	@Param		modelId	path		string								true	"模型ID"
 //	@Param		data	body		mp_common.MultiModalEmbeddingReq{}	true	"请求参数"
 //	@Success	200		{object}	mp_common.MultiModalEmbeddingResp{}
 //	@Router		/model/{modelId}/multimodal-embeddings [post]
@@ -142,7 +143,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 //	@Summary	Model Rerank
 //	@Accept		json
 //	@Produce	json
-//	@Param		modelId	path		string					true	"模型ID"
+//	@Param		modelId	path		string						true	"模型ID"
 //	@Param		data	body		mp_common.TextRerankReq{}	true	"请求参数"
 //	@Success	200		{object}	mp_common.RerankResp{}
 //	@Router		/model/{modelId}/rerank [post]
@@ -160,7 +161,7 @@ func ModelTextRerank(ctx *gin.Context) {
 //	@Summary	Model MultiModal-Rerank
 //	@Accept		json
 //	@Produce	json
-//	@Param		modelId	path		string					true	"模型ID"
+//	@Param		modelId	path		string							true	"模型ID"
 //	@Param		data	body		mp_common.MultiModalRerankReq{}	true	"请求参数"
 //	@Success	200		{object}	mp_common.MultiModalRerankResp{}
 //	@Router		/model/{modelId}/multimodal-rerank [post]

@@ -31,24 +31,16 @@ func FileUrlConvertBase64(ctx *gin.Context, req *request.FileUrlConvertBase64Req
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_read", err.Error())
 	}
-	// 自动检测 MIME 类型
-	mimeType := http.DetectContentType(fileData)
-	base64Data := base64.StdEncoding.EncodeToString(fileData)
 
-	if req.AddPrefix {
-		var prefix string
-		if req.CustomPrefix != "" {
-			prefix = req.CustomPrefix
-		} else {
-			prefix = "data:" + mimeType + ";base64"
-		}
-		if !strings.HasSuffix(prefix, ",") {
-			prefix += ","
-		}
-		base64Data = prefix + base64Data
+	base64Str, base64StrWithPrefix, err := util.FileData2Base64(fileData, req.CustomPrefix)
+	if err != nil {
+		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_convert_base64", err.Error())
 	}
-
-	return base64Data, nil
+	if req.AddPrefix {
+		return base64StrWithPrefix, nil
+	} else {
+		return base64Str, nil
+	}
 }
 
 func UploadFileToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileReq) (*response.UploadFileByWorkflowResp, error) {

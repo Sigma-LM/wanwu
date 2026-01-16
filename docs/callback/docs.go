@@ -543,6 +543,86 @@ const docTemplate = `{
                 }
             }
         },
+        "/model/{modelId}/multimodal-embeddings": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "Model MultiModal-Embeddings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模型ID",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.MultiModalEmbeddingReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.MultiModalEmbeddingResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/model/{modelId}/multimodal-rerank": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "callback"
+                ],
+                "summary": "Model MultiModal-Rerank",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模型ID",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.MultiModalRerankReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/mp_common.MultiModalRerankResp"
+                        }
+                    }
+                }
+            }
+        },
         "/model/{modelId}/ocr": {
             "post": {
                 "consumes": [
@@ -652,7 +732,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/mp_common.RerankReq"
+                            "$ref": "#/definitions/mp_common.TextRerankReq"
                         }
                     }
                 ],
@@ -1311,6 +1391,9 @@ const docTemplate = `{
                 },
                 "object": {
                     "type": "string"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },
@@ -1699,6 +1782,153 @@ const docTemplate = `{
                 "MsgRoleFunction"
             ]
         },
+        "mp_common.MultiDocument": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "mp_common.MultiInput": {
+            "type": "object",
+            "properties": {
+                "audio": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "video": {
+                    "type": "string"
+                }
+            }
+        },
+        "mp_common.MultiModalEmbeddingReq": {
+            "type": "object",
+            "required": [
+                "input",
+                "model"
+            ],
+            "properties": {
+                "dimensions": {
+                    "type": "integer"
+                },
+                "encoding_format": {
+                    "type": "string"
+                },
+                "input": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mp_common.MultiInput"
+                    }
+                },
+                "model": {
+                    "type": "string"
+                }
+            }
+        },
+        "mp_common.MultiModalEmbeddingResp": {
+            "type": "object",
+            "required": [
+                "data",
+                "model"
+            ],
+            "properties": {
+                "created": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mp_common.EmbeddingData"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "usage": {
+                    "$ref": "#/definitions/mp_common.Usage"
+                }
+            }
+        },
+        "mp_common.MultiModalRerankReq": {
+            "type": "object",
+            "required": [
+                "documents",
+                "model",
+                "query"
+            ],
+            "properties": {
+                "documents": {
+                    "description": "需要重排序的内容列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mp_common.MultiDocument"
+                    }
+                },
+                "instruction": {
+                    "description": "指令内容（适配元景qwen_rerank）",
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "query": {
+                    "description": "重排序的查询内容"
+                },
+                "return_documents": {
+                    "description": "是否返回排序前的文档。默认为true",
+                    "type": "boolean"
+                },
+                "top_n": {
+                    "description": "返回排序后的top_n个文档。默认返回全部文档。",
+                    "type": "integer"
+                },
+                "user": {
+                    "description": "用户标识（兼容千帆)",
+                    "type": "string"
+                }
+            }
+        },
+        "mp_common.MultiModalRerankResp": {
+            "type": "object",
+            "required": [
+                "results"
+            ],
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/mp_common.Result"
+                    }
+                },
+                "usage": {
+                    "$ref": "#/definitions/mp_common.Usage"
+                }
+            }
+        },
         "mp_common.OcrData": {
             "type": "object",
             "required": [
@@ -1967,44 +2197,6 @@ const docTemplate = `{
                 }
             }
         },
-        "mp_common.RerankReq": {
-            "type": "object",
-            "required": [
-                "documents",
-                "model",
-                "query"
-            ],
-            "properties": {
-                "documents": {
-                    "description": "需要重排序的文本",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "instruction": {
-                    "description": "指令内容（适配元景qwen_rerank）",
-                    "type": "string"
-                },
-                "model": {
-                    "type": "string"
-                },
-                "query": {
-                    "type": "string"
-                },
-                "return_documents": {
-                    "type": "boolean"
-                },
-                "top_n": {
-                    "description": "返回排序后的top_n个文档。默认返回全部文档。",
-                    "type": "integer"
-                },
-                "user": {
-                    "description": "用户标识（兼容千帆)",
-                    "type": "string"
-                }
-            }
-        },
         "mp_common.RerankResp": {
             "type": "object",
             "required": [
@@ -2114,6 +2306,44 @@ const docTemplate = `{
                 },
                 "usage": {
                     "$ref": "#/definitions/mp_common.T2IUsage"
+                }
+            }
+        },
+        "mp_common.TextRerankReq": {
+            "type": "object",
+            "required": [
+                "documents",
+                "model",
+                "query"
+            ],
+            "properties": {
+                "documents": {
+                    "description": "需要重排序的文本",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "instruction": {
+                    "description": "指令内容（适配元景qwen_rerank）",
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "query": {
+                    "type": "string"
+                },
+                "return_documents": {
+                    "type": "boolean"
+                },
+                "top_n": {
+                    "description": "返回排序后的top_n个文档。默认返回全部文档。",
+                    "type": "integer"
+                },
+                "user": {
+                    "description": "用户标识（兼容千帆)",
+                    "type": "string"
                 }
             }
         },

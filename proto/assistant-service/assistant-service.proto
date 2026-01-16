@@ -259,7 +259,7 @@ message AssistantInfo {
   AssistantVisionConfig visionConfig = 19;
   string uuid = 20;
   AssistantMemoryConfig memoryConfig = 21;
-  AssistantRecommendConfig RecommendConfig = 22; //智能体问题推荐配置信息
+  AssistantRecommendConfig recommendConfig = 22; //智能体问题推荐配置信息
 }
 
 message AssistantRecommendConfig {
