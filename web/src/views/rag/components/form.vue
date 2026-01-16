@@ -445,16 +445,7 @@ export default {
             );
           });
           if (changed && !this.isUpdating) {
-            const isMixPriorityMatch =
-              newVal['knowledgeBaseConfig']['config']['matchType'] === 'mix' &&
-              newVal['knowledgeBaseConfig']['config']['priorityMatch'];
-            if (
-              newVal['modelParams'] !== '' ||
-              (isMixPriorityMatch &&
-                !newVal['knowledgeBaseConfig']['config']['rerankModelId'])
-            ) {
-              this.updateInfo();
-            }
+            this.updateInfo();
           }
         }, 500);
       },
@@ -743,11 +734,11 @@ export default {
           qaKnowledgeBaseConfig: this.editForm.qaKnowledgeBaseConfig,
           modelConfig: {
             config: this.editForm.modelConfig,
-            displayName: modeInfo.displayName,
-            model: modeInfo.model,
-            modelId: modeInfo.modelId,
-            modelType: modeInfo.modelType,
-            provider: modeInfo.provider,
+            displayName: modeInfo ? modeInfo.displayName : '',
+            model: modeInfo ? modeInfo.model : '',
+            modelId: modeInfo ? modeInfo.modelId : '',
+            modelType: modeInfo ? modeInfo.modelType : '',
+            provider: modeInfo ? modeInfo.provider : '',
           },
           rerankConfig: {
             displayName: rerankInfo ? rerankInfo.displayName : '',

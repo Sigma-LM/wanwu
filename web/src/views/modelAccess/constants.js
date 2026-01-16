@@ -120,7 +120,7 @@ export const TYPE_OBJ = {
       'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [YUAN_JING]: 'https://maas.ai-yuanjing.com/openapi/compatible-mode/v1',
     [OPENAI_API]: 'https://api.siliconflow.cn/v1',
-    [OLLAMA]: 'https://192.168.21.100:11434',
+    [OLLAMA]: 'https://192.168.21.100:11434/v1',
     [QWEN]: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     [HUOSHAN]: 'https://ark.cn-beijing.volces.com/api/v3',
     [INFINI]: 'https://cloud.infini-ai.com/maas/v1',
