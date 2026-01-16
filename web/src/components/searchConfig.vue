@@ -481,6 +481,8 @@ export default {
         }
         .title-desc {
           color: #888;
+          line-height: 2;
+          margin-top: 10px;
         }
       }
     }

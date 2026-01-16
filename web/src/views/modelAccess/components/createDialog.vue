@@ -1,6 +1,5 @@
 <template>
   <div class="createDialog">
-    <!--:title="isEdit ? $t('modelAccess.dialog.edit') : $t('modelAccess.dialog.create')"-->
     <el-dialog
       :visible.sync="dialogVisible"
       width="760px"
@@ -79,14 +78,14 @@
               class="upload-img"
               :src="
                 createForm.avatar && createForm.avatar.path
-                  ? basePath + '/user/api/' + createForm.avatar.path
+                  ? avatarSrc(createForm.avatar.path)
                   : defaultLogo
               "
             />
             <!--<span style="margin-left: 12px; color: #606266 !important;" v-if="createForm.avatar && createForm.avatar.path">
               {{createForm.avatar.path}}
             </span>-->
-            <span class="upload-hint">可上传 .png、jpg、jpeg 文件</span>
+            <span class="upload-hint">{{ $t('modelAccess.hint.upload') }}</span>
           </el-upload>
         </el-form-item>
         <el-form-item
@@ -219,6 +218,7 @@
 <script>
 import { addModel, editModel } from '@/api/modelAccess';
 import { uploadAvatar } from '@/api/user';
+import { avatarSrc } from '@/utils/util';
 import {
   PROVIDER_TYPE,
   PROVIDER_OBJ,
@@ -346,6 +346,7 @@ export default {
     };
   },
   methods: {
+    avatarSrc,
     uploadAvatar(file, key) {
       const formData = new FormData();
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
@@ -373,6 +374,9 @@ export default {
       const currentProvider =
         PROVIDER_TYPE.find(item => item.key === title) || {};
       this.modelType = currentProvider.children || [];
+      this.createForm.modelType = this.modelType[0]
+        ? this.modelType[0].key || LLM
+        : LLM;
       this.dialogVisible = true;
 
       this.isEdit = Boolean(row);

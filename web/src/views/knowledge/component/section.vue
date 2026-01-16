@@ -1,5 +1,9 @@
 <template>
-  <div class="section" v-loading="loading.itemStatus">
+  <div
+    class="section"
+    v-loading="loading.itemStatus"
+    :class="{ 'disable-clicks': obj.enable }"
+  >
     <div class="title">
       <i
         class="el-icon-arrow-left"
@@ -525,6 +529,7 @@ export default {
       submitLoading: false,
       oldContent: '',
       title: '创建关键词',
+      enable: true,
       dialogVisible: false,
       editingSegments: {},
       editingContent: {},
@@ -960,6 +965,14 @@ export default {
 };
 </script>
 <style lang="scss">
+.disable-clicks * {
+  pointer-events: none;
+}
+
+.disable-clicks .title .el-icon-arrow-left {
+  pointer-events: auto;
+}
+
 .dialog-content {
   max-height: 55vh !important;
   overflow-y: auto;

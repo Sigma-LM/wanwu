@@ -7,7 +7,7 @@
           class="logo"
           :src="
             editForm.avatar.path
-              ? `/user/api` + editForm.avatar.path
+              ? avatarSrc(editForm.avatar.path)
               : require('@/assets/imgs/bg-logo.png')
           "
         />
@@ -20,6 +20,8 @@
   </div>
 </template>
 <script>
+import { avatarSrc } from '@/utils/util';
+
 export default {
   props: ['editForm'],
   data() {
@@ -28,6 +30,7 @@ export default {
     };
   },
   methods: {
+    avatarSrc,
     setProloguePrompt(val) {
       this.$emit('setProloguePrompt', val);
     },

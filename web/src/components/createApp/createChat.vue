@@ -64,6 +64,7 @@
 <script>
 import { createWorkFlow, uploadFile } from '@/api/workflow';
 import { CHAT } from '@/utils/commonSet';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   data() {
@@ -115,9 +116,7 @@ export default {
   },
   created() {
     const { defaultIcon = {} } = this.$store.state.user.commonInfo.data || {};
-    this.defaultIcon = defaultIcon.chatflowIcon
-      ? this.$basePath + '/user/api/' + defaultIcon.chatflowIcon
-      : '';
+    this.defaultIcon = avatarSrc(defaultIcon.chatflowIcon);
   },
   methods: {
     getBase64(file) {

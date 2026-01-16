@@ -44,7 +44,7 @@
           >
             <div class="template-content">
               <div class="template-logo">
-                <img :src="'/user/api' + item.avatar.path" />
+                <img :src="avatarSrc(item.avatar.path)" />
               </div>
               <div class="template-info">
                 <div class="template-name">{{ item.name }}</div>
@@ -88,6 +88,7 @@
 
 <script>
 import { md } from '@/mixins/markdown-it.js';
+import { avatarSrc } from '@/utils/util';
 export default {
   name: 'PromptDialog',
   inject: ['getPrompt'],
@@ -119,6 +120,7 @@ export default {
     },
   },
   methods: {
+    avatarSrc,
     showDialog(data, type) {
       this.dialogVisible = true;
       this.activeTab = type;

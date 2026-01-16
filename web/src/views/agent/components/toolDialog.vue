@@ -44,7 +44,7 @@
                 <div class="tool_box">
                   <div class="tool_img">
                     <img
-                      :src="'/user/api/' + item.avatar.path"
+                      :src="avatarSrc(item.avatar.path)"
                       v-if="item.avatar && item.avatar.path"
                     />
                   </div>
@@ -77,7 +77,7 @@
                   <template slot="title">
                     <div class="tool_img">
                       <img
-                        :src="'/user/api/' + item.avatar.path"
+                        :src="avatarSrc(item.avatar.path)"
                         v-if="item.avatar && item.avatar.path"
                       />
                     </div>
@@ -143,6 +143,7 @@ import {
   mcpActionList,
   getWorkflowList,
 } from '@/api/agent';
+import { avatarSrc } from '@/utils/util';
 export default {
   props: ['assistantId'],
   data() {
@@ -199,6 +200,7 @@ export default {
     this.getCustomList('');
   },
   methods: {
+    avatarSrc,
     showToolNum(type) {
       if (type === 'tool') {
         return this.customCount;

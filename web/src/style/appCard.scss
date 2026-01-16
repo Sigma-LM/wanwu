@@ -96,7 +96,7 @@
     }
 
     .is-showTool-tags {
-      width: calc(100% - 20px);
+      width: calc(100% - 25px);
     }
 
     .tag-img {
@@ -236,6 +236,11 @@
           font-weight: bold;
         }
       }
+    }
+
+    .editor.editor-explore {
+      padding-left: 0;
+      margin-left: 0;
     }
 
     .copy-editor {

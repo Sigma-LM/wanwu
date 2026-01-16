@@ -3,22 +3,22 @@ import { i18n } from '@/lang';
 export const LLM = 'llm';
 export const RERANK = 'rerank';
 export const EMBEDDING = 'embedding';
+export const MULTIMODAL_RERANK = 'multimodal-rerank';
+export const MULTIMODAL_EMBEDDING = 'multimodal-embedding';
 export const OCR = 'ocr';
-export const OCR_DS = 'ocr-deepseek';
-export const OCR_PADDLE = 'ocr-paddle';
 export const GUI = 'gui';
 export const PDF_PARSER = 'pdf-parser';
 export const ASR = 'asr';
 
 export const MODEL_TYPE_OBJ = {
   [LLM]: 'LLM',
-  [RERANK]: 'Rerank',
-  [EMBEDDING]: 'Embedding',
+  [RERANK]: 'Text Rerank',
+  [EMBEDDING]: 'Text Embedding',
+  [MULTIMODAL_RERANK]: 'Multimodal Rerank',
+  [MULTIMODAL_EMBEDDING]: 'Multimodal Embedding',
   [OCR]: 'OCR',
   [GUI]: 'GUI',
   [PDF_PARSER]: i18n.t('modelAccess.type.pdfParser'),
-  /*[OCR_DS]: 'OCR-DeepSeek',
-  [OCR_PADDLE]: 'OCR-PaddleOCR',*/
   // [ASR]: i18n.t('modelAccess.type.asr')
 };
 
@@ -35,6 +35,7 @@ export const HUOSHAN = 'HuoShan';
 export const INFINI = 'Infini';
 export const DEEPSEEK = 'DeepSeek';
 export const QIANFAN = 'QianFan';
+export const JINA = 'Jina';
 
 export const PROVIDER_OBJ = {
   [OPENAI_API]: 'OpenAI-API-compatible',
@@ -45,6 +46,7 @@ export const PROVIDER_OBJ = {
   [INFINI]: i18n.t('modelAccess.type.infini'),
   [DEEPSEEK]: 'DeepSeek',
   [QIANFAN]: i18n.t('modelAccess.type.qianfan'),
+  [JINA]: 'Jina',
 };
 
 export const PROVIDER_IMG_OBJ = {
@@ -56,6 +58,7 @@ export const PROVIDER_IMG_OBJ = {
   [INFINI]: require('@/assets/imgs/infini.png'),
   [DEEPSEEK]: require('@/assets/imgs/deepseek.png'),
   [QIANFAN]: require('@/assets/imgs/qianfan.png'),
+  [JINA]: require('@/assets/imgs/jina.png'),
 };
 
 const COMMON_MODEL_KEY = [LLM, RERANK, EMBEDDING];
@@ -68,7 +71,8 @@ export const PROVIDER_MODEL_KEY = {
   [HUOSHAN]: OLL_MODEL_KEY,
   [INFINI]: COMMON_MODEL_KEY,
   [DEEPSEEK]: [LLM],
-  [QIANFAN]: [...COMMON_MODEL_KEY], // OCR_DS, OCR_PADDLE
+  [QIANFAN]: COMMON_MODEL_KEY,
+  [JINA]: [RERANK, EMBEDDING, MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING],
 };
 
 export const PROVIDER_TYPE = Object.keys(PROVIDER_OBJ).map(key => {
@@ -106,11 +110,14 @@ export const TYPE_OBJ = {
     [INFINI]: 'sk-nw****gzjb6',
     [DEEPSEEK]: 'sk-14082***********************5e95',
     [QIANFAN]: 'bce-v3/ALTAK******82d1',
+    [JINA]: 'jina_c08*********wMm',
   },
   inferUrl: {
     [OCR]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [GUI]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [PDF_PARSER]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
+    [ASR]:
+      'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [YUAN_JING]: 'https://maas.ai-yuanjing.com/openapi/compatible-mode/v1',
     [OPENAI_API]: 'https://api.siliconflow.cn/v1',
     [OLLAMA]: 'https://192.168.21.100:11434',
@@ -119,7 +126,6 @@ export const TYPE_OBJ = {
     [INFINI]: 'https://cloud.infini-ai.com/maas/v1',
     [DEEPSEEK]: 'https://api.deepseek.com/v1',
     [QIANFAN]: 'https://qianfan.baidubce.com/v2',
-    [ASR]:
-      'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
+    [JINA]: 'https://api.jina.ai/v1',
   },
 };

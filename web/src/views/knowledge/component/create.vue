@@ -42,19 +42,11 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="Embedding" prop="embeddingModelInfo.modelId">
-          <el-select
+          <modelSelect
             v-model="ruleForm.embeddingModelInfo.modelId"
-            :placeholder="$t('common.select.placeholder')"
-            value-key="modelId"
+            :options="EmbeddingOptions"
             :disabled="isEdit"
-          >
-            <el-option
-              v-for="item in EmbeddingOptions"
-              :key="item.modelId"
-              :label="item.displayName"
-              :value="item.modelId"
-            ></el-option>
-          </el-select>
+          />
         </el-form-item>
         <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
           <template #label>
@@ -88,41 +80,16 @@
           prop="knowledgeGraph.llmModelId"
           v-if="ruleForm.knowledgeGraph.switch"
         >
-          <el-select
+          <modelSelect
             v-model="ruleForm.knowledgeGraph.llmModelId"
+            :options="knowledgeGraphModelOptions"
             :placeholder="$t('knowledgeManage.create.modelSearchPlaceholder')"
             @visible-change="visibleChange"
             :loading-text="$t('knowledgeManage.create.modelLoading')"
-            class="cover-input-icon model-select"
-            :disabled="isEdit"
             :loading="modelLoading"
-            filterable
-            value-key="modelId"
-          >
-            <el-option
-              class="model-option-item"
-              v-for="item in knowledgeGraphModelOptions"
-              :key="item.modelId"
-              :value="item.modelId"
-              :label="item.displayName"
-            >
-              <div class="model-option-content">
-                <span class="model-name">{{ item.displayName }}</span>
-                <div
-                  class="model-select-tags"
-                  v-if="item.tags && item.tags.length > 0"
-                >
-                  <span
-                    v-for="(tag, tagIdx) in item.tags"
-                    :key="tagIdx"
-                    class="model-select-tag"
-                  >
-                    {{ tag.text }}
-                  </span>
-                </div>
-              </div>
-            </el-option>
-          </el-select>
+            :filterable="true"
+            :disabled="isEdit"
+          />
         </el-form-item>
         <el-form-item
           :label="$t('knowledgeManage.create.uploadSchema') + ':'"
@@ -244,6 +211,7 @@ import { selectModelList } from '@/api/modelAccess';
 import { KNOWLEDGE_GRAPH_TIPS } from '../config';
 import uploadChunk from '@/mixins/uploadChunk';
 import { delfile } from '@/api/chunkFile';
+import modelSelect from '@/components/modelSelect.vue';
 
 export default {
   props: {
@@ -251,6 +219,9 @@ export default {
       type: Number,
       default: 0,
     },
+  },
+  components: {
+    modelSelect,
   },
   mixins: [uploadChunk],
   data() {
@@ -525,7 +496,7 @@ export default {
     handleRemove(item, index) {
       if (item.percentage < 100) {
         this.fileList.splice(index, 1);
-        this.cancelAllRequests();
+        this.cancelAndRestartNextRequests();
         return;
       }
       // 如果文件已上传成功，需要删除服务器上的文件
