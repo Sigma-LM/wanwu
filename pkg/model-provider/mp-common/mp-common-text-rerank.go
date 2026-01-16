@@ -14,7 +14,7 @@ import (
 
 // --- openapi request ---
 
-type RerankReq struct {
+type TextRerankReq struct {
 	Documents       []string `json:"documents" validate:"required"` // 需要重排序的文本
 	Model           string   `json:"model" validate:"required"`
 	Query           string   `json:"query" validate:"required"`
@@ -24,14 +24,14 @@ type RerankReq struct {
 	Instruction     *string  `json:"instruction,omitempty"` // 指令内容（适配元景qwen_rerank）
 }
 
-func (req *RerankReq) Check() error {
+func (req *TextRerankReq) Check() error {
 	if req.TopN != nil && *req.TopN < 0 {
 		return fmt.Errorf("top_n must greater than 0")
 	}
 	return nil
 }
 
-func (req *RerankReq) Data() (map[string]interface{}, error) {
+func (req *TextRerankReq) Data() (map[string]interface{}, error) {
 	m := make(map[string]interface{})
 	b, err := json.Marshal(req)
 	if err != nil {
@@ -71,16 +71,16 @@ type Usage struct {
 
 // --- request ---
 
-type IRerankReq interface {
+type ITextRerankReq interface {
 	Data() map[string]interface{}
 }
 
-// rerankReq implementation of IRerankReq
+// rerankReq implementation of ITextRerankReq
 type rerankReq struct {
 	data map[string]interface{}
 }
 
-func NewRerankReq(data map[string]interface{}) IRerankReq {
+func NewRerankReq(data map[string]interface{}) ITextRerankReq {
 	return &rerankReq{data: data}
 }
 
@@ -90,18 +90,18 @@ func (req *rerankReq) Data() map[string]interface{} {
 
 // --- response ---
 
-type IRerankResp interface {
+type ITextRerankResp interface {
 	String() string
 	Data() (interface{}, bool)
 	ConvertResp() (*RerankResp, bool)
 }
 
-// rerankResp implementation of IRerankResp
+// rerankResp implementation of ITextRerankResp
 type rerankResp struct {
 	raw string
 }
 
-func NewRerankResp(raw string) IRerankResp {
+func NewRerankResp(raw string) ITextRerankResp {
 	return &rerankResp{raw: raw}
 }
 

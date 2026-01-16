@@ -32,6 +32,7 @@ type Config struct {
 	WorkflowTemplates []*WorkflowTemplateConfig  `json:"workflows" mapstructure:"workflows"`
 	PromptTemplates   []*PromptTempConfig        `json:"prompts" mapstructure:"prompts"`
 	PromptEngineering PromptEngineeringConfig    `json:"prompt-engineering" mapstructure:"prompt-engineering"`
+	BFFFileConfig     *BFFFileConfig             `mapstructure:"bff-file-config" json:"bff-file-config"`
 	// middleware
 	Minio minio.Config `json:"minio" mapstructure:"minio"`
 	Redis redis.Config `json:"redis" mapstructure:"redis"`
@@ -47,6 +48,10 @@ type Config struct {
 	RagKnowledgeConfig RagKnowledgeConfig    `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 	Workflow           WorkflowServiceConfig `json:"workflow" mapstructure:"workflow"`
 	Models             []*ModelConfig        `json:"models" mapstructure:"models"`
+}
+
+type BFFFileConfig struct {
+	LocalFilePath string `mapstructure:"local-file-path" json:"local-file-path"`
 }
 
 type ModelConfig struct {

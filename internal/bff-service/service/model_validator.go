@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -26,14 +27,16 @@ type ModelValidator func(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 // 校验器注册表
 var validators = sync.OnceValue(func() map[string]ModelValidator {
 	return map[string]ModelValidator{
-		mp.ModelTypeLLM:        ValidateLLMModel,
-		mp.ModelTypeRerank:     ValidateRerankModel,
-		mp.ModelTypeEmbedding:  ValidateEmbeddingModel,
-		mp.ModelTypeOcr:        ValidateOcrModel,
-		mp.ModelTypeGui:        ValidateGuideModel,
-		mp.ModelTypePdfParser:  ValidatePdfParserModel,
-		mp.ModelTypeAsr:        ValidateAsrModel,
-		mp.ModelTypeText2Image: ValidateText2ImageModel,
+		mp.ModelTypeLLM:            ValidateLLMModel,
+		mp.ModelTypeTextRerank:     ValidateRerankModel,
+		mp.ModelTypeMultiRerank:    ValidateMultiRerankModel,
+		mp.ModelTypeTextEmbedding:  ValidateEmbeddingModel,
+		mp.ModelTypeMultiEmbedding: ValidateMultiEmbeddingModel,
+		mp.ModelTypeOcr:            ValidateOcrModel,
+		mp.ModelTypeGui:            ValidateGuideModel,
+		mp.ModelTypePdfParser:      ValidatePdfParserModel,
+		mp.ModelTypeAsr:            ValidateAsrModel,
+		mp.ModelTypeText2Image:     ValidateText2ImageModel,
 	}
 })
 
@@ -122,6 +125,10 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 		log.Debugf("tool call: %v", string(data))
 	}
 
+	imageBase64, _, err := util.Img2base64(config.Cfg().Model.PngTestFilePath)
+	if err != nil {
+		return err
+	}
 	// 视觉支持校验（独立请求，用专属Content和配置）
 	if visionSupportFlag {
 		// 视觉支持专属req：Content为图片+“这里有什么字”，无Tools配置
@@ -134,12 +141,12 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 						{
 							"type": "image_url",
 							"image_url": map[string]string{
-								"url": "https://img0.baidu.com/it/u=3197002195,3024915584&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1420",
+								"url": imageBase64,
 							},
 						},
 						{
 							"type": "text",
-							"text": "这里有什么字",
+							"text": "描述一下图片",
 						},
 					},
 				},
@@ -216,6 +223,48 @@ func ValidateEmbeddingModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	return nil
 }
 
+func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+	embedding, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return err
+	}
+	iMultiModalEmbedding, ok := embedding.(mp.IMultiModalEmbedding)
+	if !ok {
+		return fmt.Errorf("invalid provider")
+	}
+	_, imageBase64, err := util.Img2base64(config.Cfg().Model.PngTestFilePath)
+	if err != nil {
+		return err
+	}
+	// mock  request
+	req := &mp_common.MultiModalEmbeddingReq{
+		Model: modelInfo.Model,
+		Input: []mp_common.MultiInput{
+			{
+				Text: "你好",
+			},
+			{
+				Image: imageBase64,
+			},
+		},
+	}
+	multiModalEmbeddingReq, err := iMultiModalEmbedding.NewReq(req)
+	if err != nil {
+		return err
+	}
+	resp, err := iMultiModalEmbedding.MultiModalEmbeddings(ctx.Request.Context(), multiModalEmbeddingReq)
+	if err != nil {
+		{
+			return fmt.Errorf("model API call failed: %v", err)
+		}
+	}
+	_, ok = resp.ConvertResp()
+	if !ok {
+		return fmt.Errorf("invalid response format")
+	}
+	return nil
+}
+
 func ValidateRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
 	rerank, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
@@ -226,7 +275,7 @@ func ValidateRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 		return fmt.Errorf("invalid provider")
 	}
 	// mock  request
-	req := &mp_common.RerankReq{
+	req := &mp_common.TextRerankReq{
 		Model: modelInfo.Model,
 		Query: "乌萨奇",
 		Documents: []string{
@@ -246,6 +295,50 @@ func ValidateRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
+	return nil
+}
+
+func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+	rerank, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return err
+	}
+	iRerank, ok := rerank.(mp.IMultiModalRerank)
+	if !ok {
+		return fmt.Errorf("invalid provider")
+	}
+	_, imageBase64, err := util.Img2base64(config.Cfg().Model.PngTestFilePath)
+	if err != nil {
+		return err
+	}
+	// mock  request
+	req := &mp_common.MultiModalRerankReq{
+		Model: modelInfo.Model,
+		Query: "企鹅",
+		Documents: []mp_common.MultiDocument{
+			{
+				Text: "北极",
+			},
+			{
+				Image: imageBase64,
+			},
+		},
+	}
+
+	rerankReq, err := iRerank.NewReq(req)
+	if err != nil {
+		return err
+	}
+	resp, err := iRerank.MultiModalRerank(ctx.Request.Context(), rerankReq)
+	if err != nil {
+		return fmt.Errorf("model API call failed: %v", err)
+	}
+	res, ok := resp.ConvertResp()
+	if !ok {
+		return fmt.Errorf("invalid response format")
+	}
+	jsonRes, _ := json.Marshal(res)
+	log.Infof("multi modal rerank response: %v", string(jsonRes))
 	return nil
 }
 

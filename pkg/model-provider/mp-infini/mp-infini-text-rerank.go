@@ -1,4 +1,4 @@
-package mp_qianfan
+package mp_infini
 
 import (
 	"context"
@@ -16,14 +16,14 @@ type Rerank struct {
 func (cfg *Rerank) Tags() []mp_common.Tag {
 	tags := []mp_common.Tag{
 		{
-			Text: mp_common.TagRerank,
+			Text: mp_common.TagTextRerank,
 		},
 	}
 	tags = append(tags, mp_common.GetTagsByContentSize(cfg.ContextSize)...)
 	return tags
 }
 
-func (cfg *Rerank) NewReq(req *mp_common.RerankReq) (mp_common.IRerankReq, error) {
+func (cfg *Rerank) NewReq(req *mp_common.TextRerankReq) (mp_common.ITextRerankReq, error) {
 	m, err := req.Data()
 	if err != nil {
 		return nil, err
@@ -31,8 +31,8 @@ func (cfg *Rerank) NewReq(req *mp_common.RerankReq) (mp_common.IRerankReq, error
 	return mp_common.NewRerankReq(m), nil
 }
 
-func (cfg *Rerank) Rerank(ctx context.Context, req mp_common.IRerankReq, headers ...mp_common.Header) (mp_common.IRerankResp, error) {
-	b, err := mp_common.Rerank(ctx, "qianfan", cfg.ApiKey, cfg.rerankUrl(), req.Data(), headers...)
+func (cfg *Rerank) Rerank(ctx context.Context, req mp_common.ITextRerankReq, headers ...mp_common.Header) (mp_common.ITextRerankResp, error) {
+	b, err := mp_common.Rerank(ctx, "infini", cfg.ApiKey, cfg.rerankUrl(), req.Data(), headers...)
 	if err != nil {
 		return nil, err
 	}

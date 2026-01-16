@@ -24,16 +24,18 @@ const (
 )
 
 const (
-	TagChat          string = "CHAT"
-	TagEmbedding     string = "Embedding"
-	TagRerank        string = "Rerank"
-	TagGui           string = "GUI"
-	TagOcr           string = "OCR"
-	TagPdfParser     string = "文档解析"
-	TagAsr           string = "ASR"
-	TagText2Image    string = "文生图"
-	TagVisionSupport string = "图文问答"
-	TagToolCall      string = "工具调用"
+	TagChat                string = "CHAT"
+	TagTextEmbedding       string = "Text-Embedding"
+	TagMultiModalEmbedding string = "MultiModal-Embedding"
+	TagTextRerank          string = "Text-Rerank"
+	TagMultiModalRerank    string = "MultiModal-Rerank"
+	TagGui                 string = "GUI"
+	TagOcr                 string = "OCR"
+	TagPdfParser           string = "文档解析"
+	TagAsr                 string = "ASR"
+	TagText2Image          string = "文生图"
+	TagVisionSupport       string = "图文问答"
+	TagToolCall            string = "工具调用"
 )
 
 type Tag struct {

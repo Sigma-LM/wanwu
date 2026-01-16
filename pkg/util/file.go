@@ -2,6 +2,7 @@ package util
 
 import (
 	"bufio"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -201,4 +202,54 @@ func appendFile(reader *bufio.Reader, destinationFile *os.File) (byteCount int64
 
 func FileEOF(err error) bool {
 	return errors.Is(err, io.EOF) || (err != nil && err.Error() == "EOF")
+}
+
+// Img2base64
+//
+//	@Description:
+//	@Author zhangzekai
+//	@Time 2026-01-14 17:35:29
+//	@param imgPath 图片路径
+//	@return string 完整的DataURI格式Base64字符串 (带 data:image/xxx;base64, 前缀，前端可直接渲染图片)
+//	@return string 纯净的Base64编码内容 (无任何前缀，纯文件二进制编码结果)
+//	@return error
+func Img2base64(imgPath string) (string, string, error) {
+	// 读取图片文件
+	data, err := os.ReadFile(imgPath)
+	if err != nil {
+		return "", "", err
+	}
+
+	// 获取文件扩展名（不含点）
+	ext := strings.TrimPrefix(filepath.Ext(imgPath), ".")
+
+	// 对文件内容进行base64编码
+	encodedImage := base64.StdEncoding.EncodeToString(data)
+
+	// 构建完整的base64数据URI
+	imgBase64Str := "data:image/" + ext + ";base64," + encodedImage
+	return imgBase64Str, encodedImage, nil
+}
+
+// Img2base64ByBytes
+//
+//	@Description: 二进制文件流转Base64编码
+//	@Author zhangzekai
+//	@Time 2026-01-16 11:13:47
+//	@param fileData 文件二进制字节流
+//	@param ext 文件后缀(带/不带点均可)
+//	@return string 带data:image/xxx;base64,前缀的完整Base64，前端可直接渲染
+//	@return string 无前缀的纯净Base64编码内容
+//	@return error
+func Img2base64ByBytes(fileData []byte, ext string) (string, string, error) {
+	if len(fileData) == 0 {
+		return "", "", fmt.Errorf("文件二进制数据为空")
+	}
+	// 处理文件后缀，统一去除前缀点
+	ext = strings.TrimPrefix(ext, ".")
+	// 生成纯净Base64编码
+	encodedImage := base64.StdEncoding.EncodeToString(fileData)
+	// 拼接完整的DataURI格式Base64
+	imgBase64Str := "data:image/" + ext + ";base64," + encodedImage
+	return imgBase64Str, encodedImage, nil
 }
