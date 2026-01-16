@@ -57,10 +57,6 @@ func AgentRecommendChatCompletions(ctx *gin.Context, modelID string, req *mp_com
 			return
 		}
 	}
-	if strings.Contains(modelInfo.Model, "r1") || strings.Contains(modelInfo.Model, "R1") {
-		gin_util.Response(ctx, nil, err)
-		return
-	}
 	// llm config
 	llm, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
@@ -98,14 +94,16 @@ func AgentRecommendChatCompletions(ctx *gin.Context, modelID string, req *mp_com
 		rightBracket = ">"       // 右括号
 		startText    = "START"
 		errorText    = "ERROR"
+		accStr       = ""    // LLM delta.Content 累计，用于处理<think></think>问题
+		accFlag      = true  // LM delta.Content 累计，false表示不再需要累计
 		joinStr      = ""    // 开始回答拼接字符串
 		endFlag      = false // 结束标志
 		skipFlag     = false // 跳过标志
 		errorFlag    = false // 拒绝回答标志
 	)
-	var data *mp_common.LLMResp
+
 	for sseResp := range sseCh {
-		data, ok = sseResp.ConvertResp()
+		data, ok := sseResp.ConvertResp()
 		dataStr := ""
 		if ok && data != nil {
 			if len(data.Choices) > 0 && data.Choices[0].Delta != nil {
@@ -115,6 +113,17 @@ func AgentRecommendChatCompletions(ctx *gin.Context, modelID string, req *mp_com
 				if delta.ReasoningContent != nil && *delta.ReasoningContent != "" {
 					continue
 				}
+
+				if accFlag {
+					accStr = strings.TrimSpace(accStr + delta.Content)
+					if strings.HasPrefix(accStr, "<think>") {
+						if strings.HasSuffix(accStr, "</think>") {
+							accFlag = false
+						}
+						continue
+					}
+				}
+
 				if data.Choices[0].FinishReason == "stop" {
 					startFlag = false
 					endFlag = true
@@ -165,11 +174,10 @@ func AgentRecommendChatCompletions(ctx *gin.Context, modelID string, req *mp_com
 					skipFlag = false
 					continue
 				}
-
+				resp := buildRecommendResp(errorFlag, data)
+				dataByte, _ := json.Marshal(resp)
+				dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
 			}
-			resp := buildRecommendResp(errorFlag, data)
-			dataByte, _ := json.Marshal(resp)
-			dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
 		} else {
 			dataStr = fmt.Sprintf("%v\n", sseResp.String())
 		}
