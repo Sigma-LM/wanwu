@@ -11,8 +11,10 @@ import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/pkg/ahocorasick"
 	"github.com/UnicomAI/wanwu/pkg/constant"
+	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
@@ -32,21 +34,7 @@ func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req reque
 
 func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, needLatestPublished bool) (<-chan string, error) {
 	// 根据agentID获取敏感词配置
-	var agentInfo *assistant_service.AssistantInfo
-	var err error
-	if needLatestPublished {
-		agentInfo, err = assistant.AssistantSnapshotInfo(ctx, &assistant_service.AssistantSnapshotInfoReq{
-			AssistantId: req.AssistantId,
-		})
-	} else {
-		agentInfo, err = assistant.GetAssistantInfo(ctx, &assistant_service.GetAssistantInfoReq{
-			AssistantId: req.AssistantId,
-			Identity: &assistant_service.Identity{ //草稿只能看自己的
-				UserId: userId,
-				OrgId:  orgId,
-			},
-		})
-	}
+	agentInfo, err := searchAssistantInfo(ctx, userId, orgId, req.AssistantId, needLatestPublished)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +103,148 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 	// 敏感词过滤
 	outputCh := ProcessSensitiveWords(ctx, rawCh, matchDicts, &agentSensitiveService{})
 	return outputCh, nil
+}
+
+// AssistantQuestionRecommend 智能体问题推荐
+func AssistantQuestionRecommend(ctx *gin.Context, userId, orgId string, req *request.QuestionRecommendRequest) error {
+	//查询智能体服务
+	agentInfo, err := searchAssistantInfo(ctx, userId, orgId, req.AssistantId, !req.Trial)
+	if err != nil {
+		log.Errorf("[Agent] %v conversation %v user %v org %v get assistant info err: %v", req.AssistantId, req.ConversationId, userId, orgId, err)
+		gin_util.Response(ctx, nil, nil)
+		return nil
+	}
+	// 检验参数
+	err = checkRecommendParam(agentInfo)
+	if err != nil {
+		log.Errorf("[Agent] %v conversation %v user %v org %v check param err: %v", req.AssistantId, req.ConversationId, userId, orgId, err)
+		gin_util.Response(ctx, nil, nil)
+		return nil
+	}
+	data := mp_common.LLMReq{}
+	// 构造参数
+	if req.Trial {
+		data = buildTrialRecommendParams(agentInfo, true, req.Query)
+	} else {
+		data, err = buildPublishRecommendParams(ctx, userId, orgId, true, req, agentInfo)
+		if err != nil {
+			log.Errorf("[Agent] %v conversation %v user %v org %v build publish recommend params err: %v", req.AssistantId, req.ConversationId, userId, orgId, err)
+			gin_util.Response(ctx, nil, nil)
+			return nil
+		}
+	}
+	AgentRecommendChatCompletions(ctx, agentInfo.RecommendConfig.ModelConfig.ModelId, &data)
+	return nil
+}
+
+func buildPublishRecommendParams(ctx *gin.Context, userId string, orgId string, streamValue bool, req *request.QuestionRecommendRequest, agentInfo *assistant_service.AssistantInfo) (mp_common.LLMReq, error) {
+	history, err := assistant.GetConversationDetailList(ctx, &assistant_service.GetConversationDetailListReq{
+		ConversationId: req.ConversationId,
+		PageSize:       1000,
+		PageNo:         1,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	if err != nil {
+		return mp_common.LLMReq{}, err
+	}
+
+	if len(history.Data) == 0 || agentInfo.RecommendConfig.MaxHistory == 0 {
+		data := buildTrialRecommendParams(agentInfo, streamValue, req.Query)
+		return data, nil
+	}
+	if int64(agentInfo.RecommendConfig.MaxHistory) >= history.Total {
+		agentInfo.RecommendConfig.MaxHistory = int32(history.Total)
+	}
+	index := history.Total - int64(agentInfo.RecommendConfig.MaxHistory)
+	history.Data = history.Data[index:]
+
+	prompt := agentInfo.RecommendConfig.SystemPrompt + additionalPrompt
+	messageList := make([]mp_common.OpenAIReqMsg, 0)
+	for _, v := range history.Data {
+		messageList = append(messageList, mp_common.OpenAIReqMsg{
+			Role:    mp_common.MsgRoleUser,
+			Content: v.Prompt,
+		})
+		messageList = append(messageList, mp_common.OpenAIReqMsg{
+			Role:    mp_common.MsgRoleUser,
+			Content: v.Response,
+		})
+	}
+	messageList = append(messageList, mp_common.OpenAIReqMsg{
+		Role:    mp_common.MsgRoleUser,
+		Content: req.Query,
+	})
+	messageList = append(messageList, mp_common.OpenAIReqMsg{
+		Role:    mp_common.MsgRoleUser,
+		Content: prompt,
+	})
+	data := mp_common.LLMReq{
+		Model:    agentInfo.RecommendConfig.ModelConfig.Model,
+		Stream:   &streamValue,
+		Messages: messageList,
+	}
+	for _, x := range messageList {
+		log.Infof("content =%s", x.Content)
+	}
+	return data, nil
+}
+
+func buildTrialRecommendParams(agentInfo *assistant_service.AssistantInfo, streamValue bool, query string) mp_common.LLMReq {
+	prompt := agentInfo.RecommendConfig.SystemPrompt + additionalPrompt
+	data := mp_common.LLMReq{
+		Model:  agentInfo.RecommendConfig.ModelConfig.Model,
+		Stream: &streamValue,
+		Messages: []mp_common.OpenAIReqMsg{
+			{
+				Role:    mp_common.MsgRoleSystem,
+				Content: prompt,
+			},
+			{
+				Role:    mp_common.MsgRoleUser,
+				Content: query,
+			},
+		},
+	}
+	return data
+}
+
+func checkRecommendParam(agentInfo *assistant_service.AssistantInfo) error {
+	if !agentInfo.RecommendConfig.PromptEnable || agentInfo.RecommendConfig.SystemPrompt == "" {
+		agentInfo.RecommendConfig.SystemPrompt = systemPrompt
+	}
+	if agentInfo.RecommendConfig == nil || !agentInfo.RecommendConfig.RecommendEnable {
+		return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "recommend not available")
+	}
+	if agentInfo.RecommendConfig.ModelConfig == nil || agentInfo.RecommendConfig.ModelConfig.ModelId == "" || agentInfo.RecommendConfig.ModelConfig.Model == "" {
+		return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "model not available")
+	}
+	return nil
+}
+
+// searchAssistantInfo 查询智能体信息
+func searchAssistantInfo(ctx *gin.Context, userId, orgId, assistantId string, publish bool) (*assistant_service.AssistantInfo, error) {
+	var agentInfo *assistant_service.AssistantInfo
+	var err error
+	if publish {
+		agentInfo, err = assistant.AssistantSnapshotInfo(ctx, &assistant_service.AssistantSnapshotInfoReq{
+			AssistantId: assistantId,
+		})
+	} else {
+		agentInfo, err = assistant.GetAssistantInfo(ctx, &assistant_service.GetAssistantInfoReq{
+			AssistantId: assistantId,
+			Identity: &assistant_service.Identity{ //草稿只能看自己的
+				UserId: userId,
+				OrgId:  orgId,
+			},
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	return agentInfo, nil
 }
 
 // transFileInfo 转换文件信息从请求模型到protobuf模型

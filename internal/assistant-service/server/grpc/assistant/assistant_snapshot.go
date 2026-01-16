@@ -275,6 +275,18 @@ func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_serv
 		}
 	}
 
+	// 转换RecommendConfig
+	var recommendConfig *assistant_service.AssistantRecommendConfig
+	if snapshotAssistant.RecommendConfig != "" {
+		recommendConfig = &assistant_service.AssistantRecommendConfig{}
+		if err := json.Unmarshal([]byte(snapshotAssistant.RecommendConfig), recommendConfig); err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_recommendConfig_unmarshal",
+				Args:    []string{err.Error()},
+			})
+		}
+	}
+
 	return &assistant_service.AssistantInfo{
 		AssistantId: util.Int2Str(snapshotAssistant.ID),
 		Identity: &assistant_service.Identity{
@@ -295,6 +307,7 @@ func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_serv
 		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Scope:               int32(snapshotAssistant.Scope),
 		WorkFlowInfos:       workFlowInfos,
 		McpInfos:            mcpInfos,

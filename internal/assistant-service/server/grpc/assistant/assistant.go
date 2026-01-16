@@ -215,6 +215,17 @@ func (s *Service) AssistantConfigUpdate(ctx context.Context, req *assistant_serv
 		existingAssistant.MemoryConfig = string(memoryConfigBytes)
 	}
 
+	// 处理recommendConfig，转换成json字符串之后再更新
+	if req.RecommendConfig != nil {
+		recommendConfigBytes, err := json.Marshal(req.RecommendConfig)
+		if err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_recommendConfig_marshal",
+				Args:    []string{err.Error()},
+			})
+		}
+		existingAssistant.RecommendConfig = string(recommendConfigBytes)
+	}
 	// 调用client方法更新智能体
 	if status := s.cli.UpdateAssistant(ctx, existingAssistant); status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
@@ -391,6 +402,18 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		}
 	}
 
+	// 处理assistant.RecommendConfig，转换成AssistantRecommendConfig
+	var recommendConfig *assistant_service.AssistantRecommendConfig
+	if assistant.RecommendConfig != "" {
+		recommendConfig = &assistant_service.AssistantRecommendConfig{}
+		if err := json.Unmarshal([]byte(assistant.RecommendConfig), recommendConfig); err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_recommendConfig_unmarshal",
+				Args:    []string{err.Error()},
+			})
+		}
+	}
+
 	return &assistant_service.AssistantInfo{
 		AssistantId: util.Int2Str(assistant.ID),
 		Identity: &assistant_service.Identity{
@@ -412,6 +435,7 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Scope:               int32(assistant.Scope),
 		WorkFlowInfos:       workFlowInfos,
 		McpInfos:            mcpInfos,

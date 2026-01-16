@@ -474,3 +474,25 @@ func PublishedAssistantConversionStream(ctx *gin.Context) {
 		gin_util.Response(ctx, nil, err)
 	}
 }
+
+// AssistantQuestionRecommend
+//
+//	@Tags			agent
+//	@Summary		智能体问题推荐接口
+//	@Description	智能体问题推荐接口
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.QuestionRecommendRequest	true	"智能问题推荐请求参数"
+//	@Success		200		{object}	response.Response
+//	@Router			/assistant/question/recommend [post]
+func AssistantQuestionRecommend(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.QuestionRecommendRequest
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	if err := service.AssistantQuestionRecommend(ctx, userId, orgId, &req); err != nil {
+		gin_util.Response(ctx, nil, err)
+	}
+}

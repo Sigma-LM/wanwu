@@ -399,6 +399,10 @@ definitions:
       publishType:
         description: 发布类型
         type: string
+      recommendConfig:
+        allOf:
+        - $ref: '#/definitions/response.RecommendConfig'
+        description: 追问配置
       recommendQuestion:
         description: 推荐问题
         items:
@@ -567,6 +571,25 @@ definitions:
       list: {}
       total:
         type: integer
+    type: object
+  response.RecommendConfig:
+    properties:
+      maxHistory:
+        description: 最大历史会话轮次
+        type: integer
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型信息
+      prompt:
+        description: 提示词
+        type: string
+      promptEnable:
+        description: 提示词开关
+        type: boolean
+      recommendEnable:
+        description: 追问配置开关
+        type: boolean
     type: object
   response.Response:
     properties:

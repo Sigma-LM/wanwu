@@ -43,3 +43,11 @@ type VisionConfig struct {
 	MaxPicNum int32 `json:"maxPicNum"` // 最大图片数量
 	PicNum    int32 `json:"picNum"`    // 视觉配置图片数量
 }
+
+type RecommendConfig struct {
+	RecommendEnable bool                   `json:"recommendEnable"` // 追问配置开关
+	ModelConfig     request.AppModelConfig `json:"modelConfig"`     // 模型信息
+	PromptEnable    bool                   `json:"promptEnable"`    // 提示词开关
+	Prompt          string                 `json:"prompt"`          // 提示词
+	MaxHistory      int32                  `json:"maxHistory"`      // 最大历史会话轮次
+}

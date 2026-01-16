@@ -1010,6 +1010,14 @@ const docTemplate = `{
                     "description": "发布类型",
                     "type": "string"
                 },
+                "recommendConfig": {
+                    "description": "追问配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.RecommendConfig"
+                        }
+                    ]
+                },
                 "recommendQuestion": {
                     "description": "推荐问题",
                     "type": "array",
@@ -1262,6 +1270,35 @@ const docTemplate = `{
                 "list": {},
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.RecommendConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistory": {
+                    "description": "最大历史会话轮次",
+                    "type": "integer"
+                },
+                "modelConfig": {
+                    "description": "模型信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
+                },
+                "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                },
+                "promptEnable": {
+                    "description": "提示词开关",
+                    "type": "boolean"
+                },
+                "recommendEnable": {
+                    "description": "追问配置开关",
+                    "type": "boolean"
                 }
             }
         },
