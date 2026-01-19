@@ -26,54 +26,56 @@ type ApiAuthWebRequest struct {
 	ApiKeyValue        string `json:"apiKeyValue"`                                                                // apiKey
 }
 
-func (req *ApiAuthWebRequest) Check() error {
-	switch req.AuthType {
+func (auth *ApiAuthWebRequest) Check() error {
+	if auth == nil {
+		return fmt.Errorf("auth empty")
+	}
+	switch auth.AuthType {
 	case AuthTypeNone:
 		return nil
 	case AuthTypeAPIKeyQuery:
-		if req.ApiKeyQueryParam == "" {
+		if auth.ApiKeyQueryParam == "" {
 			return fmt.Errorf("apiKeyQueryParam is empty")
 		}
-		if req.ApiKeyValue == "" {
+		if auth.ApiKeyValue == "" {
 			return fmt.Errorf("apiKeyValue is empty")
 		}
 		return nil
 	case AuthTypeAPIKeyHeader:
-		if req.ApiKeyHeader == "" {
+		if auth.ApiKeyHeader == "" {
 			return fmt.Errorf("apiKeyHeader is empty")
 		}
-		if req.ApiKeyValue == "" {
+		if auth.ApiKeyValue == "" {
 			return fmt.Errorf("apiKeyValue is empty")
 		}
 		return nil
 	default:
-		return fmt.Errorf("invalid authType: %v", req.AuthType)
+		return fmt.Errorf("invalid authType: %v", auth.AuthType)
 	}
 }
 
 func (auth *ApiAuthWebRequest) ToOpenapiAuth() (*openapi3_util.Auth, error) {
-	if auth == nil || auth.AuthType == "" || auth.AuthType == AuthTypeNone {
-		return &openapi3_util.Auth{
-			Type: "none",
-		}, nil
+	ret := &openapi3_util.Auth{Type: "none"}
+	if auth == nil {
+		return ret, nil
 	}
 	if err := auth.Check(); err != nil {
 		return nil, err
 	}
-	ret := &openapi3_util.Auth{Type: "apiKey"}
 	switch auth.AuthType {
 	case AuthTypeNone:
 		return ret, nil
 	case AuthTypeAPIKeyQuery:
+		ret.Type = "apiKey"
 		ret.In = "query"
 		ret.Name = auth.ApiKeyQueryParam
 		ret.Value = auth.ApiKeyValue
 		return ret, nil
 	case AuthTypeAPIKeyHeader:
+		ret.Type = "apiKey"
 		ret.In = "header"
 		switch auth.ApiKeyHeaderPrefix {
 		case ApiKeyHeaderPrefixBasic:
-			// FIXME
 			ret.Name = auth.ApiKeyHeader
 			ret.Value = "Basic " + auth.ApiKeyValue
 			return ret, nil
