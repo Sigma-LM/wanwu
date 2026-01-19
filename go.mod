@@ -8,12 +8,12 @@ require (
 	github.com/IBM/sarama v1.43.2
 	github.com/ThinkInAIXYZ/go-mcp v0.2.22
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/cloudwego/eino v0.6.0
+	github.com/cloudwego/eino v0.7.21
 	github.com/cloudwego/eino-ext/components/model/openai v0.1.4
 	github.com/cloudwego/eino-ext/components/tool/mcp v0.0.6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
-	github.com/eino-contrib/jsonschema v1.0.2
+	github.com/eino-contrib/jsonschema v1.0.3
 	github.com/elastic/go-elasticsearch/v8 v8.18.0
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/gin-gonic/gin v1.10.1
