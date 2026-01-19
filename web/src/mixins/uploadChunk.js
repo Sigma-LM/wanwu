@@ -261,9 +261,12 @@ export default {
       this.cancelSources = [];
       this.failChunk = [];
       this.uploadQueue = [];
+    },
+    cancelAndRestartNextRequests() {
+      this.cancelAllRequests();
       if (this.fileList.length < 1) {
         this.fileIndex = 0;
-        this.file = this.fileList[0] || null;
+        this.file = null;
       } else {
         this.fileIndex = Math.max(0, this.fileIndex - 1);
         this.file = this.fileList[this.fileIndex] || null;

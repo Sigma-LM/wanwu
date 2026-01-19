@@ -31,6 +31,7 @@ import {
   QA_STATUS_PROCESSING,
   QA_STATUS_FINISHED,
   QA_STATUS_FAILED,
+  INITIAL,
 } from '@/views/knowledge/constants';
 
 export const FAT_SON_BLOCK = [
@@ -137,6 +138,10 @@ export const COMMUNITY_REPORT_STATUS = {
   ),
 };
 export const KNOWLEDGE_GRAPH_STATUS_OPTIONS = [
+  {
+    label: i18n.t('knowledgeManage.config.initial'),
+    value: INITIAL,
+  },
   {
     label: i18n.t('knowledgeManage.config.finished'),
     value: STATUS_FINISHED,

@@ -51,6 +51,7 @@
                 :show-file-list="false"
                 :auto-upload="false"
                 :multiple="fileType !== 'fileUrl'"
+                :limit="fileType === 'fileUrl' ? 1 : undefined"
                 accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps"
                 :file-list="fileList"
                 :on-change="uploadOnChange"
@@ -980,7 +981,7 @@ export default {
     handleRemove(item, index) {
       if (item.percentage < 100) {
         this.fileList.splice(index, 1);
-        this.cancelAllRequests(); //取消所有请求
+        this.cancelAndRestartNextRequests();
         return;
       }
       this.delfile({

@@ -277,14 +277,6 @@
                         ].includes(Number(scope.row.status))
                       "
                       v-if="hasManagePerm"
-                      :type="
-                        [
-                          KNOWLEDGE_STATUS_CHECKING,
-                          KNOWLEDGE_STATUS_ANALYSING,
-                        ].includes(Number(scope.row.status))
-                          ? 'info'
-                          : ''
-                      "
                     >
                       {{ $t('common.button.delete') }}
                     </el-button>
@@ -301,27 +293,7 @@
                     >
                       {{ $t('knowledgeManage.segmentConfig') }}
                     </el-button>
-                    <el-button
-                      size="mini"
-                      round
-                      :type="
-                        [
-                          KNOWLEDGE_STATUS_PENDING_PROCESSING,
-                          KNOWLEDGE_STATUS_ANALYSING,
-                          KNOWLEDGE_STATUS_FAIL,
-                        ].includes(Number(scope.row.status))
-                          ? 'info'
-                          : ''
-                      "
-                      :disabled="
-                        [
-                          KNOWLEDGE_STATUS_PENDING_PROCESSING,
-                          KNOWLEDGE_STATUS_ANALYSING,
-                          KNOWLEDGE_STATUS_FAIL,
-                        ].includes(Number(scope.row.status))
-                      "
-                      @click="handleView(scope.row)"
-                    >
+                    <el-button size="mini" round @click="handleView(scope.row)">
                       {{ $t('knowledgeManage.view') }}
                     </el-button>
                   </template>
@@ -891,6 +863,11 @@ export default {
           name: row.docName,
           knowledgeId: row.knowledgeId,
           knowledgeName: this.knowledgeName,
+          enable: [
+            KNOWLEDGE_STATUS_PENDING_PROCESSING,
+            KNOWLEDGE_STATUS_ANALYSING,
+            KNOWLEDGE_STATUS_FAIL,
+          ].includes(Number(row.status)),
         },
       });
     },

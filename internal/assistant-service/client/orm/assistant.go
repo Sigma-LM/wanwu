@@ -9,6 +9,7 @@ import (
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/orm/sqlopt"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"gorm.io/gorm"
 )
 
@@ -43,6 +44,7 @@ func (c *Client) UpdateAssistant(ctx context.Context, assistant *model.Assistant
 			"safety_config":        assistant.SafetyConfig,
 			"vision_config":        assistant.VisionConfig,
 			"memory_config":        assistant.MemoryConfig,
+			"recommend_config":     assistant.RecommendConfig,
 		}).Error; err != nil {
 			return toErrStatus("assistant_update", err.Error())
 		}
@@ -196,6 +198,7 @@ func (c *Client) CopyAssistant(ctx context.Context, assistant *model.Assistant, 
 		newAssistant := *assistant
 		newAssistant.ID = 0
 		newAssistant.Name = newName
+		newAssistant.UUID = util.NewID() // 生成新的UUID
 		if err = tx.Create(&newAssistant).Error; err != nil {
 			return toErrStatus("assistant_create", err.Error())
 		}

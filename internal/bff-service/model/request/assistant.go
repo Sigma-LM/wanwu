@@ -1,6 +1,8 @@
 package request
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type AssistantBrief struct {
 	AssistantId string `json:"assistantId"  validate:"required"`
@@ -10,23 +12,26 @@ type AssistantBrief struct {
 func (a *AssistantBrief) Check() error { return nil }
 
 type AssistantConfig struct {
-	AssistantId         string                 `json:"assistantId"  validate:"required"`
-	Prologue            string                 `json:"prologue"`            // 开场白
-	Instructions        string                 `json:"instructions"`        // 系统提示词
-	RecommendQuestion   []string               `json:"recommendQuestion"`   // 推荐问题
-	ModelConfig         AppModelConfig         `json:"modelConfig"`         // 模型
-	KnowledgeBaseConfig AppKnowledgebaseConfig `json:"knowledgeBaseConfig"` // 知识库
-	SafetyConfig        AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
-	RerankConfig        AppModelConfig         `json:"rerankConfig"`        // Rerank模型
-	VisionConfig        VisionConfig           `json:"visionConfig"`        // 视觉配置
-	MemoryConfig        MemoryConfig           `json:"memoryConfig"`        // 记忆配置
+	AssistantId         string                  `json:"assistantId"  validate:"required"`
+	Prologue            string                  `json:"prologue"`            // 开场白
+	Instructions        string                  `json:"instructions"`        // 系统提示词
+	RecommendQuestion   []string                `json:"recommendQuestion"`   // 推荐问题
+	ModelConfig         *AppModelConfig         `json:"modelConfig"`         // 模型
+	KnowledgeBaseConfig *AppKnowledgebaseConfig `json:"knowledgeBaseConfig"` // 知识库
+	SafetyConfig        *AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
+	RerankConfig        *AppModelConfig         `json:"rerankConfig"`        // Rerank模型
+	VisionConfig        *VisionConfig           `json:"visionConfig"`        // 视觉配置
+	MemoryConfig        *MemoryConfig           `json:"memoryConfig"`        // 记忆配置
+	RecommendConfig     *RecommendConfig        `json:"recommendConfig"`     // 追问配置
 }
 
 type MemoryConfig struct {
 	MaxHistoryLength int32 `json:"maxHistoryLength"`
 }
 
-func (a *AssistantConfig) Check() error { return nil }
+func (a *AssistantConfig) Check() error {
+	return nil
+}
 
 type AssistantPublish struct {
 	AssistantId string `json:"assistantId"  validate:"required"`
@@ -195,3 +200,18 @@ type AssistantToolConfig struct {
 }
 
 func (c *AssistantToolConfigRequest) Check() error { return nil }
+
+type QuestionRecommendRequest struct {
+	Query          string `json:"query" form:"query"  validate:"required"`             //用户问题
+	AssistantId    string `json:"assistantId" form:"assistantId"  validate:"required"` //智能体id
+	ConversationId string `json:"conversationId" form:"conversionId"`                  //会话id，如果非试用则不可为空
+	Trial          bool   `json:"trial" form:"trial"`                                  //是否试用
+}
+
+func (c *QuestionRecommendRequest) Check() error {
+	// 当Trial=false时，ConversationId必填
+	if !c.Trial && c.ConversationId == "" {
+		return fmt.Errorf("conversationId is required when trial is false")
+	}
+	return nil
+}

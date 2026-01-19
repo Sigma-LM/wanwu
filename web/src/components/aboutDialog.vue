@@ -11,7 +11,7 @@
       <div v-if="about.logoPath">
         <img
           style="height: 60px; margin: 0 auto"
-          :src="basePath + '/user/api' + about.logoPath"
+          :src="avatarSrc(about.logoPath)"
         />
       </div>
       <div class="about-version">
@@ -26,12 +26,12 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   data() {
     return {
       dialogVisible: false,
-      basePath: this.$basePath,
       about: {},
     };
   },
@@ -49,6 +49,7 @@ export default {
   },
   mounted() {},
   methods: {
+    avatarSrc,
     openDialog() {
       this.dialogVisible = true;
     },

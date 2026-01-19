@@ -1,5 +1,7 @@
+ARG WANWU_ARCH
+
 # 构建环境
-FROM python:3.12-slim
+FROM --platform=linux/$WANWU_ARCH python:3.12-slim
 
 # 设置工作目录
 WORKDIR /callback

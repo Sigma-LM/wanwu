@@ -8,7 +8,7 @@
       <img
         class="logo"
         v-if="detail.avatar && detail.avatar.path"
-        :src="basePath + '/user/api/' + detail.avatar.path"
+        :src="avatarSrc(detail.avatar.path)"
       />
       <div :class="['info', { fold: foldStatus }]">
         <p class="name">{{ detail.name }}</p>
@@ -69,7 +69,7 @@
           <img
             class="logo"
             v-if="item.avatar && item.avatar.path"
-            :src="basePath + '/user/api/' + item.avatar.path"
+            :src="avatarSrc(item.avatar.path)"
           />
           <p class="name">{{ item.name }}</p>
           <p class="intro">{{ item.desc }}</p>
@@ -81,6 +81,7 @@
 <script>
 import { md } from '@/mixins/markdown-it';
 import { agentTemplateList, agentTemplateDetail } from '@/api/appspace';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   data() {
@@ -107,6 +108,7 @@ export default {
     this.getRecommendList();
   },
   methods: {
+    avatarSrc,
     fold() {
       this.foldStatus = !this.foldStatus;
     },

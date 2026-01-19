@@ -57,7 +57,7 @@ func (tool *McpTool) Update(ctx context.Context, name, desc string) (*McpTool, e
 	if err != nil {
 		return nil, err
 	}
-	newTool, err := openapi3_util.Doc2ProtocolTool(doc, name)
+	newTool, err := openapi3_util.Doc2MCPProtocolTool(doc, name)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func CreateMcpTool(ctx context.Context, schema string, auth *openapi3_util.Auth,
 	if err != nil {
 		return nil, err
 	}
-	tool, err := openapi3_util.Doc2ProtocolTool(doc, operationID)
+	tool, err := openapi3_util.Doc2MCPProtocolTool(doc, operationID)
 	if err != nil {
 		return nil, err
 	}

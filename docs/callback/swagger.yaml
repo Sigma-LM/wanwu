@@ -133,6 +133,8 @@ definitions:
         type: integer
       object:
         type: string
+      type:
+        type: string
     required:
     - embedding
     type: object
@@ -399,6 +401,105 @@ definitions:
     - MsgRoleUser
     - MsgRoleAssistant
     - MsgRoleFunction
+  mp_common.MultiDocument:
+    properties:
+      image:
+        type: string
+      text:
+        type: string
+    type: object
+  mp_common.MultiInput:
+    properties:
+      audio:
+        type: string
+      image:
+        type: string
+      text:
+        type: string
+      video:
+        type: string
+    type: object
+  mp_common.MultiModalEmbeddingReq:
+    properties:
+      dimensions:
+        type: integer
+      encoding_format:
+        type: string
+      input:
+        items:
+          $ref: '#/definitions/mp_common.MultiInput'
+        type: array
+      model:
+        type: string
+    required:
+    - input
+    - model
+    type: object
+  mp_common.MultiModalEmbeddingResp:
+    properties:
+      created:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/mp_common.EmbeddingData'
+        type: array
+      id:
+        type: string
+      model:
+        type: string
+      object:
+        type: string
+      usage:
+        $ref: '#/definitions/mp_common.Usage'
+    required:
+    - data
+    - model
+    type: object
+  mp_common.MultiModalRerankReq:
+    properties:
+      documents:
+        description: 需要重排序的内容列表
+        items:
+          $ref: '#/definitions/mp_common.MultiDocument'
+        type: array
+      instruction:
+        description: 指令内容（适配元景qwen_rerank）
+        type: string
+      model:
+        type: string
+      query:
+        description: 重排序的查询内容
+      return_documents:
+        description: 是否返回排序前的文档。默认为true
+        type: boolean
+      top_n:
+        description: 返回排序后的top_n个文档。默认返回全部文档。
+        type: integer
+      user:
+        description: 用户标识（兼容千帆)
+        type: string
+    required:
+    - documents
+    - model
+    - query
+    type: object
+  mp_common.MultiModalRerankResp:
+    properties:
+      model:
+        type: string
+      object:
+        type: string
+      request_id:
+        type: string
+      results:
+        items:
+          $ref: '#/definitions/mp_common.Result'
+        type: array
+      usage:
+        $ref: '#/definitions/mp_common.Usage'
+    required:
+    - results
+    type: object
   mp_common.OcrData:
     properties:
       length:
@@ -573,33 +674,6 @@ definitions:
     - content
     - message
     type: object
-  mp_common.RerankReq:
-    properties:
-      documents:
-        description: 需要重排序的文本
-        items:
-          type: string
-        type: array
-      instruction:
-        description: 指令内容（适配元景qwen_rerank）
-        type: string
-      model:
-        type: string
-      query:
-        type: string
-      return_documents:
-        type: boolean
-      top_n:
-        description: 返回排序后的top_n个文档。默认返回全部文档。
-        type: integer
-      user:
-        description: 用户标识（兼容千帆)
-        type: string
-    required:
-    - documents
-    - model
-    - query
-    type: object
   mp_common.RerankResp:
     properties:
       model:
@@ -674,6 +748,33 @@ definitions:
         type: array
       usage:
         $ref: '#/definitions/mp_common.T2IUsage'
+    type: object
+  mp_common.TextRerankReq:
+    properties:
+      documents:
+        description: 需要重排序的文本
+        items:
+          type: string
+        type: array
+      instruction:
+        description: 指令内容（适配元景qwen_rerank）
+        type: string
+      model:
+        type: string
+      query:
+        type: string
+      return_documents:
+        type: boolean
+      top_n:
+        description: 返回排序后的top_n个文档。默认返回全部文档。
+        type: integer
+      user:
+        description: 用户标识（兼容千帆)
+        type: string
+    required:
+    - documents
+    - model
+    - query
     type: object
   mp_common.Thinking:
     properties:
@@ -2168,6 +2269,58 @@ paths:
       summary: Model Gui
       tags:
       - callback
+  /model/{modelId}/multimodal-embeddings:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 模型ID
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/mp_common.MultiModalEmbeddingReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mp_common.MultiModalEmbeddingResp'
+      summary: Model MultiModal-Embeddings
+      tags:
+      - callback
+  /model/{modelId}/multimodal-rerank:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 模型ID
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/mp_common.MultiModalRerankReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mp_common.MultiModalRerankResp'
+      summary: Model MultiModal-Rerank
+      tags:
+      - callback
   /model/{modelId}/ocr:
     post:
       consumes:
@@ -2238,7 +2391,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/mp_common.RerankReq'
+          $ref: '#/definitions/mp_common.TextRerankReq'
       produces:
       - application/json
       responses:

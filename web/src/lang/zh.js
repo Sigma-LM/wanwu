@@ -542,6 +542,7 @@ export default {
     hint: {
       urlError: 'URL格式不正确',
       yuanjing: '可前往 https://maas.ai-yuanjing.com/ 申请API Key',
+      upload: '可上传 .png、jpg、jpeg 文件',
     },
   },
   tempSquare: {
@@ -964,6 +965,7 @@ export default {
       processing: '解析中',
       finished: '解析成功',
       failed: '解析失败',
+      initial: '-',
     },
     graph: {
       refresh: '刷新数据',
@@ -1108,7 +1110,7 @@ export default {
         '支持上传csv格式文件，单个文件不超过10MB;最多上传1个文件，文件中问答对最多添加1000条。',
       uploadTips1: '批量导入的问答对内容都将被处理成纯文本形式',
       exportRecord: '导出记录',
-      exportData: '导出数据',
+      exportData: '导出全部',
       linkQaDatabase: '关联问答库',
     },
     qaExport: {
@@ -1531,6 +1533,17 @@ export default {
       inputPrologue: '请输入开场白！',
       deleteSuccess: '删除成功',
       modelNotSupport: '模型不可用,请选择模型',
+      recommendConfig: {
+        configEnable: '追问',
+        configEnableTips: '大模型根据用户对话内容自动生成推荐问题',
+        promptEnable: '提示词',
+        promptEnableTips: '利用提示词对追问内容进行限制',
+        promptPlaceholder: '请输入提示词',
+        maxHistory: '参考上下文记忆轮数',
+        maxHistoryTips:
+          '大模型在生成追问过程中参考的对话轮数，最多5轮，默认3轮',
+        requiredModelTips: '请选择追问模型',
+      },
     },
   },
   agentDialog: {

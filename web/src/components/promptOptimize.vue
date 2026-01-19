@@ -10,39 +10,15 @@
     >
       <div class="prompt-optimize-dialog-content">
         <div>
-          <el-select
+          <modelSelect
             v-model="modelId"
+            :options="modelOptions"
             :placeholder="$t('tempSquare.selectModel')"
             @visible-change="visibleChange"
             :loading-text="$t('tempSquare.loadingText')"
-            class="cover-input-icon model-select"
             :loading="modelLoading"
-            filterable
-            value-key="modelId"
-          >
-            <el-option
-              v-for="item in modelOptions"
-              :key="item.modelId"
-              :label="item.displayName || item.name"
-              :value="item.modelId"
-            >
-              <div class="model-option-content">
-                <span class="model-name">{{ item.displayName }}</span>
-                <div
-                  class="model-select-tags"
-                  v-if="item.tags && item.tags.length > 0"
-                >
-                  <span
-                    v-for="(tag, tagIdx) in item.tags"
-                    :key="tagIdx"
-                    class="model-select-tag"
-                  >
-                    {{ tag.text }}
-                  </span>
-                </div>
-              </div>
-            </el-option>
-          </el-select>
+            :filterable="true"
+          />
           <el-button
             :disabled="!(prompt && modelId)"
             size="mini"
@@ -79,8 +55,10 @@ import { selectModelList } from '@/api/modelAccess';
 import Print from '@/utils/printPlus2.js';
 import { fetchEventSource } from '@/sse/index.js';
 import { USER_API } from '@/utils/requestConstants';
+import ModelSelect from '@/components/modelSelect.vue';
 
 export default {
+  components: { ModelSelect },
   data() {
     return {
       dialogVisible: false,

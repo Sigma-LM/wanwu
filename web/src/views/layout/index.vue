@@ -11,7 +11,7 @@
             >
               <img
                 style="width: 50px; margin-left: -5px"
-                :src="basePath + '/user/api' + homeLogoPath"
+                :src="avatarSrc(homeLogoPath)"
               />
             </div>
           </div>
@@ -314,6 +314,7 @@ import {
   replaceIcon,
   replaceTitle,
   redirectUserInfoPage,
+  avatarSrc,
 } from '@/utils/util';
 import ChangeLang from '@/components/changeLang.vue';
 import DocDownloadDialog from '@/components/docDownloadDialog.vue';
@@ -466,6 +467,7 @@ export default {
     /* start() */
   },
   methods: {
+    avatarSrc,
     ...mapActions('user', ['LoginOut', 'getPermissionInfo', 'getCommonInfo']),
     checkPerm,
     logout() {
