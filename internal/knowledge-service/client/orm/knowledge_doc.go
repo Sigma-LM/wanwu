@@ -334,7 +334,7 @@ func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask
 			OcrModelId:            importTask.OcrModelId,
 			EmbeddingModelId:      embeddingModelInfo.ModelId,
 			AsrModelId:            analyzer.AsrModelId,
-			MultimodalModelId:     analyzer.AsrModelId,
+			MultimodalModelId:     analyzer.MultimodalModelId,
 			PreProcess:            preProcess.PreProcessList,
 			RagMetaDataParams:     ragMetaList,
 			RagChildChunkConfig:   buildSubRagChunkConfig(config),
