@@ -110,7 +110,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 	for i := range data.Input {
 		item := &data.Input[i]
 		if item.Image != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
 				return
@@ -118,7 +118,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 			item.Image = pureBase64Str
 		}
 		if item.Audio != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v audio to base64 err: %v", data.Model, err)))
 				return
@@ -126,7 +126,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 			item.Audio = pureBase64Str
 		}
 		if item.Video != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v video to base64 err: %v", data.Model, err)))
 				return
@@ -173,7 +173,7 @@ func ModelMultiModalRerank(ctx *gin.Context) {
 	for i := range data.Documents {
 		item := &data.Documents[i]
 		if item.Image != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
 				return
