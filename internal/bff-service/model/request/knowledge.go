@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	CategoryKnowledge = 0
-	CategoryQA        = 1
+	CategoryKnowledge           = 0
+	CategoryQA                  = 1
+	CategoryMultimodalKnowledge = 2 //多模态知识库
 )
 
 type KnowledgeSelectReq struct {
@@ -30,7 +31,7 @@ type CreateKnowledgeReq struct {
 	Description    string          `json:"description"`
 	EmbeddingModel *EmbeddingModel `json:"embeddingModelInfo" validate:"required"`
 	KnowledgeGraph *KnowledgeGraph `json:"knowledgeGraph"`
-	Category       int32           `json:"category" form:"category"` // 0:知识库，1:问答库
+	Category       int32           `json:"category" form:"category"` // 0:知识库，1:问答库,2:多模态知识库
 }
 
 type UpdateKnowledgeReq struct {
