@@ -25,7 +25,7 @@ def add_file(user_id, kb_name, file_name, file_meta, kb_id=""):
         if response.status_code != 200:  # 抛出报错
             err = str(response.text)
             return {'code': 1, "message": f"{err}"}
-        final_response = json.loads(response.text)
+        final_response = response.json()
         if final_response['code'] == 0:  # 正常获取到了结果
             return response_info
         else:  # 抛出报错
@@ -46,7 +46,7 @@ def allocate_chunks(user_id, kb_name, file_name, count, chunk_type="text", kb_id
         if response.status_code != 200:  # 抛出报错
             err = str(response.text)
             return {'code': 1, "message": f"{err}"}
-        final_response = json.loads(response.text)
+        final_response = response.json()
         return final_response
     except Exception as e:
         return {'code': 1, "message": f"{e}"}
@@ -71,7 +71,7 @@ def allocate_child_chunks(user_id, kb_name, file_name, chunk_id, count, kb_id=""
         if response.status_code != 200:  # 抛出报错
             err = str(response.text)
             return {'code': 1, "message": f"{err}"}
-        final_response = json.loads(response.text)
+        final_response = response.json()
         return final_response
     except Exception as e:
         return {'code': 1, "message": f"{e}"}
@@ -127,7 +127,7 @@ def add_es(user_id, kb_name, docs, file_name, kb_id=""):
             response = requests.post(url, headers=headers, json=es_data, timeout=TIME_OUT)
             logger.info(repr(file_name) + '分批写入es请求结果：' + repr(batch_count) + repr(response.text))
             if response.status_code == 200:
-                result_data = json.loads(response.text)
+                result_data = response.json()
                 if result_data['result']['success']:
                     success_count = success_count + 1
                     logger.info(repr(file_name) + "分批添加es请求成功")
@@ -139,8 +139,8 @@ def add_es(user_id, kb_name, docs, file_name, kb_id=""):
             else:
                 logger.error(repr(file_name) + "分批添加es请求失败")
                 fail_count = fail_count + 1
-                if str(json.loads(response.text)) not in error_reason: error_reason.append(
-                    str(json.loads(response.text)))
+                if str(response.json()) not in error_reason: error_reason.append(
+                    str(response.json()))
 
         except Exception as e:
             logger.error(repr(file_name) + "分批添加es请求异常: " + repr(e))
@@ -189,7 +189,7 @@ def get_weighted_rerank(query, weights, search_list, top_k):
             return response_info
         response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             response_info["data"]["sorted_search_list"] = result_data['result']['search_list'][:top_k]
             response_info["data"]["sorted_scores"] = result_data['result']['scores'][:top_k]
             logger.info("query：" + repr(query) + ", es重评分请求成功")
@@ -219,7 +219,7 @@ def search_es(user_id, kb_names, query, top_k, kb_ids=[], filter_file_name_list=
         try:
             response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
             if response.status_code == 200:
-                tmp_sl = json.loads(response.text)['result']['search_list']
+                tmp_sl = response.json()['result']['search_list']
                 for x in range(len(tmp_sl)):
                     tmp_sl[x]['kb_name'] = kb_name
                 search_list = search_list + tmp_sl
@@ -247,7 +247,7 @@ def search_graph_es(user_id, kb_names, query, top_k, kb_ids=[], filter_file_name
         try:
             response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
             if response.status_code == 200:
-                tmp_sl = json.loads(response.text)['result']['search_list']
+                tmp_sl = response.json()['result']['search_list']
                 for x in range(len(tmp_sl)):
                     tmp_sl[x]['kb_name'] = kb_name
                 search_list = search_list + tmp_sl
@@ -275,7 +275,7 @@ def search_keyword(user_id, kb_names, keywords, top_k, kb_ids=[], filter_file_na
         try:
             response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
             if response.status_code == 200:
-                tmp_sl = json.loads(response.text)['result']['search_list']
+                tmp_sl = response.json()['result']['search_list']
                 for x in range(len(tmp_sl)):
                     tmp_sl[x]['kb_name'] = kb_name
                 search_list = search_list + tmp_sl
@@ -301,7 +301,7 @@ def del_es_file(user_id, kb_name, file_name, kb_id=""):
     try:
         response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             if result_data['result']['success']:
                 logger.info("es删除文件请求成功")
                 return response_info
@@ -341,7 +341,7 @@ def del_es_kb(user_id, kb_name, kb_id=""):
     response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
     try:
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             if result_data['result']['success']:
                 logger.info("es删除知识库请求成功")
                 return response_info
@@ -390,12 +390,12 @@ def add_es_bak(user_id, kb_name, docs, file_name):
         response = requests.post(es_url, headers=headers, json=es_data, timeout=TIME_OUT)
         if response.status_code == 200:
             print("请求成功")
-            print(response.text)  # 打印API返回的JSON数据
+            print(response.json())  # 打印API返回的JSON数据
             return True
         else:
             print("请求失败")
+            print(response.json())  # 打印错误信息
             return False
-            print(response.text)  # 打印错误信息
     except Exception as e:
         import traceback
         print("====> add_es error %s" % e)
@@ -419,7 +419,7 @@ def init_qa_base(user_id, qa_base_name, qa_base_id, embedding_model_id):
             logger.error(f"es问答库初始化请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        init_response = json.loads(response.text)
+        init_response = response.json()
         if init_response['code'] != 0:
             logger.error(f"es问答库初始化请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {init_response}")
             raise RuntimeError(init_response['message'])
@@ -448,7 +448,7 @@ def del_qa_base(user_id, qa_base_name, qa_base_id):
             logger.error(f"es问答库删除请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        del_response = json.loads(response.text)
+        del_response = response.json()
         if del_response['code'] != 0:
             logger.error(f"es问答库删除请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
             raise RuntimeError(del_response['message'])
@@ -479,7 +479,7 @@ def del_qas(user_id, qa_base_name, qa_base_id, qa_pair_ids):
             logger.error(f"es删除问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        del_response = json.loads(response.text)
+        del_response = response.json()
         if del_response['code'] != 0:
             logger.error(f"es删除问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
             raise RuntimeError(del_response['message'])
@@ -526,7 +526,7 @@ def add_qas(user_id, qa_base_name, qa_base_id, qa_list):
                     f"问答对分批写入es请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
                 raise RuntimeError(str(response.text))
 
-            result_data = json.loads(response.text)
+            result_data = response.json()
             if result_data['code'] != 0:
                 logger.error(
                     f"es问答库删除请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {result_data}")
@@ -566,7 +566,7 @@ def update_qa_data(user_id, qa_base_name, qa_base_id, qa_pair_id, update_data):
             logger.error(f"更新问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        del_response = json.loads(response.text)
+        del_response = response.json()
         if del_response['code'] != 0:
             logger.error(f"es更新问答对请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
             raise RuntimeError(del_response['message'])
@@ -598,7 +598,7 @@ def get_qa_list(user_id, qa_base_name, qa_base_id, page_size, search_after):
             logger.error(f"问答对分页请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        del_response = json.loads(response.text)
+        del_response = response.json()
         if del_response['code'] != 0:
             logger.error(f"问答对分页请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
             raise RuntimeError(del_response['message'])
@@ -629,7 +629,7 @@ def update_qa_metas(user_id, qa_base_name, qa_base_id, metas, update_type):
             logger.error(f"更新问答对元数据请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        del_response = json.loads(response.text)
+        del_response = response.json()
         if del_response['code'] != 0:
             logger.error(f"es更新问答对元数据请求失败, user_id: {user_id}, qa_base_name: {qa_base_name}, response: {del_response}")
             raise RuntimeError(del_response['message'])
@@ -664,7 +664,7 @@ def vector_search(user_id, base_names, question, top_k, threshold=0.0, metadata_
                 f"问答对向量检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        result_data = json.loads(response.text)
+        result_data = response.json()
         if result_data['code'] != 0:
             logger.error(
                 f"问答对向量检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {result_data}")
@@ -700,7 +700,7 @@ def full_text_search(user_id, base_names, question, top_k, search_by = "question
                 f"问答对全文检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {repr(response.text)}")
             raise RuntimeError(str(response.text))
 
-        result_data = json.loads(response.text)
+        result_data = response.json()
         if result_data['code'] != 0:
             logger.error(
                 f"问答对全文检索请求失败, user_id: {user_id}, base_names: {base_names}, response: {result_data}")
@@ -732,7 +732,7 @@ def qa_weighted_rerank(query, weights, top_k, search_list_infos):
         logger.error(f"问答对权重重排序请求失败, search_list_infos: {search_list_infos}, response: {repr(response.text)}")
         raise RuntimeError(str(response.text))
 
-    result_data = json.loads(response.text)
+    result_data = response.json()
     if result_data['code'] != 0:
         logger.error(f"问答对权重重排序请求失败, search_list_infos: {search_list_infos}, response: {result_data}")
         raise RuntimeError(result_data['message'])

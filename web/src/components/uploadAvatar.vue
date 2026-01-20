@@ -18,6 +18,7 @@
 
 <script>
 import { uploadAvatar } from '@/api/user';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   props: {
@@ -37,7 +38,7 @@ export default {
   computed: {
     avatarSrc() {
       if (this.avatar.path) {
-        return `${this.$basePath}/user/api/${this.avatar.path}`;
+        return avatarSrc(this.avatar.path);
       }
       return this.defaultAvatar;
     },

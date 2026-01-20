@@ -61,13 +61,48 @@
                   :label="$t('keyword.linkKnowledge')"
                 >
                   <template slot-scope="scope">
-                    <span>
-                      {{
-                        scope.row.knowledgeBaseNames
-                          ? scope.row.knowledgeBaseNames.join(',')
-                          : ''
-                      }}
-                    </span>
+                    <div class="keyword-tags">
+                      <el-tag
+                        v-for="(
+                          item, index
+                        ) in scope.row.knowledgeBaseNames.slice(0, 3) || []"
+                        :key="index"
+                        size="small"
+                        color="#E6F0FF"
+                        class="keyword-tag"
+                      >
+                        {{ item }}
+                      </el-tag>
+                      <el-tooltip
+                        effect="light"
+                        placement="bottom"
+                        v-if="
+                          scope.row.knowledgeBaseNames &&
+                          scope.row.knowledgeBaseNames.length > 3
+                        "
+                      >
+                        <div slot="content">
+                          <el-tag
+                            v-for="(
+                              item, index
+                            ) in scope.row.knowledgeBaseNames.slice(3)"
+                            :key="index"
+                            size="small"
+                            color="#E6F0FF"
+                            class="keyword-tag"
+                          >
+                            {{ item }}
+                          </el-tag>
+                        </div>
+                        <el-tag
+                          size="small"
+                          color="#E6F0FF"
+                          class="keyword-tag"
+                        >
+                          ...
+                        </el-tag>
+                      </el-tooltip>
+                    </div>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -180,6 +215,22 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.keyword-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.keyword-tag {
+  margin-right: 4px;
+  margin-bottom: 2px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: $tag_color;
+}
+
 ::v-deep {
   .el-button.is-disabled,
   .el-button--info.is-disabled {

@@ -277,7 +277,7 @@ To help you quickly get started with this project, we strongly recommend that yo
 **Wanwu RAG has completed its retrieval performance evaluation on the authoritative, publicly available industry benchmark, the MultiHop-RAG dataset**
 
 <p align="center">
-  <img width="660" alt="image" src="https://github.com/user-attachments/assets/8a267ba2-13e4-48fe-8ea8-4f24fb10dfc6" />
+  <img width="584" alt="image" src="https://github.com/user-attachments/assets/8a267ba2-13e4-48fe-8ea8-4f24fb10dfc6" />
 </p>
 
 The F1 score serving as the comprehensive evaluation metric (the harmonic mean of precision and recall), are as follows: 

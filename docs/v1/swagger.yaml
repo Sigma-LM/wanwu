@@ -1078,6 +1078,10 @@ definitions:
       prologue:
         description: 开场白
         type: string
+      recommendConfig:
+        allOf:
+        - $ref: '#/definitions/request.RecommendConfig'
+        description: 追问配置
       recommendQuestion:
         description: 推荐问题
         items:
@@ -2986,6 +2990,24 @@ definitions:
     - publishType
     - version
     type: object
+  request.QuestionRecommendRequest:
+    properties:
+      assistantId:
+        description: 智能体id
+        type: string
+      conversationId:
+        description: 会话id，如果非试用则不可为空
+        type: string
+      query:
+        description: 用户问题
+        type: string
+      trial:
+        description: 是否试用
+        type: boolean
+    required:
+    - assistantId
+    - query
+    type: object
   request.RagBrief:
     properties:
       avatar:
@@ -3048,6 +3070,25 @@ definitions:
         type: string
     required:
     - ragId
+    type: object
+  request.RecommendConfig:
+    properties:
+      maxHistory:
+        description: 最大历史会话轮次
+        type: integer
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型信息
+      prompt:
+        description: 提示词
+        type: string
+      promptEnable:
+        description: 提示词开关
+        type: boolean
+      recommendEnable:
+        description: 追问配置开关
+        type: boolean
     type: object
   request.RegisterByEmail:
     properties:
@@ -3809,6 +3850,10 @@ definitions:
       publishType:
         description: 发布类型
         type: string
+      recommendConfig:
+        allOf:
+        - $ref: '#/definitions/response.RecommendConfig'
+        description: 追问配置
       recommendQuestion:
         description: 推荐问题
         items:
@@ -5286,7 +5331,7 @@ definitions:
         description: 图谱错误信息
         type: string
       graphStatus:
-        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -
         type: integer
       knowledgeId:
         description: 知识库id
@@ -6026,6 +6071,25 @@ definitions:
     - qaRerankConfig
     - ragId
     - rerankConfig
+    type: object
+  response.RecommendConfig:
+    properties:
+      maxHistory:
+        description: 最大历史会话轮次
+        type: integer
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型信息
+      prompt:
+        description: 提示词
+        type: string
+      promptEnable:
+        description: 提示词开关
+        type: boolean
+      recommendEnable:
+        description: 追问配置开关
+        type: boolean
     type: object
   response.Response:
     properties:
@@ -8102,6 +8166,30 @@ paths:
       security:
       - JWT: []
       summary: 查看草稿智能体详情
+      tags:
+      - agent
+  /assistant/question/recommend:
+    post:
+      consumes:
+      - application/json
+      description: 智能体问题推荐接口
+      parameters:
+      - description: 智能问题推荐请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.QuestionRecommendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 智能体问题推荐接口
       tags:
       - agent
   /assistant/stream:
@@ -11961,6 +12049,58 @@ paths:
       security:
       - JWT: []
       summary: llm模型列表
+      tags:
+      - model
+  /model/select/multi-embedding:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 多模态embedding模型列表
+      tags:
+      - model
+  /model/select/multi-rerank:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 多模态rerank模型列表
       tags:
       - model
   /model/select/ocr:

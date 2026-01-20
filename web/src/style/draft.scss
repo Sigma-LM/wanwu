@@ -1,31 +1,4 @@
-.model-option-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-
-  .model-name {
-    flex-shrink: 0;
-    font-weight: 500;
-  }
-
-  .model-select-tags {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 4px;
-    flex-shrink: 0;
-    margin-top: 4px;
-
-    .model-select-tag {
-      background-color: #f0f2ff;
-      color: $color;
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: 10px;
-      line-height: 1.2;
-    }
-  }
-}
+@import "@/style/modelSelect.scss";
 
 ::selection {
   color: #1a2029;
@@ -137,6 +110,10 @@
 
 .disable-clicks * {
   pointer-events: none;
+}
+
+.disable-clicks .form-header .header-left .el-icon-arrow-left {
+  pointer-events: auto;
 }
 
 .agent-from-content {

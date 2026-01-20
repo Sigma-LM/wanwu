@@ -8,7 +8,7 @@
             <img
               :src="
                 editForm.avatar.path
-                  ? `/user/api` + editForm.avatar.path
+                  ? avatarSrc(editForm.avatar.path)
                   : require('@/assets/imgs/bg-logo.png')
               "
             />
@@ -292,6 +292,7 @@ import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 import { RAG } from '@/utils/commonSet';
 import CopyIcon from '@/components/copyIcon.vue';
+import { avatarSrc } from '@/utils/util';
 export default {
   components: {
     CopyIcon,
@@ -444,16 +445,7 @@ export default {
             );
           });
           if (changed && !this.isUpdating) {
-            const isMixPriorityMatch =
-              newVal['knowledgeBaseConfig']['config']['matchType'] === 'mix' &&
-              newVal['knowledgeBaseConfig']['config']['priorityMatch'];
-            if (
-              newVal['modelParams'] !== '' ||
-              (isMixPriorityMatch &&
-                !newVal['knowledgeBaseConfig']['config']['rerankModelId'])
-            ) {
-              this.updateInfo();
-            }
+            this.updateInfo();
           }
         }, 500);
       },
@@ -475,6 +467,7 @@ export default {
     }
   },
   methods: {
+    avatarSrc,
     reloadData() {
       this.disableClick = false;
       this.getDetail();
@@ -741,11 +734,11 @@ export default {
           qaKnowledgeBaseConfig: this.editForm.qaKnowledgeBaseConfig,
           modelConfig: {
             config: this.editForm.modelConfig,
-            displayName: modeInfo.displayName,
-            model: modeInfo.model,
-            modelId: modeInfo.modelId,
-            modelType: modeInfo.modelType,
-            provider: modeInfo.provider,
+            displayName: modeInfo ? modeInfo.displayName : '',
+            model: modeInfo ? modeInfo.model : '',
+            modelId: modeInfo ? modeInfo.modelId : '',
+            modelType: modeInfo ? modeInfo.modelType : '',
+            provider: modeInfo ? modeInfo.provider : '',
           },
           rerankConfig: {
             displayName: rerankInfo ? rerankInfo.displayName : '',

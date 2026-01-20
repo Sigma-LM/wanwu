@@ -276,8 +276,8 @@ export function formatScore(score) {
   return score.toFixed(5);
 }
 
-export function avatarSrc(path) {
-  return basePath + '/user/api/' + path;
+export function avatarSrc(path, defaultImg = '') {
+  return path ? basePath + '/user/api/' + path : defaultImg;
 }
 
 // 换算单位万/亿/万亿，保留2位小数

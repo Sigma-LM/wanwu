@@ -43,7 +43,7 @@
                 <template slot="title">
                   <div class="tool_img">
                     <img
-                      :src="'/user/api/' + item.avatar.path"
+                      :src="avatarSrc(item.avatar.path)"
                       v-if="item.avatar && item.avatar.path"
                     />
                   </div>
@@ -100,10 +100,12 @@
 import { addServerTool } from '@/api/mcp';
 import { toolActionList, toolList } from '@/api/agent';
 import { MCP, PROMPT, TOOL } from '@/views/tool/constants';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   data() {
     return {
+      TOOL: TOOL,
       mcpServerId: '',
       toolName: '',
       dialogVisible: false,
@@ -140,14 +142,12 @@ export default {
         tool: this.customInfos,
       };
     },
-    TOOL() {
-      return TOOL;
-    },
   },
   created() {
     this.getCustomList('');
   },
   methods: {
+    avatarSrc,
     handleToolChange(id) {
       let toolId = id[0];
       if (this.activeValue === TOOL) {

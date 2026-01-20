@@ -107,20 +107,14 @@
         <!--loading-->
         <div v-if="n.responseLoading" class="session-answer">
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="modelIconUrl || '/user/api/' + defaultUrl"
-            />
+            <img class="logo" :src="modelIconUrl || avatarSrc(defaultUrl)" />
             <div class="answer-content"><i class="el-icon-loading"></i></div>
           </div>
         </div>
         <!--pending-->
         <div v-if="n.pendingResponse" class="session-answer">
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="modelIconUrl || '/user/api/' + defaultUrl"
-            />
+            <img class="logo" :src="modelIconUrl || avatarSrc(defaultUrl)" />
             <div class="answer-content" style="padding: 10px; color: #e6a23c">
               {{ n.pendingResponse }}
             </div>
@@ -141,10 +135,7 @@
         >
           <!-- v-if="[0].includes(n.qa_type)" -->
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="modelIconUrl || '/user/api/' + defaultUrl"
-            />
+            <img class="logo" :src="modelIconUrl || avatarSrc(defaultUrl)" />
             <div class="session-wrap" style="width: calc(100% - 30px)">
               <!-- <div
                 v-if="showDSBtn(n.response)"
@@ -226,7 +217,10 @@
               <div
                 v-if="n.response"
                 class="answer-content"
-                v-bind:class="{ 'ds-res': showDSBtn(n.response) }"
+                v-bind:class="{
+                  'ds-res': showDSBtn(n.response),
+                  hideDs: !n.isOpen,
+                }"
                 v-html="
                   showDSBtn(n.response)
                     ? replaceHTML(n.response, n)
@@ -236,7 +230,7 @@
             </div>
           </div>
           <!-- <div v-else class="session-answer-wrapper">
-            <img class="logo" :src="'/user/api/' + defaultUrl" />
+            <img class="logo" :src="avatarSrc(defaultUrl)" />
             <div v-if="n.code === 7" class="answer-content session-error">
               <i class="el-icon-warning"></i>
               &nbsp;{{ n.response }}
@@ -376,6 +370,39 @@
               {{ $t('agent.answerOperationTip') }}
             </div>
           </div>
+          <!-- 推荐问题 -仅最后一条回答显示 -->
+          <div
+            v-if="
+              sessionStatus === -1 &&
+              ((recommendConfig.list && recommendConfig.list.length) ||
+                recommendConfig.loading) &&
+              i === session_data.history.length - 1
+            "
+            class="session-section-wrapper recommend-question"
+          >
+            <div
+              v-for="(item, index) in recommendConfig.list"
+              :key="index"
+              :class="[
+                'recommend-question-item',
+                { 'is-tips': item.type === 'tips' },
+              ]"
+              @click="
+                item.type !== 'tips' &&
+                $emit('handleRecommendClick', item.content)
+              "
+            >
+              {{ item.content }}
+            </div>
+            <div
+              v-if="recommendConfig.loading"
+              class="text-loading recommend-question-loading"
+            >
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
         </div>
 
         <!-- 回答 仅图片-->
@@ -386,10 +413,7 @@
           class="session-answer"
         >
           <div class="session-answer-wrapper">
-            <img
-              class="logo"
-              :src="modelIconUrl || '/user/api/' + defaultUrl"
-            />
+            <img class="logo" :src="modelIconUrl || avatarSrc(defaultUrl)" />
             <div class="answer-content">
               <div
                 v-if="n.gen_file_url_list && n.gen_file_url_list.length"
@@ -432,6 +456,7 @@ var highlight = require('highlight.js');
 import 'highlight.js/styles/atom-one-dark.css';
 import commonMixin from '@/mixins/common';
 import { mapGetters, mapState } from 'vuex';
+import { avatarSrc } from '@/utils/util';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -450,8 +475,22 @@ marked.setOptions({
 export default {
   mixins: [commonMixin],
   props: {
-    defaultUrl: {},
-    chatType: {},
+    defaultUrl: {
+      type: String,
+      default: '',
+    },
+    chatType: {
+      type: String,
+      default: '',
+    },
+    recommendConfig: {
+      type: Object,
+      default: () => ({
+        reqController: null,
+        list: [],
+        loading: false,
+      }),
+    },
     modelIconUrl: {},
     supportStop: {},
     modelSessionStatus: {},
@@ -460,13 +499,6 @@ export default {
       default: true,
     },
   },
-  // [
-  //   'defaultUrl',
-  //   'chatType',
-  //   'modelIconUrl',
-  //   'supportStop',
-  //   'modelSessionStatus'
-  // ], //'sessionStatus',
   data() {
     return {
       md: md,
@@ -510,8 +542,14 @@ export default {
     },
     userAvatarSrc() {
       return this.userAvatar
-        ? '/user/api/' + this.userAvatar
+        ? avatarSrc(this.userAvatar)
         : require('@/assets/imgs/robot-icon.png');
+    },
+    isStreaming() {
+      const history = this.session_data.history;
+      if (history.length === 0) return false;
+      const lastItem = history[history.length - 1];
+      return lastItem.finish === 0 && this.sessionStatus === 0;
     },
   },
   watch: {
@@ -555,6 +593,7 @@ export default {
     }
   },
   methods: {
+    avatarSrc,
     getTitle(type) {
       if (type === 'qa_start') {
         return this.$t('app.qaSearching');
@@ -801,7 +840,8 @@ export default {
           index,
           this.session_data.history[index],
         );
-        let elm = null;
+        /* 广东合并新增，原版已删，之后验证无用即可删掉 */
+        /*let elm = null;
         if (name === 'el-icon-arrow-up' || name === 'el-icon-arrow-down') {
           elm = event.target.parentNode.parentNode.parentNode
             .getElementsByClassName('answer-content')[0]
@@ -815,7 +855,7 @@ export default {
           elm.className = 'hideDs';
         } else {
           elm.className = '';
-        }
+        }*/
       }
     },
     queryCopy(text) {
@@ -1618,6 +1658,40 @@ img.failed::after {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+.session-section-wrapper {
+  padding: 5px 20px 15px 63px;
+}
+
+.recommend-question {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  &-item {
+    display: inline-flex;
+    font-size: 12px;
+    padding: 4px 6px;
+    background: #f2f2f2;
+    cursor: pointer;
+    border-radius: 8px;
+    align-items: center;
+    line-height: 14px;
+    &:hover {
+      background: #eceefe;
+    }
+    &.is-tips {
+      cursor: default;
+      opacity: 0.7;
+      &:hover {
+        background: #f2f2f2;
+      }
+    }
+  }
+  &-loading {
+    margin: 0;
   }
 }
 </style>

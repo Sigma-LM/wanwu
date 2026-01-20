@@ -52,8 +52,8 @@ func GetToolActionList(ctx *gin.Context, userID, orgID string, req request.ToolA
 		return nil, err
 	}
 
-	// Schema2ProtocolTools
-	actions, err := openapi3_util.Schema2ProtocolTools(ctx.Request.Context(), []byte(schema))
+	// Schema2MCPProtocolTools
+	actions, err := openapi3_util.Schema2MCPProtocolTools(ctx.Request.Context(), []byte(schema))
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, err.Error())
 	}
@@ -69,8 +69,8 @@ func GetToolActionDetail(ctx *gin.Context, userID, orgID string, req request.Too
 		return nil, err
 	}
 
-	// Schema2ProtocolTool
-	action, err := openapi3_util.Schema2ProtocolTool(ctx.Request.Context(), []byte(schema), req.ActionName)
+	// Schema2MCPProtocolTool
+	action, err := openapi3_util.Schema2MCPProtocolTool(ctx.Request.Context(), []byte(schema), req.ActionName)
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(errs.Code_BFFInvalidArg, err.Error())
 	}

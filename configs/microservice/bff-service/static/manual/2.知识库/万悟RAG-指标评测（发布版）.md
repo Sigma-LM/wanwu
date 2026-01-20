@@ -24,24 +24,24 @@
 | **iii) Null Query**: Tests the system’s ability to correctly identify when no conclusive answer is available. | **iii) 无效查询**（无答案查询）：检验系统在无法得出确定答案时能否正确识别。 | 考察系统**拒绝回答的能力**（avoiding hallucination）。当检索结果矛盾、信息缺失或问题本身无解时，系统应返回“无法确定”而非编造答案。这是衡量 RAG **可靠性与安全性**的关键指标。 |
 | **iv) Temporal Query**: Evaluates understanding of temporal relations among events. | **iv) 时序型查询**：评估对事件间时间关系的理解 | 测试系统能否准确捕捉事件的**先后顺序、持续时间、并发性或周期性**。例如：“在 X 事件发生之前，Y 事件是否已经结束？” 要求模型建立清晰的时间线并理解“before/after/during”等时序语义。 |
 
-**万悟RAG及GraphRAG两种模式在权威公开评测集MutiHop-RAG数据集上完成检索召回性能指标评测**：
+**万悟RAG及GraphRAG两种模式在权威公开评测集MutiHop-RAG数据集上完成检索召回性能指标评测**：（粗体：最优指标，下划线：次优指标）
 
-| **MultiHopRAG数据集RAG检索效果评测结果**（粗体：最优指标，下划线：次优指标） |  |  |  |  |
+| **MultiHopRAG数据集RAG检索效果评测结果** |  |  |  |  |
 | --- | --- | --- | --- | --- |
 | **Query Type** | **Method** | **Relevancy** | **Recall** | **F1值** |
-| **Inference Query**<br>**（****推理型查询****）** | Dify-RAG | 0.6786 | 0.5671 | 0.6179 |
+| **Inference Query**<br>**（推理型查询）** | Dify-RAG | 0.6786 | 0.5671 | 0.6179 |
 |  | 万悟-RAG | 0.922 | 0.8001 | 0.8567 |
 |  | 开源-LightRAG | ++0.9414++ | ++0.8316++ | ++0.8831++ |
 |  | 万悟-GraphRAG | **0.9676** | **0.8453** | **0.9023** |
-| **Comparison Query**<br>**（****比较型查询****）** | Dify-RAG | 0.4378 | 0.5475 | 0.4865 |
+| **Comparison Query**<br>**（比较型查询）** | Dify-RAG | 0.4378 | 0.5475 | 0.4865 |
 |  | 万悟-RAG | ++0.5975++ | 0.7638 | ++0.6705++ |
 |  | 开源-LightRAG | 0.5297 | **0.8026** | 0.6382 |
 |  | 万悟-GraphRAG | **0.6028** | ++0.7944++ | **0.6854** |
-| **Null Query**<br>**（****无效查询****）** | Dify-RAG | 0.0482 | 0.011 | 0.0179 |
+| **Null Query**<br>**（无效查询）** | Dify-RAG | 0.0482 | 0.011 | 0.0179 |
 |  | 万悟-RAG | ++0.0735++ | 0.0413 | ++0.0529++ |
 |  | 开源-LightRAG | 0.0226 | ++0.0436++ | 0.0298 |
 |  | 万悟-GraphRAG | **0.0826** | **0.0956** | **0.0886** |
-| **Temporal Query**<br>**（****时序型查询****）** | Dify-RAG | 0.2637 | 0.53 | 0.3522 |
+| **Temporal Query**<br>**（时序型查询）** | Dify-RAG | 0.2637 | 0.53 | 0.3522 |
 |  | 万悟-RAG | ++0.3687++ | 0.7379 | 0.4917 |
 |  | 开源-LightRAG | 0.3646 | ++0.7951++ | ++0.4999++ |
 |  | 万悟-GraphRAG | **0.3938** | **0.7952** | **0.5267** |
@@ -58,4 +58,4 @@
 
 2）万悟GraphRAG比Dify高：17.2%
 
-3) 万悟GraphRAG比开源LightRAG高：3.5%
+3）万悟GraphRAG比开源LightRAG高：3.5%

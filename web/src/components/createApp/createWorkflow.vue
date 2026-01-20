@@ -71,6 +71,7 @@
 <script>
 import { createWorkFlow, uploadFile } from '@/api/workflow';
 import { copyWorkflowTemplate } from '@/api/templateSquare';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   props: {
@@ -143,9 +144,7 @@ export default {
   },
   created() {
     const { defaultIcon = {} } = this.$store.state.user.commonInfo.data || {};
-    this.defaultIcon = defaultIcon.workflowIcon
-      ? this.$basePath + '/user/api/' + defaultIcon.workflowIcon
-      : '';
+    this.defaultIcon = avatarSrc(defaultIcon.workflowIcon);
   },
   methods: {
     getBase64(file) {

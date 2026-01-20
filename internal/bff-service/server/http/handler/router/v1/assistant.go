@@ -34,4 +34,6 @@ func registerAssistant(apiV1 *gin.RouterGroup) {
 	mid.Sub("agent").Reg(apiV1, "/assistant/tool/config", http.MethodPut, v1.AssistantToolConfig, "配置智能体工具，包括自定义工具和内置工具")
 
 	mid.Sub("agent").Reg(apiV1, "/assistant/stream/draft", http.MethodPost, v1.DraftAssistantConversionStream, "草稿智能体流式问答")
+
+	mid.Sub("agent").Reg(apiV1, "/assistant/question/recommend", http.MethodPost, v1.AssistantQuestionRecommend, "智能体问题推荐接口")
 }

@@ -385,3 +385,6 @@ export const getWorkflowList = data => {
     params: data,
   });
 };
+
+// 智能体-追问sse
+export const getRecommendQuestionUrl = `${USER_API}/assistant/question/recommend`;

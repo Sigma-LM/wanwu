@@ -119,7 +119,7 @@ def get_extrac_graph_data(user_id, kb_name, chunks, file_name, graph_model_id, s
         extract_graph_url = GRAPH_SERVER_URL + "/extrac_graph_data"
         response = requests.post(extract_graph_url, headers=headers, data=json_data, timeout=600)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             finish_time1 = datetime.now()
             time_difference1 = finish_time1 - start_time
             logger.info(f"extrac_graph_data -{extract_graph_url}: 请求成功 耗时：{time_difference1}")
@@ -158,7 +158,7 @@ def generate_community_reports(user_id, kb_name, graph_model_id):
         community_url = GRAPH_SERVER_URL + "/generate_community_reports"
         response = requests.post(community_url, headers=headers, data=json_data, timeout=600)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             finish_time1 = datetime.now()
             time_difference1 = finish_time1 - start_time
             logger.info(f"generate_community_reports -{community_url}: 请求成功 耗时：{time_difference1}")
@@ -188,7 +188,7 @@ def delete_file_from_graph(user_id, kb_name, file_name):
         delete_file_url = GRAPH_SERVER_URL + "/delete_file"
         response = requests.post(delete_file_url, headers=headers, data=json_data, timeout=600)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             finish_time1 = datetime.now()
             time_difference1 = finish_time1 - start_time
             logger.info(f"graph delete_file -{delete_file_url}: 请求成功 耗时：{time_difference1}")
@@ -217,7 +217,7 @@ def delete_kb_graph(user_id, kb_name):
         delete_kb_url = GRAPH_SERVER_URL + "/delete_kb"
         response = requests.post(delete_kb_url, headers=headers, data=json_data, timeout=600)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             finish_time1 = datetime.now()
             time_difference1 = finish_time1 - start_time
             logger.info(f"graph delete_kb_graph -{delete_kb_url}: 请求成功 耗时：{time_difference1}")
@@ -247,7 +247,7 @@ def get_kb_graph_data(user_id, kb_name, kb_id):
         graph_url = GRAPH_SERVER_URL + "/get_kb_graph_data"
         response = requests.post(graph_url, headers=headers, data=json_data, timeout=600)
         if response.status_code == 200:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             finish_time1 = datetime.now()
             time_difference1 = finish_time1 - start_time
             if not result_data["success"]:

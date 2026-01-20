@@ -112,11 +112,12 @@ export default {
     font-size: 17px;
     font-weight: bold;
     color: $color_title;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   .provider-card-tag {
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 8px;
+    margin-top: 5px;
     font-size: 13px;
     border-radius: 4px;
     padding: 2px 8px;

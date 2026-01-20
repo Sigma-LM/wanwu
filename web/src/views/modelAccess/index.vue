@@ -129,7 +129,7 @@
                 class="card-img"
                 :src="
                   item.avatar && item.avatar.path
-                    ? basePath + '/user/api/' + item.avatar.path
+                    ? avatarSrc(item.avatar.path)
                     : require('@/assets/imgs/model_default_icon.png')
                 "
               />
@@ -237,6 +237,7 @@ import {
   PROVIDER_TYPE,
   MODEL_TYPE,
 } from './constants';
+import { avatarSrc } from '@/utils/util';
 import { LLM } from '@/views/modelAccess/constants';
 
 export default {
@@ -271,6 +272,7 @@ export default {
     this.getTableData();
   },
   methods: {
+    avatarSrc,
     async getTableData(params) {
       this.loading = true;
       try {
@@ -356,11 +358,11 @@ export default {
           let res = await changeModelStatus({ modelId, isActive: val });
           if (res.code === 0) {
             this.$message.success(this.$t('common.message.success'));
-            await this.getTableData();
+            await this.searchData();
           }
         })
         .catch(() => {
-          this.getTableData();
+          this.searchData();
         });
     },
     goModelExprience(modelId) {
@@ -544,8 +546,6 @@ export default {
   }
 }
 .card-item:hover {
-  /*background-image: url('../../assets/imgs/cardBg.png');
-  background-size: cover;*/
   border: 1px solid $color;
 }
 .card-item-create {

@@ -2,9 +2,11 @@ package util
 
 import (
 	"bufio"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -201,4 +203,35 @@ func appendFile(reader *bufio.Reader, destinationFile *os.File) (byteCount int64
 
 func FileEOF(err error) bool {
 	return errors.Is(err, io.EOF) || (err != nil && err.Error() == "EOF")
+}
+
+func File2Base64(filePath string, customPrefix string) (string, string, error) {
+	fileData, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", "", err
+	}
+	return FileData2Base64(fileData, customPrefix)
+}
+
+func FileData2Base64(fileData []byte, customPrefix string) (base64Str string, base64StrWithPrefix string, err error) {
+	if len(fileData) == 0 {
+		return "", "", errors.New("empty file data")
+	}
+
+	base64Str = base64.StdEncoding.EncodeToString(fileData)
+
+	var prefix string
+	if customPrefix != "" {
+		prefix = customPrefix
+	} else {
+		// 自动检测 MIME 类型
+		mimeType := http.DetectContentType(fileData)
+		prefix = "data:" + mimeType + ";base64"
+	}
+	if !strings.Contains(prefix, ",") {
+		prefix += ","
+	}
+	base64StrWithPrefix = prefix + base64Str
+
+	return base64Str, base64StrWithPrefix, nil
 }

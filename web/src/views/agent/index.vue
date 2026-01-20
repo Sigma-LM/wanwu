@@ -104,6 +104,31 @@ export default {
         desc: '',
         prologue: '',
         recommendQuestion: [],
+        recommendConfig: {
+          recommendEnable: false,
+          modelConfig: {
+            config: {
+              temperature: 0.7,
+              temperatureEnable: true,
+              topP: 1,
+              topPEnable: true,
+              frequencyPenalty: 0,
+              frequencyPenaltyEnable: true,
+              presencePenalty: 0,
+              presencePenaltyEnable: true,
+              maxTokens: 512,
+              maxTokensEnable: true,
+            },
+            displayName: '',
+            model: '',
+            modelId: '',
+            modelType: '',
+            provider: '',
+          },
+          promptEnable: false,
+          prompt: '',
+          maxHistory: 3,
+        },
       },
       chatType: 'agentChat',
       apiStrategies: {
@@ -225,6 +250,7 @@ export default {
         this.editForm.recommendQuestion = data.recommendQuestion.map(item => ({
           value: item,
         }));
+        this.editForm.recommendConfig = data.recommendConfig;
       }
     },
     async getList(noInit) {

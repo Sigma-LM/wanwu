@@ -688,7 +688,7 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 }
 
 func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.SegmentConfig, importTask *model.KnowledgeImportTask) *knowledgebase_doc_service.DocInfo {
-	status, message := model.BuildGraphShowStatus(item.GraphStatus)
+	status, message := model.BuildGraphShowStatus(item.GraphStatus, util.BuildDocRespStatus(item.Status))
 	return &knowledgebase_doc_service.DocInfo{
 		DocId:         item.DocId,
 		DocName:       item.Name,

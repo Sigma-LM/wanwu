@@ -32,7 +32,7 @@
           v-if="n.avatar && n.avatar.path"
           class="logo"
           lazy
-          :src="basePath + '/user/api/' + n.avatar.path"
+          :src="avatarSrc(n.avatar.path)"
           :key="`${i}-${n.appId}-avatar`"
         ></el-image>
         <span :class="['tag-app', `${n.appType}-tag`]">
@@ -152,7 +152,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <div class="editor" v-if="isExploreShowTool(n)">
+        <div class="editor editor-explore" v-if="isExploreShowTool(n)">
           <el-dropdown @command="handleClick($event, n)" placement="top">
             <span class="el-dropdown-link">
               <i class="el-icon-more icon edit-icon" @click.stop />
@@ -219,6 +219,7 @@ import {
 } from '@/api/workflow';
 import { setFavorite } from '@/api/explore';
 import { AGENT, RAG, CHAT, WORKFLOW } from '@/utils/commonSet';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   props: {
@@ -269,6 +270,7 @@ export default {
     };
   },
   methods: {
+    avatarSrc,
     handleClose() {
       this.dialogVisible = false;
     },

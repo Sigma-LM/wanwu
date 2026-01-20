@@ -4,7 +4,7 @@
     :visible.sync="dialogBasicVisible"
     width="50%"
     :before-close="cancel"
-    :show-close="false"
+    :show-close="dialogDetailVisible"
     :close-on-click-modal="false"
   >
     <div class="action">
