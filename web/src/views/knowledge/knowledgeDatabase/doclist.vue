@@ -863,7 +863,7 @@ export default {
           name: row.docName,
           knowledgeId: row.knowledgeId,
           knowledgeName: this.knowledgeName,
-          enable: [
+          disable: [
             KNOWLEDGE_STATUS_PENDING_PROCESSING,
             KNOWLEDGE_STATUS_ANALYSING,
             KNOWLEDGE_STATUS_FAIL,

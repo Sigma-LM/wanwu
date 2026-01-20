@@ -2,7 +2,7 @@
   <div
     class="section"
     v-loading="loading.itemStatus"
-    :class="{ 'disable-clicks': obj.enable }"
+    :class="{ 'disable-clicks': obj.disable === 'true' }"
   >
     <div class="title">
       <i
@@ -529,7 +529,6 @@ export default {
       submitLoading: false,
       oldContent: '',
       title: '创建关键词',
-      enable: true,
       dialogVisible: false,
       editingSegments: {},
       editingContent: {},
