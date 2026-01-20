@@ -67,4 +67,7 @@ type IClient interface {
 	GetCustomPrompt(ctx context.Context, customPromptID uint32) (*model.CustomPrompt, *err_code.Status)
 	GetCustomPromptList(ctx context.Context, userID, orgID string, name string) ([]*model.CustomPrompt, int64, *err_code.Status)
 	CopyCustomPrompt(ctx context.Context, customPromptID uint32, userId, orgID string) (string, *err_code.Status)
+
+	//================MultiAssistant================
+	GetMultiAssistant(ctx context.Context, multiAssistantID uint32, userID, orgID string, draft bool, version string) (multiAgent *model.Assistant, multiAgentSnapshot *model.AssistantSnapshot, subAgents []*model.AssistantSnapshot, err error)
 }

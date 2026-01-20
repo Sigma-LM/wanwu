@@ -6,7 +6,9 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
+	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"io"
 	"net/http"
 	net_url "net/url"
@@ -467,275 +469,16 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 }
 
 func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamServer) error {
-	ctx := stream.Context()
-	reqUserId := req.Identity.UserId
-	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s",
-		req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
-
-	// 用于跟踪流式响应状态的变量
-	var fullResponse strings.Builder
-	var searchList string
-	var hasReadFirstMessage bool
-	var streamStarted bool
-	var conversationSaved bool // 标记是否已经保存过对话
-
-	// 使用defer统一处理上下文取消的情况
-	defer func() {
-		// 只有在上下文被手动取消且还未保存过对话时，才保存"已被终止"消息
-		if ctx.Err() != nil && !req.Trial && !conversationSaved {
-			var terminationMessage string
-
-			if !streamStarted {
-				// 流式响应还未开始，保存基本终止消息
-				terminationMessage = "本次回答已被终止"
-			} else if !hasReadFirstMessage || fullResponse.Len() == 0 {
-				// 流式响应已开始但没有有效内容
-				terminationMessage = "本次回答已被终止"
-			} else {
-				// 已经有部分响应内容，保存已收到的内容
-				terminationMessage = fullResponse.String() + "\n本次回答已被终止"
-			}
-
-			saveConversation(ctx, req, terminationMessage, searchList)
-			log.Infof("因上下文取消保存终止消息，assistantId: %s, conversationId: %s", req.AssistantId, req.ConversationId)
-		}
-	}()
-
-	// 根据智能体id查询智能体信息
-	assistantID := util.MustU32(req.AssistantId)
-	var assistant *model.Assistant
-	var assistantSnapshot *model.AssistantSnapshot
-	var status *err_code.Status
-	if req.Draft {
-		assistant, status = s.cli.GetAssistant(ctx, assistantID, "", "")
-		if status != nil {
-			log.Errorf("Assistant服务获取智能体信息失败，assistantId: %s, error: %v", req.AssistantId, status)
-			SSEError(stream, "智能体信息获取失败")
-			saveConversation(ctx, req, "智能体信息获取失败", "")
-			return errStatus(errs.Code_AssistantConversationErr, status)
-		}
-	} else {
-		assistantSnapshot, status = s.cli.GetAssistantSnapshot(ctx, assistantID, "")
-		if status != nil {
-			log.Errorf("Assistant服务获取智能体快照失败，assistantId: %s, error: %v", req.AssistantId, status)
-			SSEError(stream, "智能体快照获取失败")
-			saveConversation(ctx, req, "智能体快照获取失败", "")
-			return errStatus(errs.Code_AssistantConversationErr, status)
-		}
-
-		if err := jsonToStruct(assistantSnapshot.AssistantInfo, &assistant); err != nil {
-			SSEError(stream, "智能体信息获取失败")
-			saveConversation(ctx, req, "智能体信息获取失败", "")
-			return errStatus(errs.Code_AssistantErr, toErrStatus("assistant_snapshot", err.Error()))
-		}
+	//会话处理
+	conversationProcessor := &service.ConversationProcessor{
+		SSEWriter: sse_util.NewGrpcSSEWriter(stream, "AssistantConversionStreamNew", nil),
 	}
-	log.Debugf("Assistant服务获取到智能体信息，assistantId: %s, 名称: %s, Scope: %d, userId: %s, orgId: %s",
-		req.AssistantId, assistant.Name, assistant.Scope, assistant.UserId, assistant.OrgId)
-
-	// 获取Assistant配置
-	assistantConfig := config.Cfg().Assistant
-	if assistantConfig.SseUrl == "" {
-		log.Errorf("Assistant服务SSE URL配置为空，assistantId: %s", req.AssistantId)
-		SSEError(stream, "智能体SSE URL配置错误")
-		saveConversation(ctx, req, "智能体SSE URL配置错误", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "SSE URL配置错误")
-	}
-
-	// 组装智能体能力接口请求体
-	sseReq := &config.AgentSSERequest{
-		Input:        req.Prompt,
-		Stream:       true,
-		AutoCitation: true,
-	}
-
-	if assistant.Instructions != "" {
-		sseReq.SystemRole = assistant.Instructions
-	}
-
-	sseReq.UploadFileUrl = extractFileUrls(req.FileInfo)
-
-	// 模型参数配置
-	_, err := s.setModelConfigParams(sseReq, assistant)
+	err := conversationProcessor.Process(stream.Context(), buildConversationParams(req), buildAgentSendRequest(req))
 	if err != nil {
-		SSEError(stream, "智能体模型配置解析失败")
-		saveConversation(ctx, req, "智能体模型配置解析失败", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "模型配置解析失败")
-	}
-
-	// 知识库参数配置
-	if err = s.setKnowledgebaseParams(ctx, sseReq, req, assistant); err != nil {
-		SSEError(stream, "智能体知识库配置解析失败")
-		saveConversation(ctx, req, "智能体知识库配置解析失败", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "知识库配置解析失败")
-	}
-
-	// plugin参数配置
-	if err := s.setToolAndWorkflowParamsNew(ctx, sseReq, req.AssistantId, req.Identity, req.Draft, assistantSnapshot); err != nil {
-		SSEError(stream, "智能体plugin配置错误")
-		saveConversation(ctx, req, "智能体plugin配置错误", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "plugin配置错误")
-	}
-
-	// MCP 信息参数配置
-	if err = s.setMCPParams(ctx, sseReq, assistant, req.Draft, assistantSnapshot); err != nil {
-		SSEError(stream, "智能体MCP配置解析失败")
-		saveConversation(ctx, req, "智能体MCP配置解析失败", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "MCP配置解析失败")
-	}
-
-	// 记忆参数配置
-	if err = s.setMemoryParams(ctx, sseReq, assistant); err != nil {
-		SSEError(stream, "智能体记忆配置解析失败")
-		saveConversation(ctx, req, "智能体记忆配置解析失败", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "记忆配置解析失败")
-	}
-
-	// 历史聊天记录配置
-	if !req.Trial && req.ConversationId != "" {
-		s.setHistoryParams(ctx, sseReq, req)
-	}
-
-	// 底层智能体能力接口请求体
-	chatReq := service.BuildAgentChatReq(sseReq, assistant)
-	//service.AgentStreamChat(ctx, chatReq)
-
-	reqBytes, err := json.Marshal(chatReq)
-	if err != nil {
-		log.Errorf("Assistant服务序列化请求体失败，assistantId: %s, error: %v", req.AssistantId, err)
-		SSEError(stream, "请求参数错误")
-		saveConversation(ctx, req, "请求参数错误", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "请求参数错误")
-	}
-
-	timeout := 300 * time.Second
-	startTime := time.Now()
-	id := uuid.New().String()
-
-	// xuid通过智能体传给RAG使用，要求xuid和知识库创建人userId一致，当前版本智能体创建人userId和知识库创建人userId一致。后面做了知识库分享之后这里可能需要改造。
-	xuid := assistant.UserId
-
-	log.Infof("Assistant服务开始调用HttpRequestLlmStream，uuid: %s, assistantId: %s, url: %s, userId: %s, timeout: %v, body: %s",
-		id, req.AssistantId, assistantConfig.NewSseUrl, reqUserId, timeout, string(reqBytes))
-	sseResp, err := HttpRequestLlmStream(ctx, assistantConfig.NewSseUrl, reqUserId, xuid, bytes.NewReader(reqBytes), timeout)
-	if err != nil {
-		log.Errorf("Assistant服务调用智能体能力接口失败，assistantId: %s, uuid: %s, error: %v", req.AssistantId, id, err)
-		if ctx.Err() == nil { //非上下文被取消
-			SSEError(stream, "agent服务异常")
-			saveConversation(ctx, req, "agent服务异常", "")
-		}
+		log.Errorf("Assistant服务处理智能体流式对话失败，assistantId: %s, error: %v", req.AssistantId, err)
 		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "agent服务异常")
 	}
-	defer sseResp.Body.Close()
-	log.Infof("Assistant服务成功连接智能体能力接口，uuid: %s, assistantId: %s, statusCode: %d, time: %v毫秒", id, req.AssistantId, sseResp.StatusCode, time.Since(startTime).Milliseconds())
-
-	// SSE 请求返回Code大于400
-	if sseResp.StatusCode > http.StatusBadRequest {
-		log.Errorf("Assistant服务智能体能力接口返回错误状态码，assistantId: %s, statusCode: %d", req.AssistantId, sseResp.StatusCode)
-		SSEError(stream, "agent服务异常")
-		saveConversation(ctx, req, "agent服务异常", "")
-		return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "agent服务异常")
-	}
-
-	// 读取智能体接口返回，并写入流式响应
-	reader := bufio.NewReader(sseResp.Body)
-	lineCount := 0
-	streamStarted = true
-	searchListExtracted := false
-	for {
-		// 检查上下文
-		if ctx.Err() != nil {
-			log.Infof("Assistant服务检测到上下文取消，assistantId: %s", req.AssistantId)
-			return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "智能体问答上下文异常")
-		}
-		line, err := reader.ReadBytes('\n')
-		log.Infof("stream line %s", string(line))
-		if err != nil && err == io.EOF { //正常結束
-			// 问答调试不保存
-			if !req.Trial {
-				// 只有在上下文未被取消的情况下才保存并标记为已保存
-				if ctx.Err() == nil {
-					saveConversation(ctx, req, fullResponse.String(), searchList)
-					conversationSaved = true // 标记已保存
-				}
-				// 如果上下文被取消，不设置conversationSaved，让defer函数处理终止消息
-			}
-			log.Debugf("Assistant服务流式响应正常结束，assistantId: %s, 总处理行数: %d", req.AssistantId, lineCount)
-			return nil
-		}
-		if err != nil && err == io.ErrUnexpectedEOF { //异常結束
-			// 真正的SSE读取错误，保存"已中断"消息
-			log.Errorf("Assistant服务读取流式响应失败，assistantId: %s, error: %v, 已处理行数: %d", req.AssistantId, err, lineCount)
-			if !req.Trial {
-				errorMessage := "本次回答已中断"
-				if hasReadFirstMessage && fullResponse.Len() > 0 {
-					errorMessage = fullResponse.String() + "\n" + errorMessage
-				}
-				saveConversation(ctx, req, errorMessage, searchList)
-				conversationSaved = true // 标记已保存，避免defer中重复保存
-				log.Debugf("Assistant服务保存了中断消息，assistantId: %s, errorMessage: %s", req.AssistantId, errorMessage)
-			}
-			SSEError(stream, "本次回答已中断")
-			return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "本次回答已中断")
-		}
-		strLine := string(line)
-		log.Infof("stream line %s", strLine)
-		lineCount++
-		if len(strLine) >= 5 && strLine[:5] == "data:" {
-			jsonStrData := strLine[5:]
-			// 解析流式数据，提取response字段和search_list
-			var streamData map[string]interface{}
-			if err := json.Unmarshal([]byte(jsonStrData), &streamData); err == nil {
-				log.Debugf("Assistant服务解析流式数据，assistantId: %s, streamData: %+v", req.AssistantId, streamData)
-				code, ok := extractCodeFromStreamData(streamData)
-				if !ok {
-					log.Errorf("Assistant服务无法提取code字段，assistantId: %s, streamData: %+v", req.AssistantId, streamData)
-					continue
-				}
-				switch code {
-				case 0:
-					if response, ok := streamData["response"].(string); ok && response != "" {
-						fullResponse.WriteString(response)
-					}
-					// 提取第一个search_list
-					if !searchListExtracted {
-						if searchListData, ok := streamData["search_list"]; ok {
-							searchListBytes, err := json.Marshal(searchListData)
-							if err == nil {
-								searchList = string(searchListBytes)
-								searchListExtracted = true
-								log.Debugf("Assistant服务提取到search_list，assistantId: %s, searchList: %s", req.AssistantId, searchList)
-							}
-						}
-					}
-				case 1:
-					if message, ok := streamData["message"].(string); ok && message != "" {
-						fullResponse.WriteString(message)
-						if err := stream.Send(&assistant_service.AssistantConversionStreamResp{
-							Content: "{\"code\":1,\"message\":\"" + "智能体无法回答：" + message + "\",\"finish\":1}",
-						}); err != nil {
-							log.Errorf("Assistant服务发送流式响应失败，assistantId: %s, error: %v", req.AssistantId, err)
-							return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "assistant服务异常")
-						}
-						// 标记已读取到并返回了第一条有效消息
-						if !hasReadFirstMessage {
-							hasReadFirstMessage = true
-						}
-						continue
-					}
-				}
-			}
-			if err := stream.Send(&assistant_service.AssistantConversionStreamResp{
-				Content: jsonStrData,
-			}); err != nil {
-				log.Errorf("Assistant服务发送流式响应失败，assistantId: %s, error: %v", req.AssistantId, err)
-				return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "assistant服务异常")
-			}
-			// 标记已读取到并返回了第一条有效消息
-			if !hasReadFirstMessage {
-				hasReadFirstMessage = true
-			}
-		}
-	}
+	return nil
 }
 
 // 设置模型配置参数
@@ -849,40 +592,40 @@ func (s *Service) setToolAndWorkflowParams(ctx context.Context, sseReq *config.A
 	return nil
 }
 
-func (s *Service) setToolAndWorkflowParamsNew(ctx context.Context, sseReq *config.AgentSSERequest, assistantId string, identity *assistant_service.Identity, draft bool, assistantSnapshot *model.AssistantSnapshot) error {
-	toolPluginList, err := s.buildToolPluginListAlgParamNew(ctx, sseReq, assistantId, identity, draft, assistantSnapshot)
-	if err != nil {
-		return fmt.Errorf("智能体tool配置错误: %w", err)
-	}
-
-	workflowPluginList, err := s.buildWorkflowPluginListAlgParam(ctx, assistantId, draft, assistantSnapshot)
-	if err != nil {
-		return fmt.Errorf("智能体workflow配置错误: %w", err)
-	}
-
-	log.Debugf("智能体workflow配置，assistantId: %s, workflowPluginList: %s", assistantId, workflowPluginList)
-	allPlugin := append(toolPluginList, workflowPluginList...)
-	sseReq.PluginList = allPlugin
-	log.Debugf("智能体tool_plugin_list，assistantId: %s, tool_plugin_list: %s", assistantId, allPlugin)
-	return nil
-}
-
-func (s *Service) setMemoryParams(_ context.Context, sseReq *config.AgentSSERequest, assistant *model.Assistant) error {
-	memoryConfig := &assistant_service.AssistantMemoryConfig{}
-	if assistant.MemoryConfig == "" || assistant.MemoryConfig == "{}" {
-		sseReq.MaxHistoryLength = config.DefaultMaxHistoryLength
-		return nil
-	}
-	if err := json.Unmarshal([]byte(assistant.MemoryConfig), memoryConfig); err != nil {
-		return fmt.Errorf("Assistant服务解析智能体记忆配置失败，assistantId: %d, error: %v, memoryConfigRaw: %s", assistant.ID, err, assistant.MemoryConfig)
-	}
-	if memoryConfig.MaxHistoryLength > 0 {
-		sseReq.MaxHistoryLength = memoryConfig.MaxHistoryLength
-	} else {
-		sseReq.MaxHistoryLength = config.DefaultMaxHistoryLength
-	}
-	return nil
-}
+//func (s *Service) setToolAndWorkflowParamsNew(ctx context.Context, sseReq *config.AgentSSERequest, assistantId string, identity *assistant_service.Identity, draft bool, assistantSnapshot *model.AssistantSnapshot) error {
+//	toolPluginList, err := s.buildToolPluginListAlgParamNew(ctx, sseReq, assistantId, identity, draft, assistantSnapshot)
+//	if err != nil {
+//		return fmt.Errorf("智能体tool配置错误: %w", err)
+//	}
+//
+//	workflowPluginList, err := s.buildWorkflowPluginListAlgParam(ctx, assistantId, draft, assistantSnapshot)
+//	if err != nil {
+//		return fmt.Errorf("智能体workflow配置错误: %w", err)
+//	}
+//
+//	log.Debugf("智能体workflow配置，assistantId: %s, workflowPluginList: %s", assistantId, workflowPluginList)
+//	allPlugin := append(toolPluginList, workflowPluginList...)
+//	sseReq.PluginList = allPlugin
+//	log.Debugf("智能体tool_plugin_list，assistantId: %s, tool_plugin_list: %s", assistantId, allPlugin)
+//	return nil
+//}
+//
+//func (s *Service) setMemoryParams(_ context.Context, sseReq *config.AgentSSERequest, assistant *model.Assistant) error {
+//	memoryConfig := &assistant_service.AssistantMemoryConfig{}
+//	if assistant.MemoryConfig == "" || assistant.MemoryConfig == "{}" {
+//		sseReq.MaxHistoryLength = config.DefaultMaxHistoryLength
+//		return nil
+//	}
+//	if err := json.Unmarshal([]byte(assistant.MemoryConfig), memoryConfig); err != nil {
+//		return fmt.Errorf("Assistant服务解析智能体记忆配置失败，assistantId: %d, error: %v, memoryConfigRaw: %s", assistant.ID, err, assistant.MemoryConfig)
+//	}
+//	if memoryConfig.MaxHistoryLength > 0 {
+//		sseReq.MaxHistoryLength = memoryConfig.MaxHistoryLength
+//	} else {
+//		sseReq.MaxHistoryLength = config.DefaultMaxHistoryLength
+//	}
+//	return nil
+//}
 
 // 设置MCP参数
 func (s *Service) setMCPParams(ctx context.Context, sseReq *config.AgentSSERequest, assistant *model.Assistant, draft bool, assistantSnapshot *model.AssistantSnapshot) error {
@@ -1349,94 +1092,94 @@ func (s *Service) buildToolPluginListAlgParam(ctx context.Context, sseReq *confi
 	return pluginList, nil
 }
 
-func (s *Service) buildToolPluginListAlgParamNew(ctx context.Context, sseReq *config.AgentSSERequest, assistantId string, identity *assistant_service.Identity, draft bool, assistantSnapshot *model.AssistantSnapshot) (pluginList []config.PluginListAlgRequest, err error) {
-	var resp []*model.AssistantTool
-	var status *err_code.Status
-	if draft {
-		// 转换assistantId
-		assistantIdConv := pkgUtil.MustU32(assistantId)
-		resp, status = s.cli.GetAssistantToolList(ctx, assistantIdConv)
-		if status != nil {
-			return pluginList, errStatus(errs.Code_AssistantConversationErr, status)
-		}
-	} else {
-		if assistantSnapshot.AssistantToolConfig != "" {
-			if err := json.Unmarshal([]byte(assistantSnapshot.AssistantToolConfig), &resp); err != nil {
-				return pluginList, errStatus(errs.Code_AssistantConversationErr, toErrStatus("assistant_conversation_err", err.Error()))
-			}
-
-			// 使用创建者的userid、orgid
-			identity.UserId = assistantSnapshot.UserId
-			identity.OrgId = assistantSnapshot.OrgId
-		}
-	}
-
-	// 遍历工具列表，处理每个有效工具
-	for _, tool := range resp {
-		if !tool.Enable {
-			continue // 跳过禁用的工具
-		}
-
-		var rawSchema string            // 原始schema字符串
-		var apiAuth *openapi3_util.Auth // API认证信息
-
-		// 根据工具类型获取详情和原始schema
-		switch tool.ToolType {
-		case constant.ToolTypeCustom:
-			// 获取自定义工具详情
-			customTool, err := MCP.GetCustomToolInfo(ctx, &mcp_service.GetCustomToolInfoReq{
-				CustomToolId: tool.ToolId,
-			})
-			if err != nil {
-				log.Errorf("获取自定义工具信息失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
-				continue
-			}
-			rawSchema = customTool.Schema
-
-			// 构建自定义工具的API认证
-			if customTool.ApiAuth != nil {
-				if apiAuth, err = util.ConvertApiAuthWebRequestProto(customTool.ApiAuth); err != nil {
-					log.Errorf("转换自定义工具API失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
-					continue
-				}
-			}
-		case constant.ToolTypeBuiltIn:
-			// 获取内置工具详情
-			builtinTool, err := MCP.GetSquareTool(ctx, &mcp_service.GetSquareToolReq{
-				ToolSquareId: tool.ToolId,
-				Identity: &mcp_service.Identity{
-					UserId: identity.UserId,
-					OrgId:  identity.OrgId,
-				},
-			})
-			if err != nil {
-				log.Errorf("获取内置工具信息失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
-				continue
-			}
-			rawSchema = builtinTool.Schema
-
-			// 构建内置工具的API认证
-			apiAuth, err = util.ConvertApiAuthWebRequestProto(builtinTool.BuiltInTools.ApiAuth)
-			if err != nil {
-				return nil, err
-			}
-
-		}
-
-		// 处理schema
-		apiSchema, err := processSchema(ctx, rawSchema, tool.ActionName)
-		if err != nil {
-			return pluginList, err
-		}
-
-		pluginList = append(pluginList, config.PluginListAlgRequest{
-			APISchema: apiSchema,
-			APIAuth:   apiAuth,
-		})
-	}
-
-	return pluginList, nil
-}
+//func (s *Service) buildToolPluginListAlgParamNew(ctx context.Context, sseReq *config.AgentSSERequest, assistantId string, identity *assistant_service.Identity, draft bool, assistantSnapshot *model.AssistantSnapshot) (pluginList []config.PluginListAlgRequest, err error) {
+//	var resp []*model.AssistantTool
+//	var status *err_code.Status
+//	if draft {
+//		// 转换assistantId
+//		assistantIdConv := pkgUtil.MustU32(assistantId)
+//		resp, status = s.cli.GetAssistantToolList(ctx, assistantIdConv)
+//		if status != nil {
+//			return pluginList, errStatus(errs.Code_AssistantConversationErr, status)
+//		}
+//	} else {
+//		if assistantSnapshot.AssistantToolConfig != "" {
+//			if err := json.Unmarshal([]byte(assistantSnapshot.AssistantToolConfig), &resp); err != nil {
+//				return pluginList, errStatus(errs.Code_AssistantConversationErr, toErrStatus("assistant_conversation_err", err.Error()))
+//			}
+//
+//			// 使用创建者的userid、orgid
+//			identity.UserId = assistantSnapshot.UserId
+//			identity.OrgId = assistantSnapshot.OrgId
+//		}
+//	}
+//
+//	// 遍历工具列表，处理每个有效工具
+//	for _, tool := range resp {
+//		if !tool.Enable {
+//			continue // 跳过禁用的工具
+//		}
+//
+//		var rawSchema string            // 原始schema字符串
+//		var apiAuth *openapi3_util.Auth // API认证信息
+//
+//		// 根据工具类型获取详情和原始schema
+//		switch tool.ToolType {
+//		case constant.ToolTypeCustom:
+//			// 获取自定义工具详情
+//			customTool, err := MCP.GetCustomToolInfo(ctx, &mcp_service.GetCustomToolInfoReq{
+//				CustomToolId: tool.ToolId,
+//			})
+//			if err != nil {
+//				log.Errorf("获取自定义工具信息失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
+//				continue
+//			}
+//			rawSchema = customTool.Schema
+//
+//			// 构建自定义工具的API认证
+//			if customTool.ApiAuth != nil {
+//				if apiAuth, err = util.ConvertApiAuthWebRequestProto(customTool.ApiAuth); err != nil {
+//					log.Errorf("转换自定义工具API失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
+//					continue
+//				}
+//			}
+//		case constant.ToolTypeBuiltIn:
+//			// 获取内置工具详情
+//			builtinTool, err := MCP.GetSquareTool(ctx, &mcp_service.GetSquareToolReq{
+//				ToolSquareId: tool.ToolId,
+//				Identity: &mcp_service.Identity{
+//					UserId: identity.UserId,
+//					OrgId:  identity.OrgId,
+//				},
+//			})
+//			if err != nil {
+//				log.Errorf("获取内置工具信息失败，assistantId: %s, toolId: %s, err: %v", assistantId, tool.ToolId, err)
+//				continue
+//			}
+//			rawSchema = builtinTool.Schema
+//
+//			// 构建内置工具的API认证
+//			apiAuth, err = util.ConvertApiAuthWebRequestProto(builtinTool.BuiltInTools.ApiAuth)
+//			if err != nil {
+//				return nil, err
+//			}
+//
+//		}
+//
+//		// 处理schema
+//		apiSchema, err := processSchema(ctx, rawSchema, tool.ActionName)
+//		if err != nil {
+//			return pluginList, err
+//		}
+//
+//		pluginList = append(pluginList, config.PluginListAlgRequest{
+//			APISchema: apiSchema,
+//			APIAuth:   apiAuth,
+//		})
+//	}
+//
+//	return pluginList, nil
+//}
 
 func processSchema(ctx context.Context, rawSchema string, actionName string) (map[string]interface{}, error) {
 	// 过滤schema中的指定operation_id
@@ -1697,4 +1440,58 @@ func transRequestFiles(files []model.FileInfo) []*assistant_service.RequestFile 
 		})
 	}
 	return result
+}
+
+func buildConversationParams(req *assistant_service.AssistantConversionStreamReq) *service.ConversationParams {
+	return &service.ConversationParams{
+		AssistantId:    req.AssistantId,
+		ConversationId: req.ConversationId,
+		FileInfo:       extractFileInfos(req.FileInfo),
+		OrgId:          req.Identity.OrgId,
+		Query:          req.Prompt,
+		UserId:         req.Identity.UserId,
+	}
+}
+
+// buildAgentSendRequest 构建底层智能体能力接口请求体
+func buildAgentSendRequest(req *assistant_service.AssistantConversionStreamReq) func(ctx context.Context) (string, *http.Response, context.CancelFunc, error) {
+	var conversationID string
+	// 历史聊天记录配置
+	if !req.Trial && req.ConversationId != "" {
+		conversationID = req.ConversationId
+	}
+	// 底层智能体能力接口请求体
+	chatReq := service.BuildAgentChatReq(&service.AgentUserInputParams{
+		Input:          req.Prompt,
+		Stream:         true,
+		UploadFile:     extractFileUrls(req.FileInfo),
+		ConversationId: conversationID,
+		UserId:         req.Identity.UserId,
+		OrgId:          req.Identity.OrgId,
+		Draft:          req.Draft,
+	}, util.MustU32(req.AssistantId))
+
+	var monitorKey = "agent_chat_service"
+
+	return func(ctx context.Context) (string, *http.Response, context.CancelFunc, error) {
+		paramsBytes, err := json.Marshal(chatReq)
+		if err != nil {
+			return monitorKey, nil, nil, err
+		}
+		// 获取Assistant配置
+		assistantConfig := config.Cfg().Assistant
+		if assistantConfig.NewSseUrl == "" {
+			return monitorKey, nil, nil, errors.New("智能体SSE URL配置错误")
+		}
+		params := &http_client.HttpRequestParams{
+			Body:       paramsBytes,
+			Timeout:    5 * time.Minute,
+			Url:        assistantConfig.NewSseUrl,
+			MonitorKey: monitorKey,
+			LogLevel:   http_client.LogAll,
+		}
+		ctx, cancelFunction := context.WithTimeout(ctx, params.Timeout)
+		result, err := http_client.Default().PostJsonOriResp(ctx, params)
+		return monitorKey, result, cancelFunction, err
+	}
 }

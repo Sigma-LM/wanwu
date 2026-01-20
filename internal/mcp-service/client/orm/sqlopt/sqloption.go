@@ -114,6 +114,15 @@ func WithToolSquareID(id string) SQLOption {
 	})
 }
 
+func WithToolSquareIDList(idList []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(idList) > 0 {
+			return db.Where("tool_square_id IN ?", idList)
+		}
+		return db
+	})
+}
+
 func WithToolSquareIDEmpty() SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tool_square_id = '' or tool_square_id IS NULL")

@@ -22,6 +22,10 @@ func errStatus(code errs.Code, status *errs.Status) error {
 	return grpc_util.ErrorStatusWithKey(code, status.TextKey, status.Args...)
 }
 
+func errCode(code errs.Code) error {
+	return grpc_util.ErrorStatusWithKey(code, "")
+}
+
 func toErrStatus(key string, args ...string) *errs.Status {
 	return &errs.Status{
 		TextKey: key,

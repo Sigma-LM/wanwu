@@ -161,16 +161,16 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 		respContext.ToolEnd = true
 		toolResult := fmt.Sprintf(toolEndFormat, chatMessage.ToolName, chatMessage.Content)
 		respContext.ToolCountMap[chatMessage.ToolCallID] = 0
-		var allStop = true
-		for _, tool := range respContext.ToolCountMap {
-			if tool > 0 {
-				allStop = false
-				break
-			}
-		}
-		if !allStop {
-			return []string{toolResult}
-		}
+		//var allStop = true
+		//for _, tool := range respContext.ToolCountMap {
+		//	if tool > 0 {
+		//		allStop = false
+		//		break
+		//	}
+		//}
+		//if !allStop {
+		//	return []string{toolResult}
+		//}
 		return []string{toolResult, toolEndTitle}
 	} else {
 		//在工具期间，不输出任何content内容

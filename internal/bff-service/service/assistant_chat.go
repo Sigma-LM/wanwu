@@ -74,6 +74,7 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 		},
 		Draft: !needLatestPublished,
 	}
+	//if agentReq.Category == 如果是多智能体则直接调用多智能体
 	stream, err := assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
 	if err != nil {
 		return nil, err
@@ -264,8 +265,8 @@ func transFileInfo(fileInfo []request.ConversionStreamFile) []*assistant_service
 }
 
 // buildAgentChatRespLineProcessor 构造agent对话结果行处理器
-func buildAgentChatRespLineProcessor() func(*gin.Context, string, interface{}) (string, bool, error) {
-	return func(c *gin.Context, lineText string, params interface{}) (string, bool, error) {
+func buildAgentChatRespLineProcessor() func(sse_util.SSEWriterClient[string], string, interface{}) (string, bool, error) {
+	return func(c sse_util.SSEWriterClient[string], lineText string, params interface{}) (string, bool, error) {
 		if strings.HasPrefix(lineText, "error:") {
 			errorText := fmt.Sprintf("data: {\"code\": -1, \"message\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
 			return errorText, false, nil

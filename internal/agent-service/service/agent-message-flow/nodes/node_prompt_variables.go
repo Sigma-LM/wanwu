@@ -3,6 +3,10 @@ package nodes
 import (
 	"context"
 	"fmt"
+	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/config"
+	agent_util "github.com/UnicomAI/wanwu/internal/agent-service/pkg/util"
+	"github.com/UnicomAI/wanwu/internal/agent-service/service/minio-service"
+	"path/filepath"
 	"time"
 
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
@@ -26,11 +30,11 @@ func (p *PromptVariables) AssemblePromptVariables(ctx context.Context, reqContex
 	variables[prompt.PlaceholderOfTime] = time.Now().Format("Monday 2006/01/02 15:04:05 -07")
 	variables[prompt.PlaceholderOfAgentName] = req.AgentBaseParams.Name
 
-	var input = req.Input
-	if len(req.UploadFile) > 0 {
-		input += "\n用户上传的文档连接为:" + req.UploadFile[0]
+	input, err := buildUserInput(reqContext)
+	if err != nil {
+		return nil, err
 	}
-	variables[placeholderOfUserInput] = []*schema.Message{schema.UserMessage(input)}
+	variables[placeholderOfUserInput] = input
 
 	// Handling conversation history
 	if len(req.ModelParams.History) > 0 {
@@ -69,4 +73,60 @@ func buildHistory(history []request.AssistantConversionHistory, maxHistory int) 
 		return historyList[len(historyList)-maxHistory:]
 	}
 	return historyList
+}
+
+func buildUserInput(reqContext *request.AgentChatContext) ([]*schema.Message, error) {
+	req := reqContext.AgentChatReq
+	agentChatInfo := reqContext.AgentChatInfo
+	var input = req.Input
+
+	var messages []*schema.Message
+	if agentChatInfo.VisionSupport && agentChatInfo.UploadUrl { // 视觉模型，传了url
+		var parts []schema.MessageInputPart
+		for _, minioFilePath := range req.UploadFile {
+			message, err := buildFileMessage(minioFilePath)
+			if err != nil {
+				return nil, err
+			}
+			parts = append(parts, *message)
+		}
+		parts = append(parts, schema.MessageInputPart{
+			Type: schema.ChatMessagePartTypeText,
+			Text: req.Input,
+		})
+		messages = append(messages, &schema.Message{
+			Role:                  schema.User,
+			UserInputMultiContent: parts,
+		})
+	} else if agentChatInfo.UploadUrl { //非视觉模型，传了url
+		input += "\n用户上传的文档连接为:" + req.UploadFile[0]
+		messages = append(messages, schema.UserMessage(input))
+	} else {
+		messages = append(messages, schema.UserMessage(input))
+	}
+	return messages, nil
+}
+
+// buildFileMessage 构建文件消息
+func buildFileMessage(minioFilePath string) (*schema.MessageInputPart, error) {
+	//1.下载压缩文件到本地
+	var localFilePath = agent_util.BuildFilePath(config.GetConfig().AgentFileConfig.LocalFilePath, filepath.Ext(minioFilePath))
+	err := minio_service.DownloadFileToLocal(context.Background(), minioFilePath, localFilePath)
+	if err != nil {
+		return nil, err
+	}
+	//2.图片转base64
+	mimeType, base64, err := agent_util.Img2base64Data(localFilePath)
+	if err != nil {
+		return nil, err
+	}
+	return &schema.MessageInputPart{
+		Type: schema.ChatMessagePartTypeImageURL,
+		Image: &schema.MessageInputImage{
+			MessagePartCommon: schema.MessagePartCommon{
+				Base64Data: &base64,
+				MIMEType:   mimeType,
+			},
+		},
+	}, nil
 }

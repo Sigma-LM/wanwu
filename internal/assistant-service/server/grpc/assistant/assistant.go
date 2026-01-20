@@ -3,6 +3,9 @@ package assistant
 import (
 	"context"
 	"encoding/json"
+	"github.com/UnicomAI/wanwu/internal/assistant-service/client"
+	"github.com/UnicomAI/wanwu/internal/assistant-service/service"
+	params_process "github.com/UnicomAI/wanwu/internal/assistant-service/service/params-process"
 	"strings"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
@@ -493,4 +496,67 @@ func (s *Service) AssistantCopy(ctx context.Context, req *assistant_service.Assi
 	return &assistant_service.AssistantCreateResp{
 		AssistantId: util.Int2Str(assistantID),
 	}, nil
+}
+
+func (s *Service) GetAssistantDetailById(ctx context.Context, req *assistant_service.GetAssistantDetailByIdReq) (*assistant_service.AssistantDetailResp, error) {
+	detail, snapshot, err := searchAssistantDetail(ctx, req.Draft, req.AssistantId, s.cli, req.Version)
+	if err != nil {
+		return nil, err
+	}
+	params, err := buildAgentParams(ctx, s.cli, detail, snapshot, req.ConversationId, req.Identity.UserId, req.Identity.OrgId)
+	if err != nil {
+		log.Errorf("Assistant服务获取智能体信息失败，assistantId: %d, error: %v", req.AssistantId, err)
+		return nil, errCode(errs.Code_AssistantConversationErr)
+	}
+	return &assistant_service.AssistantDetailResp{
+		AgentDetail: params,
+	}, nil
+}
+
+func searchAssistantDetail(ctx context.Context, draft bool, assistantId uint32, cli client.IClient, version string) (*model.Assistant, *model.AssistantSnapshot, error) {
+	assistant := &model.Assistant{}
+	var assistantSnapshot *model.AssistantSnapshot
+	var status *errs.Status
+	if draft {
+		assistant, status = cli.GetAssistant(ctx, assistantId, "", "")
+		if status != nil {
+			log.Errorf("Assistant服务获取智能体信息失败，assistantId: %d, error: %v", assistantId, status)
+			return nil, nil, errStatus(errs.Code_AssistantConversationErr, status)
+		}
+	} else {
+		assistantSnapshot, status = cli.GetAssistantSnapshot(ctx, assistantId, version)
+		if status != nil {
+			log.Errorf("Assistant服务获取智能体快照失败，assistantId: %d, error: %v", assistantId, status)
+			return nil, nil, errStatus(errs.Code_AssistantConversationErr, status)
+		}
+
+		if err := jsonToStruct(assistantSnapshot.AssistantInfo, &assistant); err != nil {
+			return nil, nil, errStatus(errs.Code_AssistantErr, toErrStatus("assistant_snapshot", err.Error()))
+		}
+	}
+	return assistant, assistantSnapshot, nil
+}
+
+func buildAgentParams(ctx context.Context, cli client.IClient, agent *model.Assistant, snapshot *model.AssistantSnapshot, conversationId, userId, orgId string) (*assistant_service.AgentDetail, error) {
+	clientInfo := &params_process.ClientInfo{
+		Cli:       cli,
+		Knowledge: Knowledge,
+		MCP:       MCP,
+	}
+	//传入了 ConversationId就会尝试构造历史数据
+	userQueryParams := &params_process.UserQueryParams{
+		ConversationId: conversationId,
+		QueryUserId:    userId,
+		QueryOrgId:     orgId,
+	}
+	return service.NewAgentChatParamsBuilder(&params_process.AgentInfo{
+		Assistant:         agent,
+		AssistantSnapshot: snapshot,
+		Draft:             snapshot == nil,
+	}, userQueryParams, clientInfo).
+		AgentBaseParams().
+		ModelParams().
+		KnowledgeParams().
+		ToolParams().
+		Build()
 }

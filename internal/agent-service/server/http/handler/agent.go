@@ -12,6 +12,15 @@ func AgentChat(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	err := service.AgentChat(ctx, &req)
+	err := service.SingleAgentChat(ctx, &req)
+	gin_util.Response(ctx, nil, err)
+}
+
+func MultiAgentChat(ctx *gin.Context) {
+	var req request.MultiAgentChatParams
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.MultiAgentChat(ctx, &req)
 	gin_util.Response(ctx, nil, err)
 }
