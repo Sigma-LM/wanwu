@@ -75,6 +75,7 @@ module.exports = {
     port: 8080,
     open: false,
     hot: true,
+    compress: false,
     client: {
       // 禁用错误覆盖层
       overlay: {

@@ -867,7 +867,7 @@ export default {
       this.scrollBottom();
     },
     replaceLastData(index, data) {
-      if (!data.response) {
+      if (!data.response && data.finish !== 0) {
         data.response = this.$t('app.noResponse');
       }
       this.$set(this.session_data.history, index, data);

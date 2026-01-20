@@ -527,6 +527,9 @@ export default {
 
                 if (['stop', 'accidentStop'].includes(choice.finish_reason)) {
                   isFinished = true;
+                  if (!this.recommendTimer) {
+                    processQueue();
+                  }
                 }
               }
             } catch (e) {
@@ -541,6 +544,9 @@ export default {
         async onclose() {
           console.log('连接关闭...');
           isFinished = true;
+          if (!_this.recommendTimer) {
+            processQueue();
+          }
           return false;
         },
         onerror(event) {
