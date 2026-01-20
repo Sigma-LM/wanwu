@@ -39,6 +39,11 @@
                 <img class="prefix" src="@/assets/imgs/key.png" />
               </template>
               <el-option
+                key="createNew"
+                :label="$t('metaData.createMetaData')"
+                value="createNew"
+              ></el-option>
+              <el-option
                 v-for="meta in keyOptions"
                 :key="meta.metaKey"
                 :label="meta.metaKey + ' | ' + '[ ' + meta.metaValueType + ' ]'"
@@ -141,12 +146,17 @@
         </el-select>
       </div>
     </div>
+    <createMetadata ref="createMetadata" @updateMeta="getList"></createMetadata>
   </div>
 </template>
 <script>
 import { metaSelect } from '@/api/knowledge';
+import createMetadata from '@/components/createMetadata.vue';
 
 export default {
+  components: {
+    createMetadata,
+  },
   props: {
     knowledgeId: {
       type: String,
@@ -396,6 +406,11 @@ export default {
       this.metaDataFilterParams.filterEnable = false;
     },
     keyChange(val, item) {
+      if (val === 'createNew') {
+        this.$refs.createMetadata.showDialog(this.knowledgeId);
+        item.key = '';
+        return;
+      }
       item.value = '';
       item.condition = '';
       item.type = this.keyOptions
