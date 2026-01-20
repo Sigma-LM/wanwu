@@ -47,10 +47,10 @@ type EmbeddingResp struct {
 }
 
 type EmbeddingData struct {
-	Object    *string   `json:"object,omitempty"`
-	Embedding []float64 `json:"embedding" validate:"required,min=1"`
-	Index     int       `json:"index"`
-	Type      *string   `json:"type,omitempty"`
+	Object    *string     `json:"object,omitempty"`
+	Embedding interface{} `json:"embedding" validate:"required"`
+	Index     int         `json:"index"`
+	Type      *string     `json:"type,omitempty"`
 }
 
 // --- request ---
