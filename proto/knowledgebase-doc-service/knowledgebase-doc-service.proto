@@ -103,6 +103,8 @@ message ImportDocReq {
   string ocrModelId = 8; //ocr模型id
   repeated string docPreprocess = 9;//文本预处理规则
   repeated DocMetaData docMetaDataList = 10; // 元数据列表
+  string asrModelId = 11; // asr模型id
+  string multimodalModelId = 12; // 多模态模型id
 }
 
 

@@ -787,7 +787,9 @@ func buildImportTask(req *knowledgebase_doc_service.ImportDocReq) (*model.Knowle
 		return nil, err
 	}
 	analyzer, err := json.Marshal(&model.DocAnalyzer{
-		AnalyzerList: req.DocAnalyzer,
+		AnalyzerList:      req.DocAnalyzer,
+		AsrModelId:        req.AsrModelId,
+		MultimodalModelId: req.MultimodalModelId,
 	})
 	if err != nil {
 		return nil, err
