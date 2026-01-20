@@ -128,11 +128,13 @@ func ImportDoc(ctx *gin.Context, userId, orgId string, req *request.DocImportReq
 			SubMaxSplitter: int32(segment.SubMaxSplitter),
 			SubSplitter:    segment.SubSplitter,
 		},
-		DocAnalyzer:     req.DocAnalyzer,
-		DocInfoList:     docInfoList,
-		OcrModelId:      req.ParserModelId,
-		DocPreprocess:   req.DocPreprocess,
-		DocMetaDataList: buildMetaInfoList(req),
+		DocAnalyzer:       req.DocAnalyzer,
+		DocInfoList:       docInfoList,
+		OcrModelId:        req.ParserModelId,
+		AsrModelId:        req.AsrModelId,
+		MultimodalModelId: req.MultimodalModelId,
+		DocPreprocess:     req.DocPreprocess,
+		DocMetaDataList:   buildMetaInfoList(req),
 	})
 	if err != nil {
 		log.Errorf("上传失败(保存上传任务 失败(%v) ", err)
