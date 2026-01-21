@@ -36,7 +36,33 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdvancedSearchRequest"
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "搜索关键词",
+                    "example": "DeepSeek R1 模型特点"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "description": "返回结果数量限制",
+                    "default": 10,
+                    "example": 10
+                  },
+                  "freshness": {
+                    "type": "string",
+                    "description": "结果新鲜度过滤选项，可选项[noLimit，oneMonth，oneYear]",
+                    "enum": [
+                      "noLimit",
+                      "oneMonth",
+                      "oneYear"
+                    ],
+                    "default": "noLimit"
+                  }
+                }
               }
             }
           }
@@ -76,15 +102,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/AdvancedSearchRequest"
-                  }
-                ],
-                "example": {
-                  "query": "Python Flask 教程",
-                  "max_results": 15
-                }
+                "$ref": "#/components/schemas/AdvancedSearchRequest"
               }
             }
           }

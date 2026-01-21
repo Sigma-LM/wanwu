@@ -28,8 +28,6 @@ import sys
 from email import header
 from typing import Any, Dict, List, Literal, Optional
 
-from regex import B, P
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.dirname(os.path.dirname(current_dir))
 if root_dir not in sys.path:
@@ -207,18 +205,23 @@ class BochaMultimodalSearch:
     # --- Agent 可用的工具方法 ---
 
     def comprehensive_search(
-        self, api_key: str, query: str, max_results: int = 10
+        self,
+        api_key: str,
+        query: str,
+        freshness: str = "noLimit",
+        max_results: int = 10,
     ) -> BochaResponse:
         """
         【工具】全面综合搜索: 执行一次标准的、包含所有信息类型的综合搜索。
         返回网页、图片、AI总结、追问建议和可能的模态卡。这是最常用的通用搜索工具。
-        Agent可提供搜索查询(query)和可选的最大结果数(max_results)。
+        Agent可提供搜索查询(query)，可选的最大结果数(max_results)与时间范围freshness。
         """
         logger.info(f"--- TOOL: 全面综合搜索 (query: {query}) ---")
         return self._search_internal(
             header=get_bocha_header(api_key),
             query=query,
             count=max_results,
+            freshness=freshness,
             answer=True,  # 开启AI总结
         )
 

@@ -67,6 +67,11 @@ def bocha_comprehensive_search():
                 description: 返回结果数量限制
                 default: 10
                 example: 10
+              freshness:
+                type: string
+                description: 结果新鲜度过滤选项
+                enum: [noLimit, oneMonth,oneYear]
+                default: noLimit
     responses:
       200:
         description: 搜索成功
@@ -145,12 +150,13 @@ def bocha_comprehensive_search():
     data = request.json or {}
     query = data.get("query")
     max_results = data.get("max_results", 10)
+    freshness = data.get("freshness", "noLimit")
 
     if not query:
         raise BizError("Missing Query", code=http.HTTPStatus.BAD_REQUEST)
 
     result = search_client.comprehensive_search(
-        api_key=api_key, query=query, max_results=max_results
+        api_key=api_key, query=query, freshness=freshness, max_results=max_results
     )
     return asdict(result)
 
