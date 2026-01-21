@@ -1177,6 +1177,7 @@ export default {
     batchExport: '批量导出',
     batchConfig: '批量编辑分段设置',
     selected: '已选择',
+    createMetaData: '+创建元数据',
   },
   metaSet: {
     add: '新增条件',
