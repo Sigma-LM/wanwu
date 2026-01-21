@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 
+	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_keywords_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-keywords-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm/sqlopt"
@@ -12,6 +15,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	wanwu_util "github.com/UnicomAI/wanwu/pkg/util"
 	"gorm.io/gorm"
 )
 
@@ -185,4 +189,43 @@ func buildUserKnowledgeList(knowledgeList []*model.KnowledgeBase) map[string][]*
 		retMap[knowledge.UserId] = knowledgeInfos
 	}
 	return retMap
+}
+
+func buildKeywordsInfoListByKnowledgeId(keywordsList []*model.KnowledgeKeywords, knowledgeId string) ([]*knowledgebase_keywords_service.KeywordsInfo, error) {
+	var keywordsInfoList []*knowledgebase_keywords_service.KeywordsInfo
+	for _, k := range keywordsList {
+		if strings.Contains(k.KnowledgeBaseIds, knowledgeId) {
+			keywordsInfo := &knowledgebase_keywords_service.KeywordsInfo{
+				Id:        k.Id,
+				Name:      k.Name,
+				Alias:     k.Alias,
+				UpdatedAt: wanwu_util.Time2Str(k.UpdatedAt),
+			}
+			keywordsInfoList = append(keywordsInfoList, keywordsInfo)
+		}
+	}
+	return keywordsInfoList, nil
+}
+
+func GetKeywordsListByKnowledgeId(ctx context.Context, knowledgeId, userId, orgId string) ([]*knowledgebase_keywords_service.KeywordsInfo, error) {
+	// 查询关键词列表
+	keywordsList, _, err := GetKeywordsList(ctx, &knowledgebase_keywords_service.GetKnowledgeKeywordsListReq{
+		PageSize: 1000,
+		PageNum:  1,
+		Name:     "",
+		Identity: &knowledgebase_keywords_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	if err != nil {
+		log.Errorf(fmt.Sprintf("GetKnowledgeKeywordsList 失败(%v) userId(%s) orgId(%s)", err, userId, orgId))
+		return nil, util.ErrCode(errs.Code_KnowledgeKeywordsListFailed)
+	}
+	// 构造返回体
+	keywordsInfoList, err := buildKeywordsInfoListByKnowledgeId(keywordsList, knowledgeId)
+	if err != nil {
+		return nil, util.ErrCode(errs.Code_KnowledgeKeywordsListFailed)
+	}
+	return keywordsInfoList, nil
 }

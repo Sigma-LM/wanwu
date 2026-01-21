@@ -5325,6 +5325,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "name": "pageNo",
                         "in": "query"
@@ -15170,7 +15175,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "category": {
-                    "description": "0:知识库，1:问答库",
+                    "description": "0:知识库，1:问答库,2:多模态知识库",
                     "type": "integer"
                 },
                 "description": {
@@ -15781,8 +15786,12 @@ const docTemplate = `{
                 "knowledgeId"
             ],
             "properties": {
+                "asrModelId": {
+                    "description": "asr模型id",
+                    "type": "string"
+                },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -15825,6 +15834,10 @@ const docTemplate = `{
                     "description": "知识库id",
                     "type": "string"
                 },
+                "multimodalModelId": {
+                    "description": "模态模型id",
+                    "type": "string"
+                },
                 "parserModelId": {
                     "description": "模型解析或ocr模型id",
                     "type": "string"
@@ -15840,8 +15853,12 @@ const docTemplate = `{
                 "knowledgeId"
             ],
             "properties": {
+                "asrModelId": {
+                    "description": "asr模型id",
+                    "type": "string"
+                },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -15882,6 +15899,10 @@ const docTemplate = `{
                 },
                 "knowledgeId": {
                     "description": "知识库id",
+                    "type": "string"
+                },
+                "multimodalModelId": {
+                    "description": "模态模型id",
                     "type": "string"
                 },
                 "parserModelId": {
@@ -19591,13 +19612,28 @@ const docTemplate = `{
         "response.DocKnowledgeInfo": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "embeddingModel": {
+                    "$ref": "#/definitions/response.ModelInfo"
+                },
                 "graphSwitch": {
                     "type": "integer"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.KeywordsInfo"
+                    }
                 },
                 "knowledgeId": {
                     "type": "string"
                 },
                 "knowledgeName": {
+                    "type": "string"
+                },
+                "llmModelId": {
                     "type": "string"
                 },
                 "showGraphReport": {

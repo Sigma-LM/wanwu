@@ -10,6 +10,8 @@ import (
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
+	knowledgebase_keywords_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-keywords-service"
+	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
@@ -49,6 +51,11 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 		log.Errorf("没有操作该知识库的权限 错误(%v) 参数(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
 	}
+	//查询关键词信息
+	keywords, err := orm.GetKeywordsListByKnowledgeId(ctx, req.KnowledgeId, req.UserId, req.OrgId)
+	if err != nil {
+		log.Errorf("获取知识库关键词 错误(%v) 参数(%v)", err, req)
+	}
 	docIdList := make([]string, 0)
 	//查找元数据值所对应的文档列表
 	if req.MetaValue != "" {
@@ -59,7 +66,7 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 		}
 		//无结果直接返回
 		if len(docIdList) == 0 {
-			return buildDocListResp(nil, nil, knowledge, 0, req.PageSize, req.PageNum), nil
+			return buildDocListResp(nil, nil, knowledge, 0, req.PageSize, req.PageNum, keywords), nil
 		}
 	}
 
@@ -79,7 +86,7 @@ func (s *Service) GetDocList(ctx context.Context, req *knowledgebase_doc_service
 		}
 	}
 
-	return buildDocListResp(list, importTaskList, knowledge, total, req.PageSize, req.PageNum), nil
+	return buildDocListResp(list, importTaskList, knowledge, total, req.PageSize, req.PageNum, keywords), nil
 }
 
 func (s *Service) GetDocDetail(ctx context.Context, req *knowledgebase_doc_service.GetDocDetailReq) (*knowledgebase_doc_service.DocInfo, error) {
@@ -600,7 +607,7 @@ func (s *Service) GetDocSegmentList(ctx context.Context, req *knowledgebase_doc_
 	}
 	//5.查询文档元数据,忽略错误
 	metaDataList, _ := orm.SelectDocMetaList(ctx, "", "", req.DocId)
-	return buildSegmentListResp(importTask, docInfo, segmentListResp, req.PageNo, req.PageSize, metaDataList, segmentImportTask)
+	return buildSegmentListResp(importTask, docInfo, segmentListResp, req, metaDataList, segmentImportTask)
 }
 
 func (s *Service) GetDocChildSegmentList(ctx context.Context, req *knowledgebase_doc_service.GetDocChildSegmentListReq) (*knowledgebase_doc_service.GetDocChildSegmentListResp, error) {
@@ -661,7 +668,7 @@ func checkDocStatus(docList []*model.KnowledgeDoc) ([]uint32, []*model.Knowledge
 }
 
 // buildDocListResp 构造知识库文档列表
-func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.KnowledgeImportTask, knowledge *model.KnowledgeBase, total int64, pageSize int32, pageNum int32) *knowledgebase_doc_service.GetDocListResp {
+func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.KnowledgeImportTask, knowledge *model.KnowledgeBase, total int64, pageSize int32, pageNum int32, keywords []*knowledgebase_keywords_service.KeywordsInfo) *knowledgebase_doc_service.GetDocListResp {
 	segmentConfigMap := buildSegmentConfigMap(importTaskList)
 	var retList = make([]*knowledgebase_doc_service.DocInfo, 0)
 	showGraphReport := false
@@ -673,16 +680,26 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 			retList = append(retList, buildDocInfo(item, segmentConfigMap, nil))
 		}
 	}
+	embeddingModelInfo := &knowledgebase_service.EmbeddingModelInfo{}
+	_ = json.Unmarshal([]byte(knowledge.EmbeddingModel), embeddingModelInfo)
+	knowledgeGraph := &knowledgebase_service.KnowledgeGraph{}
+	if knowledge.KnowledgeGraphSwitch == 1 {
+		_ = json.Unmarshal([]byte(knowledge.KnowledgeGraph), knowledgeGraph)
+	}
 	return &knowledgebase_doc_service.GetDocListResp{
 		Total:    total,
 		Docs:     retList,
 		PageSize: pageSize,
 		PageNum:  pageNum,
 		KnowledgeInfo: &knowledgebase_doc_service.KnowledgeInfo{
-			KnowledgeId:     knowledge.KnowledgeId,
-			KnowledgeName:   knowledge.Name,
-			GraphSwitch:     int32(knowledge.KnowledgeGraphSwitch),
-			ShowGraphReport: showGraphReport,
+			KnowledgeId:      knowledge.KnowledgeId,
+			KnowledgeName:    knowledge.Name,
+			GraphSwitch:      int32(knowledge.KnowledgeGraphSwitch),
+			ShowGraphReport:  showGraphReport,
+			Description:      knowledge.Description,
+			EmbeddingModelId: embeddingModelInfo.ModelId,
+			Keywords:         buildKeywords(keywords),
+			LlmModelId:       knowledgeGraph.LlmModelId,
 		},
 	}
 }
@@ -704,6 +721,22 @@ func buildDocInfo(item *model.KnowledgeDoc, segmentConfigMap map[string]*model.S
 		GraphErrMsg:   message,
 		DocConfigInfo: buildDocConfigInfo(importTask),
 	}
+}
+
+func buildKeywords(keywords []*knowledgebase_keywords_service.KeywordsInfo) []*knowledgebase_doc_service.KeywordsInfo {
+	if keywords == nil {
+		return nil
+	}
+	var retKeywords = make([]*knowledgebase_doc_service.KeywordsInfo, 0)
+	for _, item := range keywords {
+		retKeywords = append(retKeywords, &knowledgebase_doc_service.KeywordsInfo{
+			Id:               item.Id,
+			Name:             item.Name,
+			Alias:            item.Alias,
+			KnowledgeBaseIds: item.KnowledgeBaseIds,
+		})
+	}
+	return retKeywords
 }
 
 func buildDocConfigInfo(importTask *model.KnowledgeImportTask) *knowledgebase_doc_service.DocConfigInfo {
@@ -975,7 +1008,7 @@ func autoSegmentType(segmentType, segmentMethod string) bool {
 
 // buildSegmentListResp 构造文档分段列表
 func buildSegmentListResp(importTask *model.KnowledgeImportTask, doc *model.KnowledgeDoc,
-	segmentListResp *service.ContentListResp, pageNo, pageSize int32, metaDataList []*model.KnowledgeDocMeta,
+	segmentListResp *service.ContentListResp, req *knowledgebase_doc_service.DocSegmentListReq, metaDataList []*model.KnowledgeDocMeta,
 	segmentImportTask *model.DocSegmentImportTask) (*knowledgebase_doc_service.DocSegmentListResp, error) {
 	var config = &model.SegmentConfig{}
 	err := json.Unmarshal([]byte(importTask.SegmentConfig), config)
@@ -996,9 +1029,9 @@ func buildSegmentListResp(importTask *model.KnowledgeImportTask, doc *model.Know
 		SegType:             config.SegmentType,
 		CreatedAt:           util2.Time2Str(doc.CreatedAt),
 		Splitter:            buildSplitter(config.Splitter),
-		PageTotal:           buildPageTotal(int32(segmentListResp.ChunkTotalNum), pageSize),
+		PageTotal:           buildPageTotal(int32(segmentListResp.ChunkTotalNum), req.PageSize),
 		SegmentTotalNum:     int32(segmentListResp.ChunkTotalNum),
-		ContentList:         buildContentList(segmentListResp.List),
+		ContentList:         buildContentList(segmentListResp.List, req.Keyword),
 		MetaDataList:        buildMetaList(metaDataList),
 		SegmentImportStatus: buildSegmentImportStatus(segmentImportTask),
 		SegmentMethod:       buildSegmentMethod(doc, segmentConfigMap),
@@ -1151,10 +1184,16 @@ func buildPageTotal(totalNum int32, pageSize int32) int32 {
 	return totalNum/pageSize + leftPage
 }
 
-func buildContentList(contentList []service.FileSplitContent) []*knowledgebase_doc_service.SegmentContent {
+func buildContentList(contentList []service.FileSplitContent, keyword string) []*knowledgebase_doc_service.SegmentContent {
 	var retList = make([]*knowledgebase_doc_service.SegmentContent, 0)
 	for i := 0; i < len(contentList); i++ {
 		content := contentList[i]
+		// 筛选分段搜索框
+		if strings.TrimSpace(keyword) != "" {
+			if !strings.Contains(content.Content, keyword) {
+				continue
+			}
+		}
 		retList = append(retList, &knowledgebase_doc_service.SegmentContent{
 			Content:    content.Content,
 			Available:  content.Status,

@@ -1551,7 +1551,7 @@ definitions:
   request.CreateKnowledgeReq:
     properties:
       category:
-        description: 0:知识库，1:问答库
+        description: 0:知识库，1:问答库,2:多模态知识库
         type: integer
       description:
         type: string
@@ -1953,8 +1953,11 @@ definitions:
     type: object
   request.DocConfigUpdateReq:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model
+        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
         items:
           type: string
         type: array
@@ -1983,6 +1986,9 @@ definitions:
       knowledgeId:
         description: 知识库id
         type: string
+      multimodalModelId:
+        description: 模态模型id
+        type: string
       parserModelId:
         description: 模型解析或ocr模型id
         type: string
@@ -1994,8 +2000,11 @@ definitions:
     type: object
   request.DocImportReq:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model
+        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
         items:
           type: string
         type: array
@@ -2023,6 +2032,9 @@ definitions:
         description: 文档分段配置
       knowledgeId:
         description: 知识库id
+        type: string
+      multimodalModelId:
+        description: 模态模型id
         type: string
       parserModelId:
         description: 模型解析或ocr模型id
@@ -4523,11 +4535,21 @@ definitions:
     type: object
   response.DocKnowledgeInfo:
     properties:
+      description:
+        type: string
+      embeddingModel:
+        $ref: '#/definitions/response.ModelInfo'
       graphSwitch:
         type: integer
+      keywords:
+        items:
+          $ref: '#/definitions/response.KeywordsInfo'
+        type: array
       knowledgeId:
         type: string
       knowledgeName:
+        type: string
+      llmModelId:
         type: string
       showGraphReport:
         type: boolean
@@ -9624,6 +9646,9 @@ paths:
       - in: query
         name: docId
         required: true
+        type: string
+      - in: query
+        name: keyword
         type: string
       - in: query
         name: pageNo

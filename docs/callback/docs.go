@@ -1379,13 +1379,7 @@ const docTemplate = `{
                 "embedding"
             ],
             "properties": {
-                "embedding": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "number"
-                    }
-                },
+                "embedding": {},
                 "index": {
                     "type": "integer"
                 },
