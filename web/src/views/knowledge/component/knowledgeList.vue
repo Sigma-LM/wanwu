@@ -36,7 +36,10 @@
           :key="`${i}sm`"
           @click.stop="toDocList(n)"
         >
-          <div :class="['ribbon', n.external === 0 ? 'blue' : 'gold']">
+          <div
+            v-if="category === 0"
+            :class="['ribbon', n.external === 0 ? 'blue' : 'gold']"
+          >
             <span>
               {{
                 n.external === 0

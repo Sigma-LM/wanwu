@@ -76,6 +76,7 @@
             type="primary"
             @click="showDrawer()"
             icon="el-icon-plus"
+            v-if="category === 0"
           >
             {{ $t('knowledgeManage.externalAPI.title') }}
           </el-button>
