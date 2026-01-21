@@ -93,6 +93,15 @@ func WithCategory(category int) SQLOption {
 	})
 }
 
+func WithCategoryList(categoryList []int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(categoryList) == 0 {
+			return db
+		}
+		return db.Where("category IN ?", categoryList)
+	})
+}
+
 func WithTagID(id string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tag_id = ?", id)

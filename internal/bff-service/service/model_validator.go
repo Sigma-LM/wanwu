@@ -125,7 +125,7 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 		log.Debugf("tool call: %v", string(data))
 	}
 
-	imageBase64, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	_, base64StrWithPrefix, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 						{
 							"type": "image_url",
 							"image_url": map[string]string{
-								"url": imageBase64,
+								"url": base64StrWithPrefix,
 							},
 						},
 						{
@@ -232,7 +232,7 @@ func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.Mode
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	_, imageBase64, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.Mode
 				Text: "你好",
 			},
 			{
-				Image: imageBase64,
+				Image: base64Str,
 			},
 		},
 	}
@@ -307,7 +307,7 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	_, imageBase64, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 				Text: "北极",
 			},
 			{
-				Image: imageBase64,
+				Image: base64Str,
 			},
 		},
 	}

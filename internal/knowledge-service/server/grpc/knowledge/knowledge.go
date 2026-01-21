@@ -32,7 +32,7 @@ const (
 )
 
 func (s *Service) SelectKnowledgeList(ctx context.Context, req *knowledgebase_service.KnowledgeSelectReq) (*knowledgebase_service.KnowledgeSelectListResp, error) {
-	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, int(req.Category), req.TagIdList)
+	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, buildCategoryList(req.Category), req.TagIdList)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, req))
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
@@ -377,6 +377,15 @@ func (s *Service) DeleteExportRecord(ctx context.Context, req *knowledgebase_ser
 		return nil, util.ErrCode(errs.Code_KnowledgeDeleteExportRecordFailed)
 	}
 	return nil, nil
+}
+
+// buildCategoryList 构造分类列表
+func buildCategoryList(category int32) []int {
+	if int(category) == model.CategoryQA {
+		return []int{model.CategoryQA}
+	} else {
+		return []int{model.CategoryKnowledge, model.CategoryMultimodal}
+	}
 }
 
 // buildExportRecordListResp 构造问答库导出记录列表
