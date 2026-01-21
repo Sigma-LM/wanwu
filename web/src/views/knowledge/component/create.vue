@@ -20,8 +20,8 @@
         <el-form-item
           :label="
             category === 0
-              ? $t('knowledgeManage.knowledgeName') + '：'
-              : $t('knowledgeManage.qaDatabase.name') + '：'
+              ? $t('knowledgeManage.knowledgeName')
+              : $t('knowledgeManage.qaDatabase.name')
           "
           prop="name"
         >
@@ -32,10 +32,7 @@
             show-word-limit
           ></el-input>
         </el-form-item>
-        <el-form-item
-          :label="$t('knowledgeManage.desc') + ':'"
-          prop="description"
-        >
+        <el-form-item :label="$t('knowledgeManage.desc')" prop="description">
           <el-input
             v-model="ruleForm.description"
             :placeholder="$t('common.input.inputDesc')"
@@ -50,7 +47,7 @@
         </el-form-item>
         <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
           <template #label>
-            <span>{{ $t('knowledgeManage.create.knowledgeGraph') }}:</span>
+            <span>{{ $t('knowledgeManage.create.knowledgeGraph') }}</span>
             <el-tooltip
               class="item"
               effect="dark"
@@ -597,7 +594,7 @@ export default {
           },
           knowledgeGraph: {
             llmModelId: row.llmModelId,
-            switch: row.graphSwitch === 1 ? true : false,
+            switch: row.graphSwitch === 1,
             schemaUrl: '',
           },
         };
