@@ -43,7 +43,7 @@ type DocImportFileConfig struct {
 type DocImportReq struct {
 	KnowledgeId         string     `json:"knowledgeId" validate:"required"` //知识库id
 	DocInfo             []*DocInfo `json:"docInfoList" validate:"required"` //上传文档列表
-	DocImportFileConfig            //文档导入配置
+	DocImportFileConfig                                                     //文档导入配置
 }
 
 type DocConfigUpdateReq struct {
@@ -101,7 +101,8 @@ type DeleteDocReq struct {
 }
 
 type DocSegmentListReq struct {
-	DocId string `json:"docId" form:"docId" validate:"required"`
+	DocId   string `json:"docId" form:"docId" validate:"required"`
+	Keyword string `json:"keyword" form:"keyword"`
 	PageSearch
 	CommonCheck
 }
