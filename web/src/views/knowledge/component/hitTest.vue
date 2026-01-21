@@ -36,6 +36,7 @@
             @sendConfigInfo="sendConfigInfo"
             :config="formInline"
             :showGraphSwitch="graphSwitch"
+            :category="type === 'qa' ? 1 : 0"
           />
         </div>
       </div>
