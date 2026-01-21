@@ -31,10 +31,9 @@ func (cfg *Rerank) NewReq(req *mp_common.TextRerankReq) (mp_common.ITextRerankRe
 	if req.Instruction == nil {
 		req.Instruction = &instruction
 	}
-	m := map[string]interface{}{
-		"instruction": req.Instruction,
-		"documents":   req.Documents,
-		"query":       req.Query,
+	m, err := req.Data()
+	if err != nil {
+		return nil, err
 	}
 	return mp_common.NewRerankReq(m), nil
 }
