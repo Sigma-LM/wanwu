@@ -525,6 +525,15 @@ export default {
       on: '上架',
       off: '下架',
       vision: '图文问答',
+      supportFileType: '支持的文件类型',
+      maxTextSize: '最大文本长度',
+      maxVideoLimit: '最大视频片长度',
+      maxPicLimit: '最大图片限制',
+      maxAudioLimit: '最大音频限制',
+    },
+    supportFileType: {
+      pic: '图片',
+      video: '视频',
     },
     confirm: {
       delete: '若模型关联了已发布的应用，删除将导致应用不可用，是否确认删除？',

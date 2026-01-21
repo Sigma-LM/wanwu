@@ -8,7 +8,7 @@ export const MULTIMODAL_EMBEDDING = 'multimodal-embedding';
 export const OCR = 'ocr';
 export const GUI = 'gui';
 export const PDF_PARSER = 'pdf-parser';
-export const ASR = 'asr';
+export const ASR = 'sync-asr';
 
 export const MODEL_TYPE_OBJ = {
   [LLM]: 'LLM',
@@ -19,7 +19,7 @@ export const MODEL_TYPE_OBJ = {
   [OCR]: 'OCR',
   [GUI]: 'GUI',
   [PDF_PARSER]: i18n.t('modelAccess.type.pdfParser'),
-  // [ASR]: i18n.t('modelAccess.type.asr')
+  [ASR]: i18n.t('modelAccess.type.asr'),
 };
 
 export const MODEL_TYPE = Object.keys(MODEL_TYPE_OBJ).map(key => ({
@@ -65,7 +65,7 @@ const COMMON_MODEL_KEY = [LLM, RERANK, EMBEDDING];
 const OLL_MODEL_KEY = [LLM, EMBEDDING];
 export const PROVIDER_MODEL_KEY = {
   [OPENAI_API]: COMMON_MODEL_KEY,
-  [YUAN_JING]: [...COMMON_MODEL_KEY, OCR, GUI, PDF_PARSER],
+  [YUAN_JING]: [...COMMON_MODEL_KEY, OCR, GUI, PDF_PARSER, ASR],
   [OLLAMA]: OLL_MODEL_KEY,
   [QWEN]: COMMON_MODEL_KEY,
   [HUOSHAN]: OLL_MODEL_KEY,
@@ -128,4 +128,11 @@ export const TYPE_OBJ = {
     [QIANFAN]: 'https://qianfan.baidubce.com/v2',
     [JINA]: 'https://api.jina.ai/v1',
   },
+};
+
+export const IMAGE = 'image';
+export const VIDEO = 'video';
+export const SUPPORT_FILE_TYPE = {
+  [IMAGE]: i18n.t('modelAccess.supportFileType.pic'),
+  [VIDEO]: i18n.t('modelAccess.supportFileType.video'),
 };
