@@ -113,51 +113,58 @@
       </el-descriptions>
 
       <div class="btn">
-        <el-button
-          type="primary"
-          @click="createChunk(false)"
-          size="mini"
-          :loading="loading.start"
-          v-if="
-            [
-              POWER_TYPE_EDIT,
-              POWER_TYPE_ADMIN,
-              POWER_TYPE_SYSTEM_ADMIN,
-            ].includes(permissionType)
-          "
-        >
-          新增分段
-        </el-button>
-        <el-button
-          type="primary"
-          @click="handleStatus('start')"
-          size="mini"
-          :loading="loading.start"
-          v-if="
-            [
-              POWER_TYPE_EDIT,
-              POWER_TYPE_ADMIN,
-              POWER_TYPE_SYSTEM_ADMIN,
-            ].includes(permissionType)
-          "
-        >
-          {{ $t('knowledgeManage.allRun') }}
-        </el-button>
-        <el-button
-          type="primary"
-          @click="handleStatus('stop')"
-          size="mini"
-          :loading="loading.stop"
-          v-if="
-            [
-              POWER_TYPE_EDIT,
-              POWER_TYPE_ADMIN,
-              POWER_TYPE_SYSTEM_ADMIN,
-            ].includes(permissionType)
-          "
-        >
-          {{ $t('knowledgeManage.allStop') }}
-        </el-button>
+        <search-input
+          :placeholder="$t('knowledgeManage.segmentPlaceholder')"
+          ref="searchInput"
+          @handleSearch="handleSearch"
+        />
+        <div>
+          <el-button
+            type="primary"
+            @click="createChunk(false)"
+            size="mini"
+            :loading="loading.start"
+            v-if="
+              [
+                POWER_TYPE_EDIT,
+                POWER_TYPE_ADMIN,
+                POWER_TYPE_SYSTEM_ADMIN,
+              ].includes(permissionType)
+            "
+          >
+            新增分段
+          </el-button>
+          <el-button
+            type="primary"
+            @click="handleStatus('start')"
+            size="mini"
+            :loading="loading.start"
+            v-if="
+              [
+                POWER_TYPE_EDIT,
+                POWER_TYPE_ADMIN,
+                POWER_TYPE_SYSTEM_ADMIN,
+              ].includes(permissionType)
+            "
+          >
+            {{ $t('knowledgeManage.allRun') }}
+          </el-button>
+          <el-button
+            type="primary"
+            @click="handleStatus('stop')"
+            size="mini"
+            :loading="loading.stop"
+            v-if="
+              [
+                POWER_TYPE_EDIT,
+                POWER_TYPE_ADMIN,
+                POWER_TYPE_SYSTEM_ADMIN,
+              ].includes(permissionType)
+            "
+          >
+            {{ $t('knowledgeManage.allStop') }}
+          </el-button>
+        </div>
       </div>
 
       <div class="card">
@@ -521,9 +528,10 @@ import {
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
 } from '@/views/knowledge/constants';
+import SearchInput from '@/components/searchInput.vue';
 
 export default {
-  components: { dataBaseDialog, tagDialog, createChunk },
+  components: { SearchInput, dataBaseDialog, tagDialog, createChunk },
   data() {
     return {
       submitLoading: false,
@@ -604,6 +612,9 @@ export default {
     this.clearTimer();
   },
   methods: {
+    handleSearch(val) {
+      this.getList(val);
+    },
     createChunk(isChildChunk) {
       this.$refs.createChunk.showDialog(this.obj.id, isChildChunk);
     },
@@ -836,9 +847,10 @@ export default {
     filterRule(rule) {
       return rule.map(item => `${item.metaKey}:${item.metaRule}`).join(', ');
     },
-    getList() {
+    getList(keyword = '') {
       this.loading.itemStatus = true;
       getSectionList({
+        keyword: keyword,
         docId: this.obj.id,
         pageNo: this.page.pageNo,
         pageSize: this.page.pageSize,
@@ -1246,8 +1258,9 @@ export default {
     }
 
     .btn {
+      display: flex;
+      justify-content: space-between;
       padding: 10px 0;
-      text-align: right;
     }
 
     .card {

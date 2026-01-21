@@ -696,6 +696,7 @@ export default {
     docPlaceholder: '按照文件名称搜索',
     questionPlaceholder: '按照问题搜索',
     metaPlaceholder: '按照元数据值搜索',
+    segmentPlaceholder: '按照分段内容搜索',
     createQaDatabase: '新建问答库',
     desc: '描述',
     title: '文档知识库',
