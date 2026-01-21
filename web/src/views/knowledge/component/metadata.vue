@@ -521,6 +521,7 @@ export default {
 <style lang="scss" scoped>
 .disable-clicks * {
   pointer-events: none;
+  color: #606266 !important;
 }
 
 .docMetaData {
