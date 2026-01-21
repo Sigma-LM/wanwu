@@ -2,29 +2,49 @@ package request
 
 import (
 	"github.com/UnicomAI/wanwu/internal/agent-service/model"
+	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
+	"github.com/cloudwego/eino/adk"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type AgentChatContext struct {
-	AgentChatReq     *AgentChatReq
+	AgentChatReq     *AgentChatParams
+	AgentChatInfo    *service_model.AgentChatInfo
 	KnowledgeHitData *model.KnowledgeHitData //  rag命中数据
+	Generator        *adk.AsyncGenerator[*adk.AgentEvent]
 }
 
-type AgentChatReq struct {
-	Input           string           `json:"input" validate:"required"`
-	UploadFile      []string         `json:"uploadFile"`
-	Stream          bool             `json:"stream"`
+type AgentChatBaseParams struct {
 	AgentBaseParams *AgentBaseParams `json:"agentBaseParams" validate:"required"` // 智能体基础参数
 	ModelParams     *ModelParams     `json:"modelParams" validate:"required"`     // 模型参数
 	KnowledgeParams *KnowledgeParams `json:"knowledgeParams"`                     // 知识库参数，如果后续需要增加透传，理论上只需要修改此KnowledgeParams即可
 	ToolParams      *ToolParams      `json:"toolParams"`                          // 工具相关参数，mcp tool plugin tool
 }
 
+type AgentChatReq struct {
+	AssistantId    uint32   `json:"assistantId"  validate:"required"`
+	Input          string   `json:"input"  validate:"required"`
+	UserId         string   `json:"userId"  validate:"required"`
+	OrgId          string   `json:"orgId"  validate:"required"`
+	Stream         bool     `json:"stream"`
+	Draft          bool     `json:"draft"`
+	UploadFile     []string `json:"uploadFile"`
+	ConversationId string   `json:"conversationId"`
+}
+
+type AgentChatParams struct {
+	Input      string   `json:"input" validate:"required"`
+	UploadFile []string `json:"uploadFile"`
+	Stream     bool     `json:"stream"`
+	AgentChatBaseParams
+}
+
 type AgentBaseParams struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Instruction string `json:"instruction"`
+	CallDetail  bool   `json:"callDetail"` //是否展示调用详情
 }
 
 type ModelParams struct {

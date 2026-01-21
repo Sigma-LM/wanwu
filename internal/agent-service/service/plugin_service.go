@@ -13,7 +13,8 @@ import (
 	"time"
 
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
-	http_client "github.com/UnicomAI/wanwu/internal/rag-service/pkg/http-client"
+	agent_http_client "github.com/UnicomAI/wanwu/internal/agent-service/pkg/http"
+	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
@@ -397,7 +398,6 @@ func createHTTPHandler(serverURL, path, method string, auth *openapi3_util.Auth,
 			methodUpper = http.MethodPatch
 		}
 
-		//todo 可以优化，client 考虑复用，日志打印
 		req, err := http.NewRequestWithContext(ctx, methodUpper, requestURL, body)
 		if err != nil {
 			return "", fmt.Errorf("failed to create request: %w", err)
@@ -406,13 +406,11 @@ func createHTTPHandler(serverURL, path, method string, auth *openapi3_util.Auth,
 		if auth != nil && auth.Type == "apiKey" && auth.In == "header" {
 			req.Header.Set(auth.Name, auth.Value)
 		}
-
 		if body != nil {
 			req.Header.Set("Content-Type", actualContentType)
 		}
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		resp, err := agent_http_client.GetClient().Client.Do(req)
 		respBody, err := buildResult(resp, err)
 		http_client.LogRpcJson(ctx, "request_tool_call", method, arguments, respBody, err, start)
 
@@ -424,7 +422,12 @@ func buildResult(resp *http.Response, err error) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err1 := Body.Close()
+		if err1 != nil {
+			log.Printf("failed to close response body: %v", err1)
+		}
+	}(resp.Body) // 确保关闭响应体
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {

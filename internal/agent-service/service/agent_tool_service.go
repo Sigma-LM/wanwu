@@ -9,7 +9,7 @@ import (
 )
 
 // BuildAgentToolsConfig 构建智能体工具配置
-func BuildAgentToolsConfig(ctx *gin.Context, req *request.AgentChatReq) (adk.ToolsConfig, error) {
+func BuildAgentToolsConfig(ctx *gin.Context, req *request.AgentChatParams) (adk.ToolsConfig, error) {
 	params := req.ToolParams
 	//无工具调用
 	if params == nil {

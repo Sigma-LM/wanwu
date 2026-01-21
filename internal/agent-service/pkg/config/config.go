@@ -55,7 +55,7 @@ func (c Config) Stop() error {
 
 type Config struct {
 	Server          *Server           `mapstructure:"server" json:"server"`
-	Log             LogConfig         `json:"log" mapstructure:"log"`
+	Log             LogConfig         `mapstructure:"log" json:"log"`
 	AccessLog       LogConfig         `mapstructure:"access-log" json:"access-log" yaml:"access-log"`
 	RpcLog          LogConfig         `mapstructure:"rpc-log" json:"rpc-log" yaml:"rpc-log"`
 	RagServer       *RagServerConfig  `mapstructure:"rag-server" json:"rag-server"`
@@ -63,6 +63,15 @@ type Config struct {
 	ToolServer      *ToolServerConfig `mapstructure:"tool-server" json:"tool-server"`
 	Minio           *MinioConfig      `mapstructure:"minio" json:"minio"`
 	AgentFileConfig *AgentFileConfig  `mapstructure:"agent-file-config" json:"agent-file-config"`
+	Microservices   Microservices     `mapstructure:"microservices" json:"microservices"`
+}
+
+type Microservices struct {
+	Assistant *ServiceConfig `mapstructure:"assistant" json:"assistant"`
+}
+
+type ServiceConfig struct {
+	Host string `mapstructure:"host" json:"host"`
 }
 
 type AgentFileConfig struct {

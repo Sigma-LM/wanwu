@@ -62,3 +62,7 @@ minio:
   user: root
   password: Wanwu123456
   bucket: file-upload
+
+microservices:
+  assistant:
+    host: assistant-service:8890
