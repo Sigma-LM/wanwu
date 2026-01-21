@@ -132,7 +132,7 @@ export const TYPE_OBJ = {
 
 export const IMAGE = 'image';
 export const VIDEO = 'video';
-export const SUPPORT_FILE_TYPE = {
+export const SUPPORT_FILE_TYPE_OBJ = {
   [IMAGE]: i18n.t('modelAccess.supportFileType.pic'),
   [VIDEO]: i18n.t('modelAccess.supportFileType.video'),
 };

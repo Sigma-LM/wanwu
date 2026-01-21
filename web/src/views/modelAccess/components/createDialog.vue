@@ -142,9 +142,9 @@
             multiple
           >
             <el-option
-              v-for="item in Object.keys(supportFileType)"
+              v-for="item in Object.keys(supportFileTypeObj)"
               :key="item"
-              :label="supportFileType[item]"
+              :label="supportFileTypeObj[item]"
               :value="item"
             ></el-option>
           </el-select>
@@ -286,15 +286,15 @@ import {
   TYPE_OBJ,
   LLM,
   RERANK,
-  OLLAMA,
   EMBEDDING,
   MULTIMODAL_EMBEDDING,
   MULTIMODAL_RERANK,
   ASR,
+  OLLAMA,
   YUAN_JING,
   QWEN,
   QIANFAN,
-  SUPPORT_FILE_TYPE,
+  SUPPORT_FILE_TYPE_OBJ,
   IMAGE,
   VIDEO,
 } from '../constants';
@@ -320,7 +320,7 @@ export default {
       modelType: [],
       functionCalling: FUNC_CALLING,
       supportList: SUPPORT_LIST,
-      supportFileType: SUPPORT_FILE_TYPE,
+      supportFileTypeObj: SUPPORT_FILE_TYPE_OBJ,
       typeObj: TYPE_OBJ,
       llm: LLM,
       embedding: EMBEDDING,
@@ -505,6 +505,7 @@ export default {
         maxImageSize: 3,
         maxVideoClipSize: 10,
         maxTextLength: 512,
+        supportFileTypes: [],
         avatar: { key: '', path: '' },
       });
       this.$refs.createForm.resetFields();
