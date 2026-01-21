@@ -122,6 +122,86 @@
                 style="margin-bottom: 10px"
                 v-if="showTips"
               ></el-alert>
+              <el-descriptions
+                style="margin-bottom: 10px"
+                title=""
+                :column="1"
+                border
+              >
+                <el-descriptions-item
+                  :label="$t('knowledgeManage.knowledgeName')"
+                  labelStyle="width: 120px"
+                >
+                  {{ knowledgeName }}
+                  <i
+                    class="el-icon-edit-outline"
+                    style="cursor: pointer"
+                    @click="showEdit"
+                  ></i>
+                </el-descriptions-item>
+                <el-descriptions-item
+                  :label="$t('knowledgeManage.desc')"
+                  labelStyle="width: 120px"
+                >
+                  {{ description }}
+                  <i
+                    class="el-icon-edit-outline"
+                    style="cursor: pointer"
+                    @click="showEdit"
+                  ></i>
+                </el-descriptions-item>
+                <el-descriptions-item
+                  label="Embedding"
+                  labelStyle="width: 120px"
+                >
+                  <div class="keyword-tags">
+                    {{ embeddingModel.displayName }}
+                    <template
+                      v-if="
+                        embeddingModel.tags && embeddingModel.tags.length > 0
+                      "
+                    >
+                      <el-tag
+                        v-for="(item, index) in embeddingModel.tags"
+                        :key="index"
+                        size="small"
+                        color="#E6F0FF"
+                        class="keyword-tag"
+                      >
+                        {{ item.text }}
+                      </el-tag>
+                    </template>
+                  </div>
+                </el-descriptions-item>
+                <el-descriptions-item
+                  :label="$t('knowledgeManage.keyWordConfig')"
+                  labelStyle="width: 120px"
+                >
+                  <div class="keyword-tags">
+                    <template v-if="keywords.length > 0">
+                      <el-tag
+                        v-for="(item, index) in keywords"
+                        :key="index"
+                        size="small"
+                        color="#E6F0FF"
+                        class="keyword-tag"
+                      >
+                        {{ item.name }} : {{ item.alias }}
+                      </el-tag>
+                    </template>
+                    <span v-else>{{ $t('knowledgeManage.zeroData') }}</span>
+                    <i
+                      class="el-icon-edit-outline"
+                      style="cursor: pointer"
+                      @click="
+                        $router.push(
+                          `/knowledge/keyword?backPath=/knowledge/doclist/${docQuery.knowledgeId}`,
+                        )
+                      "
+                    ></i>
+                  </div>
+                </el-descriptions-item>
+              </el-descriptions>
               <el-table
                 ref="dataTable"
                 :data="tableData"
@@ -358,6 +438,7 @@
     />
     <!-- 导出记录 -->
     <exportRecord ref="exportRecord" />
+    <createKnowledge ref="createKnowledge" @reloadData="reload" :category="0" />
   </div>
 </template>
 
@@ -399,6 +480,7 @@ import {
 } from '@/views/knowledge/constants';
 import exportRecord from '@/views/knowledge/qaDatabase/exportRecord.vue';
 import CopyIcon from '@/components/copyIcon.vue';
+import createKnowledge from '@/views/knowledge/component/create.vue';
 
 export default {
   components: {
@@ -410,10 +492,15 @@ export default {
     batchMetaData,
     BatchMetaButton,
     FilterPopover,
+    createKnowledge,
   },
   data() {
     return {
       knowledgeName: '',
+      description: '',
+      embeddingModel: {},
+      keywords: [],
+      llmModelId: '',
       loading: false,
       tableLoading: false,
       docQuery: {
@@ -515,6 +602,18 @@ export default {
     this.clearTimer();
   },
   methods: {
+    // 莫删，保证createKnowledge弹窗的调用
+    clearIptValue() {},
+    showEdit() {
+      this.$refs.createKnowledge.showDialog({
+        knowledgeId: this.docQuery.knowledgeId,
+        name: this.knowledgeName,
+        description: this.description,
+        embeddingModelInfo: this.embeddingModel,
+        llmModelId: this.llmModelId,
+        graphSwitch: this.graphSwitch,
+      });
+    },
     handleCommand(command) {
       const actions = {
         exportData: this.exportData,
@@ -883,6 +982,10 @@ export default {
         this.graphSwitch = tableInfo.docKnowledgeInfo.graphSwitch === 1;
         this.showGraphReport = tableInfo.docKnowledgeInfo.showGraphReport;
         this.knowledgeName = tableInfo.docKnowledgeInfo.knowledgeName;
+        this.description = tableInfo.docKnowledgeInfo.description;
+        this.embeddingModel = tableInfo.docKnowledgeInfo.embeddingModel;
+        this.keywords = tableInfo.docKnowledgeInfo.keywords;
+        this.llmModelId = tableInfo.docKnowledgeInfo.llmModelId;
       } else {
         this.graphSwitch = false;
         this.showGraphReport = false;
@@ -892,6 +995,21 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.keyword-tags {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.keyword-tag {
+  margin-right: 4px;
+  margin-bottom: 2px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: $tag_color;
+}
+
 .mataData {
   max-height: 400px;
   overflow-y: auto;

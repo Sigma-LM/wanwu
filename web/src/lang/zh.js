@@ -875,6 +875,7 @@ export default {
     fileSizeTips: '上传文件不能超过15MB!',
     inputDesc: '请输入描述',
     keyWordManage: '关键词管理',
+    keyWordConfig: '关键词配置',
     keyWordTip:
       '知识库问答场景，可配置问题中使用的口语化关键词与知识库文档中词语的映射规则，便于提升知识库内容的召回效果及回答准确率 。',
     keyWordPlaceholder: '输入问题中的关键词或文档中的词语搜索',
