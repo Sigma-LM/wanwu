@@ -143,7 +143,9 @@
                   :label="$t('knowledgeManage.desc')"
                   labelStyle="width: 120px"
                 >
-                  {{ description }}
+                  <span>
+                    {{ description || $t('knowledgeManage.zeroData') }}
+                  </span>
                   <i
                     class="el-icon-edit-outline"
                     style="cursor: pointer"
@@ -155,22 +157,25 @@
                   labelStyle="width: 120px"
                 >
                   <div class="keyword-tags">
-                    {{ embeddingModel.displayName }}
-                    <template
-                      v-if="
-                        embeddingModel.tags && embeddingModel.tags.length > 0
-                      "
-                    >
-                      <el-tag
-                        v-for="(item, index) in embeddingModel.tags"
-                        :key="index"
-                        size="small"
-                        color="#E6F0FF"
-                        class="keyword-tag"
+                    <template v-if="embeddingModel">
+                      {{ embeddingModel.displayName }}
+                      <template
+                        v-if="
+                          embeddingModel.tags && embeddingModel.tags.length > 0
+                        "
                       >
-                        {{ item.text }}
-                      </el-tag>
+                        <el-tag
+                          v-for="(item, index) in embeddingModel.tags"
+                          :key="index"
+                          size="small"
+                          color="#E6F0FF"
+                          class="keyword-tag"
+                        >
+                          {{ item.text }}
+                        </el-tag>
+                      </template>
                     </template>
+                    <span v-else>{{ $t('knowledgeManage.zeroData') }}</span>
                   </div>
                 </el-descriptions-item>
                 <el-descriptions-item
@@ -178,7 +183,7 @@
                   labelStyle="width: 120px"
                 >
                   <div class="keyword-tags">
-                    <template v-if="keywords.length > 0">
+                    <template v-if="keywords && keywords.length > 0">
                       <el-tag
                         v-for="(item, index) in keywords"
                         :key="index"
