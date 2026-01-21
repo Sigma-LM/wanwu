@@ -37,16 +37,16 @@ func getMinioURLType(rawURL string) URLType {
 // MinioUrlToBase64 minio文件地址转base64，自动清理本地临时文件
 // @param minioUrl minio文件的完整访问URL路径
 // @return 文件的base64编码字符串、错误信息
-func MinioUrlToBase64(ctx context.Context, minioUrl string) (string, string, error) {
+func MinioUrlToBase64(ctx context.Context, minioUrl string) (base64Str string, base64StrWithPrefix string, err error) {
 	// 下载文件二进制流到内存
-	fileData, err := DownloadFile(ctx, minioUrl)
+	fileData, _, err := DownloadFile(ctx, minioUrl)
 	if err != nil {
 		return "", "", err
 	}
 	// 解析文件后缀用于拼接Base64前缀
 	_, _, fileName := SplitMinioPath(minioUrl)
 	ext := filepath.Ext(fileName)
-	base64Str, base64StrWithPrefix, err := util.FileData2Base64(fileData, "data:"+strings.TrimPrefix(ext, ".")+";base64")
+	base64Str, base64StrWithPrefix, err = util.FileData2Base64(fileData, "data:"+strings.TrimPrefix(ext, ".")+";base64")
 	if err != nil {
 		return "", "", err
 	}
@@ -57,17 +57,20 @@ func MinioUrlToBase64(ctx context.Context, minioUrl string) (string, string, err
 // @param ctx 上下文
 // @param minioUrl minio文件的完整访问URL路径
 // @return []byte 文件的二进制字节流
+// @return string 文件名
 // @return error 错误信息
-func DownloadFile(ctx context.Context, minioUrl string) ([]byte, error) {
+func DownloadFile(ctx context.Context, minioUrl string) ([]byte, string, error) {
 	urlType := getMinioURLType(minioUrl)
 	if urlType == URLTypeMinioPresigned {
-		return DownloadFileDirect(ctx, minioUrl)
+		data, err := DownloadFileDirect(ctx, minioUrl)
+		filename := GetFilenameFromMinioURL(minioUrl)
+		return data, filename, err
 	}
 	sourceBucketName, objectName, _ := SplitMinioPath(minioUrl)
 	object, err := minio_client.Custom().Cli().GetObject(ctx, sourceBucketName, objectName, minio.GetObjectOptions{})
 	if err != nil {
 		log.Errorf("DownloadFileToLocal get minio object error: %s", err)
-		return nil, err
+		return nil, "", err
 	}
 	defer func() {
 		err2 := object.Close()
@@ -81,9 +84,18 @@ func DownloadFile(ctx context.Context, minioUrl string) ([]byte, error) {
 
 	if err != nil && !util.FileEOF(err) {
 		log.Errorf("DownloadFileToLocal copy to buffer error: %s, path: %s", err, minioUrl)
-		return nil, fmt.Errorf("minio file copy to buffer error: %w", err)
+		return nil, "", fmt.Errorf("minio file copy to buffer error: %w", err)
 	}
-	return buf.Bytes(), nil
+	filename := filepath.Base(objectName)
+	return buf.Bytes(), filename, nil
+}
+
+func GetFilenameFromMinioURL(minioUrl string) string {
+	u, err := url.Parse(minioUrl)
+	if err != nil {
+		return ""
+	}
+	return filepath.Base(u.Path)
 }
 
 // IsMinioPresignedURL 判断是否是MinIO预签名URL
