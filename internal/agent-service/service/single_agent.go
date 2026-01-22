@@ -7,21 +7,19 @@ import (
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/grpc-consumer/consumer/assistant"
 	"github.com/UnicomAI/wanwu/internal/agent-service/service/agent-message-processor"
+	agent_preprocessor "github.com/UnicomAI/wanwu/internal/agent-service/service/agent-preprocessor"
 	local_agent "github.com/UnicomAI/wanwu/internal/agent-service/service/local-agent"
 	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
 	"github.com/UnicomAI/wanwu/pkg/log"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/gin-gonic/gin"
 )
 
 type SingleAgent struct {
-	LocalAgentService local_agent.LocalAgentService
-	ChatModelAgent    *adk.ChatModelAgent
-	Req               *request.AgentChatParams
-	AgentChatInfo     *service_model.AgentChatInfo
-	GinContext        *gin.Context
+	ChatModelAgent  *adk.ChatModelAgent
+	Req             *request.AgentChatParams
+	AgentPreprocess *agent_preprocessor.AgentPreprocess
 }
 
 // SingleAgentChat 单智能体问答
@@ -60,11 +58,13 @@ func CreateSingleAgent(ctx *gin.Context, req *request.AgentChatParams) (*SingleA
 		return nil, err
 	}
 	return &SingleAgent{
-		LocalAgentService: localAgentService,
-		ChatModelAgent:    agent,
-		Req:               req,
-		AgentChatInfo:     chatInfo,
-		GinContext:        ctx,
+		ChatModelAgent: agent,
+		Req:            req,
+		AgentPreprocess: &agent_preprocessor.AgentPreprocess{
+			LocalAgentService: localAgentService,
+			AgentChatInfo:     chatInfo,
+			GinContext:        ctx,
+		},
 	}, nil
 }
 
@@ -89,32 +89,10 @@ func (s *SingleAgent) Description(ctx context.Context) string {
 }
 
 func (s *SingleAgent) Run(ctx context.Context, input *adk.AgentInput, options ...adk.AgentRunOption) *adk.AsyncIterator[*adk.AgentEvent] {
-	//todo 删除
-	log.Infof("single agent run")
-
-	iter, generator := adk.NewAsyncIteratorPair[*adk.AgentEvent]()
-	var agentInput *adk.AgentInput
-	var err error
-	go func() {
-		defer func() {
-			generator.Close()
-		}()
-		defer util.PrintPanicStack()
-		if s.Req.AgentBaseParams.CallDetail { //是否输出调用详情
-			agentInput, err = s.LocalAgentService.BuildAgentInput(ctx, s.Req, s.AgentChatInfo, input, generator)
-		} else {
-			agentInput, err = s.LocalAgentService.BuildAgentInput(ctx, s.Req, s.AgentChatInfo, input, nil)
-		}
-		if err != nil {
-			log.Errorf("failed to build agent input: %v", err)
-			generator.Send(&adk.AgentEvent{Err: err})
-		}
-	}()
-	_ = agent_message_processor.AgentMessage(s.GinContext, iter, &request.AgentChatContext{AgentChatReq: s.Req})
-
-	marshal, _ := json.Marshal(agentInput)
-	log.Infof("agent input %s", string(marshal))
-	return s.ChatModelAgent.Run(ctx, agentInput, options...)
+	log.Infof("[%s] single agent run", s.Req.AgentBaseParams.Name)
+	//参数预处理
+	process := agent_preprocessor.AgentPreProcess(s.AgentPreprocess, input, s.Req)
+	return s.ChatModelAgent.Run(ctx, process, options...)
 }
 
 // buildAgentChatInfo 构建智能体信息

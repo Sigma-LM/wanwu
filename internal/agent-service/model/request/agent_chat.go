@@ -15,6 +15,11 @@ type AgentChatContext struct {
 	Generator        *adk.AsyncGenerator[*adk.AgentEvent]
 }
 
+type SubAgentInfo struct {
+	Name        string //名称
+	Description string //描述
+}
+
 type AgentChatBaseParams struct {
 	AgentBaseParams *AgentBaseParams `json:"agentBaseParams" validate:"required"` // 智能体基础参数
 	ModelParams     *ModelParams     `json:"modelParams" validate:"required"`     // 模型参数
@@ -23,20 +28,16 @@ type AgentChatBaseParams struct {
 }
 
 type AgentChatReq struct {
-	AssistantId    uint32   `json:"assistantId"  validate:"required"`
-	Input          string   `json:"input"  validate:"required"`
-	UserId         string   `json:"userId"  validate:"required"`
-	OrgId          string   `json:"orgId"  validate:"required"`
-	Stream         bool     `json:"stream"`
-	Draft          bool     `json:"draft"`
-	UploadFile     []string `json:"uploadFile"`
-	ConversationId string   `json:"conversationId"`
+	AssistantId uint32 `json:"assistantId"  validate:"required"`
+	AgentChatBaseReq
 }
 
 type AgentChatParams struct {
-	Input      string   `json:"input" validate:"required"`
-	UploadFile []string `json:"uploadFile"`
-	Stream     bool     `json:"stream"`
+	Input            string          `json:"input" validate:"required"`
+	UploadFile       []string        `json:"uploadFile"`
+	Stream           bool            `json:"stream"`
+	MultiAgent       bool            //是否多智能体
+	SubAgentInfoList []*SubAgentInfo //子智能体
 	AgentChatBaseParams
 }
 

@@ -2159,7 +2159,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AppBriefConfig"
+                            "$ref": "#/definitions/request.AssistantCreateReq"
                         }
                     }
                 ],
@@ -2572,6 +2572,160 @@
                 }
             }
         },
+        "/assistant/multi-agent": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体绑定已发布的子智能体",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "添加多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id、子智能体id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体解绑子智能体",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "删除多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id与子智能体id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/multi-agent/config": {
+            "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体修改子智能体描述",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "修改多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id、子智能体id、描述",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentConfigUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/multi-agent/switch": {
+            "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体启用/停用子智能体",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "启用/停用多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id、子智能体id、开关状态",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentEnableSwitchReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/assistant/question/recommend": {
             "post": {
                 "security": [
@@ -2606,6 +2760,69 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/select": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "添加多智能体配置-下拉列表接口",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "添加多智能体配置-下拉列表接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "assistant名称",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.AppBriefInfo"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -14477,6 +14694,34 @@
                 }
             }
         },
+        "request.AssistantCreateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "category": {
+                    "description": "1:单智能体 2:多智能体",
+                    "type": "integer"
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                }
+            }
+        },
         "request.AssistantIdRequest": {
             "type": "object",
             "required": [
@@ -16991,6 +17236,66 @@
                 }
             }
         },
+        "request.MultiAgentConfigUpdateReq": {
+            "type": "object",
+            "required": [
+                "agentId",
+                "assistantId",
+                "desc"
+            ],
+            "properties": {
+                "agentId": {
+                    "description": "子智能体id",
+                    "type": "string"
+                },
+                "assistantId": {
+                    "description": "多智能体id",
+                    "type": "string"
+                },
+                "desc": {
+                    "description": "子智能体描述",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MultiAgentCreateReq": {
+            "type": "object",
+            "required": [
+                "agentId",
+                "assistantId"
+            ],
+            "properties": {
+                "agentId": {
+                    "description": "子智能体id",
+                    "type": "string"
+                },
+                "assistantId": {
+                    "description": "多智能体id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MultiAgentEnableSwitchReq": {
+            "type": "object",
+            "required": [
+                "agentId",
+                "assistantId"
+            ],
+            "properties": {
+                "agentId": {
+                    "description": "子智能体id",
+                    "type": "string"
+                },
+                "assistantId": {
+                    "description": "多智能体id",
+                    "type": "string"
+                },
+                "enable": {
+                    "description": "开关状态",
+                    "type": "boolean"
+                }
+            }
+        },
         "request.OrgCreate": {
             "type": "object",
             "required": [
@@ -18319,6 +18624,10 @@
                         }
                     ]
                 },
+                "category": {
+                    "description": "1.单智能体 2.多智能体",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -18361,6 +18670,13 @@
                             "$ref": "#/definitions/request.AppModelConfig"
                         }
                     ]
+                },
+                "multiAgentInfos": {
+                    "description": "多智能体配置",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.AssistantAgentInfo"
+                    }
                 },
                 "name": {
                     "description": "名称",
@@ -18441,6 +18757,26 @@
                     "items": {
                         "$ref": "#/definitions/response.AssistantWorkFlowInfo"
                     }
+                }
+            }
+        },
+        "response.AssistantAgentInfo": {
+            "type": "object",
+            "properties": {
+                "agentId": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "$ref": "#/definitions/request.Avatar"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

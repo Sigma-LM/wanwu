@@ -12,4 +12,10 @@ var (
 		schema.MessagesPlaceholder(placeholderOfChatHistory, true),
 		schema.MessagesPlaceholder(placeholderOfUserInput, false),
 	)
+
+	MultiChatPrompt = prompt.FromMessages(schema.Jinja2,
+		schema.SystemMessage(agentPrompt.SupervisorPrompt),
+		schema.MessagesPlaceholder(placeholderOfChatHistory, true),
+		schema.MessagesPlaceholder(placeholderOfUserInput, false),
+	)
 )

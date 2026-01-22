@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client"
@@ -17,12 +18,14 @@ import (
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"google.golang.org/grpc"
+	empty "google.golang.org/protobuf/types/known/emptypb"
+
 	"net/http"
 	"time"
 )
 
 func (s *Service) GetMultiAssistantById(ctx context.Context, req *assistant_service.GetMultiAssistantByIdReq) (*assistant_service.MultiAssistantDetailResp, error) {
-	agent, agentSnapshot, subAgents, err := s.cli.GetMultiAssistant(ctx, req.AssistantId, req.Identity.GetUserId(), req.Identity.GetOrgId(), req.Draft, req.Version)
+	agent, agentSnapshot, subAgents, err := s.cli.GetMultiAssistant(ctx, req.AssistantId, req.Identity.GetUserId(), req.Identity.GetOrgId(), req.Draft, req.Version, req.FilterSubEnable)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +89,7 @@ func buildSubAgentParams(ctx context.Context, cli client.IClient, agentSnapshot 
 		Knowledge: Knowledge,
 		MCP:       MCP,
 	}
-	var assistant *model.Assistant
+	var assistant = &model.Assistant{}
 	if err := jsonToStruct(agentSnapshot.AssistantInfo, assistant); err != nil {
 		log.Errorf("转换智能体信息失败，assistantId: %d, error: %v", agentSnapshot.AssistantID, err)
 		return nil, errors.New("build agent info err")
@@ -140,13 +143,13 @@ func buildMultiAgentSendRequest(req *assistant_service.MultiAssistantConversionS
 		}
 		// 获取Assistant配置
 		assistantConfig := config.Cfg().Assistant
-		if assistantConfig.NewSseUrl == "" {
-			return monitorKey, nil, nil, errors.New("智能体SSE URL配置错误")
+		if assistantConfig.MultiAgentChatUrl == "" {
+			return monitorKey, nil, nil, errors.New("多智能体会话URL配置错误")
 		}
 		params := &http_client.HttpRequestParams{
 			Body:       paramsBytes,
 			Timeout:    5 * time.Minute,
-			Url:        assistantConfig.NewSseUrl,
+			Url:        assistantConfig.MultiAgentChatUrl,
 			MonitorKey: monitorKey,
 			LogLevel:   http_client.LogAll,
 		}
@@ -154,4 +157,75 @@ func buildMultiAgentSendRequest(req *assistant_service.MultiAssistantConversionS
 		result, err := http_client.Default().PostJsonOriResp(ctx, params)
 		return monitorKey, result, cancel, err
 	}
+}
+
+func (s *Service) MultiAgentCreate(ctx context.Context, req *assistant_service.MultiAgentCreateReq) (*empty.Empty, error) {
+	// 获取已发布的子智能体详情
+	subAgent, err := s.cli.GetAssistantSnapshot(ctx, util.MustU32(req.AgentId), "")
+	if err != nil {
+		return nil, errStatus(errs.Code_AssistantErr, err)
+	}
+
+	snapshotAssistant := &model.Assistant{}
+	if err := jsonToStruct(subAgent.AssistantInfo, &snapshotAssistant); err != nil {
+		return nil, errStatus(errs.Code_AssistantErr, toErrStatus("assistant_snapshot", err.Error()))
+	}
+
+	// 判断是否已有重复子智能体
+	_, err = s.cli.FetchMultiAssistantRelationFirst(ctx, util.MustU32(req.AssistantId), subAgent.AssistantID)
+	if err == nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, &errs.Status{
+			TextKey: "assistant_multi_agent_repeat",
+			Args:    nil,
+		})
+	}
+
+	// 组装multiAgent参数
+	newMultiAgent := &model.MultiAgentRelation{
+		MultiAgentId: util.MustU32(req.AssistantId),
+		AgentId:      subAgent.AssistantID,
+		Description:  snapshotAssistant.Desc,
+		Enable:       true,
+		UserId:       req.Identity.UserId,
+		OrgId:        req.Identity.OrgId,
+	}
+
+	// 调用client方法创建多智能体
+	if status := s.cli.CreateMultiAssistantRelation(ctx, newMultiAgent); status != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, status)
+	}
+	return &empty.Empty{}, nil
+}
+
+func (s *Service) MultiAgentDelete(ctx context.Context, req *assistant_service.MultiAgentCreateReq) (*empty.Empty, error) {
+	if status := s.cli.DeleteMultiAssistantRelation(ctx, util.MustU32(req.AssistantId), util.MustU32(req.AgentId)); status != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, status)
+	}
+	return &empty.Empty{}, nil
+}
+
+func (s *Service) MultiAgentEnableSwitch(ctx context.Context, req *assistant_service.MultiAgentEnableSwitchReq) (*empty.Empty, error) {
+	// 获取多智能体详情
+	multiAgent, err := s.cli.FetchMultiAssistantRelationFirst(ctx, util.MustU32(req.AssistantId), util.MustU32(req.AgentId))
+	if err != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, err)
+	}
+	multiAgent.Enable = req.Enable
+	if status := s.cli.UpdateMultiAssistantRelation(ctx, multiAgent); status != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, status)
+	}
+	return &empty.Empty{}, nil
+}
+
+func (s *Service) MultiAgentConfigUpdate(ctx context.Context, req *assistant_service.MultiAgentConfigUpdateReq) (*empty.Empty, error) {
+	// 获取多智能体详情
+	multiAgent, err := s.cli.FetchMultiAssistantRelationFirst(ctx, util.MustU32(req.AssistantId), util.MustU32(req.AgentId))
+	if err != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, err)
+	}
+	multiAgent.Description = req.Desc
+	if status := s.cli.UpdateMultiAssistantRelation(ctx, multiAgent); status != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, status)
+	}
+	return &empty.Empty{}, nil
 }

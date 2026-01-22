@@ -951,6 +951,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "category": {
+                    "description": "1.单智能体 2.多智能体",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -993,6 +997,13 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppModelConfig"
                         }
                     ]
+                },
+                "multiAgentInfos": {
+                    "description": "多智能体配置",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.AssistantAgentInfo"
+                    }
                 },
                 "name": {
                     "description": "名称",
@@ -1073,6 +1084,26 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.AssistantWorkFlowInfo"
                     }
+                }
+            }
+        },
+        "response.AssistantAgentInfo": {
+            "type": "object",
+            "properties": {
+                "agentId": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "$ref": "#/definitions/request.Avatar"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

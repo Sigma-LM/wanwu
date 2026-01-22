@@ -15,12 +15,12 @@ import (
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.AppBriefConfig	true	"智能体基本信息"
+//	@Param			data	body		request.AssistantCreateReq	true	"智能体基本信息"
 //	@Success		200		{object}	response.Response{data=response.AssistantCreateResp}
 //	@Router			/assistant [post]
 func AssistantCreate(ctx *gin.Context) {
 	userId, orgId := getUserID(ctx), getOrgID(ctx)
-	var req request.AppBriefConfig
+	var req request.AssistantCreateReq
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
@@ -473,6 +473,109 @@ func PublishedAssistantConversionStream(ctx *gin.Context) {
 	if err := service.AssistantConversionStream(ctx, userId, orgId, req, true); err != nil {
 		gin_util.Response(ctx, nil, err)
 	}
+}
+
+// MultiAgentCreate
+//
+//	@Tags			agent
+//	@Summary		添加多智能体配置
+//	@Description	为智能体绑定已发布的子智能体
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.MultiAgentCreateReq	true	"智能体id、子智能体id"
+//	@Success		200		{object}	response.Response
+//	@Router			/assistant/multi-agent [post]
+func MultiAgentCreate(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.MultiAgentCreateReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.MultiAgentCreate(ctx, userId, orgId, req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// MultiAgentDelete
+//
+//	@Tags			agent
+//	@Summary		删除多智能体配置
+//	@Description	为智能体解绑子智能体
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.MultiAgentCreateReq	true	"智能体id与子智能体id"
+//	@Success		200		{object}	response.Response
+//	@Router			/assistant/multi-agent [delete]
+func MultiAgentDelete(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.MultiAgentCreateReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.MultiAgentDelete(ctx, userId, orgId, req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// MultiAgentEnableSwitch
+//
+//	@Tags			agent
+//	@Summary		启用/停用多智能体配置
+//	@Description	为智能体启用/停用子智能体
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.MultiAgentEnableSwitchReq	true	"智能体id、子智能体id、开关状态"
+//	@Success		200		{object}	response.Response
+//	@Router			/assistant/multi-agent/switch [put]
+func MultiAgentEnableSwitch(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.MultiAgentEnableSwitchReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.MultiAgentEnableSwitch(ctx, userId, orgId, req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// MultiAgentConfigUpdate
+//
+//	@Tags			agent
+//	@Summary		修改多智能体配置
+//	@Description	为智能体修改子智能体描述
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body		request.MultiAgentConfigUpdateReq	true	"智能体id、子智能体id、描述"
+//	@Success		200		{object}	response.Response
+//	@Router			/assistant/multi-agent/config [put]
+func MultiAgentConfigUpdate(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.MultiAgentConfigUpdateReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.MultiAgentConfigUpdate(ctx, userId, orgId, req)
+	gin_util.Response(ctx, nil, err)
+}
+
+// GetAssistantSelect
+//
+//	@Tags			agent
+//	@Summary		添加多智能体配置-下拉列表接口
+//	@Description	添加多智能体配置-下拉列表接口
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			name	query		string	false	"assistant名称"
+//	@Success		200		{object}	response.Response{data=response.ListResult{list=[]response.AppBriefInfo}}
+//	@Router			/assistant/select [get]
+func GetAssistantSelect(ctx *gin.Context) {
+	req := request.GetExplorationAppListRequest{
+		Name: ctx.Query("name"),
+	}
+	resp, err := service.GetAssistantSelect(ctx, getUserID(ctx), getOrgID(ctx), req)
+	gin_util.Response(ctx, resp, err)
 }
 
 // AssistantQuestionRecommend

@@ -18,14 +18,14 @@ type IClient interface {
 	GetAssistantByUuid(ctx context.Context, uuid string) (*model.Assistant, *err_code.Status)
 	GetAssistantList(ctx context.Context, userID, orgID string, name string) ([]*model.Assistant, int64, *err_code.Status)
 	CheckSameAssistantName(ctx context.Context, userID, orgID, name, assistantID string) *err_code.Status
-	CopyAssistant(ctx context.Context, assistant *model.Assistant, workflows []*model.AssistantWorkflow, mcps []*model.AssistantMCP, customTools []*model.AssistantTool) (uint32, *err_code.Status)
+	CopyAssistant(ctx context.Context, assistant *model.Assistant, workflows []*model.AssistantWorkflow, mcps []*model.AssistantMCP, customTools []*model.AssistantTool, subAgents []*model.MultiAgentRelation) (uint32, *err_code.Status)
 
 	//================AssistantSnapshot================
 	CreateAssistantSnapshot(ctx context.Context, assistantSnapshot *model.AssistantSnapshot) (uint32, *err_code.Status)
 	UpdateAssistantSnapshot(ctx context.Context, assistantID uint32, desc string, userID, orgID string) *err_code.Status
 	GetAssistantSnapshotList(ctx context.Context, assistantID uint32, userID, orgID string) ([]*model.AssistantSnapshot, *err_code.Status)
 	GetAssistantSnapshot(ctx context.Context, assistantID uint32, version string) (*model.AssistantSnapshot, *err_code.Status)
-	RollbackAssistantSnapshot(ctx context.Context, assistant *model.Assistant, tools []*model.AssistantTool, mcps []*model.AssistantMCP, workflows []*model.AssistantWorkflow, userID, orgID string) *err_code.Status
+	RollbackAssistantSnapshot(ctx context.Context, assistant *model.Assistant, tools []*model.AssistantTool, mcps []*model.AssistantMCP, workflows []*model.AssistantWorkflow, subAgents []*model.MultiAgentRelation, userID, orgID string) *err_code.Status
 
 	//================AssistantWorkflow================
 	CreateAssistantWorkflow(ctx context.Context, workflow *model.AssistantWorkflow) *err_code.Status
@@ -69,5 +69,11 @@ type IClient interface {
 	CopyCustomPrompt(ctx context.Context, customPromptID uint32, userId, orgID string) (string, *err_code.Status)
 
 	//================MultiAssistant================
-	GetMultiAssistant(ctx context.Context, multiAssistantID uint32, userID, orgID string, draft bool, version string) (multiAgent *model.Assistant, multiAgentSnapshot *model.AssistantSnapshot, subAgents []*model.AssistantSnapshot, err error)
+	GetMultiAssistant(ctx context.Context, multiAssistantID uint32, userID, orgID string, draft bool, version string, filterSubEnable bool) (multiAgent *model.Assistant, multiAgentSnapshot *model.AssistantSnapshot, subAgents []*model.AssistantSnapshot, err error)
+	CreateMultiAssistantRelation(ctx context.Context, assistant *model.MultiAgentRelation) *err_code.Status
+	FetchMultiAssistantRelationList(ctx context.Context, multiAssistantID uint32, version string, draft bool) ([]*model.MultiAgentRelation, *err_code.Status)
+	FetchMultiAssistantRelationFirst(ctx context.Context, multiAssistantID, agentID uint32) (*model.MultiAgentRelation, *err_code.Status)
+	DeleteMultiAssistantRelation(ctx context.Context, multiAssistantID, agentID uint32) *err_code.Status
+	UpdateMultiAssistantRelation(ctx context.Context, assistant *model.MultiAgentRelation) *err_code.Status
+	BatchCreateMultiAssistantRelation(ctx context.Context, assistants []*model.MultiAgentRelation, version string) *err_code.Status
 }

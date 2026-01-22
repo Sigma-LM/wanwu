@@ -3,6 +3,7 @@ package orm
 import (
 	"context"
 	"errors"
+
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
@@ -26,6 +27,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		model.AssistantTool{},
 		model.CustomPrompt{},
 		model.AssistantSnapshot{},
+		model.MultiAgentRelation{},
 	); err != nil {
 		return nil, err
 	}

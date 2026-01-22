@@ -691,7 +691,7 @@ type RagDetailReq struct {
 
 	RagId   string `protobuf:"bytes,1,opt,name=ragId,proto3" json:"ragId,omitempty"`
 	Publish int32  `protobuf:"varint,2,opt,name=publish,proto3" json:"publish,omitempty"` // 0: 草稿 1: 已发布
-	Version string `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	Version string `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`  // 已发布版本
 }
 
 func (x *RagDetailReq) Reset() {

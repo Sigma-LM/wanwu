@@ -94,7 +94,7 @@ func (c *Client) GetAssistantSnapshot(ctx context.Context, assistantID uint32, v
 	return assistantSnapshot, nil
 }
 
-func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model.Assistant, tools []*model.AssistantTool, mcps []*model.AssistantMCP, workflows []*model.AssistantWorkflow, userID, orgID string) *err_code.Status {
+func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model.Assistant, tools []*model.AssistantTool, mcps []*model.AssistantMCP, workflows []*model.AssistantWorkflow, subAgents []*model.MultiAgentRelation, userID, orgID string) *err_code.Status {
 	return c.transaction(ctx, func(tx *gorm.DB) *err_code.Status {
 		// Update Assistant Info
 		if assistant.ID == 0 {
@@ -165,6 +165,25 @@ func (c *Client) RollbackAssistantSnapshot(ctx context.Context, assistant *model
 			}
 		}
 
+		// Snapshot MultiAgents
+		// 删除该智能体所绑定的所有subAgents
+		if err := sqlopt.SQLOptions(
+			sqlopt.WithMultiAgentID(assistantId),
+			sqlopt.DataPerm(userID, orgID),
+			sqlopt.WithVersionIsEmpty(),
+		).Apply(tx).Delete(&model.MultiAgentRelation{}).Error; err != nil {
+			return toErrStatus("assistant_multi_agent_delete", fmt.Sprintf("assistant multi_agent delete failed: %v", err))
+		}
+		// 创建
+		if len(subAgents) > 0 {
+			for _, subAgent := range subAgents {
+				subAgent.Id = 0
+				subAgent.Version = ""
+			}
+			if err := tx.Create(subAgents).Error; err != nil {
+				return toErrStatus("assistant_multi_agent", fmt.Sprintf("assistant multi_agent create failed: %v", err))
+			}
+		}
 		return nil
 	})
 }
