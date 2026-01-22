@@ -5,63 +5,69 @@
     :inline="false"
     class="searchConfig"
   >
-    <div v-if="setType === 'agent' && isAllExternal">
-      <!-- agent且为外部知识库时，只有以下配置 -->
-      <el-row :gutter="40">
-        <el-col :span="12">
-          <el-row>
-            <el-col>
-              <span class="content-name">TopK</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('searchConfig.topKHint')"
-                placement="right"
-              >
-                <span class="el-icon-question tips"></span>
-              </el-tooltip>
-            </el-col>
-            <el-col>
-              <el-slider
-                :min="1"
-                :max="10"
-                :step="1"
-                v-model="formInline.knowledgeMatchParams.topK"
-                show-input
-              ></el-slider>
-            </el-col>
-          </el-row>
-        </el-col>
-        <el-col :span="12">
-          <el-row>
-            <el-col>
-              <span class="content-name">{{ $t('searchConfig.score') }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('searchConfig.scoreHint')"
-                placement="right"
-              >
-                <span class="el-icon-question tips"></span>
-              </el-tooltip>
-            </el-col>
-            <el-col>
-              <el-slider
-                :min="0"
-                :max="1"
-                :step="0.1"
-                v-model="formInline.knowledgeMatchParams.threshold"
-                show-input
-              ></el-slider>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
+    <div v-if="isAllExternal">
+      <el-form-item class="vertical-form-item">
+        <template #label>
+          <span v-if="setType === 'knowledge'" class="vertical-form-title">
+            {{ $t('searchConfig.title') }}
+          </span>
+        </template>
+        <el-row :gutter="40">
+          <el-col :span="12">
+            <el-row>
+              <el-col>
+                <span class="content-name">TopK</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.topKHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="1"
+                  :max="10"
+                  :step="1"
+                  v-model="formInline.knowledgeMatchParams.topK"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="12">
+            <el-row>
+              <el-col>
+                <span class="content-name">{{ $t('searchConfig.score') }}</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.scoreHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="0"
+                  :max="1"
+                  :step="0.1"
+                  v-model="formInline.knowledgeMatchParams.threshold"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-form-item>
     </div>
     <template v-else>
       <el-form-item class="vertical-form-item">
         <template #label>
-          <span v-if="!setType" class="vertical-form-title">
+          <span v-if="setType === 'knowledge'" class="vertical-form-title">
             {{ $t('searchConfig.title') }}
           </span>
         </template>
@@ -328,7 +334,7 @@ export default {
             );
           });
           if (changed) {
-            if (!this.setType) {
+            if (this.setType === 'knowledge') {
               delete this.formInline.knowledgeMatchParams.maxHistory;
             }
             const payload = JSON.parse(JSON.stringify(this.formInline));
@@ -354,7 +360,7 @@ export default {
               ...(this.hasMixTypeRange(item, 'mixTypeRange') && {
                 mixTypeRange: formData.semanticsPriority || 0.2,
               }),
-              showContent: item.value === matchType ? true : false,
+              showContent: item.value === matchType,
             }));
             if (matchType === 'mix') {
               this.searchTypeData[2]['mixTypeValue'] =
@@ -410,7 +416,7 @@ export default {
     },
     showHistory(n) {
       return (
-        (this.setType === 'rag' || this.setType === 'agent') &&
+        !this.setType &&
         (n.value === 'vector' || n.value === 'text' || n.value === 'mix') //&& n.mixTypeValue === "rerank"
       );
     },
@@ -454,7 +460,7 @@ export default {
     },
     handleRerankChange(value) {
       // 直接触发事件，避免防抖延迟
-      if (!this.setType) {
+      if (this.setType === 'knowledge') {
         const formData = JSON.parse(JSON.stringify(this.formInline));
         delete formData.knowledgeMatchParams.maxHistory;
         this.$emit('sendConfigInfo', formData);

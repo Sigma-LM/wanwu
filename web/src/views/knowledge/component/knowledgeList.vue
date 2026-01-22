@@ -330,7 +330,9 @@ export default {
     },
     toDocList(n) {
       if (n.external === 1) {
-        this.$router.push(`/knowledge/hitTest?knowledgeId=${n.knowledgeId}`);
+        this.$router.push(
+          `/knowledge/hitTest?knowledgeId=${n.knowledgeId}&external=${n.external}`,
+        );
         return;
       }
       if (this.category === 0) {
