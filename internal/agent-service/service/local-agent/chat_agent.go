@@ -2,12 +2,10 @@ package local_agent
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/config"
 	agent_message_flow "github.com/UnicomAI/wanwu/internal/agent-service/service/agent-message-flow"
 	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
-	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/compose"
@@ -24,8 +22,6 @@ func (a *ChatAgent) CreateChatModel(ctx context.Context, req *request.AgentChatP
 
 // BuildAgentInput 构造会话消息
 func (a *ChatAgent) BuildAgentInput(ctx context.Context, req *request.AgentChatParams, agentChatInfo *service_model.AgentChatInfo, agentInput *adk.AgentInput, generator *adk.AsyncGenerator[*adk.AgentEvent]) (*adk.AgentInput, error) {
-	marshal, _ := json.Marshal(agentInput.Messages)
-	log.Infof("%s BuildAgentInput %s", req.AgentBaseParams.Name, string(marshal))
 	userInput, messages := splitUserInput(req, agentInput.Messages)
 	req.Input = userInput
 
@@ -41,8 +37,6 @@ func (a *ChatAgent) BuildAgentInput(ctx context.Context, req *request.AgentChatP
 		return nil, err
 	}
 	createMessages = append(createMessages, messages...)
-	marshal1, _ := json.Marshal(createMessages)
-	log.Infof("%s multiAgent %v BuildAgentInput  createMessages %s", req.AgentBaseParams.Name, req.MultiAgent, string(marshal1))
 	return &adk.AgentInput{
 		Messages:        createMessages,
 		EnableStreaming: agentInput.EnableStreaming,
