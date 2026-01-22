@@ -5,185 +5,250 @@
     :inline="false"
     class="searchConfig"
   >
-    <el-form-item class="vertical-form-item">
-      <template #label>
-        <span v-if="!setType" class="vertical-form-title">
-          {{ $t('searchConfig.title') }}
-        </span>
-      </template>
-      <div
-        v-for="(item, index) in searchTypeData"
-        :class="['searchType-list', { active: item.showContent }]"
-        :key="index"
-      >
-        <div class="searchType-title" @click="clickSearch(item)">
-          <span :class="[item.icon, 'img']"></span>
-          <div class="title-content">
-            <div class="title-box">
-              <h3 class="title-name">{{ item.name }}</h3>
-              <p class="title-desc">{{ item.desc }}</p>
+    <div v-if="isAllExternal">
+      <el-form-item class="vertical-form-item">
+        <template #label>
+          <span v-if="setType === 'knowledge'" class="vertical-form-title">
+            {{ $t('searchConfig.title') }}
+          </span>
+        </template>
+        <el-row :gutter="40">
+          <el-col :span="12">
+            <el-row>
+              <el-col>
+                <span class="content-name">TopK</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.topKHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="1"
+                  :max="10"
+                  :step="1"
+                  v-model="formInline.knowledgeMatchParams.topK"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
+          </el-col>
+          <el-col :span="12">
+            <el-row>
+              <el-col>
+                <span class="content-name">{{ $t('searchConfig.score') }}</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.scoreHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="0"
+                  :max="1"
+                  :step="0.1"
+                  v-model="formInline.knowledgeMatchParams.threshold"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-form-item>
+    </div>
+    <template v-else>
+      <el-form-item class="vertical-form-item">
+        <template #label>
+          <span v-if="setType === 'knowledge'" class="vertical-form-title">
+            {{ $t('searchConfig.title') }}
+          </span>
+        </template>
+        <div
+          v-for="(item, index) in searchTypeData"
+          :class="['searchType-list', { active: item.showContent }]"
+          :key="index"
+        >
+          <div class="searchType-title" @click="clickSearch(item)">
+            <span :class="[item.icon, 'img']"></span>
+            <div class="title-content">
+              <div class="title-box">
+                <h3 class="title-name">{{ item.name }}</h3>
+                <p class="title-desc">{{ item.desc }}</p>
+              </div>
+              <span
+                :class="
+                  item.showContent ? 'el-icon-arrow-up' : 'el-icon-arrow-down'
+                "
+              ></span>
             </div>
-            <span
-              :class="
-                item.showContent ? 'el-icon-arrow-up' : 'el-icon-arrow-down'
-              "
-            ></span>
           </div>
-        </div>
-        <div class="searchType-content" v-if="item.showContent">
-          <div v-if="item.isWeight" class="weightType-box">
-            <div
-              v-for="mixItem in filteredMixType(item)"
-              :class="[
-                'weightType',
-                { active: mixItem.value === item.mixTypeValue },
-              ]"
-              @click.stop="mixTypeClick(item, mixItem)"
-              :key="mixItem.name"
+          <div class="searchType-content" v-if="item.showContent">
+            <div v-if="item.isWeight" class="weightType-box">
+              <div
+                v-for="mixItem in filteredMixType(item)"
+                :class="[
+                  'weightType',
+                  { active: mixItem.value === item.mixTypeValue },
+                ]"
+                @click.stop="mixTypeClick(item, mixItem)"
+                :key="mixItem.name"
+              >
+                <p class="weightType-name">{{ mixItem.name }}</p>
+                <p class="weightType-desc">{{ mixItem.desc }}</p>
+              </div>
+            </div>
+            <el-row
+              v-if="item.isWeight && item.mixTypeValue === 'weight'"
+              @click.stop
             >
-              <p class="weightType-name">{{ mixItem.name }}</p>
-              <p class="weightType-desc">{{ mixItem.desc }}</p>
-            </div>
+              <el-col class="mixTypeRange-title">
+                <span>
+                  {{ $t('searchConfig.semantics') }}[{{ item.mixTypeRange }}]
+                </span>
+                <span>
+                  {{ $t('searchConfig.keyword') }}
+                  [{{ (1 - (item.mixTypeRange || 0)).toFixed(1) }}]
+                </span>
+              </el-col>
+              <el-col>
+                <el-slider
+                  v-model="item.mixTypeRange"
+                  show-stops
+                  :step="0.1"
+                  :max="1"
+                  @change="rangeChage($event)"
+                ></el-slider>
+              </el-col>
+            </el-row>
+            <el-row v-if="showRerank(item)">
+              <el-col>
+                <span class="content-name">
+                  {{ $t('searchConfig.rerank') }}
+                </span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.rerankHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-select
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :loading-text="$t('searchConfig.loading')"
+                  v-model="formInline.knowledgeMatchParams.rerankModelId"
+                  @visible-change="visibleChange($event)"
+                  @change="handleRerankChange"
+                  :placeholder="$t('common.input.placeholder')"
+                  :loading="rerankLoading"
+                >
+                  <el-option
+                    v-for="item in rerankOptions"
+                    :key="item.modelId"
+                    :label="item.displayName"
+                    :value="item.modelId"
+                  ></el-option>
+                </el-select>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <span class="content-name">TopK</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.topKHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="1"
+                  :max="10"
+                  :step="1"
+                  v-model="formInline.knowledgeMatchParams.topK"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
+            <el-row v-if="showHistory(item)">
+              <el-col>
+                <span class="content-name">{{ $t('searchConfig.max') }}</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.maxHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="0"
+                  :max="100"
+                  :step="1"
+                  v-model="formInline.knowledgeMatchParams.maxHistory"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <span class="content-name">{{ $t('searchConfig.score') }}</span>
+                <el-tooltip
+                  class="item"
+                  effect="dark"
+                  :content="$t('searchConfig.scoreHint')"
+                  placement="right"
+                >
+                  <span class="el-icon-question tips"></span>
+                </el-tooltip>
+              </el-col>
+              <el-col>
+                <el-slider
+                  :min="0"
+                  :max="1"
+                  :step="0.1"
+                  v-model="formInline.knowledgeMatchParams.threshold"
+                  show-input
+                ></el-slider>
+              </el-col>
+            </el-row>
           </div>
-          <el-row
-            v-if="item.isWeight && item.mixTypeValue === 'weight'"
-            @click.stop
-          >
-            <el-col class="mixTypeRange-title">
-              <span>
-                {{ $t('searchConfig.semantics') }}[{{ item.mixTypeRange }}]
-              </span>
-              <span>
-                {{ $t('searchConfig.keyword') }}
-                [{{ (1 - (item.mixTypeRange || 0)).toFixed(1) }}]
-              </span>
-            </el-col>
-            <el-col>
-              <el-slider
-                v-model="item.mixTypeRange"
-                show-stops
-                :step="0.1"
-                :max="1"
-                @change="rangeChage($event)"
-              ></el-slider>
-            </el-col>
-          </el-row>
-          <el-row v-if="showRerank(item)">
-            <el-col>
-              <span class="content-name">{{ $t('searchConfig.rerank') }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('searchConfig.rerankHint')"
-                placement="right"
-              >
-                <span class="el-icon-question tips"></span>
-              </el-tooltip>
-            </el-col>
-            <el-col>
-              <el-select
-                clearable
-                filterable
-                style="width: 100%"
-                :loading-text="$t('searchConfig.loading')"
-                v-model="formInline.knowledgeMatchParams.rerankModelId"
-                @visible-change="visibleChange($event)"
-                @change="handleRerankChange"
-                :placeholder="$t('common.input.placeholder')"
-                :loading="rerankLoading"
-              >
-                <el-option
-                  v-for="item in rerankOptions"
-                  :key="item.modelId"
-                  :label="item.displayName"
-                  :value="item.modelId"
-                ></el-option>
-              </el-select>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col>
-              <span class="content-name">TopK</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('searchConfig.topKHint')"
-                placement="right"
-              >
-                <span class="el-icon-question tips"></span>
-              </el-tooltip>
-            </el-col>
-            <el-col>
-              <el-slider
-                :min="1"
-                :max="10"
-                :step="1"
-                v-model="formInline.knowledgeMatchParams.topK"
-                show-input
-              ></el-slider>
-            </el-col>
-          </el-row>
-          <el-row v-if="showHistory(item)">
-            <el-col>
-              <span class="content-name">{{ $t('searchConfig.max') }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('searchConfig.maxHint')"
-                placement="right"
-              >
-                <span class="el-icon-question tips"></span>
-              </el-tooltip>
-            </el-col>
-            <el-col>
-              <el-slider
-                :min="0"
-                :max="100"
-                :step="1"
-                v-model="formInline.knowledgeMatchParams.maxHistory"
-                show-input
-              ></el-slider>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col>
-              <span class="content-name">{{ $t('searchConfig.score') }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="$t('searchConfig.scoreHint')"
-                placement="right"
-              >
-                <span class="el-icon-question tips"></span>
-              </el-tooltip>
-            </el-col>
-            <el-col>
-              <el-slider
-                :min="0"
-                :max="1"
-                :step="0.1"
-                v-model="formInline.knowledgeMatchParams.threshold"
-                show-input
-              ></el-slider>
-            </el-col>
-          </el-row>
         </div>
-      </div>
-    </el-form-item>
-    <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
-      <template #label>
-        <span class="graph-switch-title">
-          {{ $t('knowledgeManage.graph.useGraph') }}
-        </span>
-      </template>
-      <el-switch v-model="formInline.knowledgeMatchParams.useGraph"></el-switch>
-    </el-form-item>
+      </el-form-item>
+      <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
+        <template #label>
+          <span class="graph-switch-title">
+            {{ $t('knowledgeManage.graph.useGraph') }}
+          </span>
+        </template>
+        <el-switch
+          v-model="formInline.knowledgeMatchParams.useGraph"
+        ></el-switch>
+      </el-form-item>
+    </template>
   </el-form>
 </template>
 <script>
 import { getRerankList } from '@/api/modelAccess';
 export default {
-  props: ['setType', 'config', 'showGraphSwitch', 'category'],
+  props: ['setType', 'config', 'showGraphSwitch', 'category', 'isAllExternal'],
   data() {
     return {
       debounceTimer: null,
@@ -269,7 +334,7 @@ export default {
             );
           });
           if (changed) {
-            if (!this.setType) {
+            if (this.setType === 'knowledge') {
               delete this.formInline.knowledgeMatchParams.maxHistory;
             }
             const payload = JSON.parse(JSON.stringify(this.formInline));
@@ -295,7 +360,7 @@ export default {
               ...(this.hasMixTypeRange(item, 'mixTypeRange') && {
                 mixTypeRange: formData.semanticsPriority || 0.2,
               }),
-              showContent: item.value === matchType ? true : false,
+              showContent: item.value === matchType,
             }));
             if (matchType === 'mix') {
               this.searchTypeData[2]['mixTypeValue'] =
@@ -351,7 +416,7 @@ export default {
     },
     showHistory(n) {
       return (
-        (this.setType === 'rag' || this.setType === 'agent') &&
+        !this.setType &&
         (n.value === 'vector' || n.value === 'text' || n.value === 'mix') //&& n.mixTypeValue === "rerank"
       );
     },
@@ -395,7 +460,7 @@ export default {
     },
     handleRerankChange(value) {
       // 直接触发事件，避免防抖延迟
-      if (!this.setType) {
+      if (this.setType === 'knowledge') {
         const formData = JSON.parse(JSON.stringify(this.formInline));
         delete formData.knowledgeMatchParams.maxHistory;
         this.$emit('sendConfigInfo', formData);

@@ -36,6 +36,18 @@
           :key="`${i}sm`"
           @click.stop="toDocList(n)"
         >
+          <div
+            v-if="category === 0"
+            :class="['ribbon', n.external === 0 ? 'blue' : 'gold']"
+          >
+            <span>
+              {{
+                n.external === 0
+                  ? $t('knowledgeManage.ribbon.internal')
+                  : $t('knowledgeManage.ribbon.external')
+              }}
+            </span>
+          </div>
           <div>
             <img
               class="logo"
@@ -124,6 +136,7 @@
                 <el-dropdown-item
                   command="export"
                   v-if="
+                    n.external === 0 &&
                     [
                       POWER_TYPE_EDIT,
                       POWER_TYPE_ADMIN,
@@ -136,6 +149,7 @@
                 <el-dropdown-item
                   command="exportRecord"
                   v-if="
+                    n.external === 0 &&
                     [
                       POWER_TYPE_EDIT,
                       POWER_TYPE_ADMIN,
@@ -315,6 +329,12 @@ export default {
       ).then(() => {});
     },
     toDocList(n) {
+      if (n.external === 1) {
+        this.$router.push(
+          `/knowledge/hitTest?knowledgeId=${n.knowledgeId}&external=${n.external}`,
+        );
+        return;
+      }
       if (this.category === 0) {
         this.$router.push({ path: `/knowledge/doclist/${n.knowledgeId}` });
       } else {
@@ -347,7 +367,7 @@ export default {
     }
 
     .info {
-      padding-right: 0;
+      padding-right: 20px;
     }
 
     .desc {

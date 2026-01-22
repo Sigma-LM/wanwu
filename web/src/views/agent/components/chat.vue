@@ -307,10 +307,17 @@ export default {
     },
     verifiyFormParams() {
       if (this.chatType === 'chat') return true;
+      const { matchType, priorityMatch, rerankModelId } =
+        this.editForm.knowledgeBaseConfig.config;
+      const isMixPriorityMatch = matchType === 'mix' && priorityMatch;
       const conditions = [
         {
           check: !this.editForm.modelParams,
           message: this.$t('agent.form.selectModel'),
+        },
+        {
+          check: !isMixPriorityMatch && !rerankModelId,
+          message: this.$t('knowledgeManage.hitTest.selectRerankModel'),
         },
         {
           check: !this.editForm.prologue,

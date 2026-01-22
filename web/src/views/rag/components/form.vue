@@ -285,7 +285,6 @@ import VersionPopover from '@/components/versionPopover';
 import { getRerankList, selectModelList } from '@/api/modelAccess';
 import { getRagInfo, getRagPublishedInfo, updateRagConfig } from '@/api/rag';
 import Chat from './chat';
-import searchConfig from '@/components/searchConfig.vue';
 import chiChat from '@/components/app/chiChat.vue';
 import LinkIcon from '@/components/linkIcon.vue';
 import knowledgeSelect from '@/components/knowledgeSelect.vue';
@@ -302,7 +301,6 @@ export default {
     ModelSet,
     setSafety,
     VersionPopover,
-    searchConfig,
     knowledgeSelect,
     metaSet,
     chiChat,
@@ -728,9 +726,26 @@ export default {
                 this.editForm.qaKnowledgeBaseConfig.config.rerankModelId,
             )
           : {};
+
+        const isAllExternalKnowledgeSelected =
+          !this.editForm.knowledgeBaseConfig.knowledgebases.some(
+            kb => kb.external !== 1,
+          );
+        const _knowledgeBaseConfig = {
+          knowledgebases: this.editForm.knowledgeBaseConfig.knowledgebases,
+          config: isAllExternalKnowledgeSelected
+            ? {
+                matchType: 'mix',
+                priorityMatch: 1,
+                threshold: this.editForm.knowledgeBaseConfig.config.threshold,
+                topK: this.editForm.knowledgeBaseConfig.config.topK,
+              }
+            : this.editForm.knowledgeBaseConfig.config,
+        };
+
         let fromParams = {
           ragId: this.editForm.appId,
-          knowledgeBaseConfig: this.editForm.knowledgeBaseConfig,
+          knowledgeBaseConfig: _knowledgeBaseConfig,
           qaKnowledgeBaseConfig: this.editForm.qaKnowledgeBaseConfig,
           modelConfig: {
             config: this.editForm.modelConfig,

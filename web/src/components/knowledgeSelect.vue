@@ -23,8 +23,9 @@
             "
             class="tool-input"
             suffix-icon="el-icon-search"
-            @keyup.enter.native="searchTool"
             clearable
+            @keyup.enter.native="searchTool"
+            @clear="searchTool"
           ></el-input>
         </div>
       </template>
@@ -47,6 +48,9 @@
               </span>
               <span v-if="item.share" class="meta-text">
                 {{ item.orgName }}
+              </span>
+              <span v-if="item.external === 1" class="meta-text">
+                {{ $t('knowledgeManage.ribbon.external') }}
               </span>
             </div>
             <span class="knowledge-createAt">
@@ -88,6 +92,7 @@ export default {
       knowledgeList: [],
       checkedData: [],
       toolName: '',
+      selectedItems: [],
     };
   },
   created() {
@@ -95,12 +100,12 @@ export default {
   },
   methods: {
     getKnowledgeList(name) {
-      getKnowledgeList({ name, category: this.category })
+      getKnowledgeList({ name, category: this.category, external: -1 })
         .then(res => {
           if (res.code === 0) {
             this.knowledgeData = (res.data.knowledgeList || []).map(m => ({
               ...m,
-              checked: this.knowledgeList.some(
+              checked: this.selectedItems.some(
                 item => item.id === m.knowledgeId,
               ),
             }));
@@ -111,33 +116,39 @@ export default {
     openTool(e, item) {
       if (!e) return;
       item.checked = !item.checked;
+      if (item.checked) {
+        const exists = this.selectedItems.find(
+          si => si.id === item.knowledgeId,
+        );
+        if (!exists) {
+          this.selectedItems.push({
+            id: item.knowledgeId,
+            name: item.name,
+            graphSwitch: item.graphSwitch,
+            external: item.external,
+          });
+        }
+      } else {
+        this.selectedItems = this.selectedItems.filter(
+          si => si.id !== item.knowledgeId,
+        );
+      }
     },
     searchTool() {
       this.getKnowledgeList(this.toolName);
     },
     showDialog(data) {
       this.dialogVisible = true;
-      this.setKnowledge(data || []);
-      this.knowledgeList = data || [];
-    },
-    setKnowledge(data) {
-      this.knowledgeData = this.knowledgeData.map(m => ({
-        ...m,
-        checked: data.some(item => item.id === m.knowledgeId),
-      }));
+      this.selectedItems = JSON.parse(JSON.stringify(data || []));
+      this.searchTool();
     },
     handleClose() {
+      this.toolName = '';
       this.dialogVisible = false;
     },
     submit() {
-      const data = this.knowledgeData
-        .filter(item => item.checked)
-        .map(item => ({
-          id: item.knowledgeId,
-          name: item.name,
-          graphSwitch: item.graphSwitch,
-        }));
-      this.$emit('getKnowledgeData', data);
+      this.$emit('getKnowledgeData', this.selectedItems);
+      this.toolName = '';
       this.dialogVisible = false;
     },
   },

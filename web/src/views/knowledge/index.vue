@@ -32,6 +32,7 @@
             @handleSearch="getTableData"
           />
           <el-select
+            style="margin-right: 15px"
             v-model="tagIds"
             :placeholder="$t('knowledgeManage.selectTag')"
             multiple
@@ -44,6 +45,20 @@
               :key="item.tagId"
               :label="item.tagName"
               :value="item.tagId"
+            ></el-option>
+          </el-select>
+          <el-select
+            style="margin-right: 15px"
+            v-model="external"
+            :placeholder="$t('knowledgeManage.selectExternal')"
+            @visible-change="getTableData"
+            v-if="category === 0"
+          >
+            <el-option
+              v-for="item in externalOptions"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value"
             ></el-option>
           </el-select>
         </div>
@@ -59,10 +74,11 @@
           <el-button
             size="mini"
             type="primary"
-            @click="showCreate()"
+            @click="showDrawer()"
             icon="el-icon-plus"
+            v-if="category === 0"
           >
-            {{ $t('common.button.create') }}
+            {{ $t('knowledgeManage.externalAPI.title') }}
           </el-button>
         </div>
       </div>
@@ -78,8 +94,10 @@
       <createKnowledge
         ref="createKnowledge"
         @reloadData="getTableData"
+        @createExternalApi="showDrawer"
         :category="category"
       />
+      <externalAPIDrawer ref="externalAPIDrawer" @update="updateExternalAPI" />
     </div>
   </div>
 </template>
@@ -89,8 +107,14 @@ import SearchInput from '@/components/searchInput.vue';
 import knowledgeList from './component/knowledgeList.vue';
 import createKnowledge from './component/create.vue';
 import { qaDocExport } from '@/api/qaDatabase';
+import ExternalAPIDrawer from '@/components/externalAPIDrawer.vue';
 export default {
-  components: { SearchInput, knowledgeList, createKnowledge },
+  components: {
+    ExternalAPIDrawer,
+    SearchInput,
+    knowledgeList,
+    createKnowledge,
+  },
   provide() {
     return {
       reloadKnowledgeData: this.getTableData,
@@ -103,6 +127,21 @@ export default {
       tagOptions: [],
       tagIds: [],
       category: 0,
+      external: -1,
+      externalOptions: [
+        {
+          name: this.$t('knowledgeManage.all'),
+          value: -1,
+        },
+        {
+          name: this.$t('knowledgeManage.internal'),
+          value: 0,
+        },
+        {
+          name: this.$t('knowledgeManage.external'),
+          value: 1,
+        },
+      ],
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -115,6 +154,12 @@ export default {
     this.getList();
   },
   methods: {
+    showDrawer() {
+      this.$refs.externalAPIDrawer.showDrawer();
+    },
+    updateExternalAPI() {
+      this.$refs.createKnowledge.getExternalAPIList();
+    },
     handleRouteFrom(from) {
       if (from.path.includes('/qa/docList')) {
         this.category = 1;
@@ -150,6 +195,7 @@ export default {
         name: searchInput,
         tagId: this.tagIds,
         category: this.category,
+        external: this.external,
       })
         .then(res => {
           this.knowledgeData = res.data.knowledgeList || [];
@@ -177,8 +223,8 @@ export default {
         }
       });
     },
-    showCreate(row) {
-      this.$refs.createKnowledge.showDialog(row);
+    showCreate() {
+      this.$refs.createKnowledge.showDialog();
     },
   },
 };

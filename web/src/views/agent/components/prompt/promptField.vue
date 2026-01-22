@@ -106,8 +106,6 @@
 </template>
 
 <script>
-// import Prologue from '../Prologue.vue';
-// import SessionComponentSe from '../SessionComponentSe.vue';
 import streamGreetingField from '@/components/stream/streamGreetingField';
 import streamMessageField from '@/components/stream/streamMessageField';
 import PromptOptimize from '@/components/promptOptimize.vue';
@@ -140,8 +138,6 @@ export default {
     },
   },
   components: {
-    // Prologue,
-    // SessionComponentSe,
     streamGreetingField,
     streamMessageField,
     PromptOptimize,

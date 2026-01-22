@@ -17,11 +17,26 @@
         :rules="rules"
         @submit.native.prevent
       >
+        <!-- tabs -->
+        <div class="tabs" v-if="!isEdit && category === 0">
+          <div
+            :class="['tab', { active: tabActive === 0 }]"
+            @click="tabClick(0)"
+          >
+            {{ $t('knowledgeManage.internal') }}
+          </div>
+          <div
+            :class="['tab', { active: tabActive === 1 }]"
+            @click="tabClick(1)"
+          >
+            {{ $t('knowledgeManage.external') }}
+          </div>
+        </div>
         <el-form-item
           :label="
             category === 0
-              ? $t('knowledgeManage.knowledgeName') + '：'
-              : $t('knowledgeManage.qaDatabase.name') + '：'
+              ? $t('knowledgeManage.knowledgeName')
+              : $t('knowledgeManage.qaDatabase.name')
           "
           prop="name"
         >
@@ -32,166 +47,226 @@
             show-word-limit
           ></el-input>
         </el-form-item>
-        <el-form-item
-          :label="$t('knowledgeManage.desc') + ':'"
-          prop="description"
-        >
+        <el-form-item :label="$t('knowledgeManage.desc')" prop="description">
           <el-input
             v-model="ruleForm.description"
             :placeholder="$t('common.input.inputDesc')"
           ></el-input>
         </el-form-item>
-        <el-form-item label="Embedding" prop="embeddingModelInfo.modelId">
-          <modelSelect
-            v-model="ruleForm.embeddingModelInfo.modelId"
-            :options="EmbeddingOptions"
-            :disabled="isEdit"
-          />
-        </el-form-item>
-        <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
-          <template #label>
-            <span>{{ $t('knowledgeManage.create.knowledgeGraph') }}:</span>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              placement="top-start"
-              popper-class="knowledge-graph-tooltip"
-            >
-              <span class="el-icon-question question-icon"></span>
-              <template #content>
-                <p
-                  v-for="(item, i) in knowledgeGraphTips"
-                  :key="i"
-                  class="tooltip-item"
-                >
-                  <span class="tooltip-title">{{ item.title }}</span>
-                  <span class="tooltip-content">{{ item.content }}</span>
-                </p>
-              </template>
-            </el-tooltip>
-          </template>
-          <el-switch
-            v-model="ruleForm.knowledgeGraph.switch"
-            :disabled="isEdit"
-          ></el-switch>
-        </el-form-item>
-        <el-form-item
-          :label="$t('knowledgeManage.create.modelSelect') + ':'"
-          prop="knowledgeGraph.llmModelId"
-          v-if="ruleForm.knowledgeGraph.switch"
-        >
-          <modelSelect
-            v-model="ruleForm.knowledgeGraph.llmModelId"
-            :options="knowledgeGraphModelOptions"
-            :placeholder="$t('knowledgeManage.create.modelSearchPlaceholder')"
-            @visible-change="visibleChange"
-            :loading-text="$t('knowledgeManage.create.modelLoading')"
-            :loading="modelLoading"
-            :filterable="true"
-            :disabled="isEdit"
-          />
-        </el-form-item>
-        <el-form-item
-          :label="$t('knowledgeManage.create.uploadSchema') + ':'"
-          v-if="ruleForm.knowledgeGraph.switch"
-        >
-          <el-upload
-            action=""
-            :auto-upload="false"
-            :show-file-list="false"
-            :on-change="uploadOnChange"
-            :file-list="fileList"
-            :limit="1"
-            drag
-            :disabled="isEdit"
-            accept=".xlsx,.xls"
-            class="upload-box"
-          >
-            <div>
-              <div>
-                <img
-                  :src="require('@/assets/imgs/uploadImg.png')"
-                  class="upload-img"
-                />
-                <p class="click-text">
-                  {{ $t('common.fileUpload.uploadText') }}
-                  <span class="clickUpload">
-                    {{ $t('common.fileUpload.uploadClick') }}
-                  </span>
-                </p>
-              </div>
-              <div class="tips">
-                <p>
-                  <span class="red">*</span>
-                  {{ $t('knowledgeManage.create.schemaTip1') }}
-                  <a
-                    class="template_downLoad"
-                    href="#"
-                    @click.prevent.stop="downloadTemplate"
+        <template v-if="tabActive === 0">
+          <el-form-item label="Embedding" prop="embeddingModelInfo.modelId">
+            <modelSelect
+              v-model="ruleForm.embeddingModelInfo.modelId"
+              :options="EmbeddingOptions"
+              :disabled="isEdit"
+            />
+          </el-form-item>
+          <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
+            <template #label>
+              <span>{{ $t('knowledgeManage.create.knowledgeGraph') }}:</span>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                placement="top-start"
+                popper-class="knowledge-graph-tooltip"
+              >
+                <span class="el-icon-question question-icon"></span>
+                <template #content>
+                  <p
+                    v-for="(item, i) in knowledgeGraphTips"
+                    :key="i"
+                    class="tooltip-item"
                   >
-                    {{ $t('knowledgeManage.create.templateDownload') }}
-                  </a>
-                </p>
-                <p>
-                  <span class="red">*</span>
-                  {{ $t('knowledgeManage.create.schemaTip2') }}
-                </p>
+                    <span class="tooltip-title">{{ item.title }}</span>
+                    <span class="tooltip-content">{{ item.content }}</span>
+                  </p>
+                </template>
+              </el-tooltip>
+            </template>
+            <el-switch
+              v-model="ruleForm.knowledgeGraph.switch"
+              :disabled="isEdit"
+            ></el-switch>
+          </el-form-item>
+          <el-form-item
+            :label="$t('knowledgeManage.create.modelSelect') + ':'"
+            prop="knowledgeGraph.llmModelId"
+            v-if="ruleForm.knowledgeGraph.switch"
+          >
+            <modelSelect
+              v-model="ruleForm.knowledgeGraph.llmModelId"
+              :options="knowledgeGraphModelOptions"
+              :placeholder="$t('knowledgeManage.create.modelSearchPlaceholder')"
+              @visible-change="visibleChange"
+              :loading-text="$t('knowledgeManage.create.modelLoading')"
+              :loading="modelLoading"
+              :filterable="true"
+              :disabled="isEdit"
+            />
+          </el-form-item>
+          <el-form-item
+            :label="$t('knowledgeManage.create.uploadSchema') + ':'"
+            v-if="ruleForm.knowledgeGraph.switch"
+          >
+            <el-upload
+              action=""
+              :auto-upload="false"
+              :show-file-list="false"
+              :on-change="uploadOnChange"
+              :file-list="fileList"
+              :limit="1"
+              drag
+              :disabled="isEdit"
+              accept=".xlsx,.xls"
+              class="upload-box"
+            >
+              <div>
+                <div>
+                  <img
+                    :src="require('@/assets/imgs/uploadImg.png')"
+                    class="upload-img"
+                  />
+                  <p class="click-text">
+                    {{ $t('common.fileUpload.uploadText') }}
+                    <span class="clickUpload">
+                      {{ $t('common.fileUpload.uploadClick') }}
+                    </span>
+                  </p>
+                </div>
+                <div class="tips">
+                  <p>
+                    <span class="red">*</span>
+                    {{ $t('knowledgeManage.create.schemaTip1') }}
+                    <a
+                      class="template_downLoad"
+                      href="#"
+                      @click.prevent.stop="downloadTemplate"
+                    >
+                      {{ $t('knowledgeManage.create.templateDownload') }}
+                    </a>
+                  </p>
+                  <p>
+                    <span class="red">*</span>
+                    {{ $t('knowledgeManage.create.schemaTip2') }}
+                  </p>
+                </div>
               </div>
-            </div>
-          </el-upload>
-          <!-- 上传文件的列表 -->
-          <div class="file-list" v-if="fileList.length > 0">
-            <transition name="el-zoom-in-top">
-              <ul class="document_lise">
-                <li
-                  v-for="(file, index) in fileList"
-                  :key="index"
-                  class="document_lise_item"
-                >
-                  <div style="padding: 8px 0" class="lise_item_box">
-                    <span class="size">
-                      <img :src="require('@/assets/imgs/fileicon.png')" />
-                      {{ file.name }}
-                      <span class="file-size">
-                        {{ filterSize(file.size) }}
-                      </span>
-                      <el-progress
-                        :percentage="file.percentage"
-                        v-if="file.percentage !== 100"
-                        :status="file.progressStatus"
-                        max="100"
-                        class="progress"
-                      ></el-progress>
-                    </span>
-                    <span class="handleBtn">
-                      <span>
-                        <span v-if="file.percentage === 100">
-                          <i
-                            class="el-icon-check check success"
-                            v-if="file.progressStatus === 'success'"
-                          ></i>
-                          <i class="el-icon-close close fail" v-else></i>
+            </el-upload>
+            <!-- 上传文件的列表 -->
+            <div class="file-list" v-if="fileList.length > 0">
+              <transition name="el-zoom-in-top">
+                <ul class="document_lise">
+                  <li
+                    v-for="(file, index) in fileList"
+                    :key="index"
+                    class="document_lise_item"
+                  >
+                    <div style="padding: 8px 0" class="lise_item_box">
+                      <span class="size">
+                        <img :src="require('@/assets/imgs/fileicon.png')" />
+                        {{ file.name }}
+                        <span class="file-size">
+                          {{ filterSize(file.size) }}
                         </span>
-                        <i
-                          class="el-icon-loading"
-                          v-else-if="
-                            file.percentage !== 100 && index === fileIndex
-                          "
-                        ></i>
+                        <el-progress
+                          :percentage="file.percentage"
+                          v-if="file.percentage !== 100"
+                          :status="file.progressStatus"
+                          max="100"
+                          class="progress"
+                        ></el-progress>
                       </span>
-                      <span style="margin-left: 30px">
-                        <i
-                          class="el-icon-error error"
-                          @click="handleRemove(file, index)"
-                        ></i>
+                      <span class="handleBtn">
+                        <span>
+                          <span v-if="file.percentage === 100">
+                            <i
+                              class="el-icon-check check success"
+                              v-if="file.progressStatus === 'success'"
+                            ></i>
+                            <i class="el-icon-close close fail" v-else></i>
+                          </span>
+                          <i
+                            class="el-icon-loading"
+                            v-else-if="
+                              file.percentage !== 100 && index === fileIndex
+                            "
+                          ></i>
+                        </span>
+                        <span style="margin-left: 30px">
+                          <i
+                            class="el-icon-error error"
+                            @click="handleRemove(file, index)"
+                          ></i>
+                        </span>
                       </span>
-                    </span>
-                  </div>
-                </li>
-              </ul>
-            </transition>
-          </div>
-        </el-form-item>
+                    </div>
+                  </li>
+                </ul>
+              </transition>
+            </div>
+          </el-form-item>
+        </template>
+        <template v-if="tabActive === 1">
+          <el-form-item
+            :label="$t('knowledgeManage.externalSource')"
+            prop="externalSource"
+          >
+            <el-select
+              v-model="ruleForm.externalSource"
+              :placeholder="$t('common.select.placeholder')"
+            >
+              <el-option
+                v-for="item in externalSourceOptions"
+                :key="item.sourceId"
+                :label="item.displayName"
+                :value="item.sourceId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item
+            :label="$t('knowledgeManage.external') + 'API'"
+            prop="externalApiId"
+          >
+            <el-select
+              v-model="ruleForm.externalApiId"
+              :placeholder="$t('common.select.placeholder')"
+              :loading="externalApiLoading"
+              @change="externalApiChange($event)"
+            >
+              <el-option
+                key="createNew"
+                :label="
+                  $t('common.create') + $t('knowledgeManage.externalKnowledge')
+                "
+                value="createNew"
+              ></el-option>
+              <el-option
+                v-for="item in externalApiOptions"
+                :key="item.externalApiId"
+                :label="item.name"
+                :value="item.externalApiId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item
+            :label="$t('knowledgeManage.externalKnowledge')"
+            prop="externalKnowledgeId"
+          >
+            <el-select
+              v-model="ruleForm.externalKnowledgeId"
+              :placeholder="$t('common.select.placeholder')"
+              :disabled="!ruleForm.externalApiId"
+              :loading="externalKnowledgeLoading"
+            >
+              <el-option
+                v-for="item in externalKnowledgeOptions"
+                :key="item.externalKnowledgeId"
+                :label="item.externalKnowledgeName"
+                :value="item.externalKnowledgeId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </template>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose()">
@@ -206,7 +281,14 @@
 </template>
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { createKnowledgeItem, editKnowledgeItem } from '@/api/knowledge';
+import {
+  createKnowledgeItem,
+  editKnowledgeItem,
+  getExternalAPIList,
+  getExternalList,
+  createExternal,
+  editExternal,
+} from '@/api/knowledge';
 import { selectModelList } from '@/api/modelAccess';
 import { KNOWLEDGE_GRAPH_TIPS } from '../config';
 import uploadChunk from '@/mixins/uploadChunk';
@@ -235,6 +317,7 @@ export default {
     };
     return {
       dialogVisible: false,
+      tabActive: 0,
       ruleForm: {
         name: '',
         description: '',
@@ -246,10 +329,18 @@ export default {
           schemaUrl: '',
           switch: false,
         },
+        externalSource: 'dify',
+        externalApiId: '',
+        externalKnowledgeId: '',
       },
       EmbeddingOptions: [],
       knowledgeGraphModelOptions: [],
+      externalSourceOptions: [{ sourceId: 'dify', displayName: 'Dify' }],
+      externalApiOptions: [],
+      externalKnowledgeOptions: [],
       modelLoading: false,
+      externalApiLoading: false,
+      externalKnowledgeLoading: false,
       knowledgeGraphTips: KNOWLEDGE_GRAPH_TIPS,
       maxSizeBytes: 0, // 设置为0，所有文件都走切片上传
       rules: {
@@ -282,6 +373,27 @@ export default {
             trigger: 'change',
           },
         ],
+        externalSource: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        externalApiId: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        externalKnowledgeId: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'blur',
+          },
+        ],
       },
       isEdit: false,
       knowledgeId: '',
@@ -295,6 +407,19 @@ export default {
         }
       },
     },
+    'ruleForm.externalApiId': {
+      handler(val) {
+        this.ruleForm.externalKnowledgeId = '';
+        if (val === 'createNew') {
+          this.ruleForm.externalApiId = '';
+          this.externalKnowledgeOptions = [];
+        } else if (val) {
+          this.getExternalKnowledgeList();
+        } else {
+          this.externalKnowledgeOptions = [];
+        }
+      },
+    },
   },
   computed: {
     ...mapGetters('app', ['embeddingList']),
@@ -305,6 +430,9 @@ export default {
   },
   methods: {
     ...mapActions('app', ['getEmbeddingList']),
+    tabClick(type) {
+      this.tabActive = type;
+    },
     visibleChange(val) {
       //下拉框显示的时候请求模型列表
       if (val) {
@@ -357,6 +485,32 @@ export default {
         this.modelLoading = false;
       }
       this.modelLoading = false;
+    },
+    async getExternalAPIList() {
+      this.externalApiLoading = true;
+      const res = await getExternalAPIList();
+      if (res.code === 0) {
+        this.externalApiOptions = res.data.externalApiList;
+        this.externalApiLoading = false;
+      }
+      this.externalApiLoading = false;
+    },
+    async getExternalKnowledgeList() {
+      this.externalKnowledgeLoading = true;
+      const res = await getExternalList({
+        externalApiId: this.ruleForm.externalApiId,
+      });
+      if (res.code === 0) {
+        this.externalKnowledgeOptions = res.data.externalKnowledgeList;
+        this.externalKnowledgeLoading = false;
+      }
+      this.externalKnowledgeLoading = false;
+    },
+    externalApiChange(val) {
+      if (val === 'createNew') {
+        this.$emit('createExternalApi');
+        this.ruleForm.externalApiId = '';
+      }
     },
     handleClose() {
       this.dialogVisible = false;
@@ -550,7 +704,9 @@ export default {
         ...this.ruleForm,
         category: this.category,
       };
-      createKnowledgeItem(data)
+      const request =
+        this.tabActive === 1 ? createExternal(data) : createKnowledgeItem(data);
+      request
         .then(res => {
           if (res.code === 0) {
             this.$message.success(
@@ -569,7 +725,9 @@ export default {
         ...this.ruleForm,
         knowledgeId: this.knowledgeId,
       };
-      editKnowledgeItem(data)
+      const request =
+        this.tabActive === 1 ? editExternal(data) : editKnowledgeItem(data);
+      request
         .then(res => {
           if (res.code === 0) {
             this.$message.success(
@@ -597,10 +755,34 @@ export default {
           },
           knowledgeGraph: {
             llmModelId: row.llmModelId,
-            switch: row.graphSwitch === 1 ? true : false,
+            switch: row.graphSwitch === 1,
             schemaUrl: '',
           },
+          externalSource: row.externalKnowledgeInfo.externalSource,
+          externalApiId: row.externalKnowledgeInfo.externalApiId,
+          externalKnowledgeId: row.externalKnowledgeInfo.externalKnowledgeId,
         };
+        if (row.external === 1) {
+          this.tabActive = 1;
+          this.externalApiOptions = [
+            {
+              externalApiId: this.ruleForm.externalApiId,
+              name: row.externalKnowledgeInfo.externalApiName,
+            },
+          ];
+          this.externalKnowledgeOptions = [
+            {
+              externalKnowledgeId: this.ruleForm.externalKnowledgeId,
+              externalKnowledgeName:
+                row.externalKnowledgeInfo.externalKnowledgeName,
+            },
+          ];
+          this.getExternalKnowledgeList();
+          this.$nextTick(() => {
+            this.ruleForm.externalKnowledgeId =
+              row.externalKnowledgeInfo.externalKnowledgeId;
+          });
+        }
       } else {
         this.ruleForm = {
           name: '',
@@ -613,14 +795,20 @@ export default {
             schemaUrl: '',
             switch: false,
           },
+          externalSource: 'dify',
+          externalApiId: '',
+          externalKnowledgeId: '',
         };
       }
+      this.getExternalAPIList();
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+@import '@/style/tabs';
+
 .knowledge-create-dialog {
   ::v-deep .el-dialog__body {
     max-height: 60vh;

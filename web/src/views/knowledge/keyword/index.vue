@@ -160,7 +160,6 @@ export default {
       title_tips: '',
       showTips: false,
       tableData: [],
-      keyWordeData: [],
     };
   },
   mounted() {
@@ -180,7 +179,7 @@ export default {
       this.$refs.createKeyWords.showDialog(item);
     },
     goBack() {
-      this.$router.push({ path: '/knowledge' });
+      this.$router.back();
     },
     handleSearch(val) {
       this.docQuery.name = val;
