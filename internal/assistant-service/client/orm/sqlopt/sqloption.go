@@ -33,6 +33,24 @@ func WithID(id uint32) SQLOption {
 	})
 }
 
+func WithMultiAgentID(id uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if id == 0 {
+			return db
+		}
+		return db.Where("multi_agent_id = ?", id)
+	})
+}
+
+func WithAgentID(id uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if id == 0 {
+			return db
+		}
+		return db.Where("agent_id = ?", id)
+	})
+}
+
 func WithIDs(ids []uint32) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("id IN ?", ids)
@@ -142,6 +160,18 @@ func WithVersion(version string) SQLOption {
 			return db.Where("version = ?", version)
 		}
 		return db
+	})
+}
+
+func WithVersionNonEmpty() SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("version != ?", "")
+	})
+}
+
+func WithVersionIsEmpty() SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("version = ?", "")
 	})
 }
 

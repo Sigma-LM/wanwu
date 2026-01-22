@@ -18,6 +18,7 @@ import (
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
 func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, needLatestPublished bool) error {
@@ -74,8 +75,12 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 		},
 		Draft: !needLatestPublished,
 	}
-	//if agentReq.Category == 如果是多智能体则直接调用多智能体
-	stream, err := assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
+	var stream grpc.ServerStreamingClient[assistant_service.AssistantConversionStreamResp]
+	if agentInfo.Category == constant.MultiAgent {
+		stream, err = assistant.MultiAssistantConversionStream(ctx.Request.Context(), buildMultiAssistantConversionStreamReq(agentReq))
+	} else {
+		stream, err = assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -321,4 +326,17 @@ func (s *agentSensitiveService) buildSensitiveResp(id string, content string) []
 	}
 	marshal, _ := json.Marshal(resp)
 	return []string{"data: " + string(marshal)}
+}
+
+func buildMultiAssistantConversionStreamReq(req *assistant_service.AssistantConversionStreamReq) *assistant_service.MultiAssistantConversionStreamReq {
+	return &assistant_service.MultiAssistantConversionStreamReq{
+		AssistantId:    req.AssistantId,
+		ConversationId: req.ConversationId,
+		FileInfo:       req.FileInfo,
+		Trial:          req.Trial,
+		Prompt:         req.Prompt,
+		SystemPrompt:   req.SystemPrompt,
+		Identity:       req.Identity,
+		Draft:          req.Draft,
+	}
 }

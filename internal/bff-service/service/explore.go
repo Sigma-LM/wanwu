@@ -173,7 +173,7 @@ func explorerationFilterRag(ctx *gin.Context, explorationApp []*app_service.Expl
 		for _, expApp := range explorationApp {
 			if expApp.AppId == id {
 				appInfo := &response.ExplorationAppInfo{
-					AppBriefInfo: appBriefProto2Model(ctx, foundRag),
+					AppBriefInfo: appBriefProto2Model(ctx, foundRag, 0),
 				}
 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
@@ -217,9 +217,11 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 	var retAppList []*response.ExplorationAppInfo
 	for _, id := range ids {
 		var foundAgent *common.AppBrief
+		var category int32
 		for _, ragInfo := range agentList.AssistantInfos {
-			if ragInfo.AppId == id {
-				foundAgent = ragInfo
+			if ragInfo.GetInfo().AppId == id {
+				foundAgent = ragInfo.Info
+				category = ragInfo.Category
 				break
 			}
 		}
@@ -229,7 +231,7 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 		for _, expApp := range apps {
 			if expApp.AppId == id {
 				appInfo := &response.ExplorationAppInfo{
-					AppBriefInfo: appBriefProto2Model(ctx, foundAgent),
+					AppBriefInfo: appBriefProto2Model(ctx, foundAgent, category),
 				}
 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)

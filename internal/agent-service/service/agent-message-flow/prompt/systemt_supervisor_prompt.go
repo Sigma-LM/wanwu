@@ -1,13 +1,18 @@
 package prompt
 
 const (
-	SupervisorAgentTemplate = "- a agent named %s. %s \n"
-	SupervisorPrompt        = `
-		You are a supervisor managing %s agents:
+	PlaceholderOfSubAgentCount = "sub_agent_count"
+	PlaceholderOfSubAgent      = "sub_agent"
 
-		%s
-        //- a research agent. Assign research-related tasks to this agent
-        //- a math agent. Assign math-related tasks to this agent
+	SupervisorAgentTemplate = "- a agent named %s. %s \n"
+	Sub
+	SupervisorPrompt = `
+		It is {{ time }} now.
+		You are {{ agent_name }}, a supervisor managing {{ sub_agent_count }} agents:
+
+		{{ sub_agent }}
+
         Assign work to one agent at a time, do not call agents in parallel.
-        Do not do any work yourself.`
+        Do not do any work yourself.
+		Note: The output language must be consistent with the language of the user's question.`
 )

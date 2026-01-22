@@ -3,10 +3,11 @@ package assistant
 import (
 	"context"
 	"encoding/json"
+	"strings"
+
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/service"
 	params_process "github.com/UnicomAI/wanwu/internal/assistant-service/service/params-process"
-	"strings"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/api/proto/common"
@@ -33,19 +34,23 @@ func (s *Service) GetAssistantByIds(ctx context.Context, req *assistant_service.
 	}
 
 	// 转换为响应格式
-	var appBriefs []*common.AppBrief
+	var appBriefs []*assistant_service.AssistantBrief
 	for _, assistant := range assistants {
-		appBriefs = append(appBriefs, &common.AppBrief{
-			OrgId:      assistant.OrgId,
-			UserId:     assistant.UserId,
-			AppId:      util.Int2Str(assistant.ID),
-			AppType:    "agent",
-			Name:       assistant.Name,
-			AvatarPath: assistant.AvatarPath,
-			Desc:       assistant.Desc,
-			CreatedAt:  assistant.CreatedAt,
-			UpdatedAt:  assistant.UpdatedAt,
+		appBriefs = append(appBriefs, &assistant_service.AssistantBrief{
+			Info: &common.AppBrief{
+				OrgId:      assistant.OrgId,
+				UserId:     assistant.UserId,
+				AppId:      util.Int2Str(assistant.ID),
+				AppType:    "agent",
+				AvatarPath: assistant.AvatarPath,
+				Name:       assistant.Name,
+				Desc:       assistant.Desc,
+				CreatedAt:  assistant.CreatedAt,
+				UpdatedAt:  assistant.UpdatedAt,
+			},
+			Category: int32(assistant.Category),
 		})
+
 	}
 
 	return &assistant_service.AppBriefList{
@@ -55,6 +60,9 @@ func (s *Service) GetAssistantByIds(ctx context.Context, req *assistant_service.
 
 // AssistantCreate 创建智能体
 func (s *Service) AssistantCreate(ctx context.Context, req *assistant_service.AssistantCreateReq) (*assistant_service.AssistantCreateResp, error) {
+	if req.Category == 0 {
+		req.Category = model.SingleAgent
+	}
 	// 组装model参数
 	assistant := &model.Assistant{
 		UUID:       util.NewID(),
@@ -64,6 +72,7 @@ func (s *Service) AssistantCreate(ctx context.Context, req *assistant_service.As
 		Scope:      1,
 		UserId:     req.Identity.UserId,
 		OrgId:      req.Identity.OrgId,
+		Category:   int(req.Category),
 	}
 	// 查找否存在相同名称智能体
 	if err := s.cli.CheckSameAssistantName(ctx, req.Identity.UserId, req.Identity.OrgId, req.AssistantBrief.Name, ""); err != nil {
@@ -246,19 +255,23 @@ func (s *Service) GetAssistantListMyAll(ctx context.Context, req *assistant_serv
 	}
 
 	// 转换为响应格式
-	var appBriefs []*common.AppBrief
+	var appBriefs []*assistant_service.AssistantBrief
 	for _, assistant := range assistants {
-		appBriefs = append(appBriefs, &common.AppBrief{
-			OrgId:      assistant.OrgId,
-			UserId:     assistant.UserId,
-			AppId:      util.Int2Str(assistant.ID),
-			AppType:    "agent",
-			Name:       assistant.Name,
-			AvatarPath: assistant.AvatarPath,
-			Desc:       assistant.Desc,
-			CreatedAt:  assistant.CreatedAt,
-			UpdatedAt:  assistant.UpdatedAt,
+		appBriefs = append(appBriefs, &assistant_service.AssistantBrief{
+			Info: &common.AppBrief{
+				OrgId:      assistant.OrgId,
+				UserId:     assistant.UserId,
+				AppId:      util.Int2Str(assistant.ID),
+				AppType:    "agent",
+				AvatarPath: assistant.AvatarPath,
+				Name:       assistant.Name,
+				Desc:       assistant.Desc,
+				CreatedAt:  assistant.CreatedAt,
+				UpdatedAt:  assistant.UpdatedAt,
+			},
+			Category: int32(assistant.Category),
 		})
+
 	}
 
 	return &assistant_service.AppBriefList{
@@ -417,6 +430,12 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		}
 	}
 
+	// 构建多智能体信息
+	multiAgentInfos, err := s.GetMultiAgentInfos(ctx, assistantId, req.Identity.UserId, req.Identity.OrgId, "", true)
+	if err != nil {
+		return nil, err
+	}
+
 	return &assistant_service.AssistantInfo{
 		AssistantId: util.Int2Str(assistant.ID),
 		Identity: &assistant_service.Identity{
@@ -443,6 +462,8 @@ func (s *Service) GetAssistantInfo(ctx context.Context, req *assistant_service.G
 		WorkFlowInfos:       workFlowInfos,
 		McpInfos:            mcpInfos,
 		ToolInfos:           toolInfos,
+		MultiAgentInfos:     multiAgentInfos,
+		Category:            int32(assistant.Category),
 		CreatTime:           assistant.CreatedAt,
 		UpdateTime:          assistant.UpdatedAt,
 	}, nil
@@ -456,6 +477,40 @@ func (s *Service) GetAssistantIdByUuid(ctx context.Context, req *assistant_servi
 	return &assistant_service.GetAssistantIdByUuidResp{
 		AssistantId: util.Int2Str(assistant.ID),
 	}, nil
+}
+
+func (s *Service) GetMultiAgentInfos(ctx context.Context, assistantId uint32, userId, orgId, version string, draft bool) ([]*assistant_service.AssistantMultiAgentInfos, error) {
+	multiAgentInfos := make([]*assistant_service.AssistantMultiAgentInfos, 0)
+	_, _, subAgents, err := s.cli.GetMultiAssistant(ctx, assistantId, userId, orgId, draft, version, false)
+	if err != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, &errs.Status{
+			TextKey: "assistant_multi_agent_get",
+			Args:    []string{err.Error()},
+		})
+	}
+	if len(subAgents) > 0 {
+		// 解析子智能体信息
+		subAgentInfos, err := parseSubAgentInfos(subAgents)
+		if err != nil {
+			return nil, err
+		}
+		// 获取多智能体关系
+		relations, errR := s.cli.FetchMultiAssistantRelationList(ctx, assistantId, version, draft)
+		if errR != nil {
+			return nil, errStatus(errs.Code_AssistantMultiAgentErr, errR)
+		}
+		relationMap := buildRelationMap(relations)
+		for _, subAgent := range subAgentInfos {
+			multiAgentInfos = append(multiAgentInfos, &assistant_service.AssistantMultiAgentInfos{
+				AgentId:    util.Int2Str(subAgent.ID),
+				Name:       subAgent.Name,
+				Desc:       relationMap[subAgent.ID].Description,
+				AvatarPath: subAgent.AvatarPath,
+				Enable:     relationMap[subAgent.ID].Enable,
+			})
+		}
+	}
+	return multiAgentInfos, nil
 }
 
 func (s *Service) AssistantCopy(ctx context.Context, req *assistant_service.AssistantCopyReq) (*assistant_service.AssistantCreateResp, error) {
@@ -487,9 +542,13 @@ func (s *Service) AssistantCopy(ctx context.Context, req *assistant_service.Assi
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
-
+	// 获取关联的多智能体配置
+	subAgents, status := s.cli.FetchMultiAssistantRelationList(ctx, assistantId, "", true)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
 	// 复制智能体
-	assistantID, status := s.cli.CopyAssistant(ctx, parentAssistant, workflows, mcps, tools)
+	assistantID, status := s.cli.CopyAssistant(ctx, parentAssistant, workflows, mcps, tools, subAgents)
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}
@@ -559,4 +618,28 @@ func buildAgentParams(ctx context.Context, cli client.IClient, agent *model.Assi
 		KnowledgeParams().
 		ToolParams().
 		Build()
+}
+
+func parseSubAgentInfos(subAgents []*model.AssistantSnapshot) ([]*model.Assistant, error) {
+	var subAgentInfos []*model.Assistant
+	for _, subAgent := range subAgents {
+		// 解析subAgent
+		var subAgentInfo *model.Assistant
+		if err := jsonToStruct(subAgent.AssistantInfo, &subAgentInfo); err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, toErrStatus("assistant_snapshot", err.Error()))
+		}
+		if subAgentInfo == nil {
+			return nil, errStatus(errs.Code_AssistantErr, toErrStatus("assistant_snapshot", "assistant info is nil"))
+		}
+		subAgentInfos = append(subAgentInfos, subAgentInfo)
+	}
+	return subAgentInfos, nil
+}
+
+func buildRelationMap(relations []*model.MultiAgentRelation) map[uint32]*model.MultiAgentRelation {
+	relationMap := make(map[uint32]*model.MultiAgentRelation, len(relations))
+	for _, relation := range relations {
+		relationMap[relation.AgentId] = relation
+	}
+	return relationMap
 }

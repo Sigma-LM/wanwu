@@ -65,6 +65,10 @@ const (
 	AssistantService_CustomPromptGet_FullMethodName                     = "/assistant_service.AssistantService/CustomPromptGet"
 	AssistantService_CustomPromptGetList_FullMethodName                 = "/assistant_service.AssistantService/CustomPromptGetList"
 	AssistantService_CustomPromptCopy_FullMethodName                    = "/assistant_service.AssistantService/CustomPromptCopy"
+	AssistantService_MultiAgentCreate_FullMethodName                    = "/assistant_service.AssistantService/MultiAgentCreate"
+	AssistantService_MultiAgentDelete_FullMethodName                    = "/assistant_service.AssistantService/MultiAgentDelete"
+	AssistantService_MultiAgentEnableSwitch_FullMethodName              = "/assistant_service.AssistantService/MultiAgentEnableSwitch"
+	AssistantService_MultiAgentConfigUpdate_FullMethodName              = "/assistant_service.AssistantService/MultiAgentConfigUpdate"
 )
 
 // AssistantServiceClient is the client API for AssistantService service.
@@ -123,6 +127,11 @@ type AssistantServiceClient interface {
 	CustomPromptGet(ctx context.Context, in *CustomPromptGetReq, opts ...grpc.CallOption) (*CustomPromptInfo, error)
 	CustomPromptGetList(ctx context.Context, in *CustomPromptGetListReq, opts ...grpc.CallOption) (*CustomPromptList, error)
 	CustomPromptCopy(ctx context.Context, in *CustomPromptCopyReq, opts ...grpc.CallOption) (*CustomPromptIDResp, error)
+	// --- multi-agent ---
+	MultiAgentCreate(ctx context.Context, in *MultiAgentCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	MultiAgentDelete(ctx context.Context, in *MultiAgentCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	MultiAgentEnableSwitch(ctx context.Context, in *MultiAgentEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	MultiAgentConfigUpdate(ctx context.Context, in *MultiAgentConfigUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type assistantServiceClient struct {
@@ -610,6 +619,46 @@ func (c *assistantServiceClient) CustomPromptCopy(ctx context.Context, in *Custo
 	return out, nil
 }
 
+func (c *assistantServiceClient) MultiAgentCreate(ctx context.Context, in *MultiAgentCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_MultiAgentCreate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) MultiAgentDelete(ctx context.Context, in *MultiAgentCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_MultiAgentDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) MultiAgentEnableSwitch(ctx context.Context, in *MultiAgentEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_MultiAgentEnableSwitch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) MultiAgentConfigUpdate(ctx context.Context, in *MultiAgentConfigUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_MultiAgentConfigUpdate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssistantServiceServer is the server API for AssistantService service.
 // All implementations must embed UnimplementedAssistantServiceServer
 // for forward compatibility.
@@ -666,6 +715,11 @@ type AssistantServiceServer interface {
 	CustomPromptGet(context.Context, *CustomPromptGetReq) (*CustomPromptInfo, error)
 	CustomPromptGetList(context.Context, *CustomPromptGetListReq) (*CustomPromptList, error)
 	CustomPromptCopy(context.Context, *CustomPromptCopyReq) (*CustomPromptIDResp, error)
+	// --- multi-agent ---
+	MultiAgentCreate(context.Context, *MultiAgentCreateReq) (*emptypb.Empty, error)
+	MultiAgentDelete(context.Context, *MultiAgentCreateReq) (*emptypb.Empty, error)
+	MultiAgentEnableSwitch(context.Context, *MultiAgentEnableSwitchReq) (*emptypb.Empty, error)
+	MultiAgentConfigUpdate(context.Context, *MultiAgentConfigUpdateReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAssistantServiceServer()
 }
 
@@ -810,6 +864,18 @@ func (UnimplementedAssistantServiceServer) CustomPromptGetList(context.Context, 
 }
 func (UnimplementedAssistantServiceServer) CustomPromptCopy(context.Context, *CustomPromptCopyReq) (*CustomPromptIDResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CustomPromptCopy not implemented")
+}
+func (UnimplementedAssistantServiceServer) MultiAgentCreate(context.Context, *MultiAgentCreateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiAgentCreate not implemented")
+}
+func (UnimplementedAssistantServiceServer) MultiAgentDelete(context.Context, *MultiAgentCreateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiAgentDelete not implemented")
+}
+func (UnimplementedAssistantServiceServer) MultiAgentEnableSwitch(context.Context, *MultiAgentEnableSwitchReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiAgentEnableSwitch not implemented")
+}
+func (UnimplementedAssistantServiceServer) MultiAgentConfigUpdate(context.Context, *MultiAgentConfigUpdateReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiAgentConfigUpdate not implemented")
 }
 func (UnimplementedAssistantServiceServer) mustEmbedUnimplementedAssistantServiceServer() {}
 func (UnimplementedAssistantServiceServer) testEmbeddedByValue()                          {}
@@ -1621,6 +1687,78 @@ func _AssistantService_CustomPromptCopy_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssistantService_MultiAgentCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiAgentCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).MultiAgentCreate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_MultiAgentCreate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).MultiAgentCreate(ctx, req.(*MultiAgentCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_MultiAgentDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiAgentCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).MultiAgentDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_MultiAgentDelete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).MultiAgentDelete(ctx, req.(*MultiAgentCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_MultiAgentEnableSwitch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiAgentEnableSwitchReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).MultiAgentEnableSwitch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_MultiAgentEnableSwitch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).MultiAgentEnableSwitch(ctx, req.(*MultiAgentEnableSwitchReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_MultiAgentConfigUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiAgentConfigUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).MultiAgentConfigUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_MultiAgentConfigUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).MultiAgentConfigUpdate(ctx, req.(*MultiAgentConfigUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssistantService_ServiceDesc is the grpc.ServiceDesc for AssistantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1795,6 +1933,22 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CustomPromptCopy",
 			Handler:    _AssistantService_CustomPromptCopy_Handler,
+		},
+		{
+			MethodName: "MultiAgentCreate",
+			Handler:    _AssistantService_MultiAgentCreate_Handler,
+		},
+		{
+			MethodName: "MultiAgentDelete",
+			Handler:    _AssistantService_MultiAgentDelete_Handler,
+		},
+		{
+			MethodName: "MultiAgentEnableSwitch",
+			Handler:    _AssistantService_MultiAgentEnableSwitch_Handler,
+		},
+		{
+			MethodName: "MultiAgentConfigUpdate",
+			Handler:    _AssistantService_MultiAgentConfigUpdate_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

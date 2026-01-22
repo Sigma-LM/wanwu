@@ -2,10 +2,12 @@ package local_agent
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/config"
 	agent_message_flow "github.com/UnicomAI/wanwu/internal/agent-service/service/agent-message-flow"
 	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
+	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/compose"
@@ -22,6 +24,8 @@ func (a *ChatAgent) CreateChatModel(ctx context.Context, req *request.AgentChatP
 
 // BuildAgentInput 构造会话消息
 func (a *ChatAgent) BuildAgentInput(ctx context.Context, req *request.AgentChatParams, agentChatInfo *service_model.AgentChatInfo, agentInput *adk.AgentInput, generator *adk.AsyncGenerator[*adk.AgentEvent]) (*adk.AgentInput, error) {
+	marshal, _ := json.Marshal(agentInput.Messages)
+	log.Infof("%s BuildAgentInput %s", req.AgentBaseParams.Name, string(marshal))
 	userInput, messages := splitUserInput(req, agentInput.Messages)
 	req.Input = userInput
 
@@ -36,9 +40,11 @@ func (a *ChatAgent) BuildAgentInput(ctx context.Context, req *request.AgentChatP
 	if err != nil {
 		return nil, err
 	}
-	messages = append(messages, createMessages...)
+	createMessages = append(createMessages, messages...)
+	marshal1, _ := json.Marshal(createMessages)
+	log.Infof("%s multiAgent %v BuildAgentInput  createMessages %s", req.AgentBaseParams.Name, req.MultiAgent, string(marshal1))
 	return &adk.AgentInput{
-		Messages:        messages,
+		Messages:        createMessages,
 		EnableStreaming: agentInput.EnableStreaming,
 	}, nil
 }
@@ -47,10 +53,11 @@ func splitUserInput(req *request.AgentChatParams, messages []*schema.Message) (s
 	if len(messages) > 0 {
 		var retMessages []*schema.Message
 		var userInput string
+		var gotUserMessage = false
 		for _, message := range messages {
-			if message.Role == schema.User || len(message.Content) > 0 {
+			if !gotUserMessage && message.Role == schema.User && len(message.Content) > 0 {
 				userInput = message.Content
-				continue
+				gotUserMessage = true
 			} else {
 				retMessages = append(retMessages, message)
 			}
@@ -60,7 +67,7 @@ func splitUserInput(req *request.AgentChatParams, messages []*schema.Message) (s
 	return req.Input, messages
 }
 func createMessageBuilder(ctx context.Context, req *request.AgentChatContext) (compose.Runnable[*request.AgentChatContext, []*schema.Message], error) {
-	graph := agent_message_flow.NewAgentMessageFlow()
+	graph := agent_message_flow.NewAgentMessageFlow(req.AgentChatReq.MultiAgent)
 	return graph.Compile(ctx)
 }
 

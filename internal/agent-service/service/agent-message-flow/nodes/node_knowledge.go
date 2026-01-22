@@ -33,6 +33,7 @@ func (k *KnowledgeRetriever) Retrieve(ctx context.Context, reqContext *request.A
 	req.KnowledgeParams.CustomModelInfo = &request.CustomModelInfo{
 		LlmModelID: req.ModelParams.ModelId,
 	}
+
 	//sendMessage(reqContext.Generator, "知识库检索中...")
 	//defer func() {
 	//	sendMessage(reqContext.Generator, "知识库检索完成...")

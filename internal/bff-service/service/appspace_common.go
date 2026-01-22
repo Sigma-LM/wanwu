@@ -16,7 +16,7 @@ import (
 
 // --- app breif ---
 
-func appBriefProto2Model(ctx *gin.Context, appBrief *common.AppBrief) response.AppBriefInfo {
+func appBriefProto2Model(ctx *gin.Context, appBrief *common.AppBrief, category int32) response.AppBriefInfo {
 	return response.AppBriefInfo{
 		AppId:     appBrief.AppId,
 		AppType:   appBrief.AppType,
@@ -26,6 +26,7 @@ func appBriefProto2Model(ctx *gin.Context, appBrief *common.AppBrief) response.A
 		Desc:      appBrief.Desc,
 		CreatedAt: util.Time2Str(appBrief.CreatedAt),
 		UpdatedAt: util.Time2Str(appBrief.UpdatedAt),
+		Category:  category,
 	}
 }
 

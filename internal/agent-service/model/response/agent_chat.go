@@ -27,6 +27,15 @@ const (
 )
 
 type AgentChatRespContext struct {
+	MainAgentName    string //主智能体名称
+	MultiAgent       bool   //多智能体
+	AgentStart       bool   //智能体开始
+	AgentStartTime   int64
+	AgentTempMessage strings.Builder
+	CurrentAgent     string //当前智能体
+	CurrentAgentId   string //当前智能体Id
+	ExitTool         bool   //退出工具开始
+	//上面为多智能体相关参数
 	HasTool            bool // 是否包含工具
 	ToolStart          bool // 是否工具已开始
 	ToolEnd            bool // 是否工具已结束
@@ -40,10 +49,12 @@ type AgentChatRespContext struct {
 	ToolParamsEndCount   int //工具参数结束的数量
 }
 
-func NewAgentChatRespContext() *AgentChatRespContext {
+func NewAgentChatRespContext(multiAgent bool, mainAgentName string) *AgentChatRespContext {
 	return &AgentChatRespContext{
-		ToolCountMap: make(map[string]int),
-		ToolIndex:    -1,
+		MainAgentName: mainAgentName,
+		ToolCountMap:  make(map[string]int),
+		ToolIndex:     -1,
+		MultiAgent:    multiAgent,
 	}
 }
 
@@ -51,6 +62,8 @@ type AgentChatResp struct {
 	Code           int             `json:"code"`
 	Message        string          `json:"message"`
 	Response       string          `json:"response"`
+	EventType      AgentEventType  `json:"eventType"`
+	EventData      interface{}     `json:"eventData"`
 	GenFileUrlList []interface{}   `json:"gen_file_url_list"`
 	History        []interface{}   `json:"history"`
 	Finish         int             `json:"finish"`
@@ -66,6 +79,9 @@ type AgentChatUsage struct {
 }
 
 func NewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext, req *request.AgentChatContext) ([]string, error) {
+	if respContext.MultiAgent { //多智能体单独处理
+		return MultiNewAgentChatRespWithTool(chatMessage, respContext, req)
+	}
 	contentList := buildContentWithTool(chatMessage, respContext)
 	var outputList = make([]string, 0)
 	for _, content := range contentList {
@@ -77,7 +93,7 @@ func NewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentCha
 			History:        []interface{}{},
 			QaType:         buildQaType(req),
 			SearchList:     buildSearchList(req),
-			Finish:         buildFinish(chatMessage),
+			Finish:         buildFinish(chatMessage, false),
 			Usage:          buildUsage(chatMessage),
 		}
 		respString, err := buildRespString(agentChatResp)
@@ -235,8 +251,14 @@ func toolEnd(chatMessage *schema.Message) bool {
 	return chatMessage.Role == schema.Tool
 }
 
-func buildFinish(chatMessage *schema.Message) int {
+func buildFinish(chatMessage *schema.Message, notStop bool) int {
+	if notStop {
+		return notFinish
+	}
 	if chatMessage.ResponseMeta != nil && chatMessage.ResponseMeta.FinishReason == "stop" {
+		return finish
+	}
+	if chatMessage.Role == schema.Tool && chatMessage.ToolName == "exit" {
 		return finish
 	}
 	return notFinish

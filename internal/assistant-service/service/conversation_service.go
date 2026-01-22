@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"github.com/UnicomAI/wanwu/pkg/es"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/google/uuid"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const (
@@ -35,6 +36,8 @@ type AgentChatResp struct {
 	Response   string        `json:"response"`
 	SearchList []interface{} `json:"search_list"`
 	Finish     int           `json:"finish"`
+	EventType  int           `json:"eventType"`
+	EventData  interface{}   `json:"eventData"`
 }
 
 type ConversationProcessor struct {
@@ -111,6 +114,9 @@ func processAgentResp(strLine string, streamContextParams interface{}) (string, 
 					searchList = string(marshal)
 				}
 			}
+			if agentChatResp.EventType != 0 { //非主智能体的先不记录历史
+				return "", ""
+			}
 			return agentChatResp.Response, searchList
 		}
 	}
@@ -130,16 +136,15 @@ func buildResponse(response string, err error) string {
 
 // 构建错误信息,todo 后续考虑创建枚举明细错误信息
 func buildErrMsg(err error) string {
-	log.Errorf("buildErrMsg error info : %v", err)
 	var agentChatResp = &AgentChatResp{
 		Code:     1,
 		Message:  "智能体处理异常，请稍后重试",
 		Response: "智能体处理异常，请稍后重试",
 		Finish:   1,
 	}
-	respString, err1 := json.Marshal(agentChatResp)
-	if err1 != nil {
-		log.Errorf("buildErrMsg error: %v", err1)
+	respString, errR := json.Marshal(agentChatResp)
+	if errR != nil {
+		log.Errorf("buildErrMsg error: %v", errR)
 		return ""
 	}
 	return string(respString)

@@ -11,6 +11,11 @@ type AssistantBrief struct {
 
 func (a *AssistantBrief) Check() error { return nil }
 
+type AssistantCreateReq struct {
+	Category int `json:"category"` // 1:单智能体 2:多智能体
+	AppBriefConfig
+}
+
 type AssistantConfig struct {
 	AssistantId         string                  `json:"assistantId"  validate:"required"`
 	Prologue            string                  `json:"prologue"`            // 开场白
@@ -200,6 +205,26 @@ type AssistantToolConfig struct {
 }
 
 func (c *AssistantToolConfigRequest) Check() error { return nil }
+
+type MultiAgentCreateReq struct {
+	AssistantId string `json:"assistantId" validate:"required"` // 多智能体id
+	AgentId     string `json:"agentId" validate:"required"`     // 子智能体id
+	CommonCheck
+}
+
+type MultiAgentEnableSwitchReq struct {
+	AssistantId string `json:"assistantId" validate:"required"` // 多智能体id
+	AgentId     string `json:"agentId" validate:"required"`     // 子智能体id
+	Enable      bool   `json:"enable"`                          // 开关状态
+	CommonCheck
+}
+
+type MultiAgentConfigUpdateReq struct {
+	AssistantId string `json:"assistantId" validate:"required"` // 多智能体id
+	AgentId     string `json:"agentId" validate:"required"`     // 子智能体id
+	Desc        string `json:"desc" validate:"required"`        // 子智能体描述
+	CommonCheck
+}
 
 type QuestionRecommendRequest struct {
 	Query          string `json:"query" form:"query"  validate:"required"`             //用户问题

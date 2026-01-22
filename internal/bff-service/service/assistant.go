@@ -21,13 +21,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AssistantCreate(ctx *gin.Context, userId, orgId string, req request.AppBriefConfig) (*response.AssistantCreateResp, error) {
+func AssistantCreate(ctx *gin.Context, userId, orgId string, req request.AssistantCreateReq) (*response.AssistantCreateResp, error) {
 	resp, err := assistant.AssistantCreate(ctx.Request.Context(), &assistant_service.AssistantCreateReq{
-		AssistantBrief: appBriefConfigModel2Proto(req),
+		AssistantBrief: assistantBriefConfigModel2Proto(req),
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
 		},
+		Category: int32(req.Category),
 	})
 	if err != nil {
 		return nil, err
@@ -308,6 +309,79 @@ func AssistantToolConfig(ctx *gin.Context, userId, orgId string, req request.Ass
 		},
 	})
 	return err
+}
+
+func MultiAgentCreate(ctx *gin.Context, userId, orgId string, req request.MultiAgentCreateReq) error {
+	_, err := assistant.MultiAgentCreate(ctx.Request.Context(), &assistant_service.MultiAgentCreateReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func MultiAgentDelete(ctx *gin.Context, userId, orgId string, req request.MultiAgentCreateReq) error {
+	_, err := assistant.MultiAgentDelete(ctx.Request.Context(), &assistant_service.MultiAgentCreateReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func MultiAgentEnableSwitch(ctx *gin.Context, userId, orgId string, req request.MultiAgentEnableSwitchReq) error {
+	_, err := assistant.MultiAgentEnableSwitch(ctx.Request.Context(), &assistant_service.MultiAgentEnableSwitchReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Enable:      req.Enable,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func MultiAgentConfigUpdate(ctx *gin.Context, userId, orgId string, req request.MultiAgentConfigUpdateReq) error {
+	_, err := assistant.MultiAgentConfigUpdate(ctx.Request.Context(), &assistant_service.MultiAgentConfigUpdateReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Desc:        req.Desc,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func GetAssistantSelect(ctx *gin.Context, userId, orgId string, req request.GetExplorationAppListRequest) (*response.ListResult, error) {
+	wlist, err := GetExplorationAppList(ctx, userId, orgId, request.GetExplorationAppListRequest{
+		Name:       req.Name,
+		AppType:    constant.AppTypeAgent,
+		SearchType: "all",
+	})
+	if err != nil {
+		return nil, err
+	}
+	var appList []*response.ExplorationAppInfo
+	if wlistSlice, ok := wlist.List.([]*response.ExplorationAppInfo); ok {
+		for _, w := range wlistSlice {
+			if w.User.UserId == userId {
+				appList = append(appList, w)
+			}
+		}
+	}
+	return &response.ListResult{
+		List:  appList,
+		Total: int64(len(appList)),
+	}, nil
 }
 
 func assistantModelConvert(ctx *gin.Context, modelConfigInfo *common.AppModelConfig) (modelConfig request.AppModelConfig, err error) {
@@ -827,7 +901,6 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
 	// 转换Vision配置
@@ -850,6 +923,9 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		return nil, err
 	}
 
+	// 转换MultiAgent配置
+	assistantMultiAgents := assistantMultiAgentConvert(ctx, resp)
+
 	assistantModel := response.Assistant{
 		AssistantId:         resp.AssistantId,
 		UUID:                resp.Uuid,
@@ -868,14 +944,32 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		WorkFlowInfos:       assistantWorkFlowInfos,
 		MCPInfos:            assistantMCPInfos,
 		ToolInfos:           assistantToolInfos,
+		MultiAgentInfos:     assistantMultiAgents,
 		CreatedAt:           util.Time2Str(resp.CreatTime),
 		UpdatedAt:           util.Time2Str(resp.UpdateTime),
 		NewAgent:            true,
 		PublishType:         appInfo.GetPublishType(),
+		Category:            resp.Category,
 	}
 
 	log.Debugf("Assistant响应到模型转换完成，结果: %+v", assistantModel)
 	return &assistantModel, nil
+}
+
+func assistantMultiAgentConvert(ctx *gin.Context, resp *assistant_service.AssistantInfo) []*response.AssistantAgentInfo {
+	assistantMultiAgents := make([]*response.AssistantAgentInfo, 0)
+	for _, agent := range resp.MultiAgentInfos {
+		multiAgent := &response.AssistantAgentInfo{
+			AgentId: agent.AgentId,
+			Name:    agent.Name,
+			Desc:    agent.Desc,
+			Avatar:  cacheAppAvatar(ctx, agent.AvatarPath, constant.AppTypeAgent),
+			Enable:  agent.Enable,
+		}
+		assistantMultiAgents = append(assistantMultiAgents, multiAgent)
+	}
+	return assistantMultiAgents
+
 }
 
 func assistantRecommendConvert(ctx *gin.Context, resp *assistant_service.AssistantInfo) (recommendConfig response.RecommendConfig, err error) {
@@ -1021,6 +1115,15 @@ func transRequestFiles(files []*assistant_service.RequestFile) []response.Assist
 		})
 	}
 	return result
+}
+
+func assistantBriefConfigModel2Proto(appBrief request.AssistantCreateReq) *common.AppBriefConfig {
+	return &common.AppBriefConfig{
+		Name:       appBrief.Name,
+		Desc:       appBrief.Desc,
+		AvatarPath: appBrief.Avatar.Key,
+	}
+
 }
 
 func recommendConfigModel2Proto(recommendConfig request.RecommendConfig) (ret *assistant_service.AssistantRecommendConfig, err error) {

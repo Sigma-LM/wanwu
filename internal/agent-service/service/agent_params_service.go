@@ -11,11 +11,21 @@ import (
 // BuildMultiAgentParams 构建多智能体问答请求
 func BuildMultiAgentParams(multiAgentChatParams *request.MultiAgentChatParams, multiAgentConfig *assistant_service.MultiAssistantDetailResp) *request.MultiAgentChatReq {
 	return &request.MultiAgentChatReq{
-		Input:       multiAgentChatParams.Input,
-		UploadFile:  multiAgentChatParams.UploadFile,
-		Stream:      multiAgentChatParams.Stream,
-		ModelParams: buildModelParams(multiAgentConfig.MultiAgent.ModelParams),
-		AgentList:   buildSubAgentParamsList(multiAgentConfig.SubAgents),
+		Input:           multiAgentChatParams.Input,
+		UploadFile:      multiAgentChatParams.UploadFile,
+		Stream:          multiAgentChatParams.Stream,
+		ModelParams:     buildModelParams(multiAgentConfig.MultiAgent.ModelParams),
+		AgentBaseParams: buildAgentBaseParams(multiAgentConfig.MultiAgent),
+		AgentList:       buildSubAgentParamsList(multiAgentConfig.SubAgents),
+	}
+}
+
+func buildAgentBaseParams(assistantDetail *assistant_service.AgentDetail) *request.AgentBaseParams {
+	return &request.AgentBaseParams{
+		Description: assistantDetail.AgentBaseParams.Description,
+		Instruction: assistantDetail.AgentBaseParams.Instruction,
+		Name:        assistantDetail.AgentBaseParams.Name,
+		CallDetail:  true,
 	}
 }
 
