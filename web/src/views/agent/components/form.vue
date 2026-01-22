@@ -1345,6 +1345,7 @@ export default {
         config: isAllExternalKnowledgeSelected
           ? {
               matchType: 'mix',
+              priorityMatch: 1,
               threshold: this.editForm.knowledgeBaseConfig.config.threshold,
               topK: this.editForm.knowledgeBaseConfig.config.topK,
             }

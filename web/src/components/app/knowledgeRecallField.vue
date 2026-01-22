@@ -10,7 +10,6 @@
         <searchConfig
           ref="searchConfig"
           @sendConfigInfo="sendConfigInfo"
-          :setType="'agent'"
           :config="config"
           :showGraphSwitch="showGraphSwitch"
           :category="category"

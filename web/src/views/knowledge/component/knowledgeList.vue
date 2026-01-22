@@ -36,7 +36,10 @@
           :key="`${i}sm`"
           @click.stop="toDocList(n)"
         >
-          <div :class="['ribbon', n.external === 0 ? 'blue' : 'gold']">
+          <div
+            v-if="category === 0"
+            :class="['ribbon', n.external === 0 ? 'blue' : 'gold']"
+          >
             <span>
               {{
                 n.external === 0
@@ -327,7 +330,9 @@ export default {
     },
     toDocList(n) {
       if (n.external === 1) {
-        this.$router.push(`/knowledge/hitTest?knowledgeId=${n.knowledgeId}`);
+        this.$router.push(
+          `/knowledge/hitTest?knowledgeId=${n.knowledgeId}&external=${n.external}`,
+        );
         return;
       }
       if (this.category === 0) {
