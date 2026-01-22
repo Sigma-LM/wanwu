@@ -249,7 +249,8 @@ export default {
       this.formInline = JSON.parse(JSON.stringify(data));
     },
     startTest() {
-      const metaData = this.$refs.metaSet.getMetaData();
+      const metaData =
+        this.external === 0 ? this.$refs.metaSet.getMetaData() : {};
       this.knowledgeIdList = {
         ...metaData,
         id: this.knowledgeId,
@@ -285,6 +286,7 @@ export default {
         params.rerankModelId = '';
       }
       if (
+        this.external === 0 &&
         this.$refs.metaSet.validateRequiredFields(
           this.knowledgeIdList['metaDataFilterParams']['metaFilterParams'],
         )
