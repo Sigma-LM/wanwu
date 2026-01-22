@@ -50,7 +50,7 @@
                 {{ item.orgName }}
               </span>
               <span v-if="item.external === 1" class="meta-text">
-                {{ $t('knowledgeManage.external') }}
+                {{ $t('knowledgeManage.ribbon.external') }}
               </span>
             </div>
             <span class="knowledge-createAt">
