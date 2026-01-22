@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	http_client "github.com/UnicomAI/wanwu/internal/rag-service/pkg/http-client"
 	"io"
 	"mime/multipart"
 	"net"
@@ -382,6 +383,14 @@ func logRequest(ctx context.Context, httpRequestParams *HttpRequestParams, reque
 	paramsMap["url"] = httpRequestParams.Url
 	paramsMap["requestBody"] = requestBody
 	LogRpcJson(ctx, "HTTP-"+requestType, httpRequestParams.MonitorKey, paramsMap, responseBody, err, start.UnixMilli())
+}
+
+// LogHttpRequest 打印http请求日志，不会抛出panic
+func LogHttpRequest(ctx context.Context, business string, method string, requestURL string, params interface{}, result interface{}, err error, starTimestamp int64) {
+	var paramsMap = make(map[string]interface{})
+	paramsMap["url"] = requestURL
+	paramsMap["requestBody"] = params
+	http_client.LogRpcJson(ctx, business, "HTTP-"+method, paramsMap, result, err, starTimestamp)
 }
 
 func LogRpcJson(ctx context.Context, business string, method string, params interface{}, result interface{}, err error, starTimestamp int64) {
