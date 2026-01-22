@@ -198,11 +198,7 @@
                     <i
                       class="el-icon-edit-outline"
                       style="cursor: pointer"
-                      @click="
-                        $router.push(
-                          `/knowledge/keyword?backPath=/knowledge/doclist/${docQuery.knowledgeId}`,
-                        )
-                      "
+                      @click="$router.push(`/knowledge/keyword`)"
                     ></i>
                   </div>
                 </el-descriptions-item>
