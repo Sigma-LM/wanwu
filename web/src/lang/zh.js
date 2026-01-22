@@ -912,6 +912,8 @@ export default {
     public: '公开',
     organization: '组织内可见',
     private: '私密',
+    internal: '内部',
+    external: '外部',
     create: {
       knowledgeGraph: '知识图谱',
       modelSelect: '模型选择',
