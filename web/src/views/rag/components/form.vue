@@ -735,7 +735,8 @@ export default {
           knowledgebases: this.editForm.knowledgeBaseConfig.knowledgebases,
           config: isAllExternalKnowledgeSelected
             ? {
-                matchType: 'mix', //接口要求
+                matchType: 'mix',
+                priorityMatch: 1,
                 threshold: this.editForm.knowledgeBaseConfig.config.threshold,
                 topK: this.editForm.knowledgeBaseConfig.config.topK,
               }
