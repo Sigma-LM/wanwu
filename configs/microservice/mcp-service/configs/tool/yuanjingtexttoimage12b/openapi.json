@@ -117,17 +117,14 @@
                           "description": "生成图片patch计数"
                         }
                       },
-                      "required": [
-                        "total_patches"
-                      ],
+                      "required": [],
                       "description": "生成图片patch计数"
                     }
                   },
                   "required": [
                     "code",
                     "message",
-                    "result",
-                    "usage"
+                    "result"
                   ]
                 }
               }
