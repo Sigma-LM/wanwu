@@ -285,7 +285,6 @@ import VersionPopover from '@/components/versionPopover';
 import { getRerankList, selectModelList } from '@/api/modelAccess';
 import { getRagInfo, getRagPublishedInfo, updateRagConfig } from '@/api/rag';
 import Chat from './chat';
-import searchConfig from '@/components/searchConfig.vue';
 import chiChat from '@/components/app/chiChat.vue';
 import LinkIcon from '@/components/linkIcon.vue';
 import knowledgeSelect from '@/components/knowledgeSelect.vue';
@@ -302,7 +301,6 @@ export default {
     ModelSet,
     setSafety,
     VersionPopover,
-    searchConfig,
     knowledgeSelect,
     metaSet,
     chiChat,
