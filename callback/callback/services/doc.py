@@ -162,9 +162,7 @@ def parse_doc(file_url, sentence_size, overlap_size):
             ],
         }
     )
-
-    headers = {"Content_Type": "application/json;charset=utf-8"}
+    headers = {"Content-Type": "application/json;charset=utf-8"}
     response = requests.post(url, headers=headers, data=payload, verify=False)
-    result_dict = json.loads(response.text)
     docs = response.json().get("docs", [])
     return docs
