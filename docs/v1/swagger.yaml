@@ -43,7 +43,7 @@ definitions:
     properties:
       createdAt:
         type: integer
-      id:
+      modelExperienceId:
         type: string
       modelId:
         description: 模型
@@ -51,14 +51,10 @@ definitions:
       modelSetting:
         description: 模型参数配置
         type: string
-      orgId:
-        type: string
       sessionId:
         description: 会话 ID
         type: string
       title:
-        type: string
-      userId:
         type: string
     type: object
   mp.AppModelParams:
@@ -2201,18 +2197,6 @@ definitions:
     required:
     - modelId
     type: object
-  request.FileExtractRequest:
-    properties:
-      fileName:
-        description: 文件名
-        type: string
-      filePath:
-        description: 文件路径
-        type: string
-      fileSize:
-        description: 文件大小
-        type: integer
-    type: object
   request.GenAppKeyRequest:
     properties:
       appId:
@@ -2535,67 +2519,6 @@ definitions:
     - orgId
     - userId
     type: object
-  request.LlmRequest:
-    properties:
-      content:
-        description: 内容
-        type: string
-      fileIdList:
-        description: 文件ID列表
-        items:
-          type: string
-        type: array
-      frequencyPenalty:
-        description: 频率惩罚
-        type: number
-      frequencyPenaltyEnable:
-        description: 频率惩罚(开关)
-        type: boolean
-      maxTokens:
-        description: 最大标记
-        type: integer
-      maxTokensEnable:
-        description: 最大标记(开关)
-        type: boolean
-      modelExperienceId:
-        description: 体验对话ID
-        type: string
-      modelId:
-        description: 模型ID
-        type: string
-      parentId:
-        description: 父级ID
-        type: string
-      presencePenalty:
-        description: 存在惩罚
-        type: number
-      presencePenaltyEnable:
-        description: 存在惩罚(开关)
-        type: boolean
-      role:
-        description: 角色(user, assistant, system)
-        type: string
-      sessionId:
-        description: 会话 ID
-        type: string
-      temperature:
-        description: 温度
-        type: number
-      temperatureEnable:
-        description: 温度(开关)
-        type: boolean
-      topP:
-        description: Top P
-        type: number
-      topPEnable:
-        description: Top P(开关)
-        type: boolean
-    required:
-    - content
-    - modelId
-    - role
-    - sessionId
-    type: object
   request.Login:
     properties:
       code:
@@ -2869,7 +2792,7 @@ definitions:
         description: value
         type: string
     type: object
-  request.ModelExperienceDialogIDReq:
+  request.ModelExperienceDialogIDRequest:
     properties:
       modelExperienceId:
         description: 模型体验对话ID
@@ -2891,6 +2814,60 @@ definitions:
         description: 对话标题
         type: string
     required:
+    - modelId
+    - sessionId
+    type: object
+  request.ModelExperienceLlmRequest:
+    properties:
+      content:
+        description: 内容
+        type: string
+      fileIdList:
+        description: 文件ID列表
+        items:
+          type: string
+        type: array
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      modelExperienceId:
+        description: 体验对话ID（模型对比时为空）
+        type: string
+      modelId:
+        description: 模型ID
+        type: string
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      sessionId:
+        description: 会话 ID
+        type: string
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    required:
+    - content
     - modelId
     - sessionId
     type: object
@@ -5778,30 +5755,8 @@ definitions:
         description: minio文件的完整路径
         type: string
     type: object
-  response.ModelExperienceDialog:
-    properties:
-      createdAt:
-        type: string
-      id:
-        type: string
-      modelId:
-        type: string
-      modelSetting:
-        type: string
-      sessionId:
-        type: string
-      title:
-        type: string
-    type: object
   response.ModelExperienceDialogRecord:
     properties:
-      fileList:
-        description: 文件列表
-        items:
-          $ref: '#/definitions/response.ModelExperienceFile'
-        type: array
-      id:
-        type: string
       modelExperienceId:
         description: 模型体验 ID
         type: string
@@ -5811,27 +5766,14 @@ definitions:
       originalContent:
         description: 原始内容
         type: string
-      parentID:
-        description: 父级 ID
-        type: string
       reasoningContent:
         description: 思考过程
         type: string
       role:
         description: 角色
         type: string
-    type: object
-  response.ModelExperienceFile:
-    properties:
-      fileExt:
-        type: string
-      fileName:
-        type: string
-      filePath:
-        type: string
-      fileSize:
-        type: integer
-      id:
+      sessionId:
+        description: Session ID
         type: string
     type: object
   response.ModelInfo:
@@ -11746,7 +11688,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.ModelExperienceDialogIDReq'
+          $ref: '#/definitions/request.ModelExperienceDialogIDRequest'
       produces:
       - application/json
       responses:
@@ -11758,7 +11700,7 @@ paths:
       - JWT: []
       summary: 删除模型体验对话
       tags:
-      - model experience
+      - model.experience
     post:
       consumes:
       - application/json
@@ -11776,17 +11718,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.ModelExperienceDialog'
-              type: object
+            $ref: '#/definitions/response.Response'
       security:
       - JWT: []
       summary: 新建/保存对话
       tags:
-      - model experience
+      - model.experience
   /model/experience/dialog/records:
     get:
       consumes:
@@ -11819,7 +11756,7 @@ paths:
       - JWT: []
       summary: 获取模型体验对话记录列表
       tags:
-      - model experience
+      - model.experience
   /model/experience/dialogs:
     get:
       consumes:
@@ -11846,36 +11783,7 @@ paths:
       - JWT: []
       summary: 获取模型体验对话列表
       tags:
-      - model experience
-  /model/experience/file/extract:
-    post:
-      consumes:
-      - application/json
-      description: 文本提取
-      parameters:
-      - description: 文件提取请求
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.FileExtractRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.ModelExperienceFile'
-              type: object
-      security:
-      - JWT: []
-      summary: 文本提取
-      tags:
-      - model experience
+      - model.experience
   /model/experience/llm:
     post:
       consumes:
@@ -11887,7 +11795,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.LlmRequest'
+          $ref: '#/definitions/request.ModelExperienceLlmRequest'
       produces:
       - application/json
       responses:
@@ -11899,7 +11807,7 @@ paths:
       - JWT: []
       summary: 模型体验
       tags:
-      - model experience
+      - model.experience
   /model/list:
     get:
       consumes:

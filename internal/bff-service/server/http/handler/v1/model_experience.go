@@ -9,79 +9,46 @@ import (
 
 // ModelExperienceLLM
 //
-//	@Tags			model experience
+//	@Tags			model.experience
 //	@Summary		模型体验
 //	@Description	LLM模型体验
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		request.LlmRequest	true	"LLM模型体验"
+//	@Param			data	body		request.ModelExperienceLlmRequest	true	"LLM模型体验"
 //	@Success		200		{object}	response.Response
 //	@Router			/model/experience/llm [post]
 func ModelExperienceLLM(ctx *gin.Context) {
-	var req request.LlmRequest
+	var req request.ModelExperienceLlmRequest
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-
-	userId := ctx.GetString(gin_util.USER_ID)
-	orgId := ctx.GetHeader(gin_util.X_ORG_ID)
-
-	service.LLMModelExperience(ctx, &req, userId, orgId)
+	service.ModelExperienceLLM(ctx, getUserID(ctx), getOrgID(ctx), &req)
 }
 
 // ModelExperienceSaveDialog
 //
-//	@Tags			model experience
+//	@Tags			model.experience
 //	@Summary		新建/保存对话
 //	@Description	新建/保存对话
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
 //	@Param			data	body		request.ModelExperienceDialogRequest	true	"模型体验对话"
-//	@Success		200		{object}	response.Response{data=response.ModelExperienceDialog}
+//	@Success		200		{object}	response.Response{}
 //	@Router			/model/experience/dialog [post]
 func ModelExperienceSaveDialog(ctx *gin.Context) {
 	var req request.ModelExperienceDialogRequest
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-
-	userId := ctx.GetString(gin_util.USER_ID)
-	orgId := ctx.GetHeader(gin_util.X_ORG_ID)
-
-	// 调用服务层处理LLM请求
-	res, err := service.SaveModelExperienceDialog(ctx, &req, userId, orgId)
-	gin_util.Response(ctx, res, err)
+	resp, err := service.SaveModelExperienceDialog(ctx, getUserID(ctx), getOrgID(ctx), &req)
+	gin_util.Response(ctx, resp, err)
 }
 
-// ModelExperienceFileExtract
+// ModelExperienceListDialogs
 //
-//	@Tags			model experience
-//	@Summary		文本提取
-//	@Description	文本提取
-//	@Security		JWT
-//	@Accept			json
-//	@Produce		json
-//	@Param			data	body		request.FileExtractRequest	true	"文件提取请求"
-//	@Success		200		{object}	response.Response{data=response.ModelExperienceFile}
-//	@Router			/model/experience/file/extract [post]
-func ModelExperienceFileExtract(ctx *gin.Context) {
-	var req request.FileExtractRequest
-	if !gin_util.Bind(ctx, &req) {
-		return
-	}
-
-	userId := ctx.GetString(gin_util.USER_ID)
-	orgId := ctx.GetHeader(gin_util.X_ORG_ID)
-
-	res, err := service.ModelExperienceFileExtract(ctx, &req, userId, orgId)
-	gin_util.Response(ctx, res, err)
-}
-
-// GetDialogs
-//
-//	@Tags			model experience
+//	@Tags			model.experience
 //	@Summary		获取模型体验对话列表
 //	@Description	获取模型体验对话列表
 //	@Security		JWT
@@ -89,44 +56,34 @@ func ModelExperienceFileExtract(ctx *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object}	response.Response{data=response.ListResult{list=model_service.ModelExperienceDialog}}
 //	@Router			/model/experience/dialogs [get]
-func GetDialogs(ctx *gin.Context) {
-
-	userId := ctx.GetString(gin_util.USER_ID)
-	orgId := ctx.GetHeader(gin_util.X_ORG_ID)
-
-	// 调用服务层处理LLM请求
-	res, err := service.GetModelExperienceDialogs(ctx, userId, orgId)
-	gin_util.Response(ctx, res, err)
+func ModelExperienceListDialogs(ctx *gin.Context) {
+	resp, err := service.ListModelExperienceDialogs(ctx, getUserID(ctx), getOrgID(ctx))
+	gin_util.Response(ctx, resp, err)
 }
 
-// DeleteDialog
+// ModelExperienceDeleteDialog
 //
-//	@Tags			model experience
+//	@Tags			model.experience
 //	@Summary		删除模型体验对话
 //	@Description	删除模型体验对话
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			data						body		request.ModelExperienceDialogIDReq	true	"模型体验对话ID"
+//	@Param			data						body		request.ModelExperienceDialogIDRequest	true	"模型体验对话ID"
 //	@Success		200							{object}	response.Response
 //	@Router			/model/experience/dialog	 [delete]
-func DeleteDialog(ctx *gin.Context) {
-	var req request.ModelExperienceDialogIDReq
+func ModelExperienceDeleteDialog(ctx *gin.Context) {
+	var req request.ModelExperienceDialogIDRequest
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-
-	userId := ctx.GetString(gin_util.USER_ID)
-	orgId := ctx.GetHeader(gin_util.X_ORG_ID)
-
-	// 调用服务层处理LLM请求
-	err := service.DeleteDialog(ctx, &req, userId, orgId)
+	err := service.DeleteModelExperienceDialog(ctx, getUserID(ctx), getOrgID(ctx), req.ModelExperienceId)
 	gin_util.Response(ctx, nil, err)
 }
 
-// GetDialogRecords
+// ModelExperienceListDialogRecords
 //
-//	@Tags			model experience
+//	@Tags			model.experience
 //	@Summary		获取模型体验对话记录列表
 //	@Description	获取模型体验对话记录列表
 //	@Security		JWT
@@ -135,16 +92,11 @@ func DeleteDialog(ctx *gin.Context) {
 //	@Param			modelExperienceId	query		uint32	true	"模型体验对话ID"
 //	@Success		200					{object}	response.Response{data=response.ListResult{list=response.ModelExperienceDialogRecord}}
 //	@Router			/model/experience/dialog/records [get]
-func GetDialogRecords(ctx *gin.Context) {
+func ModelExperienceListDialogRecords(ctx *gin.Context) {
 	var req request.ModelExperienceDialogRecordRequest
 	if !gin_util.BindQuery(ctx, &req) {
 		return
 	}
-
-	userId := ctx.GetString(gin_util.USER_ID)
-	orgId := ctx.GetHeader(gin_util.X_ORG_ID)
-
-	// 调用服务层处理LLM请求
-	res, err := service.GetModelExperienceDialogRecords(ctx, &req, userId, orgId)
-	gin_util.Response(ctx, res, err)
+	resp, err := service.ListModelExperienceDialogRecords(ctx, getUserID(ctx), getOrgID(ctx), &req)
+	gin_util.Response(ctx, resp, err)
 }

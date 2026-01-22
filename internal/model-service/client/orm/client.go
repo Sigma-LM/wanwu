@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"errors"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/model-service/client/model"
@@ -19,7 +20,6 @@ func NewClient(ctx context.Context, db *gorm.DB) (*Client, error) {
 	if err := db.AutoMigrate(
 		model.ModelImported{},
 		model.ModelExperienceDialog{},
-		model.ModelExperienceFile{},
 		model.ModelExperienceDialogRecord{},
 	); err != nil {
 		return nil, err
@@ -91,4 +91,15 @@ func initModelUUID(dbClient *gorm.DB) error {
 	}
 
 	return nil
+}
+
+func (c *Client) transaction(ctx context.Context, fc func(tx *gorm.DB) *err_code.Status) *err_code.Status {
+	var status *err_code.Status
+	_ = c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if status = fc(tx); status != nil {
+			return errors.New(status.String())
+		}
+		return nil
+	})
+	return status
 }

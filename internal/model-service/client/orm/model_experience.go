@@ -2,110 +2,110 @@ package orm
 
 import (
 	"context"
+	"time"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_client "github.com/UnicomAI/wanwu/internal/model-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/model-service/client/orm/sqlopt"
-	"gorm.io/gorm/clause"
+	"gorm.io/gorm"
 )
 
-func (c *Client) ListExperienceDialogs(ctx context.Context, req *model_client.ModelExperienceDialog) ([]*model_client.ModelExperienceDialog, *errs.Status) {
+func (c *Client) SaveModelExperienceDialog(ctx context.Context, dialog *model_client.ModelExperienceDialog) (*model_client.ModelExperienceDialog, *errs.Status) {
+	// create
+	if err := sqlopt.WithSessionID(dialog.SessionId).
+		Apply(c.db).WithContext(ctx).First(&model_client.ModelExperienceDialog{}).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return nil, toErrStatus("model_experience_dialog_create_err", err.Error())
+		}
+		if err := c.db.WithContext(ctx).Create(dialog).Error; err != nil {
+			return nil, toErrStatus("model_experience_dialog_create_err", err.Error())
+		}
+		return dialog, nil
+	}
+	// update
+	if err := sqlopt.WithSessionID(dialog.SessionId).
+		Apply(c.db).WithContext(ctx).Model(&model_client.ModelExperienceDialog{}).
+		Updates(map[string]interface{}{
+			"model_setting": dialog.ModelSetting,
+		}).Error; err != nil {
+		return nil, toErrStatus("model_experience_dialog_update_err", err.Error())
+	}
+	// get
+	var ret model_client.ModelExperienceDialog
+	if err := sqlopt.WithSessionID(dialog.SessionId).
+		Apply(c.db).WithContext(ctx).First(&ret).Error; err != nil {
+		return nil, toErrStatus("model_experience_dialog_update_err", err.Error())
+	}
+	return &ret, nil
+}
+
+func (c *Client) GetModelExperienceDialog(ctx context.Context, userId, orgId string, modelExperienceId uint32) (*model_client.ModelExperienceDialog, *errs.Status) {
+	dialog := &model_client.ModelExperienceDialog{}
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithID(modelExperienceId),
+		sqlopt.WithOrgID(orgId),
+		sqlopt.WithUserID(userId),
+	).Apply(c.db).WithContext(ctx).First(dialog).Error; err != nil {
+		return nil, toErrStatus("model_experience_dialog_get_err", err.Error())
+	}
+	return dialog, nil
+}
+
+func (c *Client) ListModelExperienceDialogs(ctx context.Context, userId, orgId string) ([]*model_client.ModelExperienceDialog, *errs.Status) {
 	var dialogs []*model_client.ModelExperienceDialog
 	if err := sqlopt.SQLOptions(
-		sqlopt.WithOrgID(req.OrgID),
-		sqlopt.WithUserID(req.UserID),
+		sqlopt.WithOrgID(orgId),
+		sqlopt.WithUserID(userId),
 	).Apply(c.db.WithContext(ctx)).Order("created_at desc").Find(&dialogs).Error; err != nil {
-		return nil, toErrStatus("get_experience_dialogs_err", err.Error())
+		return nil, toErrStatus("model_experience_dialog_list_err", err.Error())
 	}
 	return dialogs, nil
 }
 
-func (c *Client) SaveModelExperienceDialog(ctx context.Context, experience *model_client.ModelExperienceDialog) (*model_client.ModelExperienceDialog, *errs.Status) {
-	// 创建更新字段的映射
-	updates := map[string]interface{}{
-		"model_id":      experience.ModelId,
-		"model_setting": experience.ModelSetting,
-		"org_id":        experience.OrgID,
-		"user_id":       experience.UserID,
-	}
-
-	// 只有当title不为空时才更新title字段
-	if experience.Title != "" {
-		updates["title"] = experience.Title
-	}
-
-	if err := c.db.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "session_id"}},
-		DoUpdates: clause.Assignments(updates),
-	}).Create(experience).Error; err != nil {
-		return nil, toErrStatus("create_experience_err", err.Error())
-	}
-	return experience, nil
+func (c *Client) DeleteModelExperienceDialog(ctx context.Context, userId, orgId string, modelExperienceId uint32) *errs.Status {
+	return c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
+		// delete dialog
+		if err := sqlopt.SQLOptions(
+			sqlopt.WithID(modelExperienceId),
+			sqlopt.WithOrgID(orgId),
+			sqlopt.WithUserID(userId),
+		).Apply(tx).Delete(&model_client.ModelExperienceDialog{}).Error; err != nil {
+			return toErrStatus("model_experience_dialog_delete_err", err.Error())
+		}
+		// delete dialog records
+		if err := sqlopt.WithModelExperienceId(modelExperienceId).
+			Apply(tx).Delete(&model_client.ModelExperienceDialogRecord{}).Error; err != nil {
+			return toErrStatus("model_experience_dialog_delete_err", err.Error())
+		}
+		return nil
+	})
 }
 
-func (c *Client) GetModelExperienceDialog(ctx context.Context, tab *model_client.ModelExperienceDialog) (*model_client.ModelExperienceDialog, *errs.Status) {
-	info := &model_client.ModelExperienceDialog{}
-	if err := sqlopt.SQLOptions(
-		sqlopt.WithID(tab.ID),
-		sqlopt.WithOrgID(tab.OrgID),
-		sqlopt.WithUserID(tab.UserID),
-	).Apply(c.db).WithContext(ctx).First(info).Error; err != nil {
-		return nil, toErrStatus("model_experience_dialog_get_err", err.Error())
-	}
-	return info, nil
+func (c *Client) SaveModelExperienceDialogRecord(ctx context.Context, record *model_client.ModelExperienceDialogRecord) *errs.Status {
+	return c.transaction(ctx, func(tx *gorm.DB) *errs.Status {
+		if err := tx.Create(record).Error; err != nil {
+			return toErrStatus("model_experience_dialog_record_create_err", err.Error())
+		}
+		// 刷新下对应dialog的updated_at
+		if err := sqlopt.WithID(record.ModelExperienceID).
+			Apply(tx).Model(&model_client.ModelExperienceDialog{}).Updates(map[string]interface{}{
+			"updated_at": time.Now().UnixMilli(),
+		}).Error; err != nil {
+			return toErrStatus("model_experience_dialog_record_create_err", err.Error())
+		}
+		return nil
+	})
 }
 
-func (c *Client) DeleteModelExperienceDialog(ctx context.Context, experience *model_client.ModelExperienceDialog) *errs.Status {
-	var existing model_client.ModelExperienceDialog
-	if err := sqlopt.SQLOptions(
-		sqlopt.WithID(experience.ID),
-		sqlopt.WithOrgID(experience.OrgID),
-		sqlopt.WithUserID(experience.UserID),
-	).Apply(c.db).WithContext(ctx).Select("id").First(&existing).Error; err != nil {
-		return toErrStatus("delete_model_experience_err", err.Error())
-	}
-	if err := c.db.WithContext(ctx).Delete(existing).Error; err != nil {
-		return toErrStatus("delete_model_experience_err", err.Error())
-	}
-	return nil
-}
-
-func (c *Client) SaveModelExperienceDialogRecord(ctx context.Context, record *model_client.ModelExperienceDialogRecord) (*model_client.ModelExperienceDialogRecord, *errs.Status) {
-	if err := c.db.WithContext(ctx).Create(record).Error; err != nil {
-		return nil, toErrStatus("create_experience_err", err.Error())
-	}
-	return record, nil
-}
-
-func (c *Client) SaveModelExperienceFile(ctx context.Context, file *model_client.ModelExperienceFile) (*model_client.ModelExperienceFile, *errs.Status) {
-	if err := c.db.WithContext(ctx).Create(file).Error; err != nil {
-		return nil, toErrStatus("create_experience_err", err.Error())
-	}
-	return file, nil
-}
-
-func (c *Client) GetModelExperienceFilesByIds(ctx context.Context, fileIds []uint32) ([]*model_client.ModelExperienceFile, *errs.Status) {
-	var files []*model_client.ModelExperienceFile
-	if err := c.db.WithContext(ctx).Where("id IN ?", fileIds).Find(&files).Error; err != nil {
-		return nil, toErrStatus("get_experience_files_err", err.Error())
-	}
-	return files, nil
-}
-
-func (c *Client) GetModelExperienceDialogRecord(ctx context.Context, modelExperienceId uint32, sessionId, modelId string) ([]*model_client.ModelExperienceDialogRecord, *errs.Status) {
+func (c *Client) ListModelExperienceDialogRecords(ctx context.Context, userId, orgId string, modelExperienceId uint32, sessionId string) ([]*model_client.ModelExperienceDialogRecord, *errs.Status) {
 	var records []*model_client.ModelExperienceDialogRecord
-	query := c.db.WithContext(ctx)
-	if modelExperienceId != 0 {
-		query = query.Where("model_experience_id = ?", modelExperienceId)
-	} else {
-		query = query.Where("session_id = ?", sessionId)
-	}
-	// 只有当model不为空时，才添加model条件
-	if modelId != "" {
-		query = query.Where("model_Id = ?", modelId)
-	}
-	if err := query.Order("id asc").Find(&records).Error; err != nil {
-		return nil, toErrStatus("get_experience_record_err", err.Error())
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithModelExperienceId(modelExperienceId),
+		sqlopt.WithSessionID(sessionId),
+		sqlopt.WithOrgID(orgId),
+		sqlopt.WithUserID(userId),
+	).Apply(c.db).WithContext(ctx).Find(&records).Error; err != nil {
+		return nil, toErrStatus("model_experience_dialog_record_list_err", err.Error())
 	}
 	return records, nil
 }

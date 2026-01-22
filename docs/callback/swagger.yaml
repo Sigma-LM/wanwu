@@ -124,11 +124,7 @@ definitions:
     type: object
   mp_common.EmbeddingData:
     properties:
-      embedding:
-        items:
-          type: number
-        minItems: 1
-        type: array
+      embedding: {}
       index:
         type: integer
       object:

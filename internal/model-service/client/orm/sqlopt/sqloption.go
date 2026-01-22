@@ -128,6 +128,21 @@ func LikeDisplayNameOrModel(displayName string) SQLOption {
 	})
 }
 
+func WithModelExperienceId(modelExperienceId uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("model_experience_id = ?", modelExperienceId)
+	})
+}
+
+func WithSessionID(sessionId string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if sessionId != "" {
+			return db.Where("session_id = ?", sessionId)
+		}
+		return db
+	})
+}
+
 func WithUpdateLock() SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Clauses(clause.Locking{
