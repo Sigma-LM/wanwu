@@ -1334,6 +1334,23 @@ export default {
           item.modelId ===
           this.editForm.knowledgeBaseConfig.config.rerankModelId,
       );
+
+      const isAllExternalKnowledgeSelected =
+        !this.editForm.knowledgeBaseConfig.knowledgebases.some(
+          kb => kb.external !== 1,
+        );
+
+      const _knowledgeBaseConfig = {
+        knowledgebases: this.editForm.knowledgeBaseConfig.knowledgebases,
+        config: isAllExternalKnowledgeSelected
+          ? {
+              matchType: 'mix',
+              threshold: this.editForm.knowledgeBaseConfig.config.threshold,
+              topK: this.editForm.knowledgeBaseConfig.config.topK,
+            }
+          : this.editForm.knowledgeBaseConfig.config,
+      };
+
       const recommendQuestion = this.editForm.recommendQuestion.map(
         item => item.value,
       );
@@ -1346,7 +1363,7 @@ export default {
             ? recommendQuestion
             : [],
         instructions: this.editForm.instructions,
-        knowledgeBaseConfig: this.editForm.knowledgeBaseConfig,
+        knowledgeBaseConfig: _knowledgeBaseConfig,
         modelConfig: {
           config: this.editForm.modelConfig,
           displayName: modeInfo ? modeInfo.displayName : '',
@@ -1370,6 +1387,7 @@ export default {
           : {},
         recommendConfig: this.editForm.recommendConfig,
       };
+
       let res = await putAgentInfo(params);
       if (res.code === 0) {
         this.getAppDetail();
@@ -1817,8 +1835,7 @@ $gap-scale: (
   }
   .recommend-history-wrapper {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start !important;
+    justify-content: space-between;
     gap: 4px;
   }
 }

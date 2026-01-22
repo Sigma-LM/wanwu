@@ -41,7 +41,7 @@
       >
         <div
           v-for="(item, index) in knowledgeList"
-          :key="index"
+          :key="item.id"
           class="action-item"
         >
           <div class="name">
@@ -49,6 +49,7 @@
           </div>
           <div class="bt">
             <el-tooltip
+              v-if="item.external !== 1"
               class="item"
               effect="dark"
               :content="$t('agent.form.metaDataFilter')"
@@ -86,6 +87,7 @@
       @setKnowledgeSet="knowledgeRecallSet"
       :config="knowledgeRecallConfig"
       :category="category"
+      :isAllExternal="isAllExternalKnowledgeSelected"
     />
   </div>
 </template>
@@ -167,6 +169,14 @@ export default {
         this.knowledgeConfig.knowledgebases &&
         this.knowledgeConfig.knowledgebases.length
       );
+    },
+    // 是否全部选的是外部知识库
+    isAllExternalKnowledgeSelected() {
+      const knowledgebases = this.knowledgeConfig.knowledgebases || [];
+      if (knowledgebases.length === 0) {
+        return false;
+      }
+      return !knowledgebases.some(item => item.external !== 1);
     },
   },
   methods: {
