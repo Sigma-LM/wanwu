@@ -16,12 +16,12 @@ type LocalAgentService interface {
 	BuildAgentInput(ctx context.Context, req *request.AgentChatParams, agentChatInfo *service_model.AgentChatInfo, agentInput *adk.AgentInput, generator *adk.AsyncGenerator[*adk.AgentEvent]) (*adk.AgentInput, error)
 }
 
-func CreateLocalAgentService(ctx context.Context, req *request.AgentChatParams, agentChatInfo *service_model.AgentChatInfo) LocalAgentService {
+func CreateLocalAgentService(ctx context.Context, req *request.AgentChatParams, agentChatInfo *service_model.AgentChatInfo, chatContext *request.AgentChatContext) LocalAgentService {
 	////如果有特殊输出或者逻辑的模型可以仿照，vision_chat 实现，不过目前主流的的vision_chat 都是openai格式,ChatAgent都可兼容
 	//if agentChatInfo.VisionSupport {
 	//	return &VisionChatAgent{}
 	//}
-	return &ChatAgent{}
+	return &ChatAgent{ChatContext: chatContext}
 }
 
 func CreateChatModel(ctx context.Context, agentChatInfo *service_model.AgentChatInfo, req *request.AgentChatParams) (model.ToolCallingChatModel, error) {
