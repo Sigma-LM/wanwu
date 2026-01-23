@@ -333,12 +333,10 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 	if err != nil {
 		return fmt.Errorf("model API call failed: %v", err)
 	}
-	res, ok := resp.ConvertResp()
+	_, ok = resp.ConvertResp()
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
-	jsonRes, _ := json.Marshal(res)
-	log.Infof("multi modal rerank response: %v", string(jsonRes))
 	return nil
 }
 
@@ -455,12 +453,10 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	if err != nil {
 		return fmt.Errorf("model API call failed: %v", err)
 	}
-	res, ok := resp.ConvertResp()
+	_, ok = resp.ConvertResp()
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
-	resJson, _ := json.Marshal(res)
-	log.Infof("model %v pdf parser resp: %v", modelInfo.ModelId, string(resJson))
 	return nil
 }
 
@@ -482,17 +478,14 @@ func ValidateSyncAsrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) 
 	if err != nil {
 		return err
 	}
-	log.Infof("3333333")
 	resp, err := iAsr.SyncAsr(ctx, asrReq)
 	if err != nil {
 		return fmt.Errorf("model API call failed: %v", err)
 	}
-	res, ok := resp.ConvertResp()
+	_, ok = resp.ConvertResp()
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
-	jsonRes, _ := json.Marshal(res)
-	log.Infof("model %v sync asr response: %v", modelInfo.ModelId, string(jsonRes))
 	return nil
 }
 

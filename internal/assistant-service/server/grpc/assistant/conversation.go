@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"io"
 	"net/http"
 	net_url "net/url"
@@ -16,8 +15,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/UnicomAI/wanwu/internal/assistant-service/service"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/api/proto/common"
@@ -27,6 +24,7 @@ import (
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/config"
+	"github.com/UnicomAI/wanwu/internal/assistant-service/service"
 	"github.com/UnicomAI/wanwu/pkg/constant"
 	"github.com/UnicomAI/wanwu/pkg/es"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
@@ -34,9 +32,9 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
+	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	pkgUtil "github.com/UnicomAI/wanwu/pkg/util"
-
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

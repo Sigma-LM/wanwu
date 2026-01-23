@@ -111,6 +111,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -144,6 +147,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -183,6 +189,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -273,6 +282,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -324,6 +336,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -375,6 +390,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -435,6 +453,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -492,6 +513,9 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      external:
+        description: 外部数据库标识
+        type: integer
       graphSwitch:
         description: 知识图谱开关
         type: integer
@@ -847,6 +871,9 @@ definitions:
       category:
         description: 0:知识库，1:问答库
         type: integer
+      external:
+        description: -1:全部，0:内部知识库，1:外部知识库
+        type: integer
       name:
         type: string
       tagId:
@@ -1153,6 +1180,24 @@ definitions:
       total:
         type: integer
     type: object
+  response.KnowledgeExternalInfo:
+    properties:
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      externalApiName:
+        description: 外部知识库API名称
+        type: string
+      externalKnowledgeId:
+        description: 外部知识库id
+        type: string
+      externalKnowledgeName:
+        description: 外部知识库名称
+        type: string
+      externalSource:
+        description: 外部知识库来源
+        type: string
+    type: object
   response.KnowledgeHitResp:
     properties:
       prompt:
@@ -1192,6 +1237,13 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.EmbeddingModelInfo'
         description: embedding模型信息
+      external:
+        description: '0: 内部知识库 1：外部知识库'
+        type: integer
+      externalKnowledgeInfo:
+        allOf:
+        - $ref: '#/definitions/response.KnowledgeExternalInfo'
+        description: 外部知识库信息
       graphSwitch:
         description: 图谱开关
         type: integer

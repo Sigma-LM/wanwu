@@ -585,6 +585,10 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "external": {
+                    "description": "外部数据库标识",
+                    "type": "integer"
+                },
                 "graphSwitch": {
                     "description": "知识图谱开关",
                     "type": "integer"
