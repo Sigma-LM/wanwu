@@ -217,7 +217,7 @@ model:
   host: model-service:8989
   png_test_file_path: "configs/microservice/bff-service/static/model/test.png"
   pdf_test_file_path: "configs/microservice/bff-service/static/model/test.pdf"
-  asr_test_file_path: "configs/microservice/bff-service/static/model/test.m4a"
+  asr_test_file_path: "configs/microservice/bff-service/static/model/test.wav"
 
 mcp:
   host: mcp-service:9898

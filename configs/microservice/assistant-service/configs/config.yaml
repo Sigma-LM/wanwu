@@ -78,6 +78,7 @@ minio:
 assistant:
   sse-url: "http://agent-wanwu:7258/agent"
   new-sse-url: "http://agent-service:8990/agent/chat"
+  multi-agent-chat-url: "http://agent-service:8990/multi_agent/chat"
   max_pic_num: 6
 
 knowledge:

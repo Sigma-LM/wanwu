@@ -120,8 +120,8 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 }
 
 // buildRagChatRespLineProcessor 构造rag对话结果行处理器
-func buildRagChatRespLineProcessor() func(*gin.Context, string, interface{}) (string, bool, error) {
-	return func(c *gin.Context, lineText string, params interface{}) (string, bool, error) {
+func buildRagChatRespLineProcessor() func(sse_util.SSEWriterClient[string], string, interface{}) (string, bool, error) {
+	return func(c sse_util.SSEWriterClient[string], lineText string, params interface{}) (string, bool, error) {
 		if strings.HasPrefix(lineText, "error:") {
 			errorText := fmt.Sprintf("data: {\"code\": -1, \"message\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
 			return errorText, false, nil

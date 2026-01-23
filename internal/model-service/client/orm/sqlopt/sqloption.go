@@ -82,6 +82,12 @@ func WithModelType(modelType string) SQLOption {
 	})
 }
 
+func WithModelTypes(modelTypes []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("model_type IN ?", modelTypes)
+	})
+}
+
 func WithModel(model string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if model != "" {

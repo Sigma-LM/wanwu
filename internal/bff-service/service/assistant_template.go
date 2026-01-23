@@ -76,7 +76,7 @@ func AssistantTemplateCreate(ctx *gin.Context, userId, orgId string, req request
 		exist = false
 		name = gin_util.I18nKey(ctx, "bff_assistant_template_name", assistantTemplate.Name, strconv.Itoa(i))
 		for _, assistantInfo := range listResp.AssistantInfos {
-			if assistantInfo.Name == name {
+			if assistantInfo.GetInfo().Name == name {
 				exist = true
 				break
 			}
@@ -86,10 +86,13 @@ func AssistantTemplateCreate(ctx *gin.Context, userId, orgId string, req request
 		}
 	}
 	// create
-	createResp, err := AssistantCreate(ctx, userId, orgId, request.AppBriefConfig{
-		Avatar: request.Avatar{Key: assistantTemplate.AvatarKey},
-		Name:   name,
-		Desc:   assistantTemplate.Desc,
+	createResp, err := AssistantCreate(ctx, userId, orgId, request.AssistantCreateReq{
+		Category: 1, // 智能体模版功能启用后待判断 1:单智能体 2:多智能体
+		AppBriefConfig: request.AppBriefConfig{
+			Avatar: request.Avatar{Key: assistantTemplate.AvatarKey},
+			Name:   name,
+			Desc:   assistantTemplate.Desc,
+		},
 	})
 	if err != nil {
 		return nil, err

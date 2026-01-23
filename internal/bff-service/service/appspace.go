@@ -69,7 +69,7 @@ func GetAppSpaceAppList(ctx *gin.Context, userId, orgId, name, appType string) (
 			return nil, err
 		}
 		for _, ragInfo := range resp.RagInfos {
-			ret = append(ret, appBriefProto2Model(ctx, ragInfo))
+			ret = append(ret, appBriefProto2Model(ctx, ragInfo, 0))
 		}
 	}
 	if appType == "" || appType == constant.AppTypeAgent {
@@ -84,7 +84,7 @@ func GetAppSpaceAppList(ctx *gin.Context, userId, orgId, name, appType string) (
 			return nil, err
 		}
 		for _, assistantInfo := range resp.AssistantInfos {
-			ret = append(ret, appBriefProto2Model(ctx, assistantInfo))
+			ret = append(ret, appBriefProto2Model(ctx, assistantInfo.Info, assistantInfo.Category))
 		}
 	}
 	if appType == "" || appType == constant.AppTypeWorkflow {

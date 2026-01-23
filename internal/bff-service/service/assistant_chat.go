@@ -18,6 +18,7 @@ import (
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
 func AssistantConversionStream(ctx *gin.Context, userId, orgId string, req request.ConversionStreamRequest, needLatestPublished bool) error {
@@ -74,7 +75,12 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 		},
 		Draft: !needLatestPublished,
 	}
-	stream, err := assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
+	var stream grpc.ServerStreamingClient[assistant_service.AssistantConversionStreamResp]
+	if agentInfo.Category == constant.MultiAgent {
+		stream, err = assistant.MultiAssistantConversionStream(ctx.Request.Context(), buildMultiAssistantConversionStreamReq(agentReq))
+	} else {
+		stream, err = assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -264,8 +270,8 @@ func transFileInfo(fileInfo []request.ConversionStreamFile) []*assistant_service
 }
 
 // buildAgentChatRespLineProcessor 构造agent对话结果行处理器
-func buildAgentChatRespLineProcessor() func(*gin.Context, string, interface{}) (string, bool, error) {
-	return func(c *gin.Context, lineText string, params interface{}) (string, bool, error) {
+func buildAgentChatRespLineProcessor() func(sse_util.SSEWriterClient[string], string, interface{}) (string, bool, error) {
+	return func(c sse_util.SSEWriterClient[string], lineText string, params interface{}) (string, bool, error) {
 		if strings.HasPrefix(lineText, "error:") {
 			errorText := fmt.Sprintf("data: {\"code\": -1, \"message\": \"%s\"}\n\n", strings.TrimPrefix(lineText, "error:"))
 			return errorText, false, nil
@@ -320,4 +326,17 @@ func (s *agentSensitiveService) buildSensitiveResp(id string, content string) []
 	}
 	marshal, _ := json.Marshal(resp)
 	return []string{"data: " + string(marshal)}
+}
+
+func buildMultiAssistantConversionStreamReq(req *assistant_service.AssistantConversionStreamReq) *assistant_service.MultiAssistantConversionStreamReq {
+	return &assistant_service.MultiAssistantConversionStreamReq{
+		AssistantId:    req.AssistantId,
+		ConversationId: req.ConversationId,
+		FileInfo:       req.FileInfo,
+		Trial:          req.Trial,
+		Prompt:         req.Prompt,
+		SystemPrompt:   req.SystemPrompt,
+		Identity:       req.Identity,
+		Draft:          req.Draft,
+	}
 }

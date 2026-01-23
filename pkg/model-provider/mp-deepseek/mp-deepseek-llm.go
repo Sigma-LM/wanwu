@@ -14,6 +14,7 @@ type LLM struct {
 	FunctionCalling string `json:"functionCalling" validate:"oneof=noSupport toolCall"` // 函数调用是否支持
 	MaxTokens       *int   `json:"maxTokens"`                                           // 模型回答最大tokens
 	ContextSize     *int   `json:"contextSize"`                                         // 上下文长度
+	MaxImageSize    *int64 `json:"maxImageSize"`                                        // 最大图片大小限制
 }
 
 func (cfg *LLM) Tags() []mp_common.Tag {

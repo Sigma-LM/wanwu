@@ -2166,7 +2166,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.AppBriefConfig"
+                            "$ref": "#/definitions/request.AssistantCreateReq"
                         }
                     }
                 ],
@@ -2579,6 +2579,160 @@ const docTemplate = `{
                 }
             }
         },
+        "/assistant/multi-agent": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体绑定已发布的子智能体",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "添加多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id、子智能体id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体解绑子智能体",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "删除多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id与子智能体id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/multi-agent/config": {
+            "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体修改子智能体描述",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "修改多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id、子智能体id、描述",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentConfigUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/multi-agent/switch": {
+            "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "为智能体启用/停用子智能体",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "启用/停用多智能体配置",
+                "parameters": [
+                    {
+                        "description": "智能体id、子智能体id、开关状态",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MultiAgentEnableSwitchReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/assistant/question/recommend": {
             "post": {
                 "security": [
@@ -2613,6 +2767,69 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/select": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "添加多智能体配置-下拉列表接口",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "添加多智能体配置-下拉列表接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "assistant名称",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.AppBriefInfo"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -5323,6 +5540,11 @@ const docTemplate = `{
                         "name": "docId",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "keyword",
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -14733,6 +14955,34 @@ const docTemplate = `{
                 }
             }
         },
+        "request.AssistantCreateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "category": {
+                    "description": "1:单智能体 2:多智能体",
+                    "type": "integer"
+                },
+                "desc": {
+                    "description": "描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                }
+            }
+        },
         "request.AssistantIdRequest": {
             "type": "object",
             "required": [
@@ -15424,7 +15674,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "category": {
-                    "description": "0:知识库，1:问答库",
+                    "description": "0:知识库，1:问答库,2:多模态知识库",
                     "type": "integer"
                 },
                 "description": {
@@ -16035,8 +16285,12 @@ const docTemplate = `{
                 "knowledgeId"
             ],
             "properties": {
+                "asrModelId": {
+                    "description": "asr模型id",
+                    "type": "string"
+                },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -16079,6 +16333,10 @@ const docTemplate = `{
                     "description": "知识库id",
                     "type": "string"
                 },
+                "multimodalModelId": {
+                    "description": "模态模型id",
+                    "type": "string"
+                },
                 "parserModelId": {
                     "description": "模型解析或ocr模型id",
                     "type": "string"
@@ -16094,8 +16352,12 @@ const docTemplate = `{
                 "knowledgeId"
             ],
             "properties": {
+                "asrModelId": {
+                    "description": "asr模型id",
+                    "type": "string"
+                },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -16136,6 +16398,10 @@ const docTemplate = `{
                 },
                 "knowledgeId": {
                     "description": "知识库id",
+                    "type": "string"
+                },
+                "multimodalModelId": {
+                    "description": "模态模型id",
                     "type": "string"
                 },
                 "parserModelId": {
@@ -17337,6 +17603,66 @@ const docTemplate = `{
                 },
                 "modelId": {
                     "type": "string"
+                }
+            }
+        },
+        "request.MultiAgentConfigUpdateReq": {
+            "type": "object",
+            "required": [
+                "agentId",
+                "assistantId",
+                "desc"
+            ],
+            "properties": {
+                "agentId": {
+                    "description": "子智能体id",
+                    "type": "string"
+                },
+                "assistantId": {
+                    "description": "多智能体id",
+                    "type": "string"
+                },
+                "desc": {
+                    "description": "子智能体描述",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MultiAgentCreateReq": {
+            "type": "object",
+            "required": [
+                "agentId",
+                "assistantId"
+            ],
+            "properties": {
+                "agentId": {
+                    "description": "子智能体id",
+                    "type": "string"
+                },
+                "assistantId": {
+                    "description": "多智能体id",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MultiAgentEnableSwitchReq": {
+            "type": "object",
+            "required": [
+                "agentId",
+                "assistantId"
+            ],
+            "properties": {
+                "agentId": {
+                    "description": "子智能体id",
+                    "type": "string"
+                },
+                "assistantId": {
+                    "description": "多智能体id",
+                    "type": "string"
+                },
+                "enable": {
+                    "description": "开关状态",
+                    "type": "boolean"
                 }
             }
         },
@@ -18668,6 +18994,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "category": {
+                    "description": "1.单智能体 2.多智能体",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -18710,6 +19040,13 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppModelConfig"
                         }
                     ]
+                },
+                "multiAgentInfos": {
+                    "description": "多智能体配置",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.AssistantAgentInfo"
+                    }
                 },
                 "name": {
                     "description": "名称",
@@ -18790,6 +19127,26 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.AssistantWorkFlowInfo"
                     }
+                }
+            }
+        },
+        "response.AssistantAgentInfo": {
+            "type": "object",
+            "properties": {
+                "agentId": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "$ref": "#/definitions/request.Avatar"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -19954,13 +20311,28 @@ const docTemplate = `{
         "response.DocKnowledgeInfo": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "embeddingModel": {
+                    "$ref": "#/definitions/response.ModelInfo"
+                },
                 "graphSwitch": {
                     "type": "integer"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.KeywordsInfo"
+                    }
                 },
                 "knowledgeId": {
                     "type": "string"
                 },
                 "knowledgeName": {
+                    "type": "string"
+                },
+                "llmModelId": {
                     "type": "string"
                 },
                 "showGraphReport": {

@@ -66,7 +66,12 @@ func (c *Client) DeleteAssistant(ctx context.Context, assistantID uint32) *err_c
 		if err := sqlopt.WithAssistantID(assistantID).Apply(tx).Delete(&model.AssistantTool{}).Error; err != nil {
 			return toErrStatus("assistant_delete", err.Error())
 		}
-
+		if err := sqlopt.WithMultiAgentID(assistantID).Apply(tx).Delete(&model.MultiAgentRelation{}).Error; err != nil {
+			return toErrStatus("assistant_delete", err.Error())
+		}
+		if err := sqlopt.WithAgentID(assistantID).Apply(tx).Delete(&model.MultiAgentRelation{}).Error; err != nil {
+			return toErrStatus("assistant_delete", err.Error())
+		}
 		// 同步删除智能体多版本信息
 		if err := sqlopt.WithAssistantID(assistantID).Apply(tx).Delete(&model.AssistantSnapshot{}).Error; err != nil {
 			return toErrStatus("assistant_delete", err.Error())
@@ -162,7 +167,7 @@ func (c *Client) CheckSameAssistantName(ctx context.Context, userID, orgID, name
 	})
 }
 
-func (c *Client) CopyAssistant(ctx context.Context, assistant *model.Assistant, workflows []*model.AssistantWorkflow, mcps []*model.AssistantMCP, customTools []*model.AssistantTool) (uint32, *err_code.Status) {
+func (c *Client) CopyAssistant(ctx context.Context, assistant *model.Assistant, workflows []*model.AssistantWorkflow, mcps []*model.AssistantMCP, customTools []*model.AssistantTool, subAgents []*model.MultiAgentRelation) (uint32, *err_code.Status) {
 	// 智能体名称前缀
 	prefix := assistant.Name + "_"
 
@@ -228,6 +233,15 @@ func (c *Client) CopyAssistant(ctx context.Context, assistant *model.Assistant, 
 			tool.AssistantId = newAssistantId
 			if err = tx.Create(&tool).Error; err != nil {
 				return toErrStatus("assistant_tool_create", err.Error())
+			}
+		}
+
+		// 复制并保存新智能体 -- 多智能体配置
+		for _, relation := range subAgents {
+			relation.Id = 0
+			relation.MultiAgentId = newAssistantId
+			if err = tx.Create(&relation).Error; err != nil {
+				return toErrStatus("assistant_multi_agent_create", err.Error())
 			}
 		}
 		return nil

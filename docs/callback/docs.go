@@ -389,7 +389,7 @@ const docTemplate = `{
                 "tags": [
                     "callback"
                 ],
-                "summary": "Model Asr",
+                "summary": "Model SyncAsr",
                 "parameters": [
                     {
                         "type": "string",

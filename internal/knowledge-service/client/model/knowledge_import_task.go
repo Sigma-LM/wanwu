@@ -25,7 +25,9 @@ type SegmentConfig struct {
 }
 
 type DocAnalyzer struct {
-	AnalyzerList []string `json:"analyzerList"` //文档解析方式，ocr等
+	AnalyzerList      []string `json:"analyzerList"`      //文档解析方式，ocr等
+	AsrModelId        string   `json:"asrModelId"`        //asr模型id
+	MultimodalModelId string   `json:"multimodalModelId"` //模态模型id
 }
 
 type DocPreProcess struct {

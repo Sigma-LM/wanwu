@@ -1,7 +1,13 @@
 package model
 
+const (
+	SingleAgent = 1
+	MultiAgent  = 2
+)
+
 type Assistant struct {
 	ID                  uint32 `gorm:"primarykey;column:id;comment:智能体Id"`
+	Category            int    `gorm:"column:category;type:tinyint(4);not null;default:1;comment:'1-单智能体，2-多智能体';" json:"category"`
 	UUID                string `gorm:"column:uuid;type:varchar(255);uniqueIndex:idx_unique_uuid;comment:智能体uuid"`
 	AvatarPath          string `gorm:"column:avatar_path;comment:智能体头像"`
 	Name                string `gorm:"column:name;comment:智能体名称"`

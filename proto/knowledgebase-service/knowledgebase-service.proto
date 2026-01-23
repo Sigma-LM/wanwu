@@ -107,7 +107,7 @@ message CreateKnowledgeReq{
   string description = 4;
   EmbeddingModelInfo embeddingModelInfo = 5;
   KnowledgeGraph knowledgeGraph = 6; //知识图谱配置
-  int32 category = 7; //分类信息，0:知识库，1：问答库
+  int32 category = 7; //分类信息，0:知识库，1：问答库，2：多模态知识库
 }
 
 message EmbeddingModelInfo{

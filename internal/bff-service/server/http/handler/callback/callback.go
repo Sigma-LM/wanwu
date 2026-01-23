@@ -3,10 +3,8 @@ package callback
 import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
-	"github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
-	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -179,33 +177,4 @@ func SearchQABase(ctx *gin.Context) {
 	}
 	resp, httpStatus := service.RagSearchQABase(ctx, &req)
 	gin_util.ResponseRawByte(ctx, httpStatus, resp)
-}
-
-// AudioBase64ConvertText
-//
-//	@Tags		callback
-//	@Summary	语音文件（base64格式）转文本内置工具服务
-//	@Accept		json
-//	@Produce	json
-//	@Param		file	formData	file	true	"语音文件 base64"
-//	@Param		config	formData	string	true	"请求参数"
-//	@Param		apiKey	formData	string	true	"api token"
-//	@Success	200		{object}	response.Response{data=string}
-//	@Router		/tool/builtin/asr [post]
-func AudioBase64ConvertText(ctx *gin.Context) {
-	var data request.AudioBase64ConvertTextReq
-	if !gin_util.BindForm(ctx, &data) {
-		return
-	}
-	file, err := util.Base64ToFileHeader(data.File, "audio")
-	if err != nil {
-		gin_util.Response(ctx, nil, err)
-		return
-	}
-	asrServiceReq := &mp_common.AsrReq{
-		Config: data.Config,
-		File:   file,
-		ApiKey: data.ApiKey,
-	}
-	service.AudioBase64ConvertText(ctx, asrServiceReq)
 }

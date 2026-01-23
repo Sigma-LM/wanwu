@@ -35,7 +35,7 @@ var validators = sync.OnceValue(func() map[string]ModelValidator {
 		mp.ModelTypeOcr:            ValidateOcrModel,
 		mp.ModelTypeGui:            ValidateGuideModel,
 		mp.ModelTypePdfParser:      ValidatePdfParserModel,
-		mp.ModelTypeAsr:            ValidateAsrModel,
+		mp.ModelTypeSyncAsr:        ValidateSyncAsrModel,
 		mp.ModelTypeText2Image:     ValidateText2ImageModel,
 	}
 })
@@ -125,7 +125,7 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 		log.Debugf("tool call: %v", string(data))
 	}
 
-	imageBase64, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	_, base64StrWithPrefix, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 						{
 							"type": "image_url",
 							"image_url": map[string]string{
-								"url": imageBase64,
+								"url": base64StrWithPrefix,
 							},
 						},
 						{
@@ -232,7 +232,7 @@ func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.Mode
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	_, imageBase64, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.Mode
 				Text: "你好",
 			},
 			{
-				Image: imageBase64,
+				Image: base64Str,
 			},
 		},
 	}
@@ -307,7 +307,7 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	_, imageBase64, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
 	}
@@ -320,7 +320,7 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 				Text: "北极",
 			},
 			{
-				Image: imageBase64,
+				Image: base64Str,
 			},
 		},
 	}
@@ -464,67 +464,35 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	return nil
 }
 
-func ValidateAsrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+func ValidateSyncAsrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
 	asr, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
 		return err
 	}
-	iAsr, ok := asr.(mp.IAsr)
+	iAsr, ok := asr.(mp.ISyncAsr)
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
 	// mock  request
-	file, err := os.Open(config.Cfg().Model.AsrTestFilePath)
+	req, err := getSyncAsrReqByProvider(ctx, modelInfo)
 	if err != nil {
-		return fmt.Errorf("open file failed: %v", err)
-	}
-	defer file.Close()
-
-	// 创建内存缓冲区
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	// 创建表单文件字段
-	part, err := writer.CreateFormFile("file", file.Name())
-	if err != nil {
-		return fmt.Errorf("create form file failed: %v", err)
-	}
-
-	// 复制文件内容
-	if _, err := io.Copy(part, file); err != nil {
-		return fmt.Errorf("copy file content failed: %v", err)
-	}
-	writer.Close()
-
-	// 模拟HTTP请求
-	mockReq, _ := http.NewRequest("POST", "", body)
-	mockReq.Header.Set("Content-Type", writer.FormDataContentType())
-	ctx.Request = mockReq
-	// 获取FileHeader对象
-	_, fileH, err := ctx.Request.FormFile("file")
-	if err != nil {
-		return fmt.Errorf("get file header failed: %v", err)
-	}
-	req := &mp_common.AsrReq{
-		File: fileH,
-		Config: mp_common.AsrConfigOut{
-			Config: mp_common.AsrConfig{
-				SessionId: "f6b70f86-5171-48d6-b66b-8cf9797bc859",
-			},
-		},
+		return err
 	}
 	asrReq, err := iAsr.NewReq(req)
 	if err != nil {
 		return err
 	}
-	resp, err := iAsr.Asr(ctx, asrReq)
+	log.Infof("3333333")
+	resp, err := iAsr.SyncAsr(ctx, asrReq)
 	if err != nil {
 		return fmt.Errorf("model API call failed: %v", err)
 	}
-	_, ok = resp.ConvertResp()
+	res, ok := resp.ConvertResp()
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
+	jsonRes, _ := json.Marshal(res)
+	log.Infof("model %v sync asr response: %v", modelInfo.ModelId, string(jsonRes))
 	return nil
 }
 
@@ -608,4 +576,35 @@ func ValidateText2ImageModel(ctx *gin.Context, modelInfo *model_service.ModelInf
 		return fmt.Errorf("invalid response format")
 	}
 	return nil
+}
+
+func getSyncAsrReqByProvider(ctx *gin.Context, modelInfo *model_service.ModelInfo) (*mp_common.SyncAsrReq, error) {
+	_, base64StrWithPrefix, err := util.File2Base64(config.Cfg().Model.
+		AsrTestFilePath, "")
+	if err != nil {
+		return nil, fmt.Errorf("file_upload_file_2_base64: %v", err)
+	}
+	req := &mp_common.SyncAsrReq{
+		Model: modelInfo.Model,
+		Messages: []mp_common.SyncAsrReqMsg{
+			{
+				Role: "user",
+				Content: []mp_common.SyncAsrReqC{
+					{
+						Audio: mp_common.SyncAsrAudio{
+							Data: base64StrWithPrefix,
+						},
+					},
+				},
+			},
+		},
+	}
+	switch modelInfo.Provider {
+	case mp.ProviderYuanJing:
+		req.Messages[0].Content[0].Type = mp_common.MultiModalTypeMinioUrl
+		req.Messages[0].Content[0].Audio.FileName = "test.wav"
+	case mp.ProviderQwen:
+		req.Messages[0].Content[0].Type = mp_common.MultiModalTypeAudio
+	}
+	return req, nil
 }

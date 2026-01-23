@@ -12,6 +12,7 @@ type AppBriefInfo struct {
 	CreatedAt   string         `json:"createdAt"`   // 应用创建时间
 	UpdatedAt   string         `json:"updatedAt"`   // 应用更新时间(用于历史记录排序)
 	PublishType string         `json:"publishType"` // 发布类型(public:公开发布,private:私密发布)
+	Category    int32          `json:"category"`    // 智能体分类(1:单智能体,2:多智能体)
 }
 
 type AppUrlInfo struct {

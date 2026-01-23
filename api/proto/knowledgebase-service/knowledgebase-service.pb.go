@@ -616,7 +616,7 @@ type CreateKnowledgeReq struct {
 	Description        string              `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	EmbeddingModelInfo *EmbeddingModelInfo `protobuf:"bytes,5,opt,name=embeddingModelInfo,proto3" json:"embeddingModelInfo,omitempty"`
 	KnowledgeGraph     *KnowledgeGraph     `protobuf:"bytes,6,opt,name=knowledgeGraph,proto3" json:"knowledgeGraph,omitempty"` //知识图谱配置
-	Category           int32               `protobuf:"varint,7,opt,name=category,proto3" json:"category,omitempty"`            //分类信息，0:知识库，1：问答库
+	Category           int32               `protobuf:"varint,7,opt,name=category,proto3" json:"category,omitempty"`            //分类信息，0:知识库，1：问答库，2：多模态知识库
 }
 
 func (x *CreateKnowledgeReq) Reset() {

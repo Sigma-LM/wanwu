@@ -23,7 +23,9 @@ type IClient interface {
 	UpdateCustomTool(ctx context.Context, customTool *model.CustomTool) *errs.Status
 	DeleteCustomTool(ctx context.Context, customToolID uint32) *errs.Status
 	ListBuiltinTools(ctx context.Context, orgID, userID string) ([]*model.BuiltinTool, *errs.Status)
+	ListBuiltinToolsBySquareIdList(ctx context.Context, squareList []string) ([]*model.BuiltinTool, *errs.Status)
 	GetBuiltinTool(ctx context.Context, builtinTool *model.BuiltinTool) (*model.BuiltinTool, *errs.Status)
+
 	UpdateBuiltinTool(ctx context.Context, builtinTool *model.BuiltinTool) *errs.Status
 	CreateBuiltinTool(ctx context.Context, customTool *model.BuiltinTool) *errs.Status
 

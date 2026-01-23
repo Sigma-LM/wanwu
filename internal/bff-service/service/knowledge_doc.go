@@ -46,6 +46,11 @@ func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (
 		return nil, err
 	}
 	knowledgeInfo := resp.KnowledgeInfo
+	embModelInfo, _ := GetModel(ctx, userId, orgId, &request.GetModelRequest{
+		BaseModelRequest: request.BaseModelRequest{
+			ModelId: knowledgeInfo.EmbeddingModelId,
+		},
+	})
 	return &response.DocPageResult{
 		List:     buildDocRespList(ctx, resp.Docs, r.KnowledgeId),
 		Total:    resp.Total,
@@ -56,6 +61,10 @@ func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (
 			KnowledgeName:   knowledgeInfo.KnowledgeName,
 			GraphSwitch:     knowledgeInfo.GraphSwitch,
 			ShowGraphReport: knowledgeInfo.ShowGraphReport,
+			Description:     knowledgeInfo.Description,
+			Keywords:        buildKeywordsInfo(knowledgeInfo.Keywords),
+			EmbeddingModel:  embModelInfo,
+			LlmModelId:      knowledgeInfo.LlmModelId,
 		},
 	}, nil
 }
@@ -128,11 +137,13 @@ func ImportDoc(ctx *gin.Context, userId, orgId string, req *request.DocImportReq
 			SubMaxSplitter: int32(segment.SubMaxSplitter),
 			SubSplitter:    segment.SubSplitter,
 		},
-		DocAnalyzer:     req.DocAnalyzer,
-		DocInfoList:     docInfoList,
-		OcrModelId:      req.ParserModelId,
-		DocPreprocess:   req.DocPreprocess,
-		DocMetaDataList: buildMetaInfoList(req),
+		DocAnalyzer:       req.DocAnalyzer,
+		DocInfoList:       docInfoList,
+		OcrModelId:        req.ParserModelId,
+		AsrModelId:        req.AsrModelId,
+		MultimodalModelId: req.MultimodalModelId,
+		DocPreprocess:     req.DocPreprocess,
+		DocMetaDataList:   buildMetaInfoList(req),
 	})
 	if err != nil {
 		log.Errorf("上传失败(保存上传任务 失败(%v) ", err)
@@ -289,6 +300,7 @@ func GetDocSegmentList(ctx *gin.Context, userId, orgId string, req *request.DocS
 		DocId:    req.DocId,
 		PageSize: int32(req.PageSize),
 		PageNo:   int32(req.PageNo),
+		Keyword:  req.Keyword,
 	})
 	if err != nil {
 		return nil, err
@@ -681,4 +693,22 @@ func buildDocSegment(docSegment *knowledgebase_doc_service.DocSegment) *response
 		SubMaxSplitter: subMaxSplitter,
 		SubSplitter:    subSplitter,
 	}
+}
+
+func buildKeywordsInfo(keywords []*knowledgebase_doc_service.KeywordsInfo) []*response.KeywordsInfo {
+	retList := make([]*response.KeywordsInfo, 0)
+	if len(keywords) > 0 {
+		for _, v := range keywords {
+			keyword := &response.KeywordsInfo{
+				Id:                 v.Id,
+				Name:               v.Name,
+				Alias:              v.Alias,
+				KnowledgeBaseIds:   v.KnowledgeBaseIds,
+				KnowledgeBaseNames: v.KnowledgeBaseNames,
+				UpdatedAt:          v.UpdatedAt,
+			}
+			retList = append(retList, keyword)
+		}
+	}
+	return retList
 }

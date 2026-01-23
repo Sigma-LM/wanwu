@@ -1,0 +1,61 @@
+package service
+
+type AgentChatReq struct {
+	Input          string   `json:"input"`
+	Stream         bool     `json:"stream"`
+	UploadFile     []string `json:"uploadFile"`
+	AssistantId    uint32   `json:"assistantId"`
+	ConversationId string   `json:"conversationId"`
+	UserId         string   `json:"userId"`
+	OrgId          string   `json:"orgId"`
+	Draft          bool     `json:"draft"`
+}
+
+type MultiAgentChatReq struct {
+	Input            string   `json:"input"`
+	Stream           bool     `json:"stream"`
+	UploadFile       []string `json:"uploadFile"`
+	MultiAssistantId uint32   `json:"multiAgentId"`
+	ConversationId   string   `json:"conversationId"`
+	UserId           string   `json:"userId"`
+	OrgId            string   `json:"orgId"`
+	Draft            bool     `json:"draft"`
+}
+
+type AgentUserInputParams struct {
+	Draft          bool
+	Input          string
+	Stream         bool
+	UploadFile     []string
+	ConversationId string
+	UserId         string
+	OrgId          string
+}
+
+func BuildAgentChatReq(agentUserInputParams *AgentUserInputParams, assistantId uint32) *AgentChatReq {
+	var req = &AgentChatReq{
+		Input:          agentUserInputParams.Input,
+		Stream:         agentUserInputParams.Stream,
+		UploadFile:     agentUserInputParams.UploadFile,
+		AssistantId:    assistantId,
+		ConversationId: agentUserInputParams.ConversationId,
+		UserId:         agentUserInputParams.UserId,
+		OrgId:          agentUserInputParams.OrgId,
+		Draft:          agentUserInputParams.Draft,
+	}
+	return req
+}
+
+func BuildMultiAgentChatReq(agentUserInputParams *AgentUserInputParams, assistantId uint32) *MultiAgentChatReq {
+	var req = &MultiAgentChatReq{
+		Input:            agentUserInputParams.Input,
+		Stream:           agentUserInputParams.Stream,
+		UploadFile:       agentUserInputParams.UploadFile,
+		MultiAssistantId: assistantId,
+		ConversationId:   agentUserInputParams.ConversationId,
+		UserId:           agentUserInputParams.UserId,
+		OrgId:            agentUserInputParams.OrgId,
+		Draft:            agentUserInputParams.Draft,
+	}
+	return req
+}

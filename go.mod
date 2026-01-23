@@ -13,7 +13,6 @@ require (
 	github.com/cloudwego/eino-ext/components/tool/mcp v0.0.6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
-	github.com/eino-contrib/jsonschema v1.0.3
 	github.com/elastic/go-elasticsearch/v8 v8.18.0
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/gin-gonic/gin v1.10.1
@@ -37,13 +36,12 @@ require (
 	github.com/samber/lo v1.51.0
 	github.com/spf13/viper v1.20.1
 	github.com/swaggo/swag v1.16.4
-	github.com/wk8/go-ordered-map/v2 v2.1.8
 	github.com/xuri/excelize/v2 v2.8.1
 	github.com/yuin/goldmark v1.4.13
 	go.uber.org/zap v1.27.0
 	golang.org/x/text v0.26.0
 	google.golang.org/grpc v1.67.3
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.11
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.11
@@ -55,6 +53,7 @@ require (
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.1 // indirect
+	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/invopop/jsonschema v0.13.0 // indirect
@@ -65,6 +64,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
+	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
 )

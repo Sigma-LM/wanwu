@@ -1,6 +1,7 @@
 package callback
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -110,7 +111,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 	for i := range data.Input {
 		item := &data.Input[i]
 		if item.Image != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
 				return
@@ -118,7 +119,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 			item.Image = pureBase64Str
 		}
 		if item.Audio != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v audio to base64 err: %v", data.Model, err)))
 				return
@@ -126,7 +127,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 			item.Audio = pureBase64Str
 		}
 		if item.Video != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v video to base64 err: %v", data.Model, err)))
 				return
@@ -173,7 +174,7 @@ func ModelMultiModalRerank(ctx *gin.Context) {
 	for i := range data.Documents {
 		item := &data.Documents[i]
 		if item.Image != "" {
-			_, pureBase64Str, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
 				return
@@ -239,23 +240,40 @@ func ModelGui(ctx *gin.Context) {
 	service.ModelGui(ctx, ctx.Param("modelId"), &data)
 }
 
-// ModelAsr
+// ModelSyncAsr
 //
 //	@Tags		callback
-//	@Summary	Model Asr
-//	@Accept		multipart/form-data
+//	@Summary	Model SyncAsr
+//	@Accept		json
 //	@Produce	json
 //	@Param		modelId	path		string	true	"模型ID"
-//	@Param		file	formData	file	true	"语音文件"
-//	@Param		config	formData	string	true	"请求参数"
-//	@Success	200		{object}	mp_common.AsrResp{}
+//	@Param		data	body		mp_common.SyncAsrReq{}	true	"请求参数"
+//	@Success	200		{object}	mp_common.SyncAsrResp{}
 //	@Router		/model/{modelId}/asr [post]
-func ModelAsr(ctx *gin.Context) {
-	var data mp_common.AsrReq
-	if !gin_util.BindForm(ctx, &data) {
+func ModelSyncAsr(ctx *gin.Context) {
+	var data mp_common.SyncAsrReq
+	if !gin_util.Bind(ctx, &data) {
 		return
 	}
-	service.ModelAsr(ctx, ctx.Param("modelId"), &data)
+	if len(data.Messages) > 0 {
+		for i := range data.Messages {
+			contentList := &data.Messages[i].Content
+			for j := range *contentList {
+				if (*contentList)[j].Type == mp_common.MultiModalTypeAudio {
+					(*contentList)[j].Type = mp_common.MultiModalTypeMinioUrl
+				}
+				minioFilePath := (*contentList)[j].Audio.Data
+				_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(context.Background(), minioFilePath)
+				if err != nil {
+					gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("minio_url %s to local file err: %v", minioFilePath, err)))
+					return
+				}
+				(*contentList)[j].Audio.Data = base64StrWithPrefix
+				(*contentList)[j].Audio.FileName = minio_util.GetFilenameFromMinioURL(minioFilePath)
+			}
+		}
+	}
+	service.ModelSyncAsr(ctx, ctx.Param("modelId"), &data)
 }
 
 // ModelText2Image

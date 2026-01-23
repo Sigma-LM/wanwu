@@ -27,10 +27,14 @@ type DocSegment struct {
 }
 
 type DocKnowledgeInfo struct {
-	KnowledgeId     string `json:"knowledgeId"`
-	KnowledgeName   string `json:"knowledgeName"`
-	GraphSwitch     int32  `json:"graphSwitch"`
-	ShowGraphReport bool   `json:"showGraphReport"`
+	KnowledgeId     string          `json:"knowledgeId"`
+	KnowledgeName   string          `json:"knowledgeName"`
+	GraphSwitch     int32           `json:"graphSwitch"`
+	ShowGraphReport bool            `json:"showGraphReport"`
+	Description     string          `json:"description"`
+	Keywords        []*KeywordsInfo `json:"keywords"`
+	EmbeddingModel  *ModelInfo      `json:"embeddingModel"`
+	LlmModelId      string          `json:"llmModelId"`
 }
 
 type ListDocResp struct {

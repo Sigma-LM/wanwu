@@ -8,9 +8,13 @@ import (
 )
 
 type MultiModalEmbedding struct {
-	ApiKey      string `json:"apiKey"`      // ApiKey
-	EndpointUrl string `json:"endpointUrl"` // 推理url
-	ContextSize *int   `json:"contextSize"` // 上下文长度
+	ApiKey           string   `json:"apiKey"`           // ApiKey
+	EndpointUrl      string   `json:"endpointUrl"`      // 推理url
+	ContextSize      *int     `json:"contextSize"`      // 上下文长度
+	MaxTextLength    *int64   `json:"maxTextLength"`    // 最大文本长度
+	MaxImageSize     *int64   `json:"maxImageSize"`     // 最大图片大小限制
+	MaxVideoClipSize *int64   `json:"maxVideoClipSize"` // 最大视频片大小限制
+	SupportFileTypes []string `json:"supportFileTypes"` // 支持的文件类型列表
 }
 
 func (cfg *MultiModalEmbedding) Tags() []mp_common.Tag {
