@@ -60,10 +60,10 @@ type IPdfParser interface {
 	PdfParser(ctx *gin.Context, req mp_common.IPdfParserReq, headers ...mp_common.Header) (mp_common.IPdfParserResp, error)
 }
 
-type IAsr interface {
+type ISyncAsr interface {
 	Tags() []mp_common.Tag
-	NewReq(req *mp_common.AsrReq) (mp_common.IAsrReq, error)
-	Asr(ctx *gin.Context, req mp_common.IAsrReq, headers ...mp_common.Header) (mp_common.IAsrResp, error)
+	NewReq(req *mp_common.SyncAsrReq) (mp_common.ISyncAsrReq, error)
+	SyncAsr(ctx context.Context, req mp_common.ISyncAsrReq, headers ...mp_common.Header) (mp_common.ISyncAsrResp, error)
 }
 
 type IText2Image interface {
@@ -146,8 +146,8 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = pdfParser.Tags()
-		case ModelTypeAsr:
-			asr := &mp_yuanjing.Asr{}
+		case ModelTypeSyncAsr:
+			asr := &mp_yuanjing.SyncAsr{}
 			if err := json.Unmarshal([]byte(cfg), asr); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
@@ -198,6 +198,12 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = embedding.Tags()
+		case ModelTypeSyncAsr:
+			asr := &mp_qwen.SyncAsr{}
+			if err := json.Unmarshal([]byte(cfg), asr); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = asr.Tags()
 		default:
 			return nil, fmt.Errorf("ToModelTags:invalid provider %v model type %v", provider, modelType)
 		}
@@ -310,6 +316,13 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 	return tags, nil
 }
 
+var (
+	maxTextLength    int64 = 512
+	maxVideoClipSize int64 = 10
+	maxImageSize     int64 = 3
+	maxAsrFileSize   int64 = 10
+)
+
 // ToModelConfig 返回ILLM、IEmbedding或IRerank
 func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 	if cfg == "" {
@@ -342,8 +355,10 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 			ret = &mp_yuanjing.Gui{}
 		case ModelTypePdfParser:
 			ret = &mp_yuanjing.PdfParser{}
-		case ModelTypeAsr:
-			ret = &mp_yuanjing.Asr{}
+		case ModelTypeSyncAsr:
+			ret = &mp_yuanjing.SyncAsr{
+				MaxAsrFileSize: &maxAsrFileSize,
+			}
 		case ModelTypeText2Image:
 			ret = &mp_yuanjing.Text2Image{}
 
@@ -367,6 +382,8 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 			ret = &mp_qwen.Rerank{}
 		case ModelTypeTextEmbedding:
 			ret = &mp_qwen.Embedding{}
+		case ModelTypeSyncAsr:
+			ret = &mp_qwen.SyncAsr{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
 		}
@@ -415,9 +432,19 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		case ModelTypeTextEmbedding:
 			ret = &mp_jina.Embedding{}
 		case ModelTypeMultiRerank:
-			ret = &mp_jina.MultiModalRerank{}
+			ret = &mp_jina.MultiModalRerank{
+				MaxTextLength:       &maxTextLength,
+				MaxVideoClipSize:    &maxVideoClipSize,
+				MaxImageSize:        &maxImageSize,
+				SupportFileTypes:    []string{"image", "video"},
+				SupportImageInQuery: false,
+			}
 		case ModelTypeMultiEmbedding:
-			ret = &mp_jina.MultiModalEmbedding{}
+			ret = &mp_jina.MultiModalEmbedding{
+				MaxTextLength:    &maxTextLength,
+				MaxImageSize:     &maxImageSize,
+				SupportFileTypes: []string{"image"},
+			}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
 		}

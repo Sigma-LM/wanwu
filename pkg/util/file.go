@@ -2,16 +2,18 @@ package util
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/UnicomAI/wanwu/pkg/log"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/UnicomAI/wanwu/pkg/log"
 )
 
 const (
@@ -205,7 +207,7 @@ func FileEOF(err error) bool {
 	return errors.Is(err, io.EOF) || (err != nil && err.Error() == "EOF")
 }
 
-func File2Base64(filePath string, customPrefix string) (string, string, error) {
+func File2Base64(filePath string, customPrefix string) (base64Str string, base64StrWithPrefix string, err error) {
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", "", err
@@ -234,4 +236,48 @@ func FileData2Base64(fileData []byte, customPrefix string) (base64Str string, ba
 	base64StrWithPrefix = prefix + base64Str
 
 	return base64Str, base64StrWithPrefix, nil
+}
+
+// BytesToFileHeaderNoTemp
+//
+//	@Description: 将字节数组转换为multipart.FileHeader
+//	@Author zhangzekai
+//	@Time 2026-01-21 11:11:20
+//	@param filename
+//	@param data
+//	@return *multipart.FileHeader
+//	@return error
+func BytesToFileHeaderNoTemp(filename string, data []byte) (*multipart.FileHeader, error) {
+	buf := new(bytes.Buffer)
+	writer := multipart.NewWriter(buf)
+
+	header := make(textproto.MIMEHeader)
+	header.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "file", filename))
+	header.Set("Content-Type", "application/octet-stream") // 可根据实际文件类型修改（如audio/wav）
+
+	part, err := writer.CreatePart(header)
+	if err != nil {
+		return nil, fmt.Errorf("创建form字段失败: %w", err)
+	}
+	_, err = part.Write(data)
+	if err != nil {
+		return nil, fmt.Errorf("写入文件数据失败: %w", err)
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("关闭form writer失败: %w", err)
+	}
+
+	reader := multipart.NewReader(buf, writer.Boundary())
+	form, err := reader.ReadForm(int64(len(data)) + 1024)
+	if err != nil {
+		return nil, fmt.Errorf("解析form数据失败: %w", err)
+	}
+
+	fileHeaders := form.File["file"]
+	if len(fileHeaders) == 0 {
+		return nil, fmt.Errorf("form中未找到file字段")
+	}
+
+	return fileHeaders[0], nil
 }

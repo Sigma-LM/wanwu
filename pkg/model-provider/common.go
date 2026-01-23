@@ -10,7 +10,7 @@ const (
 	ModelTypeOcr            = "ocr"
 	ModelTypeGui            = "gui"
 	ModelTypePdfParser      = "pdf-parser"
-	ModelTypeAsr            = "asr"
+	ModelTypeSyncAsr        = "sync-asr"
 	ModelTypeText2Image     = "text2image"
 	//ModelTypeOcrDs      = "ocr-deepseek"
 	//ModelTypeOcrPaddle  = "ocr-paddle"

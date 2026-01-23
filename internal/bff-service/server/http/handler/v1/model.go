@@ -267,19 +267,19 @@ func ListGuiModels(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, err)
 }
 
-// ListAsrModels
+// ListSyncAsrModels
 //
 //	@Tags		model
-//	@Summary	asr语音识别模型列表展示
+//	@Summary	同步asr语音识别模型列表展示
 //	@Description
 //	@Security	JWT
 //	@Accept		json
 //	@Produce	json
 //	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
 //	@Router		/model/select/asr [get]
-func ListAsrModels(ctx *gin.Context) {
+func ListSyncAsrModels(ctx *gin.Context) {
 	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
-		ModelType: mp.ModelTypeAsr,
+		ModelType: mp.ModelTypeSyncAsr,
 	})
 	gin_util.Response(ctx, resp, err)
 }
