@@ -24,9 +24,9 @@
 | **iii) Null Query**: Tests the system’s ability to correctly identify when no conclusive answer is available. | **iii) 无效查询**（无答案查询）：检验系统在无法得出确定答案时能否正确识别。 | 考察系统**拒绝回答的能力**（avoiding hallucination）。当检索结果矛盾、信息缺失或问题本身无解时，系统应返回“无法确定”而非编造答案。这是衡量 RAG **可靠性与安全性**的关键指标。 |
 | **iv) Temporal Query**: Evaluates understanding of temporal relations among events. | **iv) 时序型查询**：评估对事件间时间关系的理解 | 测试系统能否准确捕捉事件的**先后顺序、持续时间、并发性或周期性**。例如：“在 X 事件发生之前，Y 事件是否已经结束？” 要求模型建立清晰的时间线并理解“before/after/during”等时序语义。 |
 
-**万悟RAG及GraphRAG两种模式在权威公开评测集MutiHop-RAG数据集上完成检索召回性能指标评测**：（粗体：最优指标，下划线：次优指标）
+**万悟RAG及GraphRAG两种模式在权威公开评测集MutiHop-RAG数据集上完成检索召回性能指标评测**：
 
-| **MultiHopRAG数据集RAG检索效果评测结果** |  |  |  |  |
+| **MultiHopRAG数据集RAG检索效果评测结果**（粗体：最优指标，下划线：次优指标） |  |  |  |  |
 | --- | --- | --- | --- | --- |
 | **Query Type** | **Method** | **Relevancy** | **Recall** | **F1值** |
 | **Inference Query**<br>**（推理型查询）** | Dify-RAG | 0.6786 | 0.5671 | 0.6179 |
@@ -58,4 +58,4 @@
 
 2）万悟GraphRAG比Dify高：17.2%
 
-3）万悟GraphRAG比开源LightRAG高：3.5%
+3) 万悟GraphRAG比开源LightRAG高：3.5%
