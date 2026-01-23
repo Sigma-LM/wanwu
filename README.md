@@ -47,7 +47,7 @@
 
 ✔ **Multi-tenant architecture**: Provides a multi-tenant account system to meet the core needs of users in cost control, data security isolation, business elasticity expansion, industry customization, rapid online and ecological collaboration
 
-✔ **XinChuang adaptation**: Already adapted to domestic XinChuang databases TiDB and OceanBase
+✔ **XinChuang adaptation**: The product has been awarded the **“Xinchuang AI Hardware and Software System Inspection Certificate“**，featuring hardware support for Huawei Kunpeng CPUs and software compatibility with domestic operating systems (e.g., openEuler, CULinux, Kylin) and databases (e.g., TiDB, OceanBase).
 
 ------
 
@@ -251,6 +251,8 @@ The platform has been successfully applied in multiple industries such as **fina
    ```
 
 4. Based on the above Docker installation steps, completely start the system service
+
+✔ The product has been awarded the “Xinchuang AI Hardware and Software System Inspection Certificate,” featuring hardware support for Huawei Kunpeng CPUs and software compatibility with domestic operating systems (e.g., openEuler, CULinux, Kylin) and databases (e.g., TiDB, OceanBase).
 
 ------
 
