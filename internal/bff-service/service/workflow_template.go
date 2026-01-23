@@ -275,7 +275,7 @@ func getRemoteDownloadWorkflowTemplate(ctx *gin.Context, templateId string) ([]b
 		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_download", fmt.Sprintf("request remote workflow template http code: %v", resp.StatusCode()))
 	}
 	// 远程调用成功，返回远程结果
-	return convertToBytes(resp.Body())
+	return resp.Body(), nil
 }
 
 func getLocalDownloadWorkflowTemplate(templateId string) ([]byte, error) {
@@ -390,20 +390,6 @@ func buildWorkflowTempDetail(ctx context.Context, wtfCfg config.WorkflowTemplate
 		Feature:  wtfCfg.Feature,
 		Scenario: wtfCfg.Scenario,
 		Note:     wtfCfg.Note,
-	}
-}
-
-func convertToBytes(data any) ([]byte, error) {
-	if data == nil {
-		return nil, nil
-	}
-	switch v := data.(type) {
-	case []byte:
-		return v, nil
-	case string:
-		return []byte(v), nil
-	default:
-		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_workflow_template_download", "unsupported data type for conversion to bytes")
 	}
 }
 

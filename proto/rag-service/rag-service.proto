@@ -104,7 +104,7 @@ message RagDeleteReq {
 message RagDetailReq {
   string ragId = 1;
   int32 publish = 2; // 0: 草稿 1: 已发布
-  string version = 3;
+  string version = 3; // 已发布版本
 }
 
 message RagKnowledgeBaseConfig {

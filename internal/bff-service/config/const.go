@@ -5,7 +5,3 @@ const (
 	TopOrgID          = "1" // top org id
 	SystemAdminUserID = "1" // system admin user id
 )
-
-const (
-	AsrModelId = "Asr" // 内置语音识别模型ID
-)

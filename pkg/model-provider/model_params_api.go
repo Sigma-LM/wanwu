@@ -41,8 +41,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
@@ -54,12 +54,12 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		case ModelTypeGui:
 		case ModelTypeOcr:
 		case ModelTypePdfParser:
-		case ModelTypeAsr:
+		case ModelTypeSyncAsr:
 		case ModelTypeText2Image:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
@@ -72,8 +72,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
@@ -85,8 +85,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
@@ -98,8 +98,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
@@ -111,8 +111,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)
 		}
@@ -124,8 +124,8 @@ func ToModelParams(provider, modelType, cfg string) (interface{}, map[string]int
 				ret = llm
 				params = llm.GetParams()
 			}
-		case ModelTypeRerank:
-		case ModelTypeEmbedding:
+		case ModelTypeTextRerank:
+		case ModelTypeTextEmbedding:
 		case ModelTypeOcr:
 		default:
 			return nil, nil, fmt.Errorf("invalid model type: %v", modelType)

@@ -17,6 +17,7 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,14 +27,16 @@ type ModelValidator func(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 // 校验器注册表
 var validators = sync.OnceValue(func() map[string]ModelValidator {
 	return map[string]ModelValidator{
-		mp.ModelTypeLLM:        ValidateLLMModel,
-		mp.ModelTypeRerank:     ValidateRerankModel,
-		mp.ModelTypeEmbedding:  ValidateEmbeddingModel,
-		mp.ModelTypeOcr:        ValidateOcrModel,
-		mp.ModelTypeGui:        ValidateGuideModel,
-		mp.ModelTypePdfParser:  ValidatePdfParserModel,
-		mp.ModelTypeAsr:        ValidateAsrModel,
-		mp.ModelTypeText2Image: ValidateText2ImageModel,
+		mp.ModelTypeLLM:            ValidateLLMModel,
+		mp.ModelTypeTextRerank:     ValidateRerankModel,
+		mp.ModelTypeMultiRerank:    ValidateMultiRerankModel,
+		mp.ModelTypeTextEmbedding:  ValidateEmbeddingModel,
+		mp.ModelTypeMultiEmbedding: ValidateMultiEmbeddingModel,
+		mp.ModelTypeOcr:            ValidateOcrModel,
+		mp.ModelTypeGui:            ValidateGuideModel,
+		mp.ModelTypePdfParser:      ValidatePdfParserModel,
+		mp.ModelTypeSyncAsr:        ValidateSyncAsrModel,
+		mp.ModelTypeText2Image:     ValidateText2ImageModel,
 	}
 })
 
@@ -122,6 +125,10 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 		log.Debugf("tool call: %v", string(data))
 	}
 
+	_, base64StrWithPrefix, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	if err != nil {
+		return err
+	}
 	// 视觉支持校验（独立请求，用专属Content和配置）
 	if visionSupportFlag {
 		// 视觉支持专属req：Content为图片+“这里有什么字”，无Tools配置
@@ -134,12 +141,12 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 						{
 							"type": "image_url",
 							"image_url": map[string]string{
-								"url": "https://img0.baidu.com/it/u=3197002195,3024915584&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1420",
+								"url": base64StrWithPrefix,
 							},
 						},
 						{
 							"type": "text",
-							"text": "这里有什么字",
+							"text": "描述一下图片",
 						},
 					},
 				},
@@ -216,6 +223,48 @@ func ValidateEmbeddingModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	return nil
 }
 
+func ValidateMultiEmbeddingModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+	embedding, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return err
+	}
+	iMultiModalEmbedding, ok := embedding.(mp.IMultiModalEmbedding)
+	if !ok {
+		return fmt.Errorf("invalid provider")
+	}
+	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	if err != nil {
+		return err
+	}
+	// mock  request
+	req := &mp_common.MultiModalEmbeddingReq{
+		Model: modelInfo.Model,
+		Input: []mp_common.MultiInput{
+			{
+				Text: "你好",
+			},
+			{
+				Image: base64Str,
+			},
+		},
+	}
+	multiModalEmbeddingReq, err := iMultiModalEmbedding.NewReq(req)
+	if err != nil {
+		return err
+	}
+	resp, err := iMultiModalEmbedding.MultiModalEmbeddings(ctx.Request.Context(), multiModalEmbeddingReq)
+	if err != nil {
+		{
+			return fmt.Errorf("model API call failed: %v", err)
+		}
+	}
+	_, ok = resp.ConvertResp()
+	if !ok {
+		return fmt.Errorf("invalid response format")
+	}
+	return nil
+}
+
 func ValidateRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
 	rerank, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
@@ -226,7 +275,7 @@ func ValidateRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 		return fmt.Errorf("invalid provider")
 	}
 	// mock  request
-	req := &mp_common.RerankReq{
+	req := &mp_common.TextRerankReq{
 		Model: modelInfo.Model,
 		Query: "乌萨奇",
 		Documents: []string{
@@ -246,6 +295,50 @@ func ValidateRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) e
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
+	return nil
+}
+
+func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+	rerank, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		return err
+	}
+	iRerank, ok := rerank.(mp.IMultiModalRerank)
+	if !ok {
+		return fmt.Errorf("invalid provider")
+	}
+	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	if err != nil {
+		return err
+	}
+	// mock  request
+	req := &mp_common.MultiModalRerankReq{
+		Model: modelInfo.Model,
+		Query: "企鹅",
+		Documents: []mp_common.MultiDocument{
+			{
+				Text: "北极",
+			},
+			{
+				Image: base64Str,
+			},
+		},
+	}
+
+	rerankReq, err := iRerank.NewReq(req)
+	if err != nil {
+		return err
+	}
+	resp, err := iRerank.MultiModalRerank(ctx.Request.Context(), rerankReq)
+	if err != nil {
+		return fmt.Errorf("model API call failed: %v", err)
+	}
+	res, ok := resp.ConvertResp()
+	if !ok {
+		return fmt.Errorf("invalid response format")
+	}
+	jsonRes, _ := json.Marshal(res)
+	log.Infof("multi modal rerank response: %v", string(jsonRes))
 	return nil
 }
 
@@ -371,67 +464,35 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	return nil
 }
 
-func ValidateAsrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
+func ValidateSyncAsrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) error {
 	asr, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
 		return err
 	}
-	iAsr, ok := asr.(mp.IAsr)
+	iAsr, ok := asr.(mp.ISyncAsr)
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
 	// mock  request
-	file, err := os.Open(config.Cfg().Model.AsrTestFilePath)
+	req, err := getSyncAsrReqByProvider(ctx, modelInfo)
 	if err != nil {
-		return fmt.Errorf("open file failed: %v", err)
-	}
-	defer file.Close()
-
-	// 创建内存缓冲区
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	// 创建表单文件字段
-	part, err := writer.CreateFormFile("file", file.Name())
-	if err != nil {
-		return fmt.Errorf("create form file failed: %v", err)
-	}
-
-	// 复制文件内容
-	if _, err := io.Copy(part, file); err != nil {
-		return fmt.Errorf("copy file content failed: %v", err)
-	}
-	writer.Close()
-
-	// 模拟HTTP请求
-	mockReq, _ := http.NewRequest("POST", "", body)
-	mockReq.Header.Set("Content-Type", writer.FormDataContentType())
-	ctx.Request = mockReq
-	// 获取FileHeader对象
-	_, fileH, err := ctx.Request.FormFile("file")
-	if err != nil {
-		return fmt.Errorf("get file header failed: %v", err)
-	}
-	req := &mp_common.AsrReq{
-		File: fileH,
-		Config: mp_common.AsrConfigOut{
-			Config: mp_common.AsrConfig{
-				SessionId: "f6b70f86-5171-48d6-b66b-8cf9797bc859",
-			},
-		},
+		return err
 	}
 	asrReq, err := iAsr.NewReq(req)
 	if err != nil {
 		return err
 	}
-	resp, err := iAsr.Asr(ctx, asrReq)
+	log.Infof("3333333")
+	resp, err := iAsr.SyncAsr(ctx, asrReq)
 	if err != nil {
 		return fmt.Errorf("model API call failed: %v", err)
 	}
-	_, ok = resp.ConvertResp()
+	res, ok := resp.ConvertResp()
 	if !ok {
 		return fmt.Errorf("invalid response format")
 	}
+	jsonRes, _ := json.Marshal(res)
+	log.Infof("model %v sync asr response: %v", modelInfo.ModelId, string(jsonRes))
 	return nil
 }
 
@@ -515,4 +576,35 @@ func ValidateText2ImageModel(ctx *gin.Context, modelInfo *model_service.ModelInf
 		return fmt.Errorf("invalid response format")
 	}
 	return nil
+}
+
+func getSyncAsrReqByProvider(ctx *gin.Context, modelInfo *model_service.ModelInfo) (*mp_common.SyncAsrReq, error) {
+	_, base64StrWithPrefix, err := util.File2Base64(config.Cfg().Model.
+		AsrTestFilePath, "")
+	if err != nil {
+		return nil, fmt.Errorf("file_upload_file_2_base64: %v", err)
+	}
+	req := &mp_common.SyncAsrReq{
+		Model: modelInfo.Model,
+		Messages: []mp_common.SyncAsrReqMsg{
+			{
+				Role: "user",
+				Content: []mp_common.SyncAsrReqC{
+					{
+						Audio: mp_common.SyncAsrAudio{
+							Data: base64StrWithPrefix,
+						},
+					},
+				},
+			},
+		},
+	}
+	switch modelInfo.Provider {
+	case mp.ProviderYuanJing:
+		req.Messages[0].Content[0].Type = mp_common.MultiModalTypeMinioUrl
+		req.Messages[0].Content[0].Audio.FileName = "test.wav"
+	case mp.ProviderQwen:
+		req.Messages[0].Content[0].Type = mp_common.MultiModalTypeAudio
+	}
+	return req, nil
 }

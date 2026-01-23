@@ -37,7 +37,7 @@ func (s *Service) InitData() error {
 		if topOrgID, status = s.cli.CreateOrg(ctx, &model.Org{
 			Status: true,
 			Name:   "--- 系统 ---",
-		}); err != nil {
+		}); status != nil {
 			return errStatus(errs.Code_IAMGeneral, status)
 		}
 	} else if err != nil {
@@ -59,7 +59,7 @@ func (s *Service) InitData() error {
 			Name:     "admin",
 			Nick:     "admin",
 			Password: "Wanwu123456",
-		}, topOrgID, []uint32{adminRoleID}); err != nil {
+		}, topOrgID, []uint32{adminRoleID}); status != nil {
 			return errStatus(errs.Code_IAMGeneral, status)
 		}
 	} else if err != nil {

@@ -93,6 +93,12 @@ const constantRoutes = [
         meta: { perm: [PERMS.MODEL] },
       },
       {
+        path: '/modelAccess/modelExprience',
+        component: resolve =>
+          require(['@/views/modelExprience/index'], resolve),
+        meta: { perm: [PERMS.MODEL] },
+      },
+      {
         path: '/tool',
         component: resolve => require(['@/views/tool'], resolve),
         meta: { perm: [PERMS.TOOL] },

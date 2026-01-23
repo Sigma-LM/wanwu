@@ -389,6 +389,7 @@ func (c *Client) DeleteUser(ctx context.Context, userID uint32) *errs.Status {
 	})
 
 }
+
 func (c *Client) UpdateUserAvatar(ctx context.Context, userID uint32, avatarPath string) *errs.Status {
 	if err := sqlopt.WithID(userID).Apply(c.db.WithContext(ctx)).Model(&model.User{}).Updates(map[string]interface{}{
 		"avatar_path": avatarPath,

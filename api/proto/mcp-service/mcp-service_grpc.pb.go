@@ -50,6 +50,7 @@ const (
 	MCPService_GetMCPServerToolList_FullMethodName            = "/mcp_service.MCPService/GetMCPServerToolList"
 	MCPService_GetToolSelect_FullMethodName                   = "/mcp_service.MCPService/GetToolSelect"
 	MCPService_GetToolByIdList_FullMethodName                 = "/mcp_service.MCPService/GetToolByIdList"
+	MCPService_GetToolDetailByIdList_FullMethodName           = "/mcp_service.MCPService/GetToolDetailByIdList"
 	MCPService_GetMCPByMCPIdList_FullMethodName               = "/mcp_service.MCPService/GetMCPByMCPIdList"
 )
 
@@ -94,6 +95,7 @@ type MCPServiceClient interface {
 	// --- custom builtin tool ---
 	GetToolSelect(ctx context.Context, in *GetToolSelectReq, opts ...grpc.CallOption) (*GetToolListResp, error)
 	GetToolByIdList(ctx context.Context, in *GetToolByToolIdListReq, opts ...grpc.CallOption) (*GetToolByToolIdListResp, error)
+	GetToolDetailByIdList(ctx context.Context, in *GetToolByToolIdListReq, opts ...grpc.CallOption) (*GetToolDetailByToolIdListResp, error)
 	// --- mcp mcpserver tool ---
 	GetMCPByMCPIdList(ctx context.Context, in *GetMCPByMCPIdListReq, opts ...grpc.CallOption) (*GetMCPByMCPIdListResp, error)
 }
@@ -406,6 +408,16 @@ func (c *mCPServiceClient) GetToolByIdList(ctx context.Context, in *GetToolByToo
 	return out, nil
 }
 
+func (c *mCPServiceClient) GetToolDetailByIdList(ctx context.Context, in *GetToolByToolIdListReq, opts ...grpc.CallOption) (*GetToolDetailByToolIdListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetToolDetailByToolIdListResp)
+	err := c.cc.Invoke(ctx, MCPService_GetToolDetailByIdList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *mCPServiceClient) GetMCPByMCPIdList(ctx context.Context, in *GetMCPByMCPIdListReq, opts ...grpc.CallOption) (*GetMCPByMCPIdListResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetMCPByMCPIdListResp)
@@ -457,6 +469,7 @@ type MCPServiceServer interface {
 	// --- custom builtin tool ---
 	GetToolSelect(context.Context, *GetToolSelectReq) (*GetToolListResp, error)
 	GetToolByIdList(context.Context, *GetToolByToolIdListReq) (*GetToolByToolIdListResp, error)
+	GetToolDetailByIdList(context.Context, *GetToolByToolIdListReq) (*GetToolDetailByToolIdListResp, error)
 	// --- mcp mcpserver tool ---
 	GetMCPByMCPIdList(context.Context, *GetMCPByMCPIdListReq) (*GetMCPByMCPIdListResp, error)
 	mustEmbedUnimplementedMCPServiceServer()
@@ -558,6 +571,9 @@ func (UnimplementedMCPServiceServer) GetToolSelect(context.Context, *GetToolSele
 }
 func (UnimplementedMCPServiceServer) GetToolByIdList(context.Context, *GetToolByToolIdListReq) (*GetToolByToolIdListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToolByIdList not implemented")
+}
+func (UnimplementedMCPServiceServer) GetToolDetailByIdList(context.Context, *GetToolByToolIdListReq) (*GetToolDetailByToolIdListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetToolDetailByIdList not implemented")
 }
 func (UnimplementedMCPServiceServer) GetMCPByMCPIdList(context.Context, *GetMCPByMCPIdListReq) (*GetMCPByMCPIdListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMCPByMCPIdList not implemented")
@@ -1123,6 +1139,24 @@ func _MCPService_GetToolByIdList_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MCPService_GetToolDetailByIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetToolByToolIdListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).GetToolDetailByIdList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_GetToolDetailByIdList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).GetToolDetailByIdList(ctx, req.(*GetToolByToolIdListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MCPService_GetMCPByMCPIdList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMCPByMCPIdListReq)
 	if err := dec(in); err != nil {
@@ -1267,6 +1301,10 @@ var MCPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetToolByIdList",
 			Handler:    _MCPService_GetToolByIdList_Handler,
+		},
+		{
+			MethodName: "GetToolDetailByIdList",
+			Handler:    _MCPService_GetToolDetailByIdList_Handler,
 		},
 		{
 			MethodName: "GetMCPByMCPIdList",

@@ -24,16 +24,18 @@ const (
 )
 
 const (
-	TagChat          string = "CHAT"
-	TagEmbedding     string = "Embedding"
-	TagRerank        string = "Rerank"
-	TagGui           string = "GUI"
-	TagOcr           string = "OCR"
-	TagPdfParser     string = "文档解析"
-	TagAsr           string = "ASR"
-	TagText2Image    string = "文生图"
-	TagVisionSupport string = "图文问答"
-	TagToolCall      string = "工具调用"
+	TagChat                string = "CHAT"
+	TagTextEmbedding       string = "Text-Embedding"
+	TagMultiModalEmbedding string = "MultiModal-Embedding"
+	TagTextRerank          string = "Text-Rerank"
+	TagMultiModalRerank    string = "MultiModal-Rerank"
+	TagGui                 string = "GUI"
+	TagOcr                 string = "OCR"
+	TagPdfParser           string = "文档解析"
+	TagSyncAsr             string = "SYNC-ASR"
+	TagText2Image          string = "文生图"
+	TagVisionSupport       string = "图文问答"
+	TagToolCall            string = "工具调用"
 )
 
 type Tag struct {
@@ -203,6 +205,7 @@ type FunctionCall struct {
 	Name      string `json:"name,omitempty"`
 	Arguments string `json:"arguments,omitempty"`
 }
+
 type OpenAIResponseFormat struct {
 	Type string `json:"type"` // "text" | "json"
 }
@@ -223,6 +226,7 @@ type OpenAIFunctionParameters struct {
 	Properties map[string]OpenAIFunctionParametersProperty `json:"properties"`
 	Required   []string                                    `json:"required,omitempty"`
 }
+
 type OpenAIFunctionParametersProperty struct {
 	Description string `json:"description"`
 	Type        string `json:"type"`

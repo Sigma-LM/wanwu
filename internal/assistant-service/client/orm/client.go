@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
+
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"github.com/UnicomAI/wanwu/pkg/log"
@@ -25,6 +27,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		model.AssistantTool{},
 		model.CustomPrompt{},
 		model.AssistantSnapshot{},
+		model.MultiAgentRelation{},
 	); err != nil {
 		return nil, err
 	}
@@ -69,6 +72,7 @@ func initAssistantUUID(dbClient *gorm.DB) error {
 
 	return nil
 }
+
 func (c *Client) transaction(ctx context.Context, fc func(tx *gorm.DB) *err_code.Status) *err_code.Status {
 	var status *err_code.Status
 	_ = c.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -85,4 +89,8 @@ func toErrStatus(code string, args ...string) *err_code.Status {
 		TextKey: code,
 		Args:    args,
 	}
+}
+
+func ErrCode(code err_code.Code) error {
+	return grpc_util.ErrorStatusWithKey(code, "")
 }

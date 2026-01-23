@@ -60,6 +60,9 @@ type RagImportDocParams struct {
 	Separators            []string             `json:"separators"`
 	ParserChoices         []string             `json:"parser_choices"`
 	OcrModelId            string               `json:"ocr_model_id"`
+	EmbeddingModelId      string               `json:"embedding_model_id"`
+	AsrModelId            string               `json:"asr_model_id"`
+	MultimodalModelId     string               `json:"multimodal_model_id"`
 	PreProcess            []string             `json:"pre_process"`
 	RagMetaDataParams     []*RagMetaDataParams `json:"meta_data"`
 	RagChildChunkConfig   *RagChunkConfig      `json:"child_chunk_config"`

@@ -1,0 +1,579 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "元景AI大模型能力合集API",
+    "description": "整合了元景-文生图-12B、文生图Qwen-Image-20B、元景-图生图-12B、元景-首尾帧图生视频-14B生成及结果获取接口。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://maas-api.ai-yuanjing.com",
+      "description": "maas"
+    }
+  ],
+  "paths": {
+    "/openapi/metaview_t2i_intention_removal": {
+      "post": {
+        "summary": "元景-文生图-12B",
+        "deprecated": false,
+        "description": "元景-文生图-12B文生图大模型基于扩散模型机制训练，支持中英双语输入，能够根据输入内容生成符合描述的图像内容，并增加意图去除和提示词润色。",
+        "operationId": "yuanjing_text2img_12b",
+        "tags": [
+          "Text-to-Image"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization: Bearer {$ACCESS_TOKEN}",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                  },
+                  "response_format": {
+                    "description": "“url” or “b64_json”,默认b64_json",
+                    "type": "string"
+                  },
+                  "report_url": {
+                    "description": "参考,http://192.168.2.109:4999/web/#/611659092/216556697，默认https://test.ai-yuanjing.com/bffservice/v1/inference/report",
+                    "type": "string"
+                  },
+                  "advanced_opt": {
+                    "type": "object",
+                    "properties": {
+                      "height": {
+                        "type": "integer",
+                        "description": "生成图像的高度，非8的倍数时会自动处理为最接近的8的倍数；建议值1024，最大值不超过2048，推荐按附件指定尺寸配置",
+                        "minimum": 1,
+                        "maximum": 2048
+                      },
+                      "width": {
+                        "type": "integer",
+                        "description": "生成图像的宽度，非8的倍数时会自动处理为最接近的8的倍数；建议值1024，最大值不超过2048，推荐按附件指定尺寸配置",
+                        "minimum": 1,
+                        "maximum": 2048
+                      },
+                      "num_images_per_prompt": {
+                        "type": "integer",
+                        "description": "单次提示词生成的图像数量，取值范围1-4，超过4时自动处理为4",
+                        "minimum": 1,
+                        "maximum": 4
+                      },
+                      "negative_prompt": {
+                        "type": "string",
+                        "description": "负提示词，用于排除生成图像中不需要的元素"
+                      },
+                      "style": {
+                        "type": "string",
+                        "description": "图像风格，受提示词内容影响可能存在失效情况，不同风格示例效果见附件；推荐风格：摄影、电影、动漫、漫画、3D、像素艺术、中国风、中国红窗花、平面插图、CG动画、油画、水彩、水墨画、剪纸、素描、黑白线条艺术、达芬奇、梵高、皮克斯、奇幻艺术、赛博朋克、低多边形、未来主义、工笔画"
+                      }
+                    },
+                    "description": "高级选项参数"
+                  }
+                },
+                "required": [
+                  "prompt"
+                ]
+              },
+              "examples": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "状态码,\n0：正常;\n7：服务异常;\n1003：命中敏感词"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "错误码描述信息"
+                    },
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "如果response_format为b64_json时,为base64编码的list。如果response_format为url时，为url list。"
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "total_patches": {
+                          "type": "integer",
+                          "description": "生成图片patch计数"
+                        }
+                      },
+                      "required": [
+                        "total_patches"
+                      ],
+                      "description": "生成图片patch计数"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "result",
+                    "usage"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/openapi/v1/qwen_image/t2i": {
+      "post": {
+        "summary": "文生图Qwen-Image-20B",
+        "operationId": "qwen_text2img_20b",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "Text-to-Image"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "application/json",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "description": "用户提出的问题",
+                    "type": "string"
+                  },
+                  "n": {
+                    "description": "生成图片张数，最大为2",
+                    "type": "integer"
+                  },
+                  "size": {
+                    "description": "生成图片分辨率，格式为'width'x'height'。由于模型适用范围有限，输入尺寸会根据长宽比自动调整为模型最佳输出分辨率，默认值1328x1328",
+                    "type": "string"
+                  },
+                  "response_format": {
+                    "description": "输出格式，'url'或'b64_json'，默认值为url",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "prompt",
+                  "response_format"
+                ]
+              },
+              "example": {
+                "model": "qwen-image-20b",
+                "prompt": "一只可爱的卡通猫咪坐在沙发上",
+                "n": 1,
+                "size": "1328x1328",
+                "response_format": "url"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "total_patches": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "total_patches"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "created",
+                    "data",
+                    "usage"
+                  ]
+                },
+                "example": {
+                  "code": 1003,
+                  "message": "local variable 'new_width' referenced before assignment",
+                  "created": 1758765300,
+                  "data": [
+                    {
+                      "url": "http://obs-nmhhht6.cucloud.cn/yuanjing-t2i-oss/mllm/yuanjingt2i/2025-09-25/8492c102-6c98-4167-8e45-a935d5fd4426.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=64E9E75D768A4995830417A3CCC543EA3056/20250925/cn-langfang-2/s3/aws4_request&X-Amz-Date=20250925T015514Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4c0136d1c85ae6153bb3dbe74c2284f5d9f1605fc631f5e51b4d5a6680c62307"
+                    }
+                  ],
+                  "usage": {
+                    "total_patches": 0
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/openapi/v1/yuanjing_img2img": {
+      "post": {
+        "summary": "元景-图生图-12B",
+        "operationId": "yuanjing_img2img_12b",
+        "deprecated": false,
+        "description": "元景-图生图-12B接口，能将输入图片转换成指定风格。",
+        "tags": [
+          "Image-to-Image"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization: Bearer {$ACCESS_TOKEN}",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "description": "base64编码的图像字符串",
+                    "example": "",
+                    "type": "string"
+                  },
+                  "style": {
+                    "description": "图片风格，目前支持吉卜力",
+                    "example": "",
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "description": "提示信息，预留接口，不生效",
+                    "example": "",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "image",
+                  "style"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "title": "状态码"
+                    },
+                    "message": {
+                      "type": "string",
+                      "title": "错误码描述信息"
+                    },
+                    "prompt": {
+                      "type": "string",
+                      "title": "风格化时使用的提示信息，英文"
+                    },
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "算法生成的图片的列表，每张图片都采用base64编码"
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "total_patches": {
+                          "type": "integer",
+                          "title": "生成图片patch计数"
+                        }
+                      },
+                      "required": [
+                        "total_patches"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "prompt",
+                    "result",
+                    "usage"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/openapi/v1/yuanjing_imgs2video": {
+      "post": {
+        "summary": "元景-首尾帧图生视频生成-14B",
+        "operationId": "yuanjing_imgs2video",
+        "deprecated": false,
+        "description": "元景-首尾帧图生视频-14B，根据上传的两张首尾帧图片生成视频。",
+        "tags": [
+          "Image-to-Video"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "首帧和尾帧对应的图像字符串，base64编码"
+                  },
+                  "query": {
+                    "type": "string",
+                    "description": "用户提出的问题或提示语。区别于已有的prompt"
+                  },
+                  "session_id": {
+                    "type": "string",
+                    "description": "请求的对话窗口id"
+                  },
+                  "request_id": {
+                    "type": "string",
+                    "description": "用户每轮请求问题对应的唯一id"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "用户id"
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "description": "提示词"
+                  }
+                },
+                "required": [
+                  "images"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "状态码，用于表示请求成功或具体的错误类型。1003表示失败，详见msg，0表示成功"
+                    },
+                    "msg": {
+                      "type": "string",
+                      "description": "提示信息，通常用于提供关于code的详细解释或请求成功的确认信息"
+                    },
+                    "resourceId": {
+                      "type": "string",
+                      "description": "视频名，用于获取视频"
+                    },
+                    "session_id": {
+                      "type": "string",
+                      "description": "请求的对话窗口id"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "description": "用户每轮请求问题对应的唯一id"
+                    },
+                    "userId": {
+                      "type": "string",
+                      "description": "用户id"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/openapi/v1/yuanjing_imgs2video_get": {
+      "post": {
+        "summary": "元景-首尾帧图生视频获取-14B",
+        "operationId": "yuanjing_imgs2video_get",
+        "deprecated": false,
+        "description": "联通元景多模态首尾帧视频结果获取接口。",
+        "tags": [
+          "Image-to-Video"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer {$ACCESS_TOKEN}",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "resourceId": {
+                    "type": "string",
+                    "description": "视频名，来自生成请求的返回结果resourceId"
+                  }
+                },
+                "required": [
+                  "resourceId"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "错误码，分别代表：\n0: SUCCESS\n1: PROCESSING\n2: FAILED"
+                    },
+                    "msg": {
+                      "type": "string",
+                      "description": "错误码描述信息，参考code"
+                    },
+                    "video": {
+                      "type": "string",
+                      "description": "算法生成的视频，采用base64编码\n "
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "video"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {}
+  }
+}

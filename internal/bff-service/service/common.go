@@ -318,7 +318,7 @@ func cacheWorkflowAvatar(avatarURL, appType string) request.Avatar {
 		// 解析原始URL
 		parsedURL, err := url.Parse(avatarURL)
 		if err != nil {
-			log.Errorf("parse avatar URL %v failed: %v", avatarURL, err)
+			log.Errorf("cache avatar parse URL %v failed: %v", avatarURL, err)
 			return avatar
 		}
 		// 去掉 /workflow/minio/presign/ 前缀
@@ -335,24 +335,39 @@ func cacheWorkflowAvatar(avatarURL, appType string) request.Avatar {
 		if parsedURL.RawQuery != "" {
 			newAvatarURL += "?" + parsedURL.RawQuery
 		}
+	} else if strings.Contains(avatarURL, config.Cfg().Server.WebBaseUrl) {
+		// 直接转换URL为容器内可访问URL（如 http://localhost:8081/api/static/icon/icon-HTTP.png -> http://workflow-wanuw:8999/api/static/icon/icon-HTTP.png）
+		parsedURL, err := url.Parse(avatarURL)
+		if err != nil {
+			log.Errorf("cache avatar parse URL %v failed: %v", avatarURL, err)
+			return avatar
+		}
+		// 替换为workflow endpoint
+		internalURL, err := url.Parse(config.Cfg().Workflow.Endpoint)
+		if err != nil {
+			log.Errorf("cache avatar invalid Workflow.Endpoint %s", config.Cfg().Workflow.Endpoint)
+			return avatar
+		}
+		parsedURL.Host = internalURL.Host
+		parsedURL.Scheme = internalURL.Scheme
+		newAvatarURL = parsedURL.String()
 	} else {
-		// 直接使用原始URL（如 http://localhost:8081/api/static/icon/icon-HTTP.png）
 		newAvatarURL = avatarURL
 	}
 	// 从HTTP URL下载文件
 	resp, err := http.Get(newAvatarURL)
 	if err != nil {
-		log.Errorf("cache avatar %v download err: %v", avatarURL, err)
+		log.Errorf("cache avatar %v download %v err: %v", avatarURL, newAvatarURL, err)
 		return avatar
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		log.Errorf("cache avatar %v HTTP error: %v", avatarURL, resp.Status)
+		log.Errorf("cache avatar %v download %v HTTP error: %v", avatarURL, newAvatarURL, resp.Status)
 		return avatar
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Errorf("cache avatar %v read response err: %v", avatarURL, err)
+		log.Errorf("cache avatar %v download %v read response err: %v", avatarURL, newAvatarURL, err)
 		return avatar
 	}
 	// 压缩图像

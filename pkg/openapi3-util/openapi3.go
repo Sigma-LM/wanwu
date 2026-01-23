@@ -39,6 +39,10 @@ func ValidateDoc(ctx context.Context, doc *openapi3.T) error {
 	if doc == nil {
 		return errors.New("schema nil")
 	}
+	// check info
+	if doc.Info == nil {
+		return errors.New("schema info empty")
+	}
 	// check servers
 	if len(doc.Servers) == 0 {
 		return errors.New("schema servers empty")

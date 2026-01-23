@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"sort"
+	"strings"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
@@ -11,7 +12,6 @@ import (
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	safety_service "github.com/UnicomAI/wanwu/api/proto/safety-service"
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	bff_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/util"
@@ -21,13 +21,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AssistantCreate(ctx *gin.Context, userId, orgId string, req request.AppBriefConfig) (*response.AssistantCreateResp, error) {
+func AssistantCreate(ctx *gin.Context, userId, orgId string, req request.AssistantCreateReq) (*response.AssistantCreateResp, error) {
 	resp, err := assistant.AssistantCreate(ctx.Request.Context(), &assistant_service.AssistantCreateReq{
-		AssistantBrief: appBriefConfigModel2Proto(req),
+		AssistantBrief: assistantBriefConfigModel2Proto(req),
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
 		},
+		Category: int32(req.Category),
 	})
 	if err != nil {
 		return nil, err
@@ -50,32 +51,76 @@ func AssistantUpdate(ctx *gin.Context, userId, orgId string, req request.Assista
 }
 
 func AssistantConfigUpdate(ctx *gin.Context, userId, orgId string, req request.AssistantConfig) (interface{}, error) {
-	modelConfig, err := appModelConfigModel2Proto(req.ModelConfig)
-	if err != nil {
-		return nil, err
+	var modelConfig, rerankConfig *common.AppModelConfig
+	var err error
+	if req.ModelConfig != nil {
+		if req.ModelConfig.ModelId == "" {
+			// 如果 modelId 为空，则认为用户想要清空模型配置，构造一个空的 AppModelConfig
+			modelConfig = &common.AppModelConfig{}
+		} else {
+			modelConfig, err = appModelConfigModel2Proto(*req.ModelConfig)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
-	rerankConfig, err := appModelConfigModel2Proto(req.RerankConfig)
-	if err != nil {
-		return nil, err
+	if req.RerankConfig != nil {
+		if req.RerankConfig.ModelId == "" {
+			// 如果 modelId 为空，则认为用户想要清空模型配置，构造一个空的 AppModelConfig
+			rerankConfig = &common.AppModelConfig{}
+		} else {
+			rerankConfig, err = appModelConfigModel2Proto(*req.RerankConfig)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
+	var recommendConfig *assistant_service.AssistantRecommendConfig
+	if req.RecommendConfig != nil {
+		recommendConfig, err = recommendConfigModel2Proto(*req.RecommendConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var safetyConfig *assistant_service.AssistantSafetyConfig
+	if req.SafetyConfig != nil {
+		safetyConfig = &assistant_service.AssistantSafetyConfig{
+			Enable:         req.SafetyConfig.Enable,
+			SensitiveTable: transSafetyConfig2Proto(req.SafetyConfig.Tables),
+		}
+	}
+
+	var visionConfig *assistant_service.AssistantVisionConfig
+	if req.VisionConfig != nil {
+		visionConfig = &assistant_service.AssistantVisionConfig{
+			PicNum: req.VisionConfig.PicNum,
+		}
+	}
+
+	var memoryConfig *assistant_service.AssistantMemoryConfig
+	if req.MemoryConfig != nil {
+		memoryConfig = &assistant_service.AssistantMemoryConfig{
+			MaxHistoryLength: req.MemoryConfig.MaxHistoryLength,
+		}
+	}
+
+	var knowledgeBaseConfig *assistant_service.AssistantKnowledgeBaseConfig
+	if req.KnowledgeBaseConfig != nil {
+		knowledgeBaseConfig = transKnowledgebases2Proto(*req.KnowledgeBaseConfig)
+	}
+
 	_, err = assistant.AssistantConfigUpdate(ctx.Request.Context(), &assistant_service.AssistantConfigUpdateReq{
 		AssistantId:         req.AssistantId,
 		Prologue:            req.Prologue,
 		Instructions:        req.Instructions,
 		RecommendQuestion:   req.RecommendQuestion,
 		ModelConfig:         modelConfig,
-		KnowledgeBaseConfig: transKnowledgebases2Proto(req.KnowledgeBaseConfig),
+		KnowledgeBaseConfig: knowledgeBaseConfig,
 		RerankConfig:        rerankConfig,
-		SafetyConfig: &assistant_service.AssistantSafetyConfig{
-			Enable:         req.SafetyConfig.Enable,
-			SensitiveTable: transSafetyConfig2Proto(req.SafetyConfig.Tables),
-		},
-		VisionConfig: &assistant_service.AssistantVisionConfig{
-			PicNum: req.VisionConfig.PicNum,
-		},
-		MemoryConfig: &assistant_service.AssistantMemoryConfig{
-			MaxHistoryLength: req.MemoryConfig.MaxHistoryLength,
-		},
+		SafetyConfig:        safetyConfig,
+		VisionConfig:        visionConfig,
+		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -264,6 +309,79 @@ func AssistantToolConfig(ctx *gin.Context, userId, orgId string, req request.Ass
 		},
 	})
 	return err
+}
+
+func MultiAgentCreate(ctx *gin.Context, userId, orgId string, req request.MultiAgentCreateReq) error {
+	_, err := assistant.MultiAgentCreate(ctx.Request.Context(), &assistant_service.MultiAgentCreateReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func MultiAgentDelete(ctx *gin.Context, userId, orgId string, req request.MultiAgentCreateReq) error {
+	_, err := assistant.MultiAgentDelete(ctx.Request.Context(), &assistant_service.MultiAgentCreateReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func MultiAgentEnableSwitch(ctx *gin.Context, userId, orgId string, req request.MultiAgentEnableSwitchReq) error {
+	_, err := assistant.MultiAgentEnableSwitch(ctx.Request.Context(), &assistant_service.MultiAgentEnableSwitchReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Enable:      req.Enable,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func MultiAgentConfigUpdate(ctx *gin.Context, userId, orgId string, req request.MultiAgentConfigUpdateReq) error {
+	_, err := assistant.MultiAgentConfigUpdate(ctx.Request.Context(), &assistant_service.MultiAgentConfigUpdateReq{
+		AssistantId: req.AssistantId,
+		AgentId:     req.AgentId,
+		Desc:        req.Desc,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	return err
+}
+
+func GetAssistantSelect(ctx *gin.Context, userId, orgId string, req request.GetExplorationAppListRequest) (*response.ListResult, error) {
+	wlist, err := GetExplorationAppList(ctx, userId, orgId, request.GetExplorationAppListRequest{
+		Name:       req.Name,
+		AppType:    constant.AppTypeAgent,
+		SearchType: "all",
+	})
+	if err != nil {
+		return nil, err
+	}
+	var appList []*response.ExplorationAppInfo
+	if wlistSlice, ok := wlist.List.([]*response.ExplorationAppInfo); ok {
+		for _, w := range wlistSlice {
+			if w.User.UserId == userId {
+				appList = append(appList, w)
+			}
+		}
+	}
+	return &response.ListResult{
+		List:  appList,
+		Total: int64(len(appList)),
+	}, nil
 }
 
 func assistantModelConvert(ctx *gin.Context, modelConfigInfo *common.AppModelConfig) (modelConfig request.AppModelConfig, err error) {
@@ -715,6 +833,7 @@ func transMetaFilterParams(metaFilterList []*request.MetaFilterParams) []*assist
 	}
 	return metaList
 }
+
 func transSafetyConfig2Proto(tables []request.SensitiveTable) []*assistant_service.SensitiveTable {
 	if tables == nil {
 		return nil
@@ -782,7 +901,6 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
 	// 转换Vision配置
@@ -799,6 +917,15 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		MaxHistoryLength: resp.MemoryConfig.MaxHistoryLength,
 	}
 
+	// 转换Recommend配置
+	recommendConfig, err := assistantRecommendConvert(ctx, resp)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换MultiAgent配置
+	assistantMultiAgents := assistantMultiAgentConvert(ctx, resp)
+
 	assistantModel := response.Assistant{
 		AssistantId:         resp.AssistantId,
 		UUID:                resp.Uuid,
@@ -812,18 +939,55 @@ func transAssistantResp2Model(ctx *gin.Context, resp *assistant_service.Assistan
 		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Scope:               resp.Scope,
 		WorkFlowInfos:       assistantWorkFlowInfos,
 		MCPInfos:            assistantMCPInfos,
 		ToolInfos:           assistantToolInfos,
+		MultiAgentInfos:     assistantMultiAgents,
 		CreatedAt:           util.Time2Str(resp.CreatTime),
 		UpdatedAt:           util.Time2Str(resp.UpdateTime),
-		NewAgent:            config.Cfg().Agent.UseOldAgent != 1,
+		NewAgent:            true,
 		PublishType:         appInfo.GetPublishType(),
+		Category:            resp.Category,
 	}
 
 	log.Debugf("Assistant响应到模型转换完成，结果: %+v", assistantModel)
 	return &assistantModel, nil
+}
+
+func assistantMultiAgentConvert(ctx *gin.Context, resp *assistant_service.AssistantInfo) []*response.AssistantAgentInfo {
+	assistantMultiAgents := make([]*response.AssistantAgentInfo, 0)
+	for _, agent := range resp.MultiAgentInfos {
+		multiAgent := &response.AssistantAgentInfo{
+			AgentId: agent.AgentId,
+			Name:    agent.Name,
+			Desc:    agent.Desc,
+			Avatar:  cacheAppAvatar(ctx, agent.AvatarPath, constant.AppTypeAgent),
+			Enable:  agent.Enable,
+		}
+		assistantMultiAgents = append(assistantMultiAgents, multiAgent)
+	}
+	return assistantMultiAgents
+
+}
+
+func assistantRecommendConvert(ctx *gin.Context, resp *assistant_service.AssistantInfo) (recommendConfig response.RecommendConfig, err error) {
+	if resp.RecommendConfig != nil {
+		modelConfig, err := assistantModelConvert(ctx, resp.RecommendConfig.ModelConfig)
+		if err != nil {
+			recommendConfig.ModelConfig = modelConfig
+			return recommendConfig, err
+		}
+		recommendConfig = response.RecommendConfig{
+			ModelConfig:     modelConfig,
+			MaxHistory:      resp.RecommendConfig.MaxHistory,
+			RecommendEnable: resp.RecommendConfig.RecommendEnable,
+			Prompt:          resp.RecommendConfig.SystemPrompt,
+			PromptEnable:    resp.RecommendConfig.PromptEnable,
+		}
+	}
+	return recommendConfig, nil
 }
 
 func transKnowledgeBases2Model(ctx *gin.Context, kbConfig *assistant_service.AssistantKnowledgeBaseConfig) (request.AppKnowledgebaseConfig, error) {
@@ -891,6 +1055,7 @@ func buildKnowledgeBases(kbInfoList *knowledgeBase_service.KnowledgeDetailSelect
 				ID:                   kbConfig.KnowledgeBaseId,
 				Name:                 info.Name,
 				GraphSwitch:          info.GraphSwitch,
+				External:             info.External,
 				MetaDataFilterParams: params,
 			})
 		}
@@ -951,4 +1116,32 @@ func transRequestFiles(files []*assistant_service.RequestFile) []response.Assist
 		})
 	}
 	return result
+}
+
+func assistantBriefConfigModel2Proto(appBrief request.AssistantCreateReq) *common.AppBriefConfig {
+	return &common.AppBriefConfig{
+		Name:       appBrief.Name,
+		Desc:       appBrief.Desc,
+		AvatarPath: appBrief.Avatar.Key,
+	}
+
+}
+
+func recommendConfigModel2Proto(recommendConfig request.RecommendConfig) (ret *assistant_service.AssistantRecommendConfig, err error) {
+	modelConfig := &common.AppModelConfig{}
+	if recommendConfig.ModelConfig.ModelId != "" {
+		modelConfig, err = appModelConfigModel2Proto(recommendConfig.ModelConfig)
+		if err != nil {
+			return nil, err
+		}
+	}
+	ret = &assistant_service.AssistantRecommendConfig{
+		RecommendEnable: recommendConfig.RecommendEnable,
+		ModelConfig:     modelConfig,
+		SystemPrompt:    strings.TrimSpace(recommendConfig.Prompt),
+		PromptEnable:    recommendConfig.PromptEnable,
+		MaxHistory:      recommendConfig.MaxHistory,
+	}
+
+	return ret, nil
 }

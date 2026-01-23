@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/UnicomAI/wanwu/internal/agent-service/service/mcp-client"
 	"log"
 	"time"
 
@@ -25,11 +26,12 @@ func createMCPClient(ctx context.Context, url string) (client.MCPClient, error) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SSE MCP client: %w", err)
 	}
+	retryMcpClient := mcp_client.NewDefaultRetryMcpClient(mcpClient)
 
 	// 启动客户端
-	err = mcpClient.Start(ctx)
+	err = retryMcpClient.Start(ctx)
 	if err != nil {
-		mcpClient.Close()
+		_ = retryMcpClient.Close()
 		return nil, fmt.Errorf("failed to start SSE MCP client: %w", err)
 	}
 
@@ -45,14 +47,14 @@ func createMCPClient(ctx context.Context, url string) (client.MCPClient, error) 
 	}
 	initRequest.Params.Capabilities = mcpTypes.ClientCapabilities{}
 
-	_, err = mcpClient.Initialize(initCtx, initRequest)
+	_, err = retryMcpClient.Initialize(initCtx, initRequest)
 	if err != nil {
-		mcpClient.Close()
+		_ = retryMcpClient.Close()
 		return nil, fmt.Errorf("failed to initialize MCP client: %w", err)
 	}
 
 	log.Println("SSE MCP client initialized successfully")
-	return mcpClient, nil
+	return retryMcpClient, nil
 }
 
 func GetToolsFromMCPServers(ctx context.Context, toolParamsList []*request.MCPToolInfo) ([]tool.BaseTool, error) {

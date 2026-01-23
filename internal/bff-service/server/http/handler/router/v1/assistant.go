@@ -33,5 +33,12 @@ func registerAssistant(apiV1 *gin.RouterGroup) {
 	mid.Sub("agent").Reg(apiV1, "/assistant/tool/switch", http.MethodPut, v1.AssistantToolEnableSwitch, "智能体启用/停用自定义内置工具")
 	mid.Sub("agent").Reg(apiV1, "/assistant/tool/config", http.MethodPut, v1.AssistantToolConfig, "配置智能体工具，包括自定义工具和内置工具")
 
+	mid.Sub("agent").Reg(apiV1, "/assistant/multi-agent", http.MethodPost, v1.MultiAgentCreate, "添加多智能体配置-子智能体")
+	mid.Sub("agent").Reg(apiV1, "/assistant/multi-agent", http.MethodDelete, v1.MultiAgentDelete, "删除多智能体配置-子智能体")
+	mid.Sub("agent").Reg(apiV1, "/assistant/multi-agent/config", http.MethodPut, v1.MultiAgentConfigUpdate, "编辑多智能体配置中子智能体描述")
+	mid.Sub("agent").Reg(apiV1, "/assistant/multi-agent/switch", http.MethodPut, v1.MultiAgentEnableSwitch, "启用/停用多智能体配置-子智能体")
+
 	mid.Sub("agent").Reg(apiV1, "/assistant/stream/draft", http.MethodPost, v1.DraftAssistantConversionStream, "草稿智能体流式问答")
+	mid.Sub("agent").Reg(apiV1, "/assistant/select", http.MethodGet, v1.GetAssistantSelect, "添加多智能体配置-下拉列表接口")
+	mid.Sub("agent").Reg(apiV1, "/assistant/question/recommend", http.MethodPost, v1.AssistantQuestionRecommend, "智能体问题推荐接口")
 }

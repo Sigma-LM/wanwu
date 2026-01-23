@@ -2,6 +2,7 @@ package service
 
 import (
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
+	"github.com/UnicomAI/wanwu/api/proto/common"
 	knowledgeBase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	rag_service "github.com/UnicomAI/wanwu/api/proto/rag-service"
@@ -43,26 +44,66 @@ func UpdateRag(ctx *gin.Context, req request.RagBrief, userId, orgId string) err
 }
 
 func UpdateRagConfig(ctx *gin.Context, req request.RagConfig) error {
-	modelConfig, err := appModelConfigModel2Proto(req.ModelConfig)
-	if err != nil {
-		return err
+	var modelConfig *common.AppModelConfig
+	var err error
+	if req.ModelConfig != nil {
+		if req.ModelConfig.ModelId == "" {
+			modelConfig = &common.AppModelConfig{}
+		} else {
+			modelConfig, err = appModelConfigModel2Proto(*req.ModelConfig)
+			if err != nil {
+				return err
+			}
+		}
 	}
-	rerankConfig, err := appModelConfigModel2Proto(req.RerankConfig)
-	if err != nil {
-		return err
+
+	var rerankConfig *common.AppModelConfig
+	if req.RerankConfig != nil {
+		if req.RerankConfig.ModelId == "" {
+			rerankConfig = &common.AppModelConfig{}
+		} else {
+			rerankConfig, err = appModelConfigModel2Proto(*req.RerankConfig)
+			if err != nil {
+				return err
+			}
+		}
 	}
-	qaRerankConfig, err := appModelConfigModel2Proto(req.QARerankConfig)
-	if err != nil {
-		return err
+
+	var qaRerankConfig *common.AppModelConfig
+	if req.QARerankConfig != nil {
+		if req.QARerankConfig.ModelId == "" {
+			qaRerankConfig = &common.AppModelConfig{}
+		} else {
+			qaRerankConfig, err = appModelConfigModel2Proto(*req.QARerankConfig)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
+	var knowledgeBaseConfig *rag_service.RagKnowledgeBaseConfig
+	if req.KnowledgeBaseConfig != nil {
+		knowledgeBaseConfig = ragKBConfigToProto(*req.KnowledgeBaseConfig)
+	}
+
+	var qaKnowledgeBaseConfig *rag_service.RagQAKnowledgeBaseConfig
+	if req.QAKnowledgeBaseConfig != nil {
+		qaKnowledgeBaseConfig = ragQAKBConfigToProto(*req.QAKnowledgeBaseConfig)
+	}
+
+	var sensitiveConfig *rag_service.RagSensitiveConfig
+	if req.SafetyConfig != nil {
+		sensitiveConfig = ragSensitiveConfigToProto(*req.SafetyConfig)
+	}
+
 	_, err = rag.UpdateRagConfig(ctx.Request.Context(), &rag_service.UpdateRagConfigReq{
 		RagId:                 req.RagID,
 		ModelConfig:           modelConfig,
 		RerankConfig:          rerankConfig,
 		QArerankConfig:        qaRerankConfig,
-		KnowledgeBaseConfig:   ragKBConfigToProto(req.KnowledgeBaseConfig),
-		QAknowledgeBaseConfig: ragQAKBConfigToProto(req.QAKnowledgeBaseConfig),
-		SensitiveConfig:       ragSensitiveConfigToProto(req.SafetyConfig),
+		KnowledgeBaseConfig:   knowledgeBaseConfig,
+		QAknowledgeBaseConfig: qaKnowledgeBaseConfig,
+		SensitiveConfig:       sensitiveConfig,
 	})
 	return err
 }
@@ -303,6 +344,7 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 			ID:          perConfig.KnowledgeId,
 			Name:        kbInfo.Name,
 			GraphSwitch: kbInfo.GraphSwitch,
+			External:    kbInfo.External,
 		}
 		// 转换元数据过滤配置
 		metaFilter := perConfig.RagMetaFilter

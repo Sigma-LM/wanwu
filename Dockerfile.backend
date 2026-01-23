@@ -32,38 +32,38 @@ COPY --from=builder /app/bin/$WANWU_ARCH/tidb-setup ./bin/tidb-setup
 COPY --from=builder /app/bin/$WANWU_ARCH/bff-service ./bin/bff-service
 EXPOSE 6668
 
-# iam-servie
+# iam-service
 COPY --from=builder /app/bin/$WANWU_ARCH/iam-service ./bin/iam-service
 EXPOSE 8888
 
-# model-servie
+# model-service
 COPY --from=builder /app/bin/$WANWU_ARCH/model-service ./bin/model-service
 EXPOSE 8989
 
-# mcp-servie
+# mcp-service
 COPY --from=builder /app/bin/$WANWU_ARCH/mcp-service ./bin/mcp-service
 EXPOSE 9898
 
-# knowledge-servie
+# knowledge-service
 COPY --from=builder /app/bin/$WANWU_ARCH/knowledge-service ./bin/knowledge-service
 EXPOSE 8889
 
-# rag-servie
+# rag-service
 COPY --from=builder /app/bin/$WANWU_ARCH/rag-service ./bin/rag-service
 EXPOSE 9640
 
-# assistant-servie
+# assistant-service
 COPY --from=builder /app/bin/$WANWU_ARCH/assistant-service ./bin/assistant-service
 EXPOSE 8890
 
-# agent-servie
+# agent-service
 COPY --from=builder /app/bin/$WANWU_ARCH/agent-service ./bin/agent-service
 EXPOSE 8990
 
-# app-servie
+# app-service
 COPY --from=builder /app/bin/$WANWU_ARCH/app-service ./bin/app-service
 EXPOSE 9988
 
-# operate-servie
+# operate-service
 COPY --from=builder /app/bin/$WANWU_ARCH/operate-service ./bin/operate-service
 EXPOSE 9797

@@ -1,5 +1,480 @@
 basePath: /openapi/v1
 definitions:
+  mp.ProviderModelByDeepSeek:
+    properties:
+      llm:
+        $ref: '#/definitions/mp_deepseek.LLM'
+    type: object
+  mp.ProviderModelByHuoShan:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_huoshan.Embedding'
+      llm:
+        $ref: '#/definitions/mp_huoshan.LLM'
+    type: object
+  mp.ProviderModelByInfini:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_infini.Embedding'
+      llm:
+        $ref: '#/definitions/mp_infini.LLM'
+      rerank:
+        $ref: '#/definitions/mp_infini.Rerank'
+    type: object
+  mp.ProviderModelByOllama:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_ollama.Embedding'
+      llm:
+        $ref: '#/definitions/mp_ollama.LLM'
+    type: object
+  mp.ProviderModelByOpenAICompatible:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_openai_compatible.Embedding'
+      llm:
+        $ref: '#/definitions/mp_openai_compatible.LLM'
+      rerank:
+        $ref: '#/definitions/mp_openai_compatible.Rerank'
+    type: object
+  mp.ProviderModelByQianFan:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_qianfan.Embedding'
+      llm:
+        $ref: '#/definitions/mp_qianfan.LLM'
+      rerank:
+        $ref: '#/definitions/mp_qianfan.Rerank'
+    type: object
+  mp.ProviderModelByQwen:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_qwen.Embedding'
+      llm:
+        $ref: '#/definitions/mp_qwen.LLM'
+      rerank:
+        $ref: '#/definitions/mp_qwen.Rerank'
+    type: object
+  mp.ProviderModelByYuanjing:
+    properties:
+      embedding:
+        $ref: '#/definitions/mp_yuanjing.Embedding'
+      gui:
+        $ref: '#/definitions/mp_yuanjing.Gui'
+      llm:
+        $ref: '#/definitions/mp_yuanjing.LLM'
+      ocr:
+        $ref: '#/definitions/mp_yuanjing.Ocr'
+      pdf-parser:
+        $ref: '#/definitions/mp_yuanjing.PdfParser'
+      rerank:
+        $ref: '#/definitions/mp_yuanjing.Rerank'
+    type: object
+  mp.ProviderModelConfig:
+    properties:
+      providerDeepSeek:
+        $ref: '#/definitions/mp.ProviderModelByDeepSeek'
+      providerHuoShan:
+        $ref: '#/definitions/mp.ProviderModelByHuoShan'
+      providerInfini:
+        $ref: '#/definitions/mp.ProviderModelByInfini'
+      providerOllama:
+        $ref: '#/definitions/mp.ProviderModelByOllama'
+      providerOpenAICompatible:
+        $ref: '#/definitions/mp.ProviderModelByOpenAICompatible'
+      providerQianFan:
+        $ref: '#/definitions/mp.ProviderModelByQianFan'
+      providerQwen:
+        $ref: '#/definitions/mp.ProviderModelByQwen'
+      providerYuanJing:
+        $ref: '#/definitions/mp.ProviderModelByYuanjing'
+    type: object
+  mp_common.Tag:
+    properties:
+      text:
+        type: string
+    type: object
+  mp_deepseek.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+    type: object
+  mp_huoshan.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_huoshan.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_infini.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_infini.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_infini.Rerank:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_ollama.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_ollama.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_openai_compatible.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_openai_compatible.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_openai_compatible.Rerank:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_qianfan.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_qianfan.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_qianfan.Rerank:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_qwen.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_qwen.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_qwen.Rerank:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_yuanjing.Embedding:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_yuanjing.Gui:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_yuanjing.LLM:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+      functionCalling:
+        description: 函数调用是否支持
+        enum:
+        - noSupport
+        - toolCall
+        type: string
+      maxTokens:
+        description: 模型回答最大tokens
+        type: integer
+      visionSupport:
+        description: 视觉支持
+        enum:
+        - noSupport
+        - support
+        type: string
+    type: object
+  mp_yuanjing.Ocr:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_yuanjing.PdfParser:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
+  mp_yuanjing.Rerank:
+    properties:
+      apiKey:
+        description: ApiKey
+        type: string
+      contextSize:
+        description: 上下文长度
+        type: integer
+      endpointUrl:
+        description: 推理url
+        type: string
+    type: object
   oauth2_util.JWK:
     properties:
       alg:
@@ -30,10 +505,19 @@ definitions:
     required:
     - id
     type: object
+  request.Avatar:
+    properties:
+      key:
+        description: 前端透传给后端用于保存avatar，例如：custom-upload/avatar/abc/def.png
+        type: string
+      path:
+        description: 前端请求地址，例如：/v1/static/avatar/abc/def.png (请求非必填)
+        type: string
+    type: object
   request.CreateKnowledgeReq:
     properties:
       category:
-        description: 0:知识库，1:问答库
+        description: 0:知识库，1:问答库,2:多模态知识库
         type: integer
       description:
         type: string
@@ -80,8 +564,11 @@ definitions:
     type: object
   request.DocConfigUpdateReq:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model
+        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
         items:
           type: string
         type: array
@@ -110,6 +597,9 @@ definitions:
       knowledgeId:
         description: 知识库id
         type: string
+      multimodalModelId:
+        description: 模态模型id
+        type: string
       parserModelId:
         description: 模型解析或ocr模型id
         type: string
@@ -121,8 +611,11 @@ definitions:
     type: object
   request.DocImportReq:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model
+        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
         items:
           type: string
         type: array
@@ -150,6 +643,9 @@ definitions:
         description: 文档分段配置
       knowledgeId:
         description: 知识库id
+        type: string
+      multimodalModelId:
+        description: 模态模型id
         type: string
       parserModelId:
         description: 模型解析或ocr模型id
@@ -556,11 +1052,21 @@ definitions:
     type: object
   response.DocKnowledgeInfo:
     properties:
+      description:
+        type: string
+      embeddingModel:
+        $ref: '#/definitions/response.ModelInfo'
       graphSwitch:
         type: integer
+      keywords:
+        items:
+          $ref: '#/definitions/response.KeywordsInfo'
+        type: array
       knowledgeId:
         type: string
       knowledgeName:
+        type: string
+      llmModelId:
         type: string
       showGraphReport:
         type: boolean
@@ -613,6 +1119,25 @@ definitions:
   response.EmbeddingModelInfo:
     properties:
       modelId:
+        type: string
+    type: object
+  response.KeywordsInfo:
+    properties:
+      alias:
+        type: string
+      id:
+        type: integer
+      knowledgeBaseIds:
+        items:
+          type: string
+        type: array
+      knowledgeBaseNames:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      updatedAt:
         type: string
     type: object
   response.KnowledgeExportRecordPageResult:
@@ -742,7 +1267,7 @@ definitions:
         description: 图谱错误信息
         type: string
       graphStatus:
-        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -
         type: integer
       knowledgeId:
         description: 知识库id
@@ -779,6 +1304,64 @@ definitions:
       status:
         description: 状态
         type: integer
+    type: object
+  response.ModelInfo:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 模型图标路径
+      config: {}
+      createdAt:
+        type: string
+      displayName:
+        description: 模型显示名称
+        type: string
+      examples:
+        allOf:
+        - $ref: '#/definitions/mp.ProviderModelConfig'
+        description: 仅用于swagger展示；模型对应供应商中的对应llm、embedding或rerank结构是config实际的参数
+      isActive:
+        description: '启用状态（true: 启用，false: 禁用）'
+        type: boolean
+      model:
+        description: 模型名称
+        type: string
+      modelDesc:
+        type: string
+      modelId:
+        type: string
+      modelType:
+        enum:
+        - llm
+        - embedding
+        - rerank
+        type: string
+      orgId:
+        type: string
+      provider:
+        description: 模型供应商
+        enum:
+        - OpenAI-API-compatible
+        - YuanJing
+        type: string
+      publishDate:
+        description: 模型发布时间
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/mp_common.Tag'
+        type: array
+      updatedAt:
+        type: string
+      userId:
+        type: string
+      uuid:
+        type: string
+    required:
+    - model
+    - modelType
+    - provider
     type: object
   response.OAuthConfig:
     properties:

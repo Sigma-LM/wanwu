@@ -105,9 +105,12 @@
                   ></el-button>
                 </div>
                 <div v-else>
-                  <p>{{$t('knowledgeManage.fileName')}}: {{ fileList[0]['name'] }}</p>
                   <p>
-                    {{$t('knowledgeManage.fileSize')}}:
+                    {{ $t('knowledgeManage.fileName') }}:
+                    {{ fileList[0]['name'] }}
+                  </p>
+                  <p>
+                    {{ $t('knowledgeManage.fileSize') }}:
                     {{
                       fileList[0]['size'] > 1024
                         ? (fileList[0]['size'] / (1024 * 1024)).toFixed(2) +
@@ -455,5 +458,3 @@ export default {
   }
 }
 </style>
-
-

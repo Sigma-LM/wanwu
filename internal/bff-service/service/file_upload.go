@@ -1,21 +1,17 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 	"mime/multipart"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
-	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/minio"
 	"github.com/UnicomAI/wanwu/pkg/util"
@@ -294,34 +290,6 @@ func BuildChunkSequence(storeFile string, fullPath bool) (int, string, error) {
 		return 0, "", fmt.Errorf("store file (%v) is invalid", storeFile)
 	}
 	return sequence, storeFile[splitIndex+1:], nil
-}
-
-func ProxyUploadFile(ctx *gin.Context, r *request.ProxyUploadFileReq) (*response.ProxyUploadFileResp, error) {
-	file, header, err := ctx.Request.FormFile("file")
-	if err != nil {
-		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_save", err.Error())
-	}
-	agentConfig := config.Cfg().Agent
-	url := "http://" + agentConfig.Host + ":" + agentConfig.UploadMinioUri.Port + agentConfig.UploadMinioUri.Uri
-	result, err := http_client.Default().PostFile(ctx, &http_client.HttpRequestParams{
-		Params: map[string]string{"file_name": r.FileName},
-		FileParams: []*http_client.HttpRequestFileParams{{
-			FileName: header.Filename,
-			FileData: file,
-		}},
-		Url:        url,
-		Timeout:    60 * time.Second,
-		MonitorKey: "proxy_upload_file",
-		LogLevel:   http_client.LogAll,
-	})
-	if err != nil {
-		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_save", err.Error())
-	}
-	var resp = &response.ProxyUploadFileResp{}
-	if err = json.Unmarshal(result, resp); err != nil {
-		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_upload_save", err.Error())
-	}
-	return resp, nil
 }
 
 func DirectUploadFiles(ctx *gin.Context, r *request.DirectUploadFilesReq) (*response.DirectUploadFilesResp, error) {

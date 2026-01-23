@@ -7,13 +7,14 @@ import (
 )
 
 func LoadConfig(in string, cfg interface{}) error {
-	viper.SetConfigFile(in)
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
-	viper.AutomaticEnv()
-	viper.AllowEmptyEnv(true)
-	if err := viper.ReadInConfig(); err != nil {
+	v := viper.New()
+	v.SetConfigFile(in)
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+	v.AutomaticEnv()
+	v.AllowEmptyEnv(true)
+	if err := v.ReadInConfig(); err != nil {
 		return err
 	}
 
-	return viper.Unmarshal(cfg)
+	return v.Unmarshal(cfg)
 }

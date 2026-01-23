@@ -66,6 +66,7 @@ type AppKnowledgeBase struct {
 	ID                   string                `json:"id" validate:"required"` // 知识库id
 	Name                 string                `json:"name"`
 	GraphSwitch          int32                 `json:"graphSwitch"` // 知识图谱开关
+	External             int32                 `json:"external"`    // 外部数据库标识
 	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
 }
 
@@ -130,6 +131,14 @@ type SensitiveTable struct {
 
 type VisionConfig struct {
 	PicNum int32 `json:"picNum"` // 视觉配置图片数量
+}
+
+type RecommendConfig struct {
+	RecommendEnable bool           `json:"recommendEnable"` // 追问配置开关
+	ModelConfig     AppModelConfig `json:"modelConfig"`     // 模型信息
+	PromptEnable    bool           `json:"promptEnable"`    // 提示词开关
+	Prompt          string         `json:"prompt"`          // 提示词
+	MaxHistory      int32          `json:"maxHistory"`      // 最大历史会话轮次
 }
 
 type AppPublishConfig struct {

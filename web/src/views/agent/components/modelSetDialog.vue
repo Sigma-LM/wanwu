@@ -4,6 +4,7 @@
       :title="$t('app.modelSet')"
       :visible.sync="dialogVisible"
       width="50%"
+      v-bind="$attrs"
       :before-close="handleClose"
     >
       <span>

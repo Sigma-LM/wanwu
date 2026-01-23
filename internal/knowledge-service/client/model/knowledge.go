@@ -12,6 +12,9 @@ const (
 	ReportInterruptFail ReportStatus = 139 //社区报告处理中断
 	CategoryKnowledge                = 0   // 知识库
 	CategoryQA                       = 1   // 问答库
+	CategoryMultimodal               = 2   // 多模态知识库
+	InternalKnowledge                = 0   // 知识库
+	ExternalKnowledge                = 1   // 外部知识库
 )
 
 type KnowledgeBase struct {
@@ -19,7 +22,9 @@ type KnowledgeBase struct {
 	KnowledgeId          string       `gorm:"uniqueIndex:idx_unique_knowledge_id;column:knowledge_id;type:varchar(64)" json:"knowledgeId"` // Business Primary Key
 	Name                 string       `gorm:"column:name;index:idx_user_id_name,priority:2;type:varchar(256);not null;default:''" json:"name"`
 	RagName              string       `gorm:"column:rag_name;type:varchar(256);not null;default:''" json:"ragName"`
-	Category             int          `gorm:"column:category;index:idx_category;type:tinyint(4);not null;default:0;comment:'0-知识库，1-问答库';" json:"category"`
+	External             int          `gorm:"column:external;index:idx_external;type:tinyint(4);not null;default:0;comment:'0-知识库，1-外部知识库';" json:"external"`
+	ExternalKnowledge    string       `gorm:"column:external_knowledge;type:longtext;not null;comment:'外部知识库信息';" json:"externalKnowledge"`
+	Category             int          `gorm:"column:category;index:idx_category;type:tinyint(4);not null;default:0;comment:'0-知识库，1-问答库，2-多模态知识库';" json:"category"`
 	Description          string       `gorm:"column:description;type:text;comment:'知识库描述';" json:"description"`
 	DocCount             int          `gorm:"column:doc_count;type:int(11);not null;default:0;comment:'文档数量';" json:"docCount"`
 	ShareCount           int          `gorm:"column:share_count;type:int(11);not null;default:0;comment:'文档共享数量';" json:"shareCount"`

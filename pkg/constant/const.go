@@ -43,3 +43,9 @@ const (
 	MCPServerToolTypeBuiltInTool = "builtin" // 内置工具
 	MCPServerToolTypeOpenAPI     = "openapi" // 用户导入的openapi
 )
+
+// agent type
+const (
+	SingleAgent = 1
+	MultiAgent  = 2
+)

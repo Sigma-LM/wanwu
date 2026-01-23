@@ -35,7 +35,7 @@
         }, {
           "name": "language",
           "in": "query",
-          "description": "语言",
+          "description": "语言，例如zh-Hans",
           "required": false,
           "example": "zh-Hans",
           "schema": {
@@ -44,7 +44,7 @@
         }, {
           "name": "unit",
           "in": "query",
-          "description": "单位",
+          "description": "单位，例如c",
           "required": false,
           "example": "c",
           "schema": {
@@ -170,7 +170,7 @@
         }, {
           "name": "language",
           "in": "query",
-          "description": "语言",
+          "description": "语言，例如zh-Hans",
           "required": false,
           "example": "zh-Hans",
           "schema": {
@@ -179,7 +179,7 @@
         }, {
           "name": "unit",
           "in": "query",
-          "description": "单位",
+          "description": "单位，例如c",
           "required": false,
           "example": "c",
           "schema": {
@@ -397,7 +397,7 @@
         }, {
           "name": "language",
           "in": "query",
-          "description": "语言",
+          "description": "语言，例如zh-Hans",
           "required": false,
           "example": "zh-Hans",
           "schema": {

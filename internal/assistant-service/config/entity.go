@@ -4,13 +4,6 @@ import (
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
 )
 
-type AgentScopeWorkFlowSchemaResp struct {
-	Code int `json:"code"`
-	Data struct {
-		Base64OpenAPISchema string `json:"base64OpenAPISchema"`
-	} `json:"data"`
-}
-
 type AssistantConversionHistory struct {
 	Query         string   `json:"query"`
 	UploadFileUrl []string `json:"upload_file_url,omitempty"`

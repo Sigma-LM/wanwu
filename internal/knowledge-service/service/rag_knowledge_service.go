@@ -25,6 +25,7 @@ type RagCreateParams struct {
 	KnowledgeBaseId      string `json:"kb_id"`
 	EmbeddingModelId     string `json:"embedding_model_id"`
 	EnableKnowledgeGraph bool   `json:"enable_knowledge_graph"`
+	Multimodal           bool   `json:"is_multimodal"` //是否多模态
 }
 
 type RagCommonResp struct {

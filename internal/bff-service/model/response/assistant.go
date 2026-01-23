@@ -17,14 +17,17 @@ type Assistant struct {
 	SafetyConfig           request.AppSafetyConfig        `json:"safetyConfig"`        // 敏感词表配置
 	VisionConfig           VisionConfig                   `json:"visionConfig"`        // 视觉配置
 	MemoryConfig           request.MemoryConfig           `json:"memoryConfig"`        // 记忆配置
+	RecommendConfig        RecommendConfig                `json:"recommendConfig"`     // 追问配置
 	Scope                  int32                          `json:"scope"`               // 作用域
 	WorkFlowInfos          []*AssistantWorkFlowInfo       `json:"workFlowInfos"`       // 工作流信息
 	MCPInfos               []*AssistantMCPInfo            `json:"mcpInfos"`            // MCP信息
 	ToolInfos              []*AssistantToolInfo           `json:"toolInfos"`           // 自定义工具、内置工具
+	MultiAgentInfos        []*AssistantAgentInfo          `json:"multiAgentInfos"`     // 多智能体配置
 	CreatedAt              string                         `json:"createdAt"`           // 创建时间
 	UpdatedAt              string                         `json:"updatedAt"`           // 更新时间
 	NewAgent               bool                           `json:"newAgent"`            //是否是新版本智能体
 	PublishType            string                         `json:"publishType"`         //发布类型
+	Category               int32                          `json:"category"`            // 1.单智能体 2.多智能体
 }
 
 type AssistantWorkFlowInfo struct {
@@ -60,6 +63,14 @@ type AssistantToolInfo struct {
 	Avatar     request.Avatar              `json:"avatar"`
 }
 
+type AssistantAgentInfo struct {
+	AgentId string         `json:"agentId"`
+	Name    string         `json:"name"`
+	Desc    string         `json:"desc"`
+	Enable  bool           `json:"enable"`
+	Avatar  request.Avatar `json:"avatar"`
+}
+
 type ConversationInfo struct {
 	ConversationId string `json:"conversationId"`
 	AssistantId    string `json:"assistantId"`
@@ -83,11 +94,13 @@ type ConversationDetailInfo struct {
 	FileSize       int64                  `json:"fileSize"`
 	FileName       string                 `json:"fileName"`
 }
+
 type AssistantRequestFile struct {
 	FileName string `json:"name"`
 	FileSize int64  `json:"size"`
 	FileUrl  string `json:"fileUrl"`
 }
+
 type ConversationCreateResp struct {
 	ConversationId string `json:"conversationId"`
 }
