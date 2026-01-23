@@ -14,6 +14,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
+	dify_service "github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	rag_service "github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	wanwu_util "github.com/UnicomAI/wanwu/pkg/util"
@@ -31,8 +32,16 @@ const (
 	MetaOperationDelete   = "delete"
 )
 
+type ExternalKnowledgeInfo struct {
+	Provider              string `json:"provider"`
+	ExternalAPIId         string `json:"externalApiId"`
+	ExternalAPIName       string `json:"externalApiName"`
+	ExternalKnowledgeId   string `json:"externalKnowledgeId"`
+	ExternalKnowledgeName string `json:"externalKnowledgeName"`
+}
+
 func (s *Service) SelectKnowledgeList(ctx context.Context, req *knowledgebase_service.KnowledgeSelectReq) (*knowledgebase_service.KnowledgeSelectListResp, error) {
-	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, buildCategoryList(req.Category), req.TagIdList)
+	list, permissionMap, err := orm.SelectKnowledgeList(ctx, req.UserId, req.OrgId, req.Name, buildCategoryList(req.Category), int(req.External), req.TagIdList)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, req))
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseSelectFailed)
@@ -386,6 +395,209 @@ func buildCategoryList(category int32) []int {
 	} else {
 		return []int{model.CategoryKnowledge, model.CategoryMultimodal}
 	}
+}
+
+func (s *Service) SelectKnowledgeExternalAPIList(ctx context.Context, req *knowledgebase_service.KnowledgeExternalAPIListSelectReq) (*knowledgebase_service.KnowledgeExternalAPISelectListResp, error) {
+	externalAPIList, err := orm.GetKnowledgeExternalAPIList(ctx, req.UserId, req.OrgId, req.ExternalAPIIds)
+	if err != nil {
+		log.Errorf("get knowledge external api list err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIListSelectFailed)
+	}
+	return buildKnowledgeExternalAPISelectListResp(externalAPIList), nil
+}
+
+func (s *Service) SelectKnowledgeExternalAPIInfo(ctx context.Context, req *knowledgebase_service.KnowledgeExternalAPIInfoSelectReq) (*knowledgebase_service.KnowledgeExternalAPIInfo, error) {
+	externalAPIInfo, err := orm.GetKnowledgeExternalAPIInfo(ctx, "", "", req.ExternalAPIId)
+	if err != nil {
+		log.Errorf("get knowledge external api info err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
+	}
+	return buildKnowledgeExternalAPIInfoResp(externalAPIInfo), nil
+}
+
+func (s *Service) CreateKnowledgeExternalAPI(ctx context.Context, req *knowledgebase_service.CreateKnowledgeExternalAPIReq) (*knowledgebase_service.CreateKnowledgeExternalAPIResp, error) {
+	externalAPIId := wanwu_util.NewID()
+	externalAPI := &model.KnowledgeExternalAPI{
+		ExternalAPIId: externalAPIId,
+		Name:          req.Name,
+		Description:   req.Description,
+		BaseUrl:       req.BaseUrl,
+		APIKey:        req.ApiKey,
+		Provider:      model.KnowledgeExternalAPIProviderDify,
+		UserId:        req.UserId,
+		OrgId:         req.OrgId,
+	}
+	_, err := dify_service.DifyGetDatasets(ctx, externalAPI, &dify_service.DifyGetDatasetsParams{IncludeAll: true})
+	if err != nil {
+		log.Errorf("check dify getDatasets err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPICheckFailed)
+	}
+	err = orm.CreateKnowledgeExternalAPI(ctx, externalAPI)
+	if err != nil {
+		log.Errorf("create knowledge external api err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPICreateFailed)
+	}
+	return &knowledgebase_service.CreateKnowledgeExternalAPIResp{
+		ExternalAPIId: externalAPIId,
+	}, nil
+}
+
+func (s *Service) UpdateKnowledgeExternalAPI(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeExternalAPIReq) (*emptypb.Empty, error) {
+	err := orm.UpdateKnowledgeExternalAPI(ctx, &model.KnowledgeExternalAPI{
+		ExternalAPIId: req.ExternalAPIId,
+		Name:          req.Name,
+		Description:   req.Description,
+		BaseUrl:       req.BaseUrl,
+		APIKey:        req.ApiKey,
+	})
+	if err != nil {
+		log.Errorf("update knowledge external api err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalUpdateFailed)
+	}
+	return nil, nil
+}
+
+func (s *Service) DeleteKnowledgeExternalAPI(ctx context.Context, req *knowledgebase_service.DeleteKnowledgeExternalAPIReq) (*emptypb.Empty, error) {
+	err := orm.DeleteKnowledgeExternalAPI(ctx, req.ExternalAPIId)
+	if err != nil {
+		log.Errorf("delete knowledge external api err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalDeleteFailed)
+	}
+	return nil, nil
+}
+
+func (s *Service) SelectKnowledgeExternalList(ctx context.Context, req *knowledgebase_service.KnowledgeExternalListSelectReq) (*knowledgebase_service.KnowledgeExternalSelectListResp, error) {
+	externalAPIInfo, err := orm.GetKnowledgeExternalAPIInfo(ctx, "", "", req.ExternalAPIId)
+	if err != nil {
+		log.Errorf("get knowledge external api info err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
+	}
+	resp, err := dify_service.DifyGetDatasets(ctx, externalAPIInfo, &dify_service.DifyGetDatasetsParams{IncludeAll: true})
+	if err != nil {
+		log.Errorf("get dify getDatasets err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalListSelectFailed)
+	}
+	return buildKnowledgeExternalSelectListResp(externalAPIInfo, resp), nil
+}
+
+func (s *Service) SelectKnowledgeExternalInfo(ctx context.Context, req *knowledgebase_service.KnowledgeExternalInfoSelectReq) (*knowledgebase_service.KnowledgeExternalInfo, error) {
+	//1.查询知识库详情,这里前置做了前置权限校验，所以这里不需要再次校验
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
+		return nil, err
+	}
+	externalKnowledgeInfo := &ExternalKnowledgeInfo{}
+	err = json.Unmarshal([]byte(knowledge.ExternalKnowledge), externalKnowledgeInfo)
+	if err != nil {
+		return nil, err
+	}
+	// 2.查询外部知识库API详情
+	externalAPIInfo, err := orm.GetKnowledgeExternalAPIInfo(ctx, "", "", externalKnowledgeInfo.ExternalAPIId)
+	if err != nil {
+		log.Errorf("get knowledge external api info err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
+	}
+	// 3.调用dify api
+	resp, err := dify_service.DifyGetDataset(ctx, externalAPIInfo, externalKnowledgeInfo.ExternalKnowledgeId)
+	if err != nil {
+		log.Errorf("get dify getDataset err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalInfoSelectFailed)
+	}
+	return buildKnowledgeExternalInfoResp(externalAPIInfo, resp), nil
+}
+
+func (s *Service) CreateKnowledgeExternal(ctx context.Context, req *knowledgebase_service.CreateKnowledgeExternalReq) (*knowledgebase_service.CreateKnowledgeExternalResp, error) {
+	//1.重名校验
+	err := orm.CheckSameKnowledgeName(ctx, req.UserId, req.OrgId, req.Name, "", model.CategoryKnowledge)
+	if err != nil {
+		return nil, err
+	}
+	// 2.查询外部知识库API详情
+	externalAPIInfo, err := orm.GetKnowledgeExternalAPIInfo(ctx, "", "", req.ExternalApiId)
+	if err != nil {
+		log.Errorf("get knowledge external api info err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
+	}
+	// 3.查询外部知识库详情
+	difyKnowledgeInfo, err := dify_service.DifyGetDataset(ctx, externalAPIInfo, req.ExternalKnowledgeId)
+	if err != nil {
+		log.Errorf("get dify getDataset err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalInfoSelectFailed)
+	}
+	// 4.创建知识库
+	knowledgeModel, err := buildExternalKnowledgeBaseModel(req, externalAPIInfo, difyKnowledgeInfo)
+	if err != nil {
+		log.Errorf("buildExternalKnowledgeBaseModel error %s", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalCreateFailed)
+	}
+	err = orm.CreateKnowledgeExternal(ctx, knowledgeModel)
+	if err != nil {
+		log.Errorf("CreateExternalKnowledge error %v params %v", err, req)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalCreateFailed)
+	}
+	return &knowledgebase_service.CreateKnowledgeExternalResp{
+		KnowledgeId: knowledgeModel.KnowledgeId,
+	}, nil
+}
+
+func (s *Service) UpdateKnowledgeExternal(ctx context.Context, req *knowledgebase_service.UpdateKnowledgeExternalReq) (*emptypb.Empty, error) {
+	//1.查询知识库详情,这里前置做了前置权限校验，所以这里不需要再次校验
+	knowledge, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
+		return nil, err
+	}
+	//2.重名校验
+	err = orm.CheckSameKnowledgeName(ctx, req.UserId, req.OrgId, req.Name, knowledge.KnowledgeId, knowledge.Category)
+	if err != nil {
+		return nil, err
+	}
+	// 3.查询外部知识库API详情
+	externalAPIInfo, err := orm.GetKnowledgeExternalAPIInfo(ctx, "", "", req.ExternalApiId)
+	if err != nil {
+		log.Errorf("get knowledge external api info err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
+	}
+	// 4.查询外部知识库详情
+	difyKnowledgeInfo, err := dify_service.DifyGetDataset(ctx, externalAPIInfo, req.ExternalKnowledgeId)
+	if err != nil {
+		log.Errorf("get  dify getDataset err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalInfoSelectFailed)
+	}
+	//3.更新知识库
+	externalKnowledgeInfo, err := json.Marshal(ExternalKnowledgeInfo{
+		Provider:              req.Provider,
+		ExternalAPIId:         req.ExternalApiId,
+		ExternalAPIName:       externalAPIInfo.Name,
+		ExternalKnowledgeId:   req.ExternalKnowledgeId,
+		ExternalKnowledgeName: difyKnowledgeInfo.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = orm.UpdateKnowledgeExternal(ctx, req.KnowledgeId, req.Name, req.Description, string(externalKnowledgeInfo))
+	if err != nil {
+		log.Errorf("update knowledge external err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalUpdateFailed)
+	}
+	return nil, nil
+}
+
+func (s *Service) DeleteKnowledgeExternal(ctx context.Context, req *knowledgebase_service.DeleteKnowledgeExternalReq) (*emptypb.Empty, error) {
+	//1.查询知识库详情
+	_, err := orm.SelectKnowledgeById(ctx, req.KnowledgeId, "", "")
+	if err != nil {
+		log.Errorf(fmt.Sprintf("没有操作该知识库的权限 参数(%v)", req))
+		return nil, err
+	}
+	//3.删除知识库
+	err = orm.DeleteKnowledgeExternal(ctx, req.KnowledgeId)
+	if err != nil {
+		log.Errorf("delete knowledge external err: %v", err)
+		return nil, util.ErrCode(errs.Code_KnowledgeExternalDeleteFailed)
+	}
+	return nil, nil
 }
 
 // buildExportRecordListResp 构造问答库导出记录列表
@@ -749,26 +961,30 @@ func checkRepeatedMetaKey(metaList []*model.KnowledgeDocMeta) []*model.Knowledge
 func buildKnowledgeInfo(knowledge *model.KnowledgeBase) *knowledgebase_service.KnowledgeInfo {
 	embeddingModelInfo := &knowledgebase_service.EmbeddingModelInfo{}
 	_ = json.Unmarshal([]byte(knowledge.EmbeddingModel), embeddingModelInfo)
+	externalKnowledgeInfo := &knowledgebase_service.KnowledgeExternalInfo{}
+	_ = json.Unmarshal([]byte(knowledge.ExternalKnowledge), externalKnowledgeInfo)
 	graph := orm.BuildKnowledgeGraph(knowledge.KnowledgeGraph)
 	docCount := knowledge.DocCount
 	if docCount < 0 {
 		docCount = 0
 	}
 	return &knowledgebase_service.KnowledgeInfo{
-		KnowledgeId:        knowledge.KnowledgeId,
-		Name:               knowledge.Name,
-		Description:        knowledge.Description,
-		DocCount:           int32(docCount),
-		ShareCount:         int32(knowledge.ShareCount),
-		EmbeddingModelInfo: embeddingModelInfo,
-		CreatedAt:          wanwu_util.Time2Str(knowledge.CreatedAt),
-		CreateOrgId:        knowledge.OrgId,
-		CreateUserId:       knowledge.UserId,
-		RagName:            knowledge.RagName,
-		GraphSwitch:        int32(knowledge.KnowledgeGraphSwitch),
-		Category:           int32(knowledge.Category),
-		LlmModelId:         graph.GraphModelId,
-		UpdatedAt:          wanwu_util.Time2Str(knowledge.UpdatedAt),
+		KnowledgeId:           knowledge.KnowledgeId,
+		Name:                  knowledge.Name,
+		Description:           knowledge.Description,
+		DocCount:              int32(docCount),
+		ShareCount:            int32(knowledge.ShareCount),
+		EmbeddingModelInfo:    embeddingModelInfo,
+		CreatedAt:             wanwu_util.Time2Str(knowledge.CreatedAt),
+		CreateOrgId:           knowledge.OrgId,
+		CreateUserId:          knowledge.UserId,
+		RagName:               knowledge.RagName,
+		GraphSwitch:           int32(knowledge.KnowledgeGraphSwitch),
+		Category:              int32(knowledge.Category),
+		LlmModelId:            graph.GraphModelId,
+		UpdatedAt:             wanwu_util.Time2Str(knowledge.UpdatedAt),
+		External:              int32(knowledge.External),
+		KnowledgeExternalInfo: externalKnowledgeInfo,
 	}
 }
 
@@ -808,6 +1024,33 @@ func buildKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeReq) (*mo
 		CreatedAt:            time.Now().UnixMilli(),
 		UpdatedAt:            time.Now().UnixMilli(),
 		Category:             int(req.Category),
+	}, nil
+}
+
+// buildExternalKnowledgeBaseModel 构造外部知识库
+func buildExternalKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeExternalReq, externalAPIInfo *model.KnowledgeExternalAPI, difyKnowledgeInfo *dify_service.DifyDatasetData) (*model.KnowledgeBase, error) {
+	externalKnowledgeInfo, err := json.Marshal(ExternalKnowledgeInfo{
+		ExternalAPIId:         req.ExternalApiId,
+		ExternalAPIName:       externalAPIInfo.Name,
+		ExternalKnowledgeId:   req.ExternalKnowledgeId,
+		ExternalKnowledgeName: difyKnowledgeInfo.Name,
+		Provider:              model.KnowledgeExternalAPIProviderDify,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.KnowledgeBase{
+		KnowledgeId:       wanwu_util.NewID(),
+		Name:              req.Name,
+		Description:       req.Description,
+		DocCount:          int(difyKnowledgeInfo.TotalDocuments),
+		OrgId:             req.OrgId,
+		UserId:            req.UserId,
+		CreatedAt:         time.Now().UnixMilli(),
+		UpdatedAt:         time.Now().UnixMilli(),
+		Category:          model.CategoryKnowledge,
+		External:          model.ExternalKnowledge,
+		ExternalKnowledge: string(externalKnowledgeInfo),
 	}, nil
 }
 
@@ -965,5 +1208,80 @@ func storeKnowledgeStoreSchema(knowledgeId string, knowledgeGraph *knowledgebase
 				return
 			}
 		}()
+	}
+}
+
+func buildKnowledgeExternalAPISelectListResp(externalAPIs []*model.KnowledgeExternalAPI) *knowledgebase_service.KnowledgeExternalAPISelectListResp {
+	var externalAPIList []*knowledgebase_service.KnowledgeExternalAPIInfo
+	for _, externalAPI := range externalAPIs {
+		externalAPIList = append(externalAPIList, buildKnowledgeExternalAPIInfoResp(externalAPI))
+	}
+	return &knowledgebase_service.KnowledgeExternalAPISelectListResp{
+		ExternalAPIList: externalAPIList,
+	}
+}
+
+func buildKnowledgeExternalAPIInfoResp(externalAPI *model.KnowledgeExternalAPI) *knowledgebase_service.KnowledgeExternalAPIInfo {
+	return &knowledgebase_service.KnowledgeExternalAPIInfo{
+		ExternalAPIId: externalAPI.ExternalAPIId,
+		Name:          externalAPI.Name,
+		Description:   externalAPI.Description,
+		BaseUrl:       externalAPI.BaseUrl,
+		ApiKey:        externalAPI.APIKey,
+	}
+}
+
+func buildKnowledgeExternalSelectListResp(externalAPI *model.KnowledgeExternalAPI, difyGetDatasetsResp *dify_service.DifyGetDatasetsResp) *knowledgebase_service.KnowledgeExternalSelectListResp {
+	var externalKnowledgeList []*knowledgebase_service.KnowledgeExternalInfo
+	for _, dataset := range difyGetDatasetsResp.Data {
+		if dataset.ExternalKnowledgeInfo != nil && dataset.ExternalKnowledgeInfo.ExternalKnowledgeId != "" {
+			continue
+		}
+		externalKnowledgeList = append(externalKnowledgeList, buildKnowledgeExternalInfoResp(externalAPI, dataset))
+	}
+	return &knowledgebase_service.KnowledgeExternalSelectListResp{
+		ExternalKnowledgeList: externalKnowledgeList,
+	}
+}
+
+func buildKnowledgeExternalInfoResp(externalAPI *model.KnowledgeExternalAPI, difyDatasetData *dify_service.DifyDatasetData) *knowledgebase_service.KnowledgeExternalInfo {
+	return &knowledgebase_service.KnowledgeExternalInfo{
+		ExternalKnowledgeId:   difyDatasetData.Id,
+		ExternalKnowledgeName: difyDatasetData.Name,
+		ExternalAPIId:         externalAPI.ExternalAPIId,
+		ExternalAPIName:       externalAPI.Name,
+		ExternalAPIUrl:        externalAPI.BaseUrl,
+		ExternalAPIKey:        externalAPI.APIKey,
+		DocCount:              difyDatasetData.TotalDocuments,
+		RetrievalModelInfo: &knowledgebase_service.RetrievalModelInfo{
+			SearchMethod:    difyDatasetData.RetrievalModelDict.SearchMethod,
+			RerankingEnable: difyDatasetData.RetrievalModelDict.RerankingEnable,
+			RerankingMode:   difyDatasetData.RetrievalModelDict.RerankingMode,
+			RerankingModel: &knowledgebase_service.RerankingModel{
+				RerankingModelName:    difyDatasetData.RetrievalModelDict.RerankingModel.RerankingModelName,
+				RerankingProviderName: difyDatasetData.RetrievalModelDict.RerankingModel.RerankingProviderName,
+			},
+			Weights:               buildDifyWeights(difyDatasetData.RetrievalModelDict.Weights),
+			TopK:                  difyDatasetData.RetrievalModelDict.TopK,
+			ScoreThresholdEnabled: difyDatasetData.RetrievalModelDict.ScoreThresholdEnabled,
+			ScoreThreshold:        difyDatasetData.RetrievalModelDict.ScoreThreshold,
+		},
+	}
+}
+
+func buildDifyWeights(weights *dify_service.DifyWeights) *knowledgebase_service.Weights {
+	if weights == nil {
+		return nil
+	}
+	return &knowledgebase_service.Weights{
+		WeightType: weights.WeightType,
+		KeywordSetting: &knowledgebase_service.KeywordSetting{
+			KeywordWeight: weights.KeywordSetting.KeywordWeight,
+		},
+		VectorSetting: &knowledgebase_service.VectorSetting{
+			VectorWeight:          weights.VectorSetting.VectorWeight,
+			EmbeddingModelName:    weights.VectorSetting.EmbeddingModelName,
+			EmbeddingProviderName: weights.VectorSetting.EmbeddingProviderName,
+		},
 	}
 }

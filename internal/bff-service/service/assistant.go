@@ -1055,6 +1055,7 @@ func buildKnowledgeBases(kbInfoList *knowledgeBase_service.KnowledgeDetailSelect
 				ID:                   kbConfig.KnowledgeBaseId,
 				Name:                 info.Name,
 				GraphSwitch:          info.GraphSwitch,
+				External:             info.External,
 				MetaDataFilterParams: params,
 			})
 		}

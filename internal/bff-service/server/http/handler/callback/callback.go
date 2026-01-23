@@ -131,8 +131,8 @@ func SearchKnowledgeBase(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &req) {
 		return
 	}
-	resp, httpStatus := service.RagSearchKnowledgeBase(ctx, &req)
-	gin_util.ResponseRawByte(ctx, httpStatus, resp)
+	resp, err := service.RagKnowledgeHit(ctx, &req)
+	gin_util.Response(ctx, resp, err)
 }
 
 // KnowledgeStreamSearch
