@@ -133,7 +133,13 @@
                     : require('@/assets/imgs/model_default_icon.png')
                 "
               />
-              <div class="card-title">
+              <div
+                :class="
+                  item.modelType === LLM
+                    ? 'card-title-with-select'
+                    : 'card-title'
+                "
+              >
                 <div class="card-name" :title="item.displayName || item.model">
                   {{ item.displayName || item.model }}
                 </div>
@@ -465,6 +471,9 @@ export default {
   .card-title {
     width: calc(100% - 90px);
   }
+  .card-title-with-select {
+    width: calc(100% - 140px);
+  }
   .card-name {
     font-size: 18px;
     color: #434343;
@@ -476,6 +485,7 @@ export default {
     -webkit-box-orient: vertical;
     line-clamp: 2;
     -webkit-line-clamp: 2;
+    word-break: break-word;
   }
   .card-middle {
     padding-top: 14px;
