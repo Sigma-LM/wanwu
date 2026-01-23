@@ -28,7 +28,12 @@ func SingleAgentChat(ctx *gin.Context, req *request.AgentChatReq) error {
 	if err != nil {
 		return err
 	}
-	agent, err := CreateSingleAgent(ctx, BuildAgentParams(req, singleAgentDetail))
+	return SingleAgentChatDirect(ctx, BuildAgentParams(req, singleAgentDetail))
+}
+
+// SingleAgentChatDirect 单智能体问答
+func SingleAgentChatDirect(ctx *gin.Context, agentChatParams *request.AgentChatParams) error {
+	agent, err := CreateSingleAgent(ctx, agentChatParams)
 	if err != nil {
 		return err
 	}
