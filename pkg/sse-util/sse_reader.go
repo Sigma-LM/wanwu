@@ -3,9 +3,10 @@ package sse_util
 import (
 	"bufio"
 	"context"
+	"net/http"
+
 	"github.com/UnicomAI/wanwu/pkg/log"
 	safe_go_util "github.com/UnicomAI/wanwu/pkg/safe-go-util"
-	"net/http"
 )
 
 type SSEReader struct {

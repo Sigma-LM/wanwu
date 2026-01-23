@@ -1,9 +1,10 @@
 package callback
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
@@ -13,6 +14,7 @@ import (
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -70,6 +72,73 @@ func ModelChatCompletions(ctx *gin.Context) {
 	var data mp_common.LLMReq
 	if !gin_util.Bind(ctx, &data) {
 		return
+	}
+	if len(data.Messages) > 0 {
+		for i := range data.Messages {
+			if data.Messages[i].Role != mp_common.MsgRoleUser || data.Messages[i].Content == nil {
+				continue
+			}
+			if _, ok := data.Messages[i].Content.(string); ok {
+				continue
+			}
+			b, err := json.Marshal(data.Messages[i].Content)
+			if err != nil {
+				continue
+			}
+			var content []map[string]interface{}
+			if err := json.Unmarshal(b, &content); err != nil {
+				continue
+			}
+			var existImage bool
+			for j, item := range content {
+				var url map[string]string
+				for k, v := range item {
+					if k != "image_url" {
+						continue
+					}
+					b, err := json.Marshal(v)
+					if err != nil {
+						continue
+					}
+					if err := json.Unmarshal(b, &url); err != nil {
+						continue
+					}
+					// var base64StrWithPrefix string
+					for urlK, urlV := range url {
+						if urlK == "url" {
+							resp, err := http.Get(urlV)
+							if err != nil {
+								continue
+							}
+							defer resp.Body.Close()
+							if resp.StatusCode != http.StatusOK {
+								continue
+							}
+							body, err := io.ReadAll(resp.Body)
+							if err != nil {
+								continue
+							}
+							_, base64StrWithPrefix, err := util.FileData2Base64(body, "")
+							if err != nil {
+								continue
+							}
+							if base64StrWithPrefix != "" {
+								url["url"] = base64StrWithPrefix
+								break
+							}
+						}
+					}
+					if url != nil {
+						content[j]["image_url"] = url
+						existImage = true
+						break
+					}
+				}
+			}
+			if existImage {
+				data.Messages[i].Content = content
+			}
+		}
 	}
 	service.ModelChatCompletions(ctx, ctx.Param("modelId"), &data, nil)
 }
@@ -246,7 +315,7 @@ func ModelGui(ctx *gin.Context) {
 //	@Summary	Model SyncAsr
 //	@Accept		json
 //	@Produce	json
-//	@Param		modelId	path		string	true	"模型ID"
+//	@Param		modelId	path		string					true	"模型ID"
 //	@Param		data	body		mp_common.SyncAsrReq{}	true	"请求参数"
 //	@Success	200		{object}	mp_common.SyncAsrResp{}
 //	@Router		/model/{modelId}/asr [post]
@@ -263,7 +332,7 @@ func ModelSyncAsr(ctx *gin.Context) {
 					(*contentList)[j].Type = mp_common.MultiModalTypeMinioUrl
 				}
 				minioFilePath := (*contentList)[j].Audio.Data
-				_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(context.Background(), minioFilePath)
+				_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(ctx.Request.Context(), minioFilePath)
 				if err != nil {
 					gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("minio_url %s to local file err: %v", minioFilePath, err)))
 					return
@@ -274,23 +343,4 @@ func ModelSyncAsr(ctx *gin.Context) {
 		}
 	}
 	service.ModelSyncAsr(ctx, ctx.Param("modelId"), &data)
-}
-
-// ModelText2Image
-//
-//	@Tags		callback
-//	@Summary	Model Text-to-Image
-//	@Accept		multipart/form-data
-//	@Accept		json
-//	@Produce	json
-//	@Param		modelId	path		string						true	"模型ID"
-//	@Param		data	body		mp_common.Text2ImageReq{}	true	"请求参数"
-//	@Success	200		{object}	mp_common.Text2ImageResp{}
-//	@Router		/model/{modelId}/text2image [post]
-func ModelText2Image(ctx *gin.Context) {
-	var data mp_common.Text2ImageReq
-	if !gin_util.BindForm(ctx, &data) {
-		return
-	}
-	service.ModelText2Image(ctx, ctx.Param("modelId"), &data)
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/UnicomAI/wanwu/pkg/log"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -14,6 +13,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/UnicomAI/wanwu/pkg/log"
 )
 
 const (

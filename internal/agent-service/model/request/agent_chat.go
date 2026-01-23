@@ -2,7 +2,7 @@ package request
 
 import (
 	"github.com/UnicomAI/wanwu/internal/agent-service/model"
-	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
+	service_model "github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
 	"github.com/cloudwego/eino/adk"
 	"github.com/getkin/kin-openapi/openapi3"

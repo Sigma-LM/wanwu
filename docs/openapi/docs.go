@@ -1543,6 +1543,10 @@ const docTemplate = `{
                         "toolCall"
                     ]
                 },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
+                },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
                     "type": "integer"
@@ -1588,6 +1592,10 @@ const docTemplate = `{
                         "noSupport",
                         "toolCall"
                     ]
+                },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
                 },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
@@ -1642,6 +1650,10 @@ const docTemplate = `{
                         "noSupport",
                         "toolCall"
                     ]
+                },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
                 },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
@@ -1768,6 +1780,10 @@ const docTemplate = `{
                         "toolCall"
                     ]
                 },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
+                },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
                     "type": "integer"
@@ -1839,6 +1855,10 @@ const docTemplate = `{
                         "toolCall"
                     ]
                 },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
+                },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
                     "type": "integer"
@@ -1909,6 +1929,10 @@ const docTemplate = `{
                         "noSupport",
                         "toolCall"
                     ]
+                },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
                 },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
@@ -1993,6 +2017,10 @@ const docTemplate = `{
                         "noSupport",
                         "toolCall"
                     ]
+                },
+                "maxImageSize": {
+                    "description": "最大图片大小限制",
+                    "type": "integer"
                 },
                 "maxTokens": {
                     "description": "模型回答最大tokens",
@@ -2080,6 +2108,10 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "external": {
+                    "description": "外部数据库标识",
+                    "type": "integer"
+                },
                 "graphSwitch": {
                     "description": "知识图谱开关",
                     "type": "integer"
@@ -2585,6 +2617,10 @@ const docTemplate = `{
                     "description": "0:知识库，1:问答库",
                     "type": "integer"
                 },
+                "external": {
+                    "description": "-1:全部，0:内部知识库，1:外部知识库",
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3043,6 +3079,31 @@ const docTemplate = `{
                 }
             }
         },
+        "response.KnowledgeExternalInfo": {
+            "type": "object",
+            "properties": {
+                "externalApiId": {
+                    "description": "外部知识库API id",
+                    "type": "string"
+                },
+                "externalApiName": {
+                    "description": "外部知识库API名称",
+                    "type": "string"
+                },
+                "externalKnowledgeId": {
+                    "description": "外部知识库id",
+                    "type": "string"
+                },
+                "externalKnowledgeName": {
+                    "description": "外部知识库名称",
+                    "type": "string"
+                },
+                "externalSource": {
+                    "description": "外部知识库来源",
+                    "type": "string"
+                }
+            }
+        },
         "response.KnowledgeHitResp": {
             "type": "object",
             "properties": {
@@ -3097,6 +3158,18 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.EmbeddingModelInfo"
+                        }
+                    ]
+                },
+                "external": {
+                    "description": "0: 内部知识库 1：外部知识库",
+                    "type": "integer"
+                },
+                "externalKnowledgeInfo": {
+                    "description": "外部知识库信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.KnowledgeExternalInfo"
                         }
                     ]
                 },

@@ -2,10 +2,11 @@ package local_agent
 
 import (
 	"context"
+
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/config"
 	agent_message_flow "github.com/UnicomAI/wanwu/internal/agent-service/service/agent-message-flow"
-	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
+	service_model "github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/compose"

@@ -6,14 +6,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/UnicomAI/wanwu/pkg/log"
-	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
-	"github.com/UnicomAI/wanwu/pkg/util"
-	"github.com/go-resty/resty/v2"
 	"io"
 	"mime/multipart"
 	"net/url"
 	"strings"
+
+	"github.com/UnicomAI/wanwu/pkg/log"
+	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+	"github.com/UnicomAI/wanwu/pkg/util"
+	"github.com/go-resty/resty/v2"
 )
 
 type SyncAsr struct {

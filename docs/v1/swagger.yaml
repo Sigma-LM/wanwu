@@ -280,6 +280,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -313,6 +316,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -352,6 +358,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -442,6 +451,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -493,6 +505,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -544,6 +559,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -604,6 +622,9 @@ definitions:
         - noSupport
         - toolCall
         type: string
+      maxImageSize:
+        description: 最大图片大小限制
+        type: integer
       maxTokens:
         description: 模型回答最大tokens
         type: integer
@@ -796,6 +817,9 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      external:
+        description: 外部数据库标识
+        type: integer
       graphSwitch:
         description: 知识图谱开关
         type: integer
@@ -1571,6 +1595,48 @@ definitions:
     - knowledgeBaseIds
     - name
     type: object
+  request.CreateKnowledgeExternalAPIReq:
+    properties:
+      apiKey:
+        description: 外部知识库API Key
+        type: string
+      baseUrl:
+        description: 外部知识库API endpoint
+        type: string
+      description:
+        description: 外部知识库API描述
+        type: string
+      name:
+        description: 外部知识库API名称
+        type: string
+    required:
+    - apiKey
+    - baseUrl
+    - name
+    type: object
+  request.CreateKnowledgeExternalReq:
+    properties:
+      description:
+        description: 外部知识库描述
+        type: string
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      externalKnowledgeId:
+        description: 外部知识库 id
+        type: string
+      externalSource:
+        description: 外部来源
+        type: string
+      name:
+        description: 外部知识库名称
+        type: string
+    required:
+    - externalApiId
+    - externalKnowledgeId
+    - externalSource
+    - name
+    type: object
   request.CreateKnowledgeQAPairReq:
     properties:
       answer:
@@ -1923,6 +1989,22 @@ definitions:
         type: string
     required:
     - exportRecordId
+    - knowledgeId
+    type: object
+  request.DeleteKnowledgeExternalAPIReq:
+    properties:
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+    required:
+    - externalApiId
+    type: object
+  request.DeleteKnowledgeExternalReq:
+    properties:
+      knowledgeId:
+        description: 知识库id
+        type: string
+    required:
     - knowledgeId
     type: object
   request.DeleteKnowledgeQAPairReq:
@@ -2466,6 +2548,9 @@ definitions:
     properties:
       category:
         description: 0:知识库，1:问答库
+        type: integer
+      external:
+        description: -1:全部，0:内部知识库，1:外部知识库
         type: integer
       name:
         type: string
@@ -3418,6 +3503,56 @@ definitions:
     - knowledgeBaseIds
     - name
     type: object
+  request.UpdateKnowledgeExternalAPIReq:
+    properties:
+      apiKey:
+        description: 外部知识库API Key
+        type: string
+      baseUrl:
+        description: 外部知识库API endpoint
+        type: string
+      description:
+        description: 外部知识库API描述
+        type: string
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      name:
+        description: 外部知识库API名称
+        type: string
+    required:
+    - apiKey
+    - baseUrl
+    - externalApiId
+    - name
+    type: object
+  request.UpdateKnowledgeExternalReq:
+    properties:
+      description:
+        description: 描述
+        type: string
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      externalKnowledgeId:
+        description: 外部知识库 id
+        type: string
+      externalSource:
+        description: 外部知识库来源
+        type: string
+      knowledgeId:
+        description: 知识库id
+        type: string
+      name:
+        description: 名称
+        type: string
+    required:
+    - externalApiId
+    - externalKnowledgeId
+    - externalSource
+    - knowledgeId
+    - name
+    type: object
   request.UpdateKnowledgeQAPairReq:
     properties:
       answer:
@@ -3758,6 +3893,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.Avatar'
         description: 应用图标
+      category:
+        description: 智能体分类(1:单智能体,2:多智能体)
+        type: integer
       createdAt:
         description: 应用创建时间
         type: string
@@ -4475,6 +4613,18 @@ definitions:
       video_understanding:
         type: boolean
     type: object
+  response.CreateKnowledgeExternalAPIResp:
+    properties:
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+    type: object
+  response.CreateKnowledgeExternalResp:
+    properties:
+      knowledgeId:
+        description: 知识库id
+        type: string
+    type: object
   response.CreateKnowledgeQAPairResp:
     properties:
       qaPairId:
@@ -4910,6 +5060,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.Avatar'
         description: 应用图标
+      category:
+        description: 智能体分类(1:单智能体,2:多智能体)
+        type: integer
       createdAt:
         description: 应用创建时间
         type: string
@@ -5031,6 +5184,70 @@ definitions:
       total:
         type: integer
     type: object
+  response.KnowledgeExternalAPIInfo:
+    properties:
+      apiKey:
+        description: 外部知识库API Key
+        type: string
+      baseUrl:
+        description: 外部知识库API endpoint
+        type: string
+      description:
+        description: 外部知识库API 描述
+        type: string
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      name:
+        description: 外部知识库API 名称
+        type: string
+    type: object
+  response.KnowledgeExternalAPIListResp:
+    properties:
+      externalApiList:
+        description: 外部知识库API列表
+        items:
+          $ref: '#/definitions/response.KnowledgeExternalAPIInfo'
+        type: array
+    type: object
+  response.KnowledgeExternalBriefInfo:
+    properties:
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      externalKnowledgeId:
+        description: 外部知识库id
+        type: string
+      externalKnowledgeName:
+        description: 外部知识库名称
+        type: string
+    type: object
+  response.KnowledgeExternalInfo:
+    properties:
+      externalApiId:
+        description: 外部知识库API id
+        type: string
+      externalApiName:
+        description: 外部知识库API名称
+        type: string
+      externalKnowledgeId:
+        description: 外部知识库id
+        type: string
+      externalKnowledgeName:
+        description: 外部知识库名称
+        type: string
+      externalSource:
+        description: 外部知识库来源
+        type: string
+    type: object
+  response.KnowledgeExternalListResp:
+    properties:
+      externalKnowledgeList:
+        description: 外部知识库列表
+        items:
+          $ref: '#/definitions/response.KnowledgeExternalBriefInfo'
+        type: array
+    type: object
   response.KnowledgeGraphEdge:
     properties:
       description:
@@ -5145,6 +5362,13 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.EmbeddingModelInfo'
         description: embedding模型信息
+      external:
+        description: '0: 内部知识库 1：外部知识库'
+        type: integer
+      externalKnowledgeInfo:
+        allOf:
+        - $ref: '#/definitions/response.KnowledgeExternalInfo'
+        description: 外部知识库信息
       graphSwitch:
         description: 图谱开关
         type: integer
@@ -10163,6 +10387,206 @@ paths:
       summary: 获取知识库导出记录列表
       tags:
       - knowledge
+  /knowledge/external:
+    delete:
+      consumes:
+      - application/json
+      description: 删除外部知识库
+      parameters:
+      - description: 删除外部知识库请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledgeExternalReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除外部知识库
+      tags:
+      - knowledge
+    post:
+      consumes:
+      - application/json
+      description: 创建外部知识库
+      parameters:
+      - description: 创建外部知识库请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateKnowledgeExternalReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CreateKnowledgeExternalResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建外部知识库
+      tags:
+      - knowledge
+    put:
+      consumes:
+      - application/json
+      description: 编辑外部知识库
+      parameters:
+      - description: 编辑外部知识库请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateKnowledgeExternalReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑外部知识库
+      tags:
+      - knowledge
+  /knowledge/external/api:
+    delete:
+      consumes:
+      - application/json
+      description: 删除外部知识库API
+      parameters:
+      - description: 删除外部知识库API请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteKnowledgeExternalAPIReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除外部知识库API
+      tags:
+      - knowledge
+    post:
+      consumes:
+      - application/json
+      description: 创建外部知识库API
+      parameters:
+      - description: 创建外部知识库API请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateKnowledgeExternalAPIReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CreateKnowledgeExternalAPIResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建外部知识库API
+      tags:
+      - knowledge
+    put:
+      consumes:
+      - application/json
+      description: 编辑外部知识库API
+      parameters:
+      - description: 修改外部知识库API请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateKnowledgeExternalAPIReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 编辑外部知识库API
+      tags:
+      - knowledge
+  /knowledge/external/api/select:
+    get:
+      consumes:
+      - application/json
+      description: 获取外部知识库API列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeExternalAPIListResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取外部知识库API列表
+      tags:
+      - knowledge
+  /knowledge/external/select:
+    get:
+      consumes:
+      - application/json
+      description: 获取外部知识库列表
+      parameters:
+      - description: 外部知识库API id
+        in: query
+        name: externalApiId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.KnowledgeExternalListResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取外部知识库列表
+      tags:
+      - knowledge
   /knowledge/graph:
     get:
       consumes:
@@ -12114,7 +12538,7 @@ paths:
               type: object
       security:
       - JWT: []
-      summary: asr语音识别模型列表展示
+      summary: 同步asr语音识别模型列表展示
       tags:
       - model
   /model/select/embedding:

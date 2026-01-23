@@ -2,8 +2,9 @@ package local_agent
 
 import (
 	"context"
+
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
-	"github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
+	service_model "github.com/UnicomAI/wanwu/internal/agent-service/service/service-model"
 	"github.com/cloudwego/eino-ext/components/model/openai"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
