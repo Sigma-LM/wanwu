@@ -23,7 +23,8 @@
           :src="require('@/assets/imgs/model-delete.svg')"
         />
       </el-tooltip>
-      <el-tooltip
+      <!--不支持更换模型-->
+      <!--<el-tooltip
         effect="light"
         :content="$t('modelExprience.tip.replaceModel')"
         placement="top"
@@ -33,7 +34,7 @@
           class="icon delete-btn"
           :src="require('@/assets/imgs/config-replace.svg')"
         />
-      </el-tooltip>
+      </el-tooltip>-->
       <el-tooltip
         effect="light"
         :content="$t('modelExprience.tip.modelConfig')"
@@ -61,6 +62,8 @@
 <script>
 import StreamMessageField from '@/components/stream/streamMessageField.vue';
 import sseMethod from '@/mixins/sseMethod.js';
+import { avatarSrc } from '@/utils/util';
+
 export default {
   name: 'ModelChatPane',
   mixins: [sseMethod],
@@ -140,9 +143,9 @@ export default {
         this.modelDetail.avatar &&
         this.modelDetail.avatar.path
       ) {
-        return this.modelDetail.avatar.path;
+        return avatarSrc(this.modelDetail.avatar.path);
       }
-      return require('@/assets/imgs/model_avatar.png');
+      return require('@/assets/imgs/model_default_icon.png');
     },
     apiParams() {
       return {
@@ -164,9 +167,9 @@ export default {
     },
     getModelAvatar(avatar) {
       if (!avatar || !avatar.path) {
-        return require('@/assets/imgs/model_avatar.png');
+        return require('@/assets/imgs/model_default_icon.png');
       }
-      return '/user/api' + avatar.path;
+      return avatarSrc(avatar.path);
     },
     handleModelSet() {
       this.$emit('modelSet');

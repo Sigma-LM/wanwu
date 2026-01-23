@@ -69,6 +69,39 @@
     cursor: pointer;
     height: 150px;
 
+    .ribbon {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 50px;
+      height: 50px;
+      opacity: 1;
+      clip-path: polygon(0 0, 50% 0, 100% 50%, 100% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+
+      span {
+        transform: rotate(45deg);
+        padding-bottom: 20px;
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-weight: 600;
+      }
+    }
+
+    .blue {
+      color: #0055CE;
+      background: linear-gradient(135deg, #95C8FF 5%, #CEE6FF 54%, #61ADFF 93%);
+    }
+
+    .gold {
+      color: #C89001;
+      background: linear-gradient(135deg, #FFE095 5%, #FFF3D5 54%, #FACE62 93%);
+    }
+
+
     .tags {
       position: absolute;
       bottom: 10px;

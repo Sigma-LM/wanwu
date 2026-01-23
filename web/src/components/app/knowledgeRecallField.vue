@@ -10,10 +10,10 @@
         <searchConfig
           ref="searchConfig"
           @sendConfigInfo="sendConfigInfo"
-          :setType="'agent'"
           :config="config"
           :showGraphSwitch="showGraphSwitch"
           :category="category"
+          :isAllExternal="isAllExternal"
         />
       </span>
       <span slot="footer" class="dialog-footer">
@@ -30,7 +30,7 @@
 <script>
 import searchConfig from '@/components/searchConfig.vue';
 export default {
-  props: ['showGraphSwitch', 'config', 'category'],
+  props: ['showGraphSwitch', 'config', 'category', 'isAllExternal'],
   components: {
     searchConfig,
   },
@@ -70,7 +70,7 @@ export default {
         matchType === 'text' ||
         (matchType === 'mix' && priorityMatch === 0);
 
-      if (needRerankModel && !rerankModelId) {
+      if (needRerankModel && !rerankModelId && !this.isAllExternal) {
         this.$message.error(this.$t('agent.form.selectModel'));
         return;
       }

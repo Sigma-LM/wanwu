@@ -144,9 +144,6 @@ export default {
     commonInfo: {
       handler(val) {
         const { home = {} } = val.data || {};
-        if (this.mode === 'modelExprience') {
-          return;
-        }
         this.bgColor =
           home.backgroundColor ||
           'linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%)';

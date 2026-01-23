@@ -49,6 +49,11 @@
             style="width: 160px"
           >
             <el-option
+              key="createNew"
+              :label="$t('metaData.createMetaData')"
+              value="createNew"
+            ></el-option>
+            <el-option
               v-for="meta in keyOptions"
               :key="meta.metaKey"
               :label="meta.metaKey"
@@ -168,7 +173,10 @@
           </span>
         </div>
         <el-divider direction="vertical" v-if="type !== 'create'"></el-divider>
-        <div class="docItem_data docItem_data_btn">
+        <div
+          class="docItem_data docItem_data_btn"
+          :class="{ 'disable-clicks': item.disableOld }"
+        >
           <span
             v-if="type === 'create'"
             class="el-icon-edit-outline setBtn"
@@ -181,13 +189,22 @@
         </div>
       </div>
     </div>
+    <createMetadata
+      ref="createMetadata"
+      v-if="type !== 'create'"
+      @updateMeta="getList"
+    ></createMetadata>
   </div>
 </template>
 <script>
 import { metaSelect, updateDocMeta } from '@/api/knowledge';
 
 export default {
-  props: ['metaData', 'type', 'knowledgeId', 'withCompressed'],
+  name: 'metaData',
+  components: {
+    CreateMetadata: () => import('@/components/createMetadata.vue'),
+  },
+  props: ['metaData', 'type', 'knowledgeId', 'withCompressed', 'disableOld'],
   watch: {
     metaData: {
       handler(val) {
@@ -320,6 +337,7 @@ export default {
                   metaValueType: item.metaValueType || 'string',
                   showEdit: false,
                   option: '',
+                  disableOld: this.disableOld,
                 }),
               );
             }
@@ -330,6 +348,11 @@ export default {
         });
     },
     keyChange(val, item) {
+      if (val === 'createNew') {
+        this.$refs.createMetadata.showDialog(this.knowledgeId);
+        item.metaKey = '';
+        return;
+      }
       item.metaValue = '';
       item.metadataType = 'value';
       const opt = Array.isArray(this.keyOptions)
@@ -496,6 +519,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.disable-clicks * {
+  pointer-events: none;
+  color: #606266 !important;
+}
+
 .docMetaData {
   display: flex;
   gap: 10px;

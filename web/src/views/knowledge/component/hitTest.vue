@@ -26,7 +26,7 @@
             </el-button>
           </div>
         </div>
-        <div class="hitTest_input meta_box">
+        <div class="hitTest_input meta_box" v-if="external === 0">
           <h3>{{ $t('knowledgeManage.hitTest.metaDataFilter') }}</h3>
           <metaSet ref="metaSet" class="metaSet" :knowledgeId="knowledgeId" />
         </div>
@@ -34,8 +34,11 @@
           <searchConfig
             ref="searchConfig"
             @sendConfigInfo="sendConfigInfo"
+            :setType="'knowledge'"
             :config="formInline"
             :showGraphSwitch="graphSwitch"
+            :category="type === 'qa' ? 1 : 0"
+            :isAllExternal="external === 1"
           />
         </div>
       </div>
@@ -219,6 +222,7 @@ export default {
       name: this.$route.query.name,
       graphSwitch: this.$route.query.graphSwitch || false,
       type: this.$route.query.type || '',
+      external: Number(this.$route.query.external || 0),
       activeNames: [],
     };
   },
@@ -245,7 +249,8 @@ export default {
       this.formInline = JSON.parse(JSON.stringify(data));
     },
     startTest() {
-      const metaData = this.$refs.metaSet.getMetaData();
+      const metaData =
+        this.external === 0 ? this.$refs.metaSet.getMetaData() : {};
       this.knowledgeIdList = {
         ...metaData,
         id: this.knowledgeId,
@@ -281,6 +286,7 @@ export default {
         params.rerankModelId = '';
       }
       if (
+        this.external === 0 &&
         this.$refs.metaSet.validateRequiredFields(
           this.knowledgeIdList['metaDataFilterParams']['metaFilterParams'],
         )

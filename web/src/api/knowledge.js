@@ -429,3 +429,67 @@ export const editCommunityReportList = data => {
     data,
   });
 };
+
+export const createExternal = data => {
+  return service({
+    url: `${USER_API}/knowledge/external`,
+    method: 'post',
+    data,
+  });
+};
+
+export const editExternal = data => {
+  return service({
+    url: `${USER_API}/knowledge/external`,
+    method: 'put',
+    data,
+  });
+};
+
+export const delExternal = data => {
+  return service({
+    url: `${USER_API}/knowledge/external`,
+    method: 'delete',
+    data,
+  });
+};
+
+export const importExternalAPI = data => {
+  return service({
+    url: `${USER_API}/knowledge/external/api`,
+    method: 'post',
+    data,
+  });
+};
+
+export const editExternalAPI = data => {
+  return service({
+    url: `${USER_API}/knowledge/external/api`,
+    method: 'put',
+    data,
+  });
+};
+
+export const delExternalAPI = data => {
+  return service({
+    url: `${USER_API}/knowledge/external/api`,
+    method: 'delete',
+    data,
+  });
+};
+
+export const getExternalAPIList = data => {
+  return service({
+    url: `${USER_API}/knowledge/external/api/select`,
+    method: 'get',
+    params: data,
+  });
+};
+
+export const getExternalList = data => {
+  return service({
+    url: `${USER_API}/knowledge/external/select`,
+    method: 'get',
+    params: data,
+  });
+};

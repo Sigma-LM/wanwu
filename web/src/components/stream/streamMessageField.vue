@@ -840,22 +840,6 @@ export default {
           index,
           this.session_data.history[index],
         );
-        /* 广东合并新增，原版已删，之后验证无用即可删掉 */
-        /*let elm = null;
-        if (name === 'el-icon-arrow-up' || name === 'el-icon-arrow-down') {
-          elm = event.target.parentNode.parentNode.parentNode
-            .getElementsByClassName('answer-content')[0]
-            .getElementsByTagName('section')[0];
-        } else {
-          elm = event.target.parentNode.parentNode
-            .getElementsByClassName('answer-content')[0]
-            .getElementsByTagName('section')[0];
-        }
-        if (!Boolean(this.session_data.history[index].isOpen)) {
-          elm.className = 'hideDs';
-        } else {
-          elm.className = '';
-        }*/
       }
     },
     queryCopy(text) {
@@ -908,7 +892,7 @@ export default {
       this.scrollBottom();
     },
     replaceLastData(index, data) {
-      if (!data.response) {
+      if (!data.response && data.finish !== 0) {
         data.response = this.$t('app.noResponse');
       }
       this.$set(this.session_data.history, index, data);

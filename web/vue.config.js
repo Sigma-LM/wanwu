@@ -11,8 +11,7 @@ function resolve(dir) {
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
 const isProdOrTest = process.env.NODE_ENV !== 'development';
 
-// const proxyUrl = 'http://192.168.0.21:8081'
-const proxyUrl = 'http://wanwu.uniin.cn:31785';
+const proxyUrl = 'http://192.168.0.21:8081';
 
 module.exports = {
   // 基础配置 详情看文档
@@ -78,6 +77,7 @@ module.exports = {
     port: 8080,
     open: false,
     hot: true,
+    compress: false,
     client: {
       // 禁用错误覆盖层
       overlay: {

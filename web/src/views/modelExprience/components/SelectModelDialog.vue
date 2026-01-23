@@ -82,6 +82,8 @@
 </template>
 <script>
 import { PROVIDER_TYPE } from '@/views/modelAccess/constants';
+import { avatarSrc } from '@/utils/util';
+
 export default {
   name: 'SelectModelDialog',
   props: {
@@ -182,9 +184,9 @@ export default {
     },
     getModelAvatar(avatar) {
       if (!avatar || !avatar.path) {
-        return require('@/assets/imgs/model_avatar.png');
+        return require('@/assets/imgs/model_default_icon.png');
       }
-      return '/user/api' + avatar.path;
+      return avatarSrc(avatar.path);
     },
     handleModelSelect(modelId) {
       if (this.checkIsDisabled(modelId)) {

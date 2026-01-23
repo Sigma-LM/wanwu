@@ -98,6 +98,7 @@ export default {
     noData: '暂无匹配内容',
   },
   common: {
+    create: '+创建',
     fileUpload: {
       fileSizeError: '文件大小不能为空',
       messageAvatar: '请上传图像',
@@ -729,8 +730,9 @@ export default {
     docPlaceholder: '按照文件名称搜索',
     questionPlaceholder: '按照问题搜索',
     metaPlaceholder: '按照元数据值搜索',
+    segmentPlaceholder: '按照分段内容搜索',
     createQaDatabase: '新建问答库',
-    desc: '描述',
+    desc: '知识库描述',
     title: '文档知识库',
     tips: '您可单独或批量上传以下格式的文档:txt、pdf、docx、doc、xlsx、xls、zip、tar.gz、csv、pptx、html',
     knowledge: '知识库',
@@ -749,6 +751,21 @@ export default {
     operate: '操作',
     segmentConfig: '分段设置',
     view: '查看',
+    ribbon: {
+      internal: '内部',
+      external: '外部',
+    },
+    internal: '内部知识库',
+    external: '外部知识库',
+    externalSource: '外部知识库来源',
+    externalAPI: {
+      title: '外部知识库API',
+      hint: '支持用户通过API关联元景万悟以外的知识库并从中检索知识。',
+      tips: '如何创建并获取外部知识库API',
+      name: 'API名称',
+      desc: 'API描述',
+    },
+    externalKnowledge: '外部知识库名称',
     knowledgeName: '知识库名称',
     knowledgeNameRules: '请输入知识库名称',
     pidClassify: '上级分类',
@@ -908,6 +925,7 @@ export default {
     fileSizeTips: '上传文件不能超过15MB!',
     inputDesc: '请输入描述',
     keyWordManage: '关键词管理',
+    keyWordConfig: '关键词配置',
     keyWordTip:
       '知识库问答场景，可配置问题中使用的口语化关键词与知识库文档中词语的映射规则，便于提升知识库内容的召回效果及回答准确率 。',
     keyWordPlaceholder: '输入问题中的关键词或文档中的词语搜索',
@@ -921,6 +939,7 @@ export default {
     selectTag: '请选择标签',
     createTag: '创建标签',
     tagNameHint: '按回车(enter)键确认',
+    selectExternal: '请选择知识库',
     docCountUnit: '个文档',
     qaCountUnit: '个问答对',
     public: '公开',
@@ -998,7 +1017,7 @@ export default {
       processing: '解析中',
       finished: '解析成功',
       failed: '解析失败',
-      initial: '-',
+      initial: '--',
     },
     graph: {
       refresh: '刷新数据',
@@ -1208,6 +1227,7 @@ export default {
     batchExport: '批量导出',
     batchConfig: '批量编辑分段设置',
     selected: '已选择',
+    createMetaData: '+创建元数据',
   },
   metaSet: {
     add: '新增条件',
