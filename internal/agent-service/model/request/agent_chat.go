@@ -138,3 +138,6 @@ type WeightParams struct {
 func (c *AgentChatReq) Check() error {
 	return nil
 }
+func (c *AgentChatParams) Check() error {
+	return nil
+}
