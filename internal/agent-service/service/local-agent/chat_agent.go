@@ -13,6 +13,7 @@ import (
 )
 
 type ChatAgent struct {
+	ChatContext *request.AgentChatContext
 }
 
 func (a *ChatAgent) CreateChatModel(ctx context.Context, req *request.AgentChatParams, agentChatInfo *service_model.AgentChatInfo) (model.ToolCallingChatModel, error) {
@@ -37,6 +38,10 @@ func (a *ChatAgent) BuildAgentInput(ctx context.Context, req *request.AgentChatP
 		return nil, err
 	}
 	createMessages = append(createMessages, messages...)
+	//3.知识库信息记录
+	if a.ChatContext != nil {
+		a.ChatContext.KnowledgeHitData = agentChatContext.KnowledgeHitData
+	}
 	return &adk.AgentInput{
 		Messages:        createMessages,
 		EnableStreaming: agentInput.EnableStreaming,

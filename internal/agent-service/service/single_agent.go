@@ -17,6 +17,7 @@ import (
 )
 
 type SingleAgent struct {
+	ChatContext     *request.AgentChatContext
 	ChatModelAgent  *adk.ChatModelAgent
 	Req             *request.AgentChatParams
 	AgentPreprocess *agent_preprocessor.AgentPreprocess
@@ -49,7 +50,8 @@ func CreateSingleAgent(ctx *gin.Context, req *request.AgentChatParams) (*SingleA
 		log.Errorf("failed to build chat info: %v", err)
 		return nil, err
 	}
-	localAgentService := local_agent.CreateLocalAgentService(ctx, req, chatInfo)
+	chatContext := &request.AgentChatContext{}
+	localAgentService := local_agent.CreateLocalAgentService(ctx, req, chatInfo, chatContext)
 	//创建模型
 	chatModel, err := localAgentService.CreateChatModel(ctx, req, chatInfo)
 	if err != nil {
@@ -70,6 +72,7 @@ func CreateSingleAgent(ctx *gin.Context, req *request.AgentChatParams) (*SingleA
 			AgentChatInfo:     chatInfo,
 			GinContext:        ctx,
 		},
+		ChatContext: chatContext,
 	}, nil
 }
 
@@ -82,7 +85,7 @@ func (s *SingleAgent) Chat(ctx *gin.Context) error {
 	iter := runner.Query(ctx, s.Req.Input)
 
 	//2.处理结果
-	err := agent_message_processor.AgentMessage(ctx, iter, &request.AgentChatContext{AgentChatReq: s.Req})
+	err := agent_message_processor.AgentMessage(ctx, iter, &request.AgentChatContext{AgentChatReq: s.Req, KnowledgeHitData: s.ChatContext.KnowledgeHitData})
 	return err
 }
 

@@ -44,7 +44,7 @@ func CreateSupervisorMultiAgent(ctx *gin.Context, multiAgentChatParams *request.
 		return nil, err
 	}
 	//构造智能体服务
-	localAgentService := local_agent.CreateLocalAgentService(ctx, agentChatParams, chatInfo)
+	localAgentService := local_agent.CreateLocalAgentService(ctx, agentChatParams, chatInfo, &request.AgentChatContext{})
 	//构造supervisor
 	sv, err := buildSupervisor(ctx, localAgentService, agentChatParams, chatInfo)
 	if err != nil {
