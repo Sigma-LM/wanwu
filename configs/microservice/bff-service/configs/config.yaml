@@ -240,6 +240,11 @@ rag-knowledge:
   search-knowledge-base-uri: '/rag/search-knowledge-base'
   knowledge-chat-uri: '/rag/knowledge/stream/search'
   search-qa-base-uri: '/rag/search-QA-base'
+  search-know-timeout: 300
+
+dify-knowledge:
+  search-knowledge-base-uri: '/datasets/{dataset_id}/retrieve'
+  search-know-timeout: 60
 
 workflow:
   endpoint: http://workflow-wanwu:8999

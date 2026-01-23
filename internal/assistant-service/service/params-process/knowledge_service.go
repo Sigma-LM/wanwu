@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	metaTypeNumber = "number"
-	metaTypeTime   = "time"
+	metaTypeNumber          = "number"
+	metaTypeTime            = "time"
+	externalKnowledge int32 = 1 //外部知识库
 )
 
 type KnowledgeParams struct {
@@ -123,12 +124,14 @@ func (k *KnowledgeProcess) Build(assistant *AgentInfo, prepareParams *AgentPrepa
 	}
 	knowledgeList := prepareParams.KnowledgeList
 	if len(knowledgeList) > 0 {
-		//var knowNames []string
 		knowledgeIDToName := make(map[string]string)
+		var allExternalKnow = true
 		for _, v := range knowledgeList {
-			//knowNames = append(knowNames, v.RagName)
 			if _, exists := knowledgeIDToName[v.KnowledgeId]; !exists {
 				knowledgeIDToName[v.KnowledgeId] = v.RagName
+			}
+			if v.External != externalKnowledge {
+				allExternalKnow = false
 			}
 		}
 		params, err := buildMetaDataFilterParams(knowledgeBaseConfig.AppKnowledgeBaseList, knowledgeIDToName)
@@ -136,7 +139,7 @@ func (k *KnowledgeProcess) Build(assistant *AgentInfo, prepareParams *AgentPrepa
 			log.Errorf("Assistant buildMetaDataFilterParams, err: %v", err)
 			return err
 		}
-		rerankEndpoint, err := buildRerank(knowledgeBaseConfig, assistant.Assistant)
+		rerankEndpoint, err := buildRerank(knowledgeBaseConfig, assistant.Assistant, allExternalKnow)
 		if err != nil {
 			return err
 		}
@@ -192,8 +195,11 @@ func buildMetaDataFilterParams(knowledgeInfos []*AppKnowledgeBaseInfo, knowledge
 	return ragMetaDataFilterParams, nil
 }
 
-func buildRerank(knowledgeBaseConfig *RAGKnowledgeBaseConfig, assistant *model.Assistant) (map[string]interface{}, error) {
+func buildRerank(knowledgeBaseConfig *RAGKnowledgeBaseConfig, assistant *model.Assistant, allExternalKnow bool) (map[string]interface{}, error) {
 	var rerankEndpoint map[string]interface{}
+	if allExternalKnow { //全是外部知识库则不校验
+		return rerankEndpoint, nil
+	}
 	if knowledgeBaseConfig.PriorityMatch != 1 {
 		rerankConfig := &common.AppModelConfig{}
 		if assistant.RerankConfig != "" {

@@ -125,6 +125,17 @@ enum Code {
   KnowledgeExportRecordsSelectFailed = 148011; //获取导出记录列表失败，请稍后重试
   KnowledgeDeleteExportRecordFailed = 148012; //删除导出记录失败，请稍后重试
   KnowledgeQAPairImportTaskSelectFailed = 148013; //获取问答库文档任务详情失败，请稍后重试
+  KnowledgeExternalAPICreateFailed = 149001; // 新建外部知识库API失败，请稍后重试
+  KnowledgeExternalAPIDeleteFailed = 149002; // 删除外部知识库API失败，请稍后重试
+  KnowledgeExternalAPIUpdateFailed = 149003; // 修改外部知识库API失败，请稍后重试
+  KnowledgeExternalAPIInfoSelectFailed = 149004; // 获取外部知识库API详情失败，请稍后重试
+  KnowledgeExternalAPIListSelectFailed = 149005; // 获取外部知识库API列表失败，请稍后重试
+  KnowledgeExternalCreateFailed = 149006; // 新建外部知识库失败，请稍后重试
+  KnowledgeExternalDeleteFailed = 149007; // 删除外部知识库失败，请稍后重试
+  KnowledgeExternalUpdateFailed = 149008; // 修改外部知识库失败，请稍后重试
+  KnowledgeExternalInfoSelectFailed = 149009; // 获取外部知识库详情失败，请稍后重试
+  KnowledgeExternalListSelectFailed = 149010; // 获取外部知识库列表失败，请稍后重试
+  KnowledgeExternalAPICheckFailed = 149011; // 校验外部知识库API失败，请稍后重试
 
 
 

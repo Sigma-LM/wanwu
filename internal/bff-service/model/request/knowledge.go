@@ -16,7 +16,8 @@ const (
 type KnowledgeSelectReq struct {
 	Name      string   `json:"name" form:"name" `
 	TagIdList []string `json:"tagId" form:"tagId" `
-	Category  int32    `json:"category" form:"category"` // 0:知识库，1:问答库
+	Category  int32    `json:"category" form:"category"`  // 0:知识库，1:问答库
+	External  int32    `json:"external" form:"external" ` // -1:全部，0:内部知识库，1:外部知识库
 	CommonCheck
 }
 
@@ -251,6 +252,57 @@ type MetaItem struct {
 	MetaType           string      `json:"meta_type"`           // 元数据类型
 	ComparisonOperator string      `json:"comparison_operator"` // 比较运算符
 	Value              interface{} `json:"value,omitempty"`     // 用于过滤的条件值
+}
+
+type CreateKnowledgeExternalAPIReq struct {
+	Name        string `json:"name"  validate:"required"`   //外部知识库API名称
+	Description string `json:"description"`                 //外部知识库API描述
+	BaseUrl     string `json:"baseUrl" validate:"required"` //外部知识库API endpoint
+	ApiKey      string `json:"apiKey" validate:"required"`  //外部知识库API Key
+	CommonCheck
+}
+
+type UpdateKnowledgeExternalAPIReq struct {
+	ExternalAPIId string `json:"externalApiId" validate:"required"` // 外部知识库API id
+	Name          string `json:"name"  validate:"required"`         // 外部知识库API名称
+	Description   string `json:"description"`                       // 外部知识库API描述
+	BaseUrl       string `json:"baseUrl" validate:"required"`       // 外部知识库API endpoint
+	ApiKey        string `json:"apiKey" validate:"required"`        // 外部知识库API Key
+	CommonCheck
+}
+
+type DeleteKnowledgeExternalAPIReq struct {
+	ExternalAPIId string `json:"externalApiId" validate:"required"` // 外部知识库API id
+	CommonCheck
+}
+
+type CreateKnowledgeExternalReq struct {
+	Name                string `json:"name"  validate:"required"`               //外部知识库名称
+	Description         string `json:"description"`                             //外部知识库描述
+	ExternalSource      string `json:"externalSource" validate:"required"`      //外部来源
+	ExternalAPIId       string `json:"externalApiId" validate:"required"`       //外部知识库API id
+	ExternalKnowledgeId string `json:"externalKnowledgeId" validate:"required"` //外部知识库 id
+	CommonCheck
+}
+
+type UpdateKnowledgeExternalReq struct {
+	KnowledgeId         string `json:"knowledgeId" validate:"required"`         //知识库id
+	Name                string `json:"name"  validate:"required"`               //名称
+	Description         string `json:"description"`                             //描述
+	ExternalSource      string `json:"externalSource" validate:"required"`      //外部知识库来源
+	ExternalAPIId       string `json:"externalApiId" validate:"required"`       //外部知识库API id
+	ExternalKnowledgeId string `json:"externalKnowledgeId" validate:"required"` //外部知识库 id
+	CommonCheck
+}
+
+type DeleteKnowledgeExternalReq struct {
+	KnowledgeId string `json:"knowledgeId" validate:"required"` //知识库id
+	CommonCheck
+}
+
+type KnowledgeExternalListReq struct {
+	ExternalAPIId string `json:"externalApiId" form:"externalApiId" validate:"required"` //外部知识库API id
+	CommonCheck
 }
 
 func (c *UpdateMetaValueReq) Check() error {

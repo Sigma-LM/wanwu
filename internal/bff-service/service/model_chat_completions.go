@@ -15,7 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMReq) {
+func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMReq, lineProcessor func(*mp_common.LLMResp) string) {
 	// modelInfo by modelID
 	modelInfo, err := model.GetModel(ctx.Request.Context(), &model_service.GetModelReq{ModelId: modelID})
 	if err != nil {
@@ -57,9 +57,13 @@ func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMRe
 	// unary
 	if !llmReq.Stream() {
 		if data, ok := resp.ConvertResp(); ok {
+			var retStr = resp.String()
+			if lineProcessor != nil {
+				retStr = lineProcessor(data)
+			}
 			status := http.StatusOK
 			ctx.Set(gin_util.STATUS, status)
-			ctx.Set(gin_util.RESULT, resp.String())
+			ctx.Set(gin_util.RESULT, retStr)
 			ctx.JSON(status, data)
 			return
 		}
@@ -97,8 +101,13 @@ func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMRe
 					firstFlag = true
 				}
 			}
-			dataByte, _ := json.Marshal(data)
-			dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
+
+			if lineProcessor != nil {
+				dataStr = fmt.Sprintf("data: %v\n", lineProcessor(data))
+			} else {
+				dataByte, _ := json.Marshal(data)
+				dataStr = fmt.Sprintf("data: %v\n", string(dataByte))
+			}
 		} else {
 			dataStr = fmt.Sprintf("%v\n", sseResp.String())
 		}

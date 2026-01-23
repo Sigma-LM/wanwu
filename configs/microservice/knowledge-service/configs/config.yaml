@@ -136,6 +136,11 @@ rag-server:
   knowledge-QA-hit-uri: '/callback/v1/rag/search-QA-base'
   timeout: 60
 
+dify-server:
+  get-datasets-uri: '/datasets'
+  get-dataset-uri: '/datasets/{dataset_id}'
+  timeout: 60
+
 usage-limit:
   category-depth: 3
   doc-total: -1

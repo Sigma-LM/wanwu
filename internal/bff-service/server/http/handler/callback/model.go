@@ -71,7 +71,7 @@ func ModelChatCompletions(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
-	service.ModelChatCompletions(ctx, ctx.Param("modelId"), &data)
+	service.ModelChatCompletions(ctx, ctx.Param("modelId"), &data, nil)
 }
 
 // ModelEmbeddings

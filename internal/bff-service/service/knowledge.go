@@ -10,6 +10,12 @@ import (
 	"strings"
 	"time"
 
+	utils "github.com/UnicomAI/wanwu/pkg/util"
+	"github.com/google/uuid"
+
+	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
+	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
@@ -24,6 +30,21 @@ import (
 
 var knowHttp = http_client.CreateDefault()
 
+type RagResponseInfo struct {
+	Code    int                    `json:"code"`
+	Message string                 `json:"message"`
+	MsgID   string                 `json:"msg_id"`
+	Data    *RagData               `json:"data"`
+	History []*request.HistoryItem `json:"history"`
+	Finish  int                    `json:"finish"`
+}
+
+type RagData struct {
+	Score      []float64          `json:"score"`
+	Output     string             `json:"output"`
+	SearchList []*ChunkSearchList `json:"searchList"`
+}
+
 // SelectKnowledgeList 查询知识库列表，主要根据userId 查询用户所有知识库
 func SelectKnowledgeList(ctx *gin.Context, userId, orgId string, req *request.KnowledgeSelectReq) (*response.KnowledgeListResp, error) {
 	resp, err := knowledgeBase.SelectKnowledgeList(ctx.Request.Context(), &knowledgebase_service.KnowledgeSelectReq{
@@ -32,25 +53,12 @@ func SelectKnowledgeList(ctx *gin.Context, userId, orgId string, req *request.Kn
 		Name:      strings.TrimSpace(req.Name),
 		TagIdList: req.TagIdList,
 		Category:  req.Category,
+		External:  req.External,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return buildKnowledgeInfoList(ctx, resp), nil
-}
-
-// RagSearchKnowledgeBase 查询知识库列表（命中测试）
-func RagSearchKnowledgeBase(ctx *gin.Context, req *request.RagSearchKnowledgeBaseReq) ([]byte, int) {
-	list, err := selectKnowledgeListByIdList(ctx, &request.KnowledgeBatchSelectReq{UserId: req.UserId, KnowledgeIdList: req.KnowledgeIdList})
-	if err != nil {
-		return response.CommonRagKnowledgeError(err)
-	}
-	if len(list.KnowledgeList) == 0 {
-		return response.CommonRagKnowledgeError(errors.New("no knowledge permit"))
-	}
-	req.KnowledgeUser = buildUserKnowledgeList(list)
-	// 构建 rag 请求
-	return requestRagSearchKnowledgeBase(ctx, req)
 }
 
 // RagSearchQABase 查询问答列表（命中测试）
@@ -73,12 +81,29 @@ func KnowledgeStreamSearch(ctx *gin.Context, req *request.RagKnowledgeChatReq) e
 	if err != nil {
 		return err
 	}
-	if len(list.KnowledgeList) == 0 {
-		return errors.New("no knowledge permit")
+	_, extendKnowledgeList := splitKnowledgeList(list)
+	if len(extendKnowledgeList) == 0 { //先走原逻辑，先不去掉，等新逻辑稳定几个版本再说
+		if len(list.KnowledgeList) == 0 {
+			return errors.New("no knowledge permit")
+		}
+		req.KnowledgeUser = buildUserKnowledgeList(list.KnowledgeList)
+		// 构建 rag 请求
+		return requestRagKnowledgeStreamChat(ctx, req)
 	}
-	req.KnowledgeUser = buildUserKnowledgeList(list)
-	// 构建 rag 请求
-	return requestRagKnowledgeStreamChat(ctx, req)
+	//新逻辑，只走rag的命中测试，不走ragChat接口
+	hit, err := RagKnowledgeHit(ctx, buildHitParams(req))
+	if err != nil {
+		return err
+	}
+	//查询模型
+	modelInfo, err := model.GetModel(ctx.Request.Context(), &model_service.GetModelReq{ModelId: req.CustomModelInfo.LlmModelID})
+	if err != nil {
+		return err
+	}
+	//执行模型调用和结果转换
+	llmReq, historyItems := buildKnowledgeLLMReq(req, hit, modelInfo)
+	ModelChatCompletions(ctx, modelInfo.ModelId, llmReq, ragLineProcessor(uuid.New().String(), req.Question, hit, historyItems))
+	return nil
 }
 
 // SelectKnowledgeInfoByName 根据知识库名称查询知识库信息
@@ -174,31 +199,67 @@ func DeleteKnowledge(ctx *gin.Context, userId, orgId string, r *request.DeleteKn
 	return resp, nil
 }
 
-// KnowledgeHit 知识库命中
+// KnowledgeHit 知识库命中测试
 func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
+	if len(r.KnowledgeList) == 0 || r.Question == "" || r.KnowledgeMatchParams == nil {
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "knowledge params is empty")
+	}
+	var knowledgeIdList []string
+	for _, knowledge := range r.KnowledgeList {
+		knowledgeIdList = append(knowledgeIdList, knowledge.ID)
+	}
 	matchParams := r.KnowledgeMatchParams
-	resp, err := knowledgeBase.KnowledgeHit(ctx.Request.Context(), &knowledgebase_service.KnowledgeHitReq{
-		Question:      r.Question,
-		UserId:        userId,
-		OrgId:         orgId,
-		KnowledgeList: buildKnowledgeListReq(r),
-		KnowledgeMatchParams: &knowledgebase_service.KnowledgeMatchParams{
-			MatchType:         matchParams.MatchType,
-			RerankModelId:     matchParams.RerankModelId,
-			PriorityMatch:     matchParams.PriorityMatch,
-			SemanticsPriority: matchParams.SemanticsPriority,
-			KeywordPriority:   matchParams.KeywordPriority,
-			TopK:              matchParams.TopK,
-			Score:             matchParams.Threshold,
-			TermWeight:        matchParams.TermWeight,
-			TermWeightEnable:  matchParams.TermWeightEnable,
-			UseGraph:          matchParams.UseGraph,
-		},
+	resp, err := RagKnowledgeHit(ctx, &request.RagSearchKnowledgeBaseReq{
+		UserId:          userId,
+		Question:        r.Question,
+		KnowledgeIdList: knowledgeIdList,
+		TopK:            matchParams.TopK,
+		Threshold:       float64(matchParams.Threshold),
+		RerankModelId:   buildRerankId(matchParams.PriorityMatch, matchParams.RerankModelId),
+		RetrieveMethod:  buildRetrieveMethod(r.KnowledgeMatchParams.MatchType),
+		RerankMod:       buildRerankMod(matchParams.PriorityMatch),
+		Weight:          buildWeight(matchParams.PriorityMatch, matchParams.SemanticsPriority, matchParams.KeywordPriority),
+		TermWeight:      buildTermWeight(matchParams.TermWeight, matchParams.TermWeightEnable),
+		UseGraph:        matchParams.UseGraph,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return buildKnowledgeHitResp(resp), nil
+	return buildRagKnowledgeHitResp(resp), nil
+}
+
+// buildKnowledgeHitResp 构造知识库命中返回
+func buildRagKnowledgeHitResp(resp *KnowledgeHitData) *response.KnowledgeHitResp {
+	var searchList = make([]*response.ChunkSearchList, 0)
+	if len(resp.SearchList) > 0 {
+		for _, search := range resp.SearchList {
+			childContentList := make([]*response.ChildContent, 0)
+			for _, child := range search.ChildContentList {
+				childContentList = append(childContentList, &response.ChildContent{
+					ChildSnippet: child.ChildSnippet,
+					Score:        float64(child.Score),
+				})
+			}
+			childScore := make([]float64, 0)
+			for _, score := range search.ChildScore {
+				childScore = append(childScore, float64(score))
+			}
+			searchList = append(searchList, &response.ChunkSearchList{
+				Title:            search.Title,
+				Snippet:          search.Snippet,
+				KnowledgeName:    search.KbName,
+				ChildContentList: childContentList,
+				ChildScore:       childScore,
+				ContentType:      search.ContentType,
+			})
+		}
+	}
+	return &response.KnowledgeHitResp{
+		Prompt:     resp.Prompt,
+		Score:      resp.Score,
+		SearchList: searchList,
+		UseGraph:   resp.UseGraph,
+	}
 }
 
 func KnowledgeHitOpenapi(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
@@ -283,9 +344,9 @@ func GetKnowledgeGraph(ctx *gin.Context, userId, orgId string, req *request.Know
 	return graph, nil
 }
 
-func buildUserKnowledgeList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagKnowledgeInfo {
+func buildUserKnowledgeList(knowledgeList []*response.KnowledgeInfo) map[string][]*request.RagKnowledgeInfo {
 	retMap := make(map[string][]*request.RagKnowledgeInfo)
-	for _, knowledge := range knowledgeList.KnowledgeList {
+	for _, knowledge := range knowledgeList {
 		knowledgeInfos, exist := retMap[knowledge.CreateUserId]
 		if !exist {
 			knowledgeInfos = make([]*request.RagKnowledgeInfo, 0)
@@ -340,22 +401,6 @@ func buildKnowledgeMetaList(metaList []*knowledgebase_service.KnowledgeMetaData)
 	return &response.GetKnowledgeMetaSelectResp{MetaList: retMetaList}
 }
 
-// buildKnowledgeListReq 构造命中测试 - 知识库列表参数
-func buildKnowledgeListReq(r *request.KnowledgeHitReq) []*knowledgebase_service.KnowledgeParams {
-	var knowledgeList []*knowledgebase_service.KnowledgeParams
-	for _, k := range r.KnowledgeList {
-		knowledgeList = append(knowledgeList, &knowledgebase_service.KnowledgeParams{
-			KnowledgeId: k.ID,
-			MetaDataFilterParams: &knowledgebase_service.MetaDataFilterParams{
-				FilterEnable:     k.MetaDataFilterParams.FilterEnable,
-				FilterLogicType:  k.MetaDataFilterParams.FilterLogicType,
-				MetaFilterParams: buildMetaFilterParams(k.MetaDataFilterParams.MetaFilterParams),
-			},
-		})
-	}
-	return knowledgeList
-}
-
 // buildKnowledgeInfoList 构造知识库列表结果
 func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_service.KnowledgeSelectListResp) *response.KnowledgeListResp {
 	if knowledgeListResp == nil || len(knowledgeListResp.KnowledgeList) == 0 {
@@ -385,6 +430,14 @@ func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_s
 			Category:         knowledge.Category,
 			LlmModelId:       knowledge.LlmModelId,
 			UpdatedAt:        knowledge.UpdatedAt,
+			External:         knowledge.External,
+			ExternalKnowledgeInfo: &response.KnowledgeExternalInfo{
+				ExternalKnowledgeId:   knowledge.KnowledgeExternalInfo.ExternalKnowledgeId,
+				ExternalKnowledgeName: knowledge.KnowledgeExternalInfo.ExternalKnowledgeName,
+				ExternalSource:        knowledge.KnowledgeExternalInfo.Provider,
+				ExternalApiId:         knowledge.KnowledgeExternalInfo.ExternalAPIId,
+				ExternalApiName:       knowledge.KnowledgeExternalInfo.ExternalAPIName,
+			},
 		})
 	}
 	return &response.KnowledgeListResp{KnowledgeList: list}
@@ -442,53 +495,6 @@ func buildTagList(tagList []*knowledgebase_service.KnowledgeTagInfo) []*response
 	return retTagList
 }
 
-// buildKnowledgeHitResp 构造知识库命中返回
-func buildKnowledgeHitResp(resp *knowledgebase_service.KnowledgeHitResp) *response.KnowledgeHitResp {
-	var searchList = make([]*response.ChunkSearchList, 0)
-	if len(resp.SearchList) > 0 {
-		for _, search := range resp.SearchList {
-			childContentList := make([]*response.ChildContent, 0)
-			for _, child := range search.ChildContentList {
-				childContentList = append(childContentList, &response.ChildContent{
-					ChildSnippet: child.ChildSnippet,
-					Score:        float64(child.Score),
-				})
-			}
-			childScore := make([]float64, 0)
-			for _, score := range search.ChildScore {
-				childScore = append(childScore, float64(score))
-			}
-			searchList = append(searchList, &response.ChunkSearchList{
-				Title:            search.Title,
-				Snippet:          search.Snippet,
-				KnowledgeName:    search.KnowledgeName,
-				ChildContentList: childContentList,
-				ChildScore:       childScore,
-				ContentType:      search.ContentType,
-			})
-		}
-	}
-	return &response.KnowledgeHitResp{
-		Prompt:     resp.Prompt,
-		Score:      resp.Score,
-		SearchList: searchList,
-		UseGraph:   resp.UseGraph,
-	}
-}
-
-func buildMetaFilterParams(meta []*request.MetaFilterParams) []*knowledgebase_service.MetaFilterParams {
-	var metaList []*knowledgebase_service.MetaFilterParams
-	for _, m := range meta {
-		metaList = append(metaList, &knowledgebase_service.MetaFilterParams{
-			Key:       m.Key,
-			Value:     m.Value,
-			Type:      m.Type,
-			Condition: m.Condition,
-		})
-	}
-	return metaList
-}
-
 func buildKnowledgeMetaValueRespList(resp *knowledgebase_service.KnowledgeMetaValueListResp) *response.KnowledgeMetaValueListResp {
 	retList := make([]*response.KnowledgeMetaValues, 0)
 	for _, meta := range resp.MetaList {
@@ -518,29 +524,6 @@ func buildKnowledgeMetaValueReqList(req []*request.DocMetaData) []*knowledgebase
 		})
 	}
 	return metaList
-}
-
-// requestRagSearchKnowledgeBase 请求rag
-func requestRagSearchKnowledgeBase(ctx context.Context, req *request.RagSearchKnowledgeBaseReq) ([]byte, int) {
-	url := config.Cfg().RagKnowledgeConfig.Endpoint + config.Cfg().RagKnowledgeConfig.SearchKnowledgeBaseUri
-	paramsByte, err := json.Marshal(req)
-	if err != nil {
-		return response.CommonRagKnowledgeError(err)
-	}
-	result, err := knowHttp.PostJsonOriResp(ctx, &http_client.HttpRequestParams{
-		Url:        url,
-		Body:       paramsByte,
-		MonitorKey: "rag_search_knowledge_base",
-		LogLevel:   http_client.LogAll,
-	})
-	if err != nil {
-		return response.CommonRagKnowledgeError(err)
-	}
-	body, err := http_client.ReadHttpResp(result)
-	if err != nil {
-		return response.CommonRagKnowledgeError(err)
-	}
-	return body, result.StatusCode
 }
 
 // requestRagSearchQABase 请求rag
@@ -618,4 +601,209 @@ func buildRagKnowledgeChatHttpParams(req *request.RagKnowledgeChatReq) (*http_cl
 		MonitorKey: "rag_search_service",
 		LogLevel:   http_client.LogAll,
 	}, nil
+}
+
+func buildKnowledgeExternalAPI(resp *knowledgebase_service.KnowledgeExternalAPISelectListResp) *response.KnowledgeExternalAPIListResp {
+	var externalAPIList []*response.KnowledgeExternalAPIInfo
+	for _, externalApi := range resp.ExternalAPIList {
+		externalAPIList = append(externalAPIList, &response.KnowledgeExternalAPIInfo{
+			ExternalAPIId: externalApi.ExternalAPIId,
+			Name:          externalApi.Name,
+			Description:   externalApi.Description,
+			BaseUrl:       externalApi.BaseUrl,
+			ApiKey:        externalApi.ApiKey,
+		})
+	}
+	return &response.KnowledgeExternalAPIListResp{ExternalAPIList: externalAPIList}
+}
+
+func buildKnowledgeExternal(resp *knowledgebase_service.KnowledgeExternalSelectListResp) *response.KnowledgeExternalListResp {
+	var externalKnowledgeList []*response.KnowledgeExternalBriefInfo
+	for _, externalKnowledge := range resp.ExternalKnowledgeList {
+		externalKnowledgeList = append(externalKnowledgeList, &response.KnowledgeExternalBriefInfo{
+			ExternalKnowledgeId:   externalKnowledge.ExternalKnowledgeId,
+			ExternalKnowledgeName: externalKnowledge.ExternalKnowledgeName,
+			ExternalApiId:         externalKnowledge.ExternalAPIId,
+		})
+	}
+	return &response.KnowledgeExternalListResp{ExternalKnowledgeList: externalKnowledgeList}
+}
+
+// buildRerankId 构造重排序模型id
+func buildRerankId(priorityType int32, rerankId string) string {
+	if priorityType == 1 {
+		return ""
+	}
+	return rerankId
+}
+
+// buildRetrieveMethod 构造检索方式
+func buildRetrieveMethod(matchType string) string {
+	switch matchType {
+	case "vector":
+		return "semantic_search"
+	case "text":
+		return "full_text_search"
+	case "mix":
+		return "hybrid_search"
+	}
+	return ""
+}
+
+// buildRerankMod 构造重排序模式
+func buildRerankMod(priorityType int32) string {
+	if priorityType == 1 {
+		return "weighted_score"
+	}
+	return "rerank_model"
+}
+
+// buildTermWeight 构造关键词系数信息
+func buildTermWeight(termWeight float32, termWeightEnable bool) float32 {
+	if termWeightEnable {
+		return termWeight
+	}
+	return 0.0
+}
+
+// buildWeight 构造权重信息
+func buildWeight(priorityType int32, semanticsPriority float32, keywordPriority float32) *request.WeightParams {
+	if priorityType != 1 {
+		return nil
+	}
+	return &request.WeightParams{
+		VectorWeight: semanticsPriority,
+		TextWeight:   keywordPriority,
+	}
+}
+
+// buildHitParams 构造命中测试参数
+func buildHitParams(req *request.RagKnowledgeChatReq) *request.RagSearchKnowledgeBaseReq {
+	return &request.RagSearchKnowledgeBaseReq{
+		KnowledgeUser:        req.KnowledgeUser,
+		UseGraph:             req.UseGraph,
+		UserId:               req.UserId,
+		Question:             req.Question,
+		KnowledgeIdList:      req.KnowledgeIdList,
+		Threshold:            float64(req.Threshold),
+		TopK:                 req.TopK,
+		RerankModelId:        req.RerankModelId,
+		RerankMod:            req.RerankMod,
+		RetrieveMethod:       req.RetrieveMethod,
+		Weight:               req.Weight,
+		TermWeight:           req.TermWeight,
+		MetaFilter:           req.MetaFilter,
+		MetaFilterConditions: req.MetaFilterConditions,
+		AutoCitation:         req.AutoCitation,
+		RewriteQuery:         req.RewriteQuery,
+	}
+}
+
+// rag 的数据转行行处理器
+func ragLineProcessor(messageId, query string, hitData *KnowledgeHitData, history []*request.HistoryItem) func(resp *mp_common.LLMResp) string {
+	contentBuilder := strings.Builder{}
+	return func(resp *mp_common.LLMResp) string {
+		defer utils.PrintPanicStack()
+		if len(resp.Choices) > 0 {
+			var finish = 0
+			finishReason := resp.Choices[0].FinishReason
+			if finishReason == "stop" {
+				finish = 1
+			} else if finishReason == "sensitive_cancel" {
+				finish = 4
+			}
+
+			choice := resp.Choices[0]
+			var content = ""
+			if choice.Delta != nil {
+				content = choice.Delta.Content
+			} else if choice.Message != nil {
+				content = choice.Message.Content
+			}
+
+			contentBuilder.WriteString(content)
+
+			var historyTemp []*request.HistoryItem
+			if len(history) > 0 {
+				historyTemp = append(historyTemp, history...)
+			}
+			historyTemp = append(historyTemp, &request.HistoryItem{
+				Query:       query,
+				Response:    contentBuilder.String(),
+				NeedHistory: true,
+			})
+
+			// 构建响应信息
+			responseInfo := &RagResponseInfo{
+				Code:    0,
+				Message: "success",
+				MsgID:   messageId,
+				Data: &RagData{
+					Score:      hitData.Score,
+					Output:     content,
+					SearchList: hitData.SearchList,
+				},
+				History: historyTemp,
+				Finish:  finish,
+			}
+
+			marshal, err := json.Marshal(responseInfo)
+			if err == nil {
+				return string(marshal)
+			}
+		}
+		return ""
+	}
+}
+
+// buildKnowledgeLLMReq 构造知识库llm请求
+func buildKnowledgeLLMReq(req *request.RagKnowledgeChatReq, hitData *KnowledgeHitData, modelInfo *model_service.ModelInfo) (*mp_common.LLMReq, []*request.HistoryItem) {
+	var streamValue = true
+	message, historyItems := buildHistory(req)
+	message = append(message, mp_common.OpenAIReqMsg{
+		Role:    mp_common.MsgRoleUser,
+		Content: hitData.Prompt,
+	})
+	return &mp_common.LLMReq{
+		Model:             modelInfo.Model,
+		Messages:          message,
+		Stream:            &streamValue,
+		Temperature:       buildFloatValue(req.Temperature),
+		TopP:              buildFloatValue(req.TopP),
+		TopK:              buildIntValue(req.TopK),
+		RepetitionPenalty: buildFloatValue(req.RepetitionPenalty),
+	}, historyItems
+}
+
+func buildHistory(req *request.RagKnowledgeChatReq) ([]mp_common.OpenAIReqMsg, []*request.HistoryItem) {
+	messageList := make([]mp_common.OpenAIReqMsg, 0)
+	historyLen := len(req.History)
+	maxHistory := int(req.MaxHistory)
+	var historyItems = req.History
+	if maxHistory > 0 && historyLen > 0 {
+		if historyLen <= maxHistory {
+			historyItems = req.History[historyLen-maxHistory:]
+		}
+		for _, v := range historyItems {
+			messageList = append(messageList, mp_common.OpenAIReqMsg{
+				Role:    mp_common.MsgRoleUser,
+				Content: v.Query,
+			})
+			messageList = append(messageList, mp_common.OpenAIReqMsg{
+				Role:    mp_common.MsgRoleAssistant,
+				Content: v.Response,
+			})
+		}
+	}
+	return messageList, historyItems
+}
+
+func buildIntValue(value int32) *int {
+	f := int(value)
+	return &f
+}
+
+func buildFloatValue(value float32) *float64 {
+	f := float64(value)
+	return &f
 }

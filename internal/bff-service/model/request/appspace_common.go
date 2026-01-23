@@ -66,6 +66,7 @@ type AppKnowledgeBase struct {
 	ID                   string                `json:"id" validate:"required"` // 知识库id
 	Name                 string                `json:"name"`
 	GraphSwitch          int32                 `json:"graphSwitch"` // 知识图谱开关
+	External             int32                 `json:"external"`    // 外部数据库标识
 	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
 }
 

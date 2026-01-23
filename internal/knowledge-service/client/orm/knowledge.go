@@ -18,7 +18,7 @@ import (
 )
 
 // SelectKnowledgeList 查询知识库列表
-func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, category []int, tagIdList []string) ([]*model.KnowledgeBase, map[string]int, error) {
+func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, category []int, external int, tagIdList []string) ([]*model.KnowledgeBase, map[string]int, error) {
 	var knowledgeIdList []string
 	var err error
 	if len(tagIdList) > 0 {
@@ -43,7 +43,7 @@ func SelectKnowledgeList(ctx context.Context, userId, orgId, name string, catego
 		return make([]*model.KnowledgeBase, 0), nil, nil
 	}
 	var knowledgeList []*model.KnowledgeBase
-	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.LikeName(name), sqlopt.WithDelete(0), sqlopt.WithCategoryList(category)).
+	err = sqlopt.SQLOptions(sqlopt.WithKnowledgeIDList(knowledgeIdList), sqlopt.LikeName(name), sqlopt.WithDelete(0), sqlopt.WithCategoryList(category), sqlopt.WithExternal(external)).
 		Apply(db.GetHandle(ctx), &model.KnowledgeBase{}).
 		Order("update_at desc").
 		Find(&knowledgeList).
@@ -133,7 +133,7 @@ func CheckSameKnowledgeName(ctx context.Context, userId, orgId, name, knowledgeI
 	//}
 	//return nil
 
-	list, _, err := SelectKnowledgeList(ctx, userId, orgId, name, []int{category}, nil)
+	list, _, err := SelectKnowledgeList(ctx, userId, orgId, name, []int{category}, -1, nil)
 	if err != nil {
 		log.Errorf(fmt.Sprintf("获取知识库列表失败(%v)  参数(%v)", err, name))
 		return util.ErrCode(errs.Code_KnowledgeBaseDuplicateName)
@@ -190,6 +190,23 @@ func CreateKnowledge(ctx context.Context, knowledge *model.KnowledgeBase, embedd
 	})
 }
 
+// CreateKnowledgeExternal 创建外部知识库
+func CreateKnowledgeExternal(ctx context.Context, knowledge *model.KnowledgeBase) error {
+	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
+		//1.插入数据
+		err := createKnowledge(tx, knowledge)
+		if err != nil {
+			return err
+		}
+		//2.插入权限信息
+		err = CreateKnowledgeIdPermission(tx, buildKnowledgePermission(knowledge))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
 // UpdateKnowledge 更新知识库
 func UpdateKnowledge(ctx context.Context, name, description string, knowledgeBase *model.KnowledgeBase) error {
 	//return updateKnowledge(db.GetHandle(ctx), knowledgeBase.Id, name, description)
@@ -213,6 +230,17 @@ func UpdateKnowledge(ctx context.Context, name, description string, knowledgeBas
 			NewKbName:       ragName,
 		})
 	})
+}
+
+// UpdateKnowledgeExternal 更新外部知识库
+func UpdateKnowledgeExternal(ctx context.Context, knowledgeId, name, description, externalKnowledgeInfo string) error {
+	return db.GetHandle(ctx).Model(&model.KnowledgeBase{}).
+		Where("knowledge_id = ?", knowledgeId).
+		Updates(map[string]interface{}{
+			"name":               name,
+			"description":        description,
+			"external_knowledge": externalKnowledgeInfo,
+		}).Error
 }
 
 // UpdateKnowledgeShareCount 更新知识库分享数量
@@ -260,6 +288,13 @@ func DeleteKnowledge(ctx context.Context, knowledgeBase *model.KnowledgeBase) er
 		}
 
 	})
+}
+
+// DeleteKnowledgeExternal 删除外部知识库
+func DeleteKnowledgeExternal(ctx context.Context, knowledgeId string) error {
+	return db.GetHandle(ctx).Model(&model.KnowledgeBase{}).
+		Where("knowledge_id = ?", knowledgeId).
+		Delete(&model.KnowledgeBase{}).Error
 }
 
 // ExecuteDeleteKnowledge 删除知识库

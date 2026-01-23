@@ -36,17 +36,18 @@ type Config struct {
 	Minio minio.Config `json:"minio" mapstructure:"minio"`
 	Redis redis.Config `json:"redis" mapstructure:"redis"`
 	// microservice
-	Iam                ServiceConfig         `json:"iam" mapstructure:"iam"`
-	Model              ServiceModelConfig    `json:"model" mapstructure:"model"`
-	MCP                ServiceConfig         `json:"mcp" mapstructure:"mcp"`
-	App                ServiceConfig         `json:"app" mapstructure:"app"`
-	Knowledge          ServiceConfig         `json:"knowledge" mapstructure:"knowledge"`
-	Rag                ServiceConfig         `json:"rag" mapstructure:"rag"`
-	Assistant          ServiceConfig         `json:"assistant" mapstructure:"assistant"`
-	Operate            ServiceConfig         `json:"operate" mapstructure:"operate"`
-	RagKnowledgeConfig RagKnowledgeConfig    `json:"rag-knowledge" mapstructure:"rag-knowledge"`
-	Workflow           WorkflowServiceConfig `json:"workflow" mapstructure:"workflow"`
-	Models             []*ModelConfig        `json:"models" mapstructure:"models"`
+	Iam                 ServiceConfig         `json:"iam" mapstructure:"iam"`
+	Model               ServiceModelConfig    `json:"model" mapstructure:"model"`
+	MCP                 ServiceConfig         `json:"mcp" mapstructure:"mcp"`
+	App                 ServiceConfig         `json:"app" mapstructure:"app"`
+	Knowledge           ServiceConfig         `json:"knowledge" mapstructure:"knowledge"`
+	Rag                 ServiceConfig         `json:"rag" mapstructure:"rag"`
+	Assistant           ServiceConfig         `json:"assistant" mapstructure:"assistant"`
+	Operate             ServiceConfig         `json:"operate" mapstructure:"operate"`
+	RagKnowledgeConfig  RagKnowledgeConfig    `json:"rag-knowledge" mapstructure:"rag-knowledge"`
+	DifyKnowledgeConfig DifyKnowledgeConfig   `json:"dify-knowledge" mapstructure:"dify-knowledge"`
+	Workflow            WorkflowServiceConfig `json:"workflow" mapstructure:"workflow"`
+	Models              []*ModelConfig        `json:"models" mapstructure:"models"`
 }
 
 type ModelConfig struct {
@@ -109,8 +110,14 @@ type RagKnowledgeConfig struct {
 	Endpoint               string `json:"endpoint" mapstructure:"endpoint"`
 	ChatEndpoint           string `json:"chat-endpoint" mapstructure:"chat-endpoint"`
 	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
+	SearchKnowTimeout      int    `json:"search-know-timeout" mapstructure:"search-know-timeout"`
 	SearchQABaseUri        string `json:"search-qa-base-uri" mapstructure:"search-qa-base-uri"`
 	KnowledgeChatUri       string `json:"knowledge-chat-uri" mapstructure:"knowledge-chat-uri"`
+}
+
+type DifyKnowledgeConfig struct {
+	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
+	SearchKnowTimeout      int    `json:"search-know-timeout" mapstructure:"search-know-timeout"`
 }
 
 type WorkflowTemplatePathConfig struct {
