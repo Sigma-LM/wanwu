@@ -310,13 +310,18 @@ export default {
       const { matchType, priorityMatch, rerankModelId } =
         this.editForm.knowledgeBaseConfig.config;
       const isMixPriorityMatch = matchType === 'mix' && priorityMatch;
+      const knowledgebasesLength =
+        this.editForm.knowledgeBaseConfig.knowledgebases.length;
       const conditions = [
         {
           check: !this.editForm.modelParams,
           message: this.$t('agent.form.selectModel'),
         },
         {
-          check: !isMixPriorityMatch && !rerankModelId,
+          check:
+            knowledgebasesLength > 0
+              ? !isMixPriorityMatch && !rerankModelId
+              : false,
           message: this.$t('knowledgeManage.hitTest.selectRerankModel'),
         },
         {
