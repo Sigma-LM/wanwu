@@ -7,6 +7,9 @@ import "google/protobuf/empty.proto";
 option go_package = "github.com/UnicomAI/wanwu/api/proto/model-service";
 
 service ModelService {
+
+    // --- model ---
+
     // 模型导入
     rpc ImportModel(ModelInfo) returns (google.protobuf.Empty) {}
     // 导入模型更新
@@ -25,6 +28,22 @@ service ModelService {
     rpc GetModelByIds(GetModelByIdsReq) returns (ModelInfos) {}
     // llm/rerank/embedding模型列表展示
     rpc ListTypeModels(ListTypeModelsReq) returns (ModelInfos) {}
+
+    // --- model experience ---
+
+    // 保存模型体验对话（创建/更新）
+    rpc SaveModelExperienceDialog(SaveModelExperienceDialogReq) returns (ModelExperienceDialog) {}
+    // 获取模型体验对话
+    rpc GetModelExperienceDialog(ModelExperienceDialogReq) returns (ModelExperienceDialog) {}
+    // 获取模型体验对话列表
+    rpc GetModelExperienceDialogs(ListModelExperienceDialogReq) returns (ModelExperienceDialogs) {}
+    // 删除模型体验对话
+    rpc DeleteModelExperienceDialog(ModelExperienceDialogReq) returns (google.protobuf.Empty) {}
+    
+    // 保存模型体验对话记录
+    rpc SaveModelExperienceDialogRecord(SaveModelExperienceDialogRecordReq) returns (google.protobuf.Empty) {}
+    // 获取模型体验对话记录列表
+    rpc GetModelExperienceDialogRecords(GetModelExperienceDialogRecordsReq) returns (ModelExperienceDialogRecords) {}
 }
 
 message ModelInfo {
@@ -72,7 +91,7 @@ message ListModelsReq{
     bool isActive = 3;          // 启用状态（true: 启用，false: 禁用）
     string userId = 4;
     string orgId = 5;
-    string displayName = 6;           // 模型显示名称
+    string displayName = 6;     // 模型显示名称
 }
 
 message ModelStatusReq {
@@ -92,4 +111,74 @@ message ListTypeModelsReq {
     string userId = 1;
     string orgId = 2;
     string modelType = 3;       // 模型类型
+}
+
+// --- model experience ---
+
+message SaveModelExperienceDialogReq {
+    string userId = 1;
+    string orgId = 2;
+    string modelId = 3; // 模型
+    string sessionId = 4; // 会话 ID
+    string title = 5;
+    string modelSetting = 6; // 模型参数配置
+}
+
+message ModelExperienceDialogReq {
+    string userId = 1;
+    string orgId = 2;
+    string modelExperienceId = 3;
+}
+
+message ListModelExperienceDialogReq {
+    string userId = 1;
+    string orgId = 2;
+}
+
+message ModelExperienceDialog {
+    string modelExperienceId = 1;
+    string modelId = 2; // 模型
+    string sessionId = 3; //会话 ID
+    string title = 4;
+    string modelSetting = 5;  // 模型参数配置
+    int64 createdAt = 6;
+}
+
+message ModelExperienceDialogs {
+    repeated ModelExperienceDialog dialogs = 1;
+}
+
+message SaveModelExperienceDialogRecordReq {
+    string userId = 1;
+    string orgId = 2;
+    string modelExperienceId = 3; // 模型体验 ID
+    string modelId = 4; // 模型
+    string sessionId = 5; //会话 ID
+    string originalContent = 6; // 原始内容
+    string handledContent = 7;  // 处理后的内容
+    string reasoningContent = 8;  // 思考过程
+    string role = 9;  // 角色
+}
+
+message GetModelExperienceDialogRecordsReq {
+    string userId = 1;
+    string orgId = 2;
+    string modelExperienceId = 3; // 模型体验 ID
+    string sessionId = 4; //会话 ID
+}
+
+message ModelExperienceDialogRecord {
+    string userId = 1;
+    string orgId = 2;
+    string modelExperienceId = 3;     // 模型体验 ID
+    string modelId = 4;     // 模型
+    string sessionId = 5; // 会话 ID
+    string originalContent = 6; // 原始内容
+    string handledContent = 7;  // 处理后的内容
+    string reasoningContent = 8;  // 思考过程
+    string role = 9;  // 角色
+}
+
+message ModelExperienceDialogRecords {
+    repeated ModelExperienceDialogRecord records = 1;
 }

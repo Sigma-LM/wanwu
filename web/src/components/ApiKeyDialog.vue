@@ -7,26 +7,37 @@
       :before-close="handleClose"
     >
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column :label="$t('tool.server.detail.key')" prop="apiKey" width="300">
+        <el-table-column
+          :label="$t('tool.server.detail.key')"
+          prop="apiKey"
+          width="300"
+        >
           <template slot-scope="scope">
             <span>{{ scope.row.apiKey.slice(0, 6) + '******' }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('tool.server.detail.createTime')" prop="createdAt" />
+        <el-table-column
+          :label="$t('tool.server.detail.createTime')"
+          prop="createdAt"
+        />
         <el-table-column :label="$t('tool.server.detail.operate')" width="200">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleCopy(scope.row) && copycb()">
-              {{$t('list.copy')}}
+              {{ $t('list.copy') }}
             </el-button>
             <el-button size="mini" @click="handleDelete(scope.row)">
-              {{$t('list.delete')}}
+              {{ $t('list.delete') }}
             </el-button>
           </template>
         </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">{{$t('common.button.cancel')}}</el-button>
-        <el-button type="primary" @click="handleCreate">{{$t('common.button.create')}}</el-button>
+        <el-button @click="dialogVisible = false">
+          {{ $t('common.button.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="handleCreate">
+          {{ $t('common.button.create') }}
+        </el-button>
       </span>
     </el-dialog>
   </div>

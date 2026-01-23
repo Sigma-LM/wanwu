@@ -151,6 +151,21 @@ export function convertLatexSyntax(inputText) {
   return inputText;
 }
 
+export function formatTimestamp(timestamp, format = 'YYYY-MM-DD HH:mm:ss') {
+  const date = new Date(timestamp || timestamp);
+
+  const map = {
+    YYYY: date.getFullYear(),
+    MM: String(date.getMonth() + 1).padStart(2, '0'),
+    DD: String(date.getDate()).padStart(2, '0'),
+    HH: String(date.getHours()).padStart(2, '0'),
+    mm: String(date.getMinutes()).padStart(2, '0'),
+    ss: String(date.getSeconds()).padStart(2, '0'),
+  };
+
+  return format.replace(/YYYY|MM|DD|HH|mm|ss/g, matched => map[matched]);
+}
+
 export function isSub(data) {
   return /\【([0-9]{0,2})\^\】/.test(data);
 }
@@ -334,4 +349,88 @@ export function deepMerge(obj1, obj2) {
     }
   }
   return obj1;
+}
+
+/**
+ * 防抖函数（Debounce）
+ * 限制函数在一定时间内的执行频率，合并短时间内的多次调用为一次
+ * @param {Function} func - 需要防抖的函数
+ * @param {number} wait - 等待时间（毫秒）
+ * @param {boolean} immediate - 是否立即执行
+ * @returns {Function} 防抖处理后的函数
+ */
+export function debounce(func, wait, immediate) {
+  let timeout, args, context, timestamp, result;
+
+  const later = function () {
+    // 计算上次调用时间与当前时间的差值
+    const last = +new Date() - timestamp;
+
+    // 如果上次调用时间与当前时间的差值小于wait，则设置新的定时器
+    if (last < wait && last >= 0) {
+      timeout = setTimeout(later, wait - last);
+    } else {
+      // 否则执行函数
+      timeout = null;
+      if (!immediate) {
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+      }
+    }
+  };
+
+  return function () {
+    context = this;
+    args = arguments;
+    timestamp = +new Date();
+
+    // 如果immediate为true且当前没有定时器，则立即执行函数
+    const callNow = immediate && !timeout;
+
+    // 设置定时器
+    if (!timeout) {
+      timeout = setTimeout(later, wait);
+    }
+
+    // 如果需要立即执行，则立即调用函数
+    if (callNow) {
+      result = func.apply(context, args);
+      context = args = null;
+    }
+
+    return result;
+  };
+}
+
+// 获取文件icon
+export function getFileIcon(type) {
+  switch (type) {
+    case 'txt':
+      return require('@/assets/imgs/txt-icon.png');
+    case 'csv':
+      return require('@/assets/imgs/csv-icon.png');
+    case 'xlsx':
+      return require('@/assets/imgs/xls-icon.png');
+    case 'docx':
+      return require('@/assets/imgs/word-icon.png');
+    case 'pptx':
+      return require('@/assets/imgs/ppt-icon.png');
+    case 'pdf':
+      return require('@/assets/imgs/pdf-icon.png');
+    default:
+      return require('@/assets/imgs/fileicon.png');
+  }
+}
+
+// 文件大小格式化
+export function formatFileSize(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return (
+    parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i]
+  );
 }

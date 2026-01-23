@@ -17,4 +17,13 @@ type IClient interface {
 	GetModelByIds(ctx context.Context, modelIds []uint32) ([]*model.ModelImported, *errs.Status)
 	ListModels(ctx context.Context, req *model.ModelImported) ([]*model.ModelImported, *errs.Status)
 	ListTypeModels(ctx context.Context, req *model.ModelImported) ([]*model.ModelImported, *errs.Status)
+
+	// --- model experience ---
+	SaveModelExperienceDialog(ctx context.Context, dialog *model.ModelExperienceDialog) (*model.ModelExperienceDialog, *errs.Status)
+	GetModelExperienceDialog(ctx context.Context, userId, orgId string, modelExperienceId uint32) (*model.ModelExperienceDialog, *errs.Status)
+	ListModelExperienceDialogs(ctx context.Context, userId, orgId string) ([]*model.ModelExperienceDialog, *errs.Status)
+	DeleteModelExperienceDialog(ctx context.Context, userId, orgId string, modelExperienceId uint32) *errs.Status
+
+	SaveModelExperienceDialogRecord(ctx context.Context, record *model.ModelExperienceDialogRecord) *errs.Status
+	ListModelExperienceDialogRecords(ctx context.Context, userId, orgId string, modelExperienceId uint32, sessionId string) ([]*model.ModelExperienceDialogRecord, *errs.Status)
 }

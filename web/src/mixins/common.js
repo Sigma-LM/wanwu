@@ -410,6 +410,7 @@ export default {
      * @param {string} options.citationSelector - 引用元素选择器，默认为 '.citation'
      * @param {string} options.subTagSelector - 子标签选择器，默认为 '.subTag'
      * @param {string} options.scrollElementId - 滚动容器ID，默认为 'timeScroll'
+     * @param {string} options.scrollElement - 滚动容器，默认为 null
      * @param {Function} options.onToggleCollapse - 切换折叠状态的回调函数
      */
     $handleCitationClick(e, options = {}) {
@@ -418,6 +419,7 @@ export default {
         sessionData = null,
         citationSelector = '.citation',
         scrollElementId = 'timeScroll',
+        scrollElement = null,
         onToggleCollapse = null,
       } = options;
       // 检查会话状态
@@ -472,7 +474,8 @@ export default {
       }
 
       // 滚动到底部
-      const timeScrollElement = document.getElementById(scrollElementId);
+      const timeScrollElement =
+        scrollElement || document.getElementById(scrollElementId);
       if (timeScrollElement) {
         timeScrollElement.scrollTop = timeScrollElement.scrollHeight;
       }
