@@ -73,6 +73,7 @@ func ModelChatCompletions(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
+	// image url -> image base64
 	if len(data.Messages) > 0 {
 		for i := range data.Messages {
 			if data.Messages[i].Role != mp_common.MsgRoleUser || data.Messages[i].Content == nil {
@@ -103,7 +104,7 @@ func ModelChatCompletions(ctx *gin.Context) {
 					if err := json.Unmarshal(b, &url); err != nil {
 						continue
 					}
-					// var base64StrWithPrefix string
+					var base64StrWithPrefix string
 					for urlK, urlV := range url {
 						if urlK == "url" {
 							resp, err := http.Get(urlV)
@@ -118,7 +119,7 @@ func ModelChatCompletions(ctx *gin.Context) {
 							if err != nil {
 								continue
 							}
-							_, base64StrWithPrefix, err := util.FileData2Base64(body, "")
+							_, base64StrWithPrefix, err = util.FileData2Base64(body, "")
 							if err != nil {
 								continue
 							}
@@ -128,7 +129,7 @@ func ModelChatCompletions(ctx *gin.Context) {
 							}
 						}
 					}
-					if url != nil {
+					if base64StrWithPrefix != "" {
 						content[j]["image_url"] = url
 						existImage = true
 						break
@@ -176,7 +177,7 @@ func ModelMultiModalEmbeddings(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
-
+	// file minio url -> file base64
 	for i := range data.Input {
 		item := &data.Input[i]
 		if item.Image != "" {
@@ -240,6 +241,7 @@ func ModelMultiModalRerank(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
+	// file minio url -> file base64
 	for i := range data.Documents {
 		item := &data.Documents[i]
 		if item.Image != "" {
@@ -324,6 +326,7 @@ func ModelSyncAsr(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
+	// file minio url -> file base64
 	if len(data.Messages) > 0 {
 		for i := range data.Messages {
 			contentList := &data.Messages[i].Content

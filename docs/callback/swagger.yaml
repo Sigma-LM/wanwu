@@ -512,30 +512,9 @@ definitions:
         type: string
       name:
         type: string
-      parameters:
-        $ref: '#/definitions/mp_common.OpenAIFunctionParameters'
+      parameters: {}
     required:
     - name
-    type: object
-  mp_common.OpenAIFunctionParameters:
-    properties:
-      properties:
-        additionalProperties:
-          $ref: '#/definitions/mp_common.OpenAIFunctionParametersProperty'
-        type: object
-      required:
-        items:
-          type: string
-        type: array
-      type:
-        type: string
-    type: object
-  mp_common.OpenAIFunctionParametersProperty:
-    properties:
-      description:
-        type: string
-      type:
-        type: string
     type: object
   mp_common.OpenAIMsg:
     properties:

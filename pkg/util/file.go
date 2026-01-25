@@ -239,16 +239,16 @@ func FileData2Base64(fileData []byte, customPrefix string) (base64Str string, ba
 	return base64Str, base64StrWithPrefix, nil
 }
 
-// BytesToFileHeaderNoTemp
+// FileData2FileHeader
 //
 //	@Description: 将字节数组转换为multipart.FileHeader
 //	@Author zhangzekai
 //	@Time 2026-01-21 11:11:20
 //	@param filename
-//	@param data
+//	@param fileData
 //	@return *multipart.FileHeader
 //	@return error
-func BytesToFileHeaderNoTemp(filename string, data []byte) (*multipart.FileHeader, error) {
+func FileData2FileHeader(filename string, fileData []byte) (*multipart.FileHeader, error) {
 	buf := new(bytes.Buffer)
 	writer := multipart.NewWriter(buf)
 
@@ -260,7 +260,7 @@ func BytesToFileHeaderNoTemp(filename string, data []byte) (*multipart.FileHeade
 	if err != nil {
 		return nil, fmt.Errorf("创建form字段失败: %w", err)
 	}
-	_, err = part.Write(data)
+	_, err = part.Write(fileData)
 	if err != nil {
 		return nil, fmt.Errorf("写入文件数据失败: %w", err)
 	}
@@ -270,7 +270,7 @@ func BytesToFileHeaderNoTemp(filename string, data []byte) (*multipart.FileHeade
 	}
 
 	reader := multipart.NewReader(buf, writer.Boundary())
-	form, err := reader.ReadForm(int64(len(data)) + 1024)
+	form, err := reader.ReadForm(int64(len(fileData)) + 1024)
 	if err != nil {
 		return nil, fmt.Errorf("解析form数据失败: %w", err)
 	}

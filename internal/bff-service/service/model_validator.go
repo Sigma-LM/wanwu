@@ -95,11 +95,6 @@ func ValidateLLMModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 				Function: &mp_common.OpenAIFunction{
 					Name:        "get_current_time",
 					Description: "It's very useful when you want to know the current time in Beijing.",
-					Parameters: &mp_common.OpenAIFunctionParameters{
-						Type:       "object",
-						Properties: map[string]mp_common.OpenAIFunctionParametersProperty{},
-						Required:   []string{},
-					},
 				},
 			},
 		}

@@ -1837,40 +1837,7 @@
                 "name": {
                     "type": "string"
                 },
-                "parameters": {
-                    "$ref": "#/definitions/mp_common.OpenAIFunctionParameters"
-                }
-            }
-        },
-        "mp_common.OpenAIFunctionParameters": {
-            "type": "object",
-            "properties": {
-                "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/mp_common.OpenAIFunctionParametersProperty"
-                    }
-                },
-                "required": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "mp_common.OpenAIFunctionParametersProperty": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
+                "parameters": {}
             }
         },
         "mp_common.OpenAIMsg": {
