@@ -1,11 +1,11 @@
 package rag_manage_service
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"net/http"
 	"strconv"
 	"time"
@@ -96,62 +96,32 @@ type ModelConfig struct {
 }
 
 func RagStreamChat(ctx context.Context, userId string, req *RagChatParams) (<-chan string, error) {
-	params, err := buildHttpParams(userId, req)
+	//1.执行http请求
+	sseResp, err := requestRagStreamChat(ctx, userId, req)
 	if err != nil {
-		log.Errorf("build http params fail", err.Error())
 		return nil, err
 	}
-	ret := make(chan string, 1024)
-	go func() {
-		// 确保通道最终被关闭
-		defer close(ret)
+	//2.读取结果
+	SSEReader := &sse_util.SSEReader[string]{
+		BusinessKey:    "rag_stream_chat",
+		StreamReceiver: sse_util.NewHttpStreamReceiver(sseResp),
+	}
+	return SSEReader.ReadStream(ctx)
+}
 
-		// 捕获 panic 并记录日志（不重新抛出，避免崩溃）
-		defer func() {
-			if r := recover(); r != nil {
-				log.Errorf("RagStreamChat panic: %v", r)
-			}
-		}()
-
-		//1.开启超时监控
-		if params.Timeout == 0 {
-			params.Timeout = time.Minute * 10
-		}
-		ctx, cancel := context.WithTimeout(ctx, params.Timeout)
-		defer cancel()
-
-		resp, err := http_client.GetClient().PostJsonOriResp(ctx, params)
-		if err != nil {
-			errMsg := fmt.Sprintf("error: 调用下游服务异常: %v", err)
-			log.Errorf(errMsg)
-			ret <- errMsg
-			return
-		}
-		defer resp.Body.Close() // 确保响应体关闭
-
-		if resp.StatusCode != http.StatusOK {
-			errMsg := fmt.Sprintf("error: 调用下游服务异常: %s", resp.Status)
-			log.Errorf(errMsg)
-			ret <- errMsg
-			return
-		}
-		scan := bufio.NewScanner(resp.Body)
-
-		//设置初始缓冲区为 64KB，最大允许 10MB
-		buf := make([]byte, InitialBufferSize)
-		scan.Buffer(buf, MaxBufferCapacity)
-
-		for scan.Scan() {
-			ret <- scan.Text()
-		}
-		if err := scan.Err(); err != nil {
-			errMsg := fmt.Sprintf("error: 调用下游服务异常: %v", err)
-			log.Errorf(errMsg)
-			ret <- errMsg
-		}
-	}()
-
-	return ret, nil
+// requestRagStreamChat 执行rag流式会话
+func requestRagStreamChat(ctx context.Context, userId string, req *RagChatParams) (*http.Response, error) {
+	params, err := buildHttpParams(userId, req)
+	if err != nil {
+		log.Errorf("build http params fail %s", err.Error())
+		return nil, err
+	}
+	sseResp, err := http_client.GetClient().PostJsonOriResp(ctx, params)
+	if err != nil || sseResp.StatusCode != http.StatusOK {
+		log.Errorf("error: 调用下游服务异常: %v", err)
+		return nil, fmt.Errorf("error: 调用下游服务异常: %v", err)
+	}
+	return sseResp, nil
 }
 
 func buildHttpParams(userId string, req *RagChatParams) (*http_client.HttpRequestParams, error) {
