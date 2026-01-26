@@ -60,7 +60,7 @@
                 class="stop-icon mdl"
                 :src="require('@/assets/imgs/stop.png')"
               />
-              <span class="mdl">停止生成</span>
+              <span class="mdl">{{ $t('modelExprience.stop') }}</span>
             </span>
           </div>
           <StreamInputField
@@ -300,7 +300,7 @@ export default {
                 name: item.fileName,
                 size: item.size,
               })),
-              thinkText: '思考中',
+              thinkText: this.$t('modelExprience.thinking'),
               searchList: [],
               isOpen: true,
               qa_type: 0, // 为了组件复用，前端加了标识

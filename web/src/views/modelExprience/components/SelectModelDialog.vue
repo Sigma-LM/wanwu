@@ -106,7 +106,7 @@ export default {
       modelSupplyOptions: [
         {
           key: 'all',
-          name: '全部',
+          name: this.$t('modelExprience.all'),
         },
         ...PROVIDER_TYPE,
       ],
