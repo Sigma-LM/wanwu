@@ -71,9 +71,8 @@ func (cp *ConversationProcessor) Process(ctx context.Context, req *ConversationP
 	}
 	defer cancel()
 	//2.读取结果
-	SSEReader := &sse_util.SSEReader{
+	SSEReader := &sse_util.SSEReader[string]{
 		BusinessKey:    businessKey,
-		Params:         "",
 		StreamReceiver: sse_util.NewHttpStreamReceiver(sseResp),
 	}
 	stream, err := SSEReader.ReadStream(ctx)
