@@ -3,8 +3,8 @@
     top="10vh"
     :title="
       isEdit
-        ? $t('knowledgeManage.qaDatabase.editInfo')
-        : $t('knowledgeManage.createQaDatabase')
+        ? $t('knowledgeManage.qaDatabase.editQaPair')
+        : $t('knowledgeManage.qaDatabase.createQaPair')
     "
     :close-on-click-modal="false"
     :visible.sync="dialogVisible"
