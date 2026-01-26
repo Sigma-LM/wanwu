@@ -113,7 +113,7 @@ export default {
         },
         shortcuts: [
           {
-            text: '一周',
+            text: this.$t('apiKeyManage.table.week'),
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
@@ -121,7 +121,7 @@ export default {
             },
           },
           {
-            text: '一个月',
+            text: this.$t('apiKeyManage.table.month'),
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() + 3600 * 1000 * 24 * 30);
@@ -129,7 +129,7 @@ export default {
             },
           },
           {
-            text: '三个月',
+            text: this.$t('apiKeyManage.table.threeMonth'),
             onClick(picker) {
               const date = new Date();
               date.setTime(date.getTime() + 3600 * 1000 * 24 * 90);
