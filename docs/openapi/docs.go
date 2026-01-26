@@ -2928,6 +2928,10 @@ const docTemplate = `{
         "response.DocKnowledgeInfo": {
             "type": "object",
             "properties": {
+                "category": {
+                    "description": "0: 知识库 1: 问答库 2: 多模态知识库",
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },

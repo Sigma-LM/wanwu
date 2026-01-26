@@ -700,6 +700,7 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 			EmbeddingModelId: embeddingModelInfo.ModelId,
 			Keywords:         buildKeywords(keywords),
 			LlmModelId:       knowledgeGraph.LlmModelId,
+			Category:         int32(knowledge.Category),
 		},
 	}
 }
