@@ -479,6 +479,8 @@ export default {
       createdAt: '创建时间',
       creator: '创建人',
       status: '应用状态',
+      custom: '自定义',
+      permanent: '永久',
     },
     dialog: {
       create: 'API Key创建',
