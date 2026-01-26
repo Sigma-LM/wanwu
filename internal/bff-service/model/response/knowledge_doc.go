@@ -35,6 +35,7 @@ type DocKnowledgeInfo struct {
 	Keywords        []*KeywordsInfo `json:"keywords"`
 	EmbeddingModel  *ModelInfo      `json:"embeddingModel"`
 	LlmModelId      string          `json:"llmModelId"`
+	Category        int32           `json:"category"` // 0: 知识库 1: 问答库 2: 多模态知识库
 }
 
 type ListDocResp struct {

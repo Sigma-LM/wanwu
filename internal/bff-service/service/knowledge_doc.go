@@ -65,6 +65,7 @@ func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (
 			Keywords:        buildKeywordsInfo(knowledgeInfo.Keywords),
 			EmbeddingModel:  embModelInfo,
 			LlmModelId:      knowledgeInfo.LlmModelId,
+			Category:        knowledgeInfo.Category,
 		},
 	}, nil
 }
