@@ -61,10 +61,27 @@ export const getEmbeddingList = params => {
   });
 };
 
+//获取多模态embedding列表
+export const getMultiEmbeddingList = params => {
+  return service({
+    url: `${USER_API}/model/select/multi-embedding`,
+    method: 'get',
+    params,
+  });
+};
+
 //获取rerank模型列表
 export const getRerankList = () => {
   return service({
     url: `${USER_API}/model/select/rerank`,
+    method: 'get',
+  });
+};
+
+//获取多模态rerank模型列表
+export const getMultiRerankList = () => {
+  return service({
+    url: `${USER_API}/model/select/multi-rerank`,
     method: 'get',
   });
 };
