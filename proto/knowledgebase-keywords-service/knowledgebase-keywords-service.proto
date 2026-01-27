@@ -71,4 +71,3 @@ message UpdateKnowledgeKeywordsReq{
 message DeleteKnowledgeKeywordsReq{
   uint32 id = 1;
 }
-

@@ -135,8 +135,10 @@ doc-center:
       val: 6.工作流/业务逻辑/选择器节点.md
     - key: workflow-9
       val: 6.工作流/工作流节点.md
+    - key: workflow-12
+      val: 6.工作流/数据库/SQL自定义节点.md
     - key: workflow-13
-      val: 6.工作流/输入与输出/输出节点.md
+      val: 6.工作流/输入&输出/输出节点.md
     - key: workflow-15
       val: 6.工作流/组件/文本处理节点.md
     - key: workflow-21
@@ -144,7 +146,7 @@ doc-center:
     - key: workflow-28
       val: 6.工作流/业务逻辑/批处理节点.md
     - key: workflow-30
-      val: 6.工作流/输入与输出/输入节点.md
+      val: 6.工作流/输入&输出/输入节点.md
     - key: workflow-32
       val: 6.工作流/业务逻辑/变量聚合节点.md
     - key: workflow-45
@@ -153,8 +155,10 @@ doc-center:
       val: 6.工作流/组件/JSON序列化节点.md
     - key: workflow-1004
       val: 6.工作流/组件/工具节点.md
+    - key: workflow-1005
+      val: 6.工作流/知识库&数据/问答库检索节点.md
     - key: workflow-1006
-      val: 6.工作流/知识库与数据/知识库节点.md
+      val: 6.工作流/知识库&数据/知识库节点.md
     - key: workflow-1007
       val: 6.工作流/文档/文档生成节点.md
     - key: workflow-1008
@@ -213,7 +217,7 @@ model:
   host: model-service:8989
   png_test_file_path: "configs/microservice/bff-service/static/model/test.png"
   pdf_test_file_path: "configs/microservice/bff-service/static/model/test.pdf"
-  asr_test_file_path: "configs/microservice/bff-service/static/model/test.m4a"
+  asr_test_file_path: "configs/microservice/bff-service/static/model/test.wav"
 
 mcp:
   host: mcp-service:9898
@@ -230,19 +234,17 @@ knowledge:
 operate:
   host: operate-service:9797
 
-agent:
-  use_old_agent: 0
-  host: agent-wanwu
-  upload_minio:
-    port: 15001
-    uri: /upload
-
 rag-knowledge:
   endpoint: 'http://rag-wanwu:8681'
   chat-endpoint: 'http://rag-wanwu:10891'
   search-knowledge-base-uri: '/rag/search-knowledge-base'
   knowledge-chat-uri: '/rag/knowledge/stream/search'
   search-qa-base-uri: '/rag/search-QA-base'
+  search-know-timeout: 300
+
+dify-knowledge:
+  search-knowledge-base-uri: '/datasets/{dataset_id}/retrieve'
+  search-know-timeout: 60
 
 workflow:
   endpoint: http://workflow-wanwu:8999
@@ -278,8 +280,7 @@ workflow:
   version_list_uri: /api/workflow_api/version_list
   update_version_desc_uri: /api/workflow_api/version_description
   rollback_uri: /api/workflow_api/revert
-   
-
+  # model params
   model_params:
     - name: temperature
       desc: "- **temperature**: 调高温度会使得模型的输出更多样性和创新性，反之，降低温度会使输出内容更加遵循指令要求但减少多样性。建议不要与“Top p”同时调整。"
@@ -350,11 +351,3 @@ workflow:
         label: "输入及输出设置"
       default_val:
         default_val: "0"
-
-agentscope-workflow:
-  endpoint: http://agentscope-wanwu:6672
-  workflow_list_uri: "/workflow/list"
-  workflow_list_uri_internal: "/workflow/list_internal"
-  delete_workflow_uri: "/workflow/delete"
-  publish_workflow_uri: "/plugin/api/publish"
-  unpublish_workflow_uri: "/plugin/api/unpublish"

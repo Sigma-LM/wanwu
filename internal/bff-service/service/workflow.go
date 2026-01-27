@@ -81,13 +81,6 @@ func ListWorkflow(ctx *gin.Context, orgID, name, appType string) (*response.Coze
 
 // ListWorkflowByIDs 无userID或orgID隔离，用于【智能体选工作流】【应用广场】业务流程中
 func ListWorkflowByIDs(ctx *gin.Context, name string, workflowIDs []string) (*response.CozeWorkflowListData, error) {
-	var ids []string
-	for _, workflowID := range workflowIDs {
-		if _, err := util.I64(workflowID); err == nil {
-			// AgentScope Workflow ID为uuid，将这部分脏数据过滤掉；Coze Workflow ID可转为数字
-			ids = append(ids, workflowID)
-		}
-	}
 	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ListUri)
 	ret := &response.CozeWorkflowListResp{}
 	request := resty.New().
@@ -101,9 +94,9 @@ func ListWorkflowByIDs(ctx *gin.Context, name string, workflowIDs []string) (*re
 			"page": "1",
 			"size": "99999",
 		})
-	if len(ids) > 0 {
+	if len(workflowIDs) > 0 {
 		request = request.SetBody(map[string]interface{}{
-			"workflow_ids": ids,
+			"workflow_ids": workflowIDs,
 		})
 	}
 	if resp, err := request.SetResult(ret).Post(url); err != nil {

@@ -100,6 +100,39 @@
       @setFileId="setFileId"
       @setFile="setFile"
     />
+    <transition name="el-zoom-in-bottom">
+      <div class="perfectReminder-item-box" v-show="randomReminderShow">
+        <div
+          class="perfectReminder-item"
+          v-for="n in randomReminderList"
+          :key="n.id"
+          :style="`background-color:${colorArr[n.random]}`"
+        >
+          <el-popover
+            placement="top-start"
+            width="300"
+            :visible-arrow="false"
+            trigger="hover"
+            :open-delay="500"
+            :content="
+              n.prompt && n.prompt.replaceAll('{', '').replaceAll('}', '')
+            "
+          >
+            <span
+              style="font-size: 15px"
+              slot="reference"
+              @click="setRandomReminder(n)"
+            >
+              {{ n.title || n.name }}
+            </span>
+          </el-popover>
+        </div>
+        <span class="refresh" @click="getReminderList">
+          <i class="el-icon-loading" v-show="refreshLoading"></i>
+          &nbsp;{{ $t('agent.next') }}
+        </span>
+      </div>
+    </transition>
   </div>
 </template>
 <script>
@@ -107,6 +140,10 @@ import commonMixin from '@/mixins/common';
 import uploadChunk from '@/mixins/uploadChunk';
 import streamUploadField from './streamUploadField';
 import { mapGetters } from 'vuex';
+import {
+  getPromptTemplateList,
+  getPromptBuiltInList,
+} from '@/api/promptTemplate';
 export default {
   props: {
     source: { type: String },
@@ -119,12 +156,13 @@ export default {
     },
     type: { type: String },
     disableClick: { type: Boolean, default: false },
+    supportReminder: { type: Boolean, default: false },
   },
   mixins: [commonMixin, uploadChunk],
   components: { streamUploadField },
   data() {
     return {
-      placeholder: '请输入内容,用Ctrl+Enter可换行',
+      // placeholder: '请输入内容,用Ctrl+Enter可换行',
       promptValue: '',
       randomReminderShow: false,
       refreshLoading: false,
@@ -137,6 +175,24 @@ export default {
       isDragging: false,
       lastFileType: '',
       dragConfigured: false,
+      colorArr: [
+        '#dca3c2',
+        '#aaa9db',
+        '#d1a69b',
+        '#7894cf',
+        '#4fbed9',
+        '#ebb8bd',
+        '#9b9655',
+        '#3bb4b7',
+        '#61aac5',
+        '#d79ae5',
+        '#51a2da',
+        '#89b0f9',
+        '#738cbd',
+      ],
+      randomReminderList: [], //随机8个提示词
+      randomReminderShow: false,
+      refreshLoading: false,
     };
   },
   watch: {
@@ -151,6 +207,17 @@ export default {
   },
   computed: {
     ...mapGetters('app', ['maxPicNum']),
+    placeholder() {
+      return this.supportReminder
+        ? this.$t('common.input.modelChatPlaceholder2')
+        : this.$t('common.input.modelChatPlaceholder1');
+    },
+  },
+  mounted() {
+    if (this.supportReminder) {
+      this.originPromptList = [];
+      this.getReminderList();
+    }
   },
   methods: {
     initDrag(maxFiles) {
@@ -243,6 +310,13 @@ export default {
         .replaceAll('}', '</div>');
     },
     getPrompt() {
+      if (this.supportReminder) {
+        if (this.$refs.editor.innerHTML === '/') {
+          this.openReminderDialog();
+        } else {
+          this.randomReminderShow = false;
+        }
+      }
       let prompt = this.$refs.editor.innerText;
       this.promptValue = prompt;
       return prompt;
@@ -322,6 +396,75 @@ export default {
     preSend() {
       this.hasFile = false;
       this.$emit('preSend');
+    },
+    setRandomReminder(n) {
+      this.setPrompt(n.prompt);
+      this.randomReminderShow = false;
+    },
+    openReminderDialog() {
+      this.randomReminderShow = true;
+      !this.refreshLoading && this.getRandomReminderList();
+    },
+    getReminderList() {
+      this.refreshLoading = true;
+      const p1 = new Promise(resolve => {
+        getPromptTemplateList({
+          name: '',
+        })
+          .then(res => {
+            if (res.code === 0) {
+              resolve(res.data.list || []);
+              return;
+            }
+            resolve([]);
+          })
+          .catch(() => {
+            resolve([]);
+          });
+      });
+      const p2 = new Promise(resolve => {
+        getPromptBuiltInList({
+          name: '',
+          category: 'all',
+        })
+          .then(res => {
+            if (res.code === 0) {
+              resolve(res.data.list || []);
+              return;
+            }
+            resolve([]);
+          })
+          .catch(() => {
+            resolve([]);
+          });
+      });
+      Promise.all([p1, p2])
+        .then(([list1, list2]) => {
+          this.originPromptList = [...list1, ...list2];
+        })
+        .finally(() => {
+          this.refreshLoading = false;
+          this.randomReminderShow && this.getRandomReminderList();
+        });
+    },
+    // 从全量提示词中随机获取8个
+    getRandomReminderList() {
+      this.randomReminderShow = true;
+      if (this.refreshLoading) {
+        return;
+      }
+      const recommendCount = 8;
+      if (this.originPromptList.length <= recommendCount)
+        return this.originPromptList.slice();
+      const shuffled = this.originPromptList.slice();
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const index = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[index]] = [shuffled[index], shuffled[i]];
+      }
+      this.randomReminderList = shuffled.slice(0, recommendCount).map(item => ({
+        ...item,
+        random: parseInt(Math.random(13) * 10),
+      }));
     },
   },
 };
@@ -458,6 +601,14 @@ export default {
   .editable-wp-right {
     flex: 1;
   }
+  ::v-deep .light-input {
+    border: 1px solid deepskyblue;
+    padding: 2px 14px 2px 10px;
+    margin: 0 5px;
+    border-radius: 4px;
+    display: inline-block;
+    box-shadow: 1px 1px 10px #d3ebf3;
+  }
 }
 .aibase-textarea {
   padding: 10px 35px 35px 0;
@@ -496,14 +647,6 @@ export default {
   border: 1px solid #dcdfe6 !important;
   background: #ffffff !important;
 }
-.editable-box ::v-deep.light-input {
-  border: 1px solid deepskyblue;
-  padding: 2px 14px 2px 10px;
-  margin: 0 5px;
-  border-radius: 4px;
-  display: inline-block;
-  box-shadow: 1px 1px 10px #d3ebf3;
-}
 .perfectReminder-item-box {
   position: absolute;
   width: 100%;
@@ -540,7 +683,7 @@ export default {
     position: absolute;
     right: 30px;
     bottom: 10px;
-    cursor: default;
+    cursor: pointer;
     color: #62a1fb;
   }
 }

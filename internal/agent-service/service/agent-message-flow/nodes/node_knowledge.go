@@ -33,6 +33,12 @@ func (k *KnowledgeRetriever) Retrieve(ctx context.Context, reqContext *request.A
 	req.KnowledgeParams.CustomModelInfo = &request.CustomModelInfo{
 		LlmModelID: req.ModelParams.ModelId,
 	}
+
+	//sendMessage(reqContext.Generator, "知识库检索中...")
+	//defer func() {
+	//	sendMessage(reqContext.Generator, "知识库检索完成...")
+	//}()
+
 	hit, _ := ragKnowledgeHit(ctx, req.KnowledgeParams)
 	if hit == nil {
 		return "", nil
@@ -84,3 +90,19 @@ func ragKnowledgeHit(ctx context.Context, knowledgeHitParams *request.KnowledgeP
 	}
 	return &resp, nil
 }
+
+//func sendMessage(generator *adk.AsyncGenerator[*adk.AgentEvent], message string) {
+//	if generator != nil {
+//		generator.Send(&adk.AgentEvent{
+//			Output: &adk.AgentOutput{
+//				MessageOutput: &adk.MessageVariant{
+//					IsStreaming: false,
+//					Message: &schema.Message{
+//						Role:    schema.Assistant,
+//						Content: message,
+//					},
+//				},
+//			},
+//		})
+//	}
+//}

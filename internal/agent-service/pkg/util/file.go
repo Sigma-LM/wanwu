@@ -27,6 +27,21 @@ func ReplaceLast(s, old, new string) string {
 	return s[:i] + new + s[i+len(old):]
 }
 
+func Img2base64Data(imgPath string) (string, string, error) {
+	// 读取图片文件
+	data, err := os.ReadFile(imgPath)
+	if err != nil {
+		return "", "", nil
+	}
+
+	// 获取文件扩展名（不含点）
+	ext := strings.TrimPrefix(filepath.Ext(imgPath), ".")
+
+	// 对文件内容进行base64编码
+	encodedImage := base64.StdEncoding.EncodeToString(data)
+	return "image/" + ext, encodedImage, nil
+}
+
 func Img2base64(imgPath string) (string, error) {
 	// 读取图片文件
 	data, err := os.ReadFile(imgPath)

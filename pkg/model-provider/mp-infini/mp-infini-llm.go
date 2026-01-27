@@ -15,6 +15,7 @@ type LLM struct {
 	VisionSupport   string `json:"visionSupport" validate:"oneof=noSupport support"`    // 视觉支持
 	MaxTokens       *int   `json:"maxTokens"`                                           // 模型回答最大tokens
 	ContextSize     *int   `json:"contextSize"`                                         // 上下文长度
+	MaxImageSize    *int64 `json:"maxImageSize"`                                        // 最大图片大小限制
 }
 
 func (cfg *LLM) Tags() []mp_common.Tag {

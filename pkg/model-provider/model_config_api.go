@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	mp_deepseek "github.com/UnicomAI/wanwu/pkg/model-provider/mp-deepseek"
-	mp_qianfan "github.com/UnicomAI/wanwu/pkg/model-provider/mp-qianfan"
-
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+	mp_deepseek "github.com/UnicomAI/wanwu/pkg/model-provider/mp-deepseek"
 	mp_huoshan "github.com/UnicomAI/wanwu/pkg/model-provider/mp-huoshan"
 	mp_infini "github.com/UnicomAI/wanwu/pkg/model-provider/mp-infini"
+	mp_jina "github.com/UnicomAI/wanwu/pkg/model-provider/mp-jina"
 	mp_ollama "github.com/UnicomAI/wanwu/pkg/model-provider/mp-ollama"
 	mp_openai_compatible "github.com/UnicomAI/wanwu/pkg/model-provider/mp-openai-compatible"
+	mp_qianfan "github.com/UnicomAI/wanwu/pkg/model-provider/mp-qianfan"
 	mp_qwen "github.com/UnicomAI/wanwu/pkg/model-provider/mp-qwen"
 	mp_yuanjing "github.com/UnicomAI/wanwu/pkg/model-provider/mp-yuanjing"
 	"github.com/gin-gonic/gin"
@@ -30,10 +30,22 @@ type IEmbedding interface {
 	Embeddings(ctx context.Context, req mp_common.IEmbeddingReq, headers ...mp_common.Header) (mp_common.IEmbeddingResp, error)
 }
 
+type IMultiModalEmbedding interface {
+	Tags() []mp_common.Tag
+	NewReq(req *mp_common.MultiModalEmbeddingReq) (mp_common.IMultiModalEmbeddingReq, error)
+	MultiModalEmbeddings(ctx context.Context, req mp_common.IMultiModalEmbeddingReq, headers ...mp_common.Header) (mp_common.IMultiModalEmbeddingResp, error)
+}
+
 type IRerank interface {
 	Tags() []mp_common.Tag
-	NewReq(req *mp_common.RerankReq) (mp_common.IRerankReq, error)
-	Rerank(ctx context.Context, req mp_common.IRerankReq, headers ...mp_common.Header) (mp_common.IRerankResp, error)
+	NewReq(req *mp_common.TextRerankReq) (mp_common.ITextRerankReq, error)
+	Rerank(ctx context.Context, req mp_common.ITextRerankReq, headers ...mp_common.Header) (mp_common.ITextRerankResp, error)
+}
+
+type IMultiModalRerank interface {
+	Tags() []mp_common.Tag
+	NewReq(req *mp_common.MultiModalRerankReq) (mp_common.IMultiModalRerankReq, error)
+	MultiModalRerank(ctx context.Context, req mp_common.IMultiModalRerankReq, headers ...mp_common.Header) (mp_common.IMultiModalRerankResp, error)
 }
 
 type IOcr interface {
@@ -48,10 +60,10 @@ type IPdfParser interface {
 	PdfParser(ctx *gin.Context, req mp_common.IPdfParserReq, headers ...mp_common.Header) (mp_common.IPdfParserResp, error)
 }
 
-type IAsr interface {
+type ISyncAsr interface {
 	Tags() []mp_common.Tag
-	NewReq(req *mp_common.AsrReq) (mp_common.IAsrReq, error)
-	Asr(ctx *gin.Context, req mp_common.IAsrReq, headers ...mp_common.Header) (mp_common.IAsrResp, error)
+	NewReq(req *mp_common.SyncAsrReq) (mp_common.ISyncAsrReq, error)
+	SyncAsr(ctx context.Context, req mp_common.ISyncAsrReq, headers ...mp_common.Header) (mp_common.ISyncAsrResp, error)
 }
 
 type IText2Image interface {
@@ -81,13 +93,13 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			rerank := &mp_openai_compatible.Rerank{}
 			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = rerank.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_openai_compatible.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
@@ -104,13 +116,13 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			rerank := &mp_yuanjing.Rerank{}
 			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = rerank.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_yuanjing.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
@@ -134,8 +146,8 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = pdfParser.Tags()
-		case ModelTypeAsr:
-			asr := &mp_yuanjing.Asr{}
+		case ModelTypeSyncAsr:
+			asr := &mp_yuanjing.SyncAsr{}
 			if err := json.Unmarshal([]byte(cfg), asr); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
@@ -157,7 +169,7 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_huoshan.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
@@ -174,18 +186,24 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			rerank := &mp_qwen.Rerank{}
 			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = rerank.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_qwen.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = embedding.Tags()
+		case ModelTypeSyncAsr:
+			asr := &mp_qwen.SyncAsr{}
+			if err := json.Unmarshal([]byte(cfg), asr); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = asr.Tags()
 		default:
 			return nil, fmt.Errorf("ToModelTags:invalid provider %v model type %v", provider, modelType)
 		}
@@ -197,7 +215,7 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_ollama.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
@@ -214,13 +232,13 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			rerank := &mp_infini.Rerank{}
 			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = rerank.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_infini.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
@@ -237,13 +255,13 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = llm.Tags()
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			rerank := &mp_qianfan.Rerank{}
 			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
 			}
 			tags = rerank.Tags()
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			embedding := &mp_qianfan.Embedding{}
 			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
 				return nil, fmt.Errorf("unmarshal model config err: %v", err)
@@ -263,11 +281,47 @@ func ToModelTags(provider, modelType, cfg string) ([]mp_common.Tag, error) {
 		default:
 			return nil, fmt.Errorf("ToModelTags:invalid provider %v model type %v", provider, modelType)
 		}
+	case ProviderJina:
+		switch modelType {
+		case ModelTypeTextRerank:
+			rerank := &mp_jina.Rerank{}
+			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = rerank.Tags()
+		case ModelTypeMultiRerank:
+			rerank := &mp_jina.MultiModalRerank{}
+			if err := json.Unmarshal([]byte(cfg), rerank); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = rerank.Tags()
+		case ModelTypeTextEmbedding:
+			embedding := &mp_jina.Embedding{}
+			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = embedding.Tags()
+		case ModelTypeMultiEmbedding:
+			embedding := &mp_jina.MultiModalEmbedding{}
+			if err := json.Unmarshal([]byte(cfg), embedding); err != nil {
+				return nil, fmt.Errorf("unmarshal model config err: %v", err)
+			}
+			tags = embedding.Tags()
+		default:
+			return nil, fmt.Errorf("ToModelTags:invalid provider %v model type %v", provider, modelType)
+		}
 	default:
 		return nil, fmt.Errorf("ToModelTags:invalid provider: %v", provider)
 	}
 	return tags, nil
 }
+
+var (
+	maxTextLength    int64 = 512
+	maxVideoClipSize int64 = 10
+	maxImageSize     int64 = 3
+	maxAsrFileSize   int64 = 10
+)
 
 // ToModelConfig 返回ILLM、IEmbedding或IRerank
 func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
@@ -280,9 +334,9 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_openai_compatible.LLM{}
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			ret = &mp_openai_compatible.Rerank{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_openai_compatible.Embedding{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
@@ -291,9 +345,9 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_yuanjing.LLM{}
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			ret = &mp_yuanjing.Rerank{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_yuanjing.Embedding{}
 		case ModelTypeOcr:
 			ret = &mp_yuanjing.Ocr{}
@@ -301,8 +355,10 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 			ret = &mp_yuanjing.Gui{}
 		case ModelTypePdfParser:
 			ret = &mp_yuanjing.PdfParser{}
-		case ModelTypeAsr:
-			ret = &mp_yuanjing.Asr{}
+		case ModelTypeSyncAsr:
+			ret = &mp_yuanjing.SyncAsr{
+				MaxAsrFileSize: &maxAsrFileSize,
+			}
 		case ModelTypeText2Image:
 			ret = &mp_yuanjing.Text2Image{}
 
@@ -313,7 +369,7 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_huoshan.LLM{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_huoshan.Embedding{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
@@ -322,10 +378,12 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_qwen.LLM{}
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			ret = &mp_qwen.Rerank{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_qwen.Embedding{}
+		case ModelTypeSyncAsr:
+			ret = &mp_qwen.SyncAsr{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
 		}
@@ -333,7 +391,7 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_ollama.LLM{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_ollama.Embedding{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
@@ -342,9 +400,9 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_infini.LLM{}
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			ret = &mp_infini.Rerank{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_infini.Embedding{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
@@ -353,9 +411,9 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_qianfan.LLM{}
-		case ModelTypeRerank:
+		case ModelTypeTextRerank:
 			ret = &mp_qianfan.Rerank{}
-		case ModelTypeEmbedding:
+		case ModelTypeTextEmbedding:
 			ret = &mp_qianfan.Embedding{}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
@@ -364,6 +422,29 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 		switch modelType {
 		case ModelTypeLLM:
 			ret = &mp_deepseek.LLM{}
+		default:
+			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
+		}
+	case ProviderJina:
+		switch modelType {
+		case ModelTypeTextRerank:
+			ret = &mp_jina.Rerank{}
+		case ModelTypeTextEmbedding:
+			ret = &mp_jina.Embedding{}
+		case ModelTypeMultiRerank:
+			ret = &mp_jina.MultiModalRerank{
+				MaxTextLength:       &maxTextLength,
+				MaxVideoClipSize:    &maxVideoClipSize,
+				MaxImageSize:        &maxImageSize,
+				SupportFileTypes:    []string{"image", "video"},
+				SupportImageInQuery: false,
+			}
+		case ModelTypeMultiEmbedding:
+			ret = &mp_jina.MultiModalEmbedding{
+				MaxTextLength:    &maxTextLength,
+				MaxImageSize:     &maxImageSize,
+				SupportFileTypes: []string{"image"},
+			}
 		default:
 			return nil, fmt.Errorf("ToModelConfig:invalid provider %v model type %v", provider, modelType)
 		}

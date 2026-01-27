@@ -270,6 +270,12 @@ func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask
 	if err != nil {
 		return err
 	}
+	embeddingModelInfo := &knowledgebase_service.EmbeddingModelInfo{}
+	err = json.Unmarshal([]byte(knowledge.EmbeddingModel), embeddingModelInfo)
+	if err != nil {
+		log.Errorf("embeddingModelInfo process error %s", err.Error())
+		return err
+	}
 	var config = &model.SegmentConfig{}
 	err = json.Unmarshal([]byte(importTask.SegmentConfig), config)
 	if err != nil {
@@ -326,6 +332,9 @@ func CreateKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTask
 			OriginalName:          doc.Name,
 			IsEnhanced:            "false",
 			OcrModelId:            importTask.OcrModelId,
+			EmbeddingModelId:      embeddingModelInfo.ModelId,
+			AsrModelId:            analyzer.AsrModelId,
+			MultimodalModelId:     analyzer.MultimodalModelId,
 			PreProcess:            preProcess.PreProcessList,
 			RagMetaDataParams:     ragMetaList,
 			RagChildChunkConfig:   buildSubRagChunkConfig(config),
@@ -597,6 +606,7 @@ func buildMetaValueType(valueType string) string {
 	}
 	return valueType
 }
+
 func convertMetaValue(meta *model.KnowledgeDocMeta) (interface{}, error) {
 	if len(meta.ValueMain) == 0 {
 		return nil, nil

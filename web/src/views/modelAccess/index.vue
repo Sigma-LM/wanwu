@@ -60,6 +60,26 @@
               class="add-bt"
               size="mini"
               type="primary"
+              @click="goModelComparison"
+            >
+              <img
+                style="
+                  width: 14px;
+                  margin-right: 5px;
+                  display: inline-block;
+                  vertical-align: middle;
+                "
+                src="@/assets/imgs/modelComparison.png"
+                alt=""
+              />
+              <span style="display: inline-block; vertical-align: middle">
+                {{ $t('modelExprience.modelComparison') }}
+              </span>
+            </el-button>
+            <el-button
+              class="add-bt"
+              size="mini"
+              type="primary"
               @click="preInsert"
             >
               <img
@@ -113,7 +133,13 @@
                     : require('@/assets/imgs/model_default_icon.png')
                 "
               />
-              <div class="card-title">
+              <div
+                :class="
+                  item.modelType === LLM
+                    ? 'card-title-with-select'
+                    : 'card-title'
+                "
+              >
                 <div class="card-name" :title="item.displayName || item.model">
                   {{ item.displayName || item.model }}
                 </div>
@@ -130,6 +156,12 @@
                   active-text=""
                   inactive-text=""
                 />
+                <el-checkbox
+                  style="margin-left: 10px"
+                  v-if="item.modelType === LLM"
+                  :model-value="checkModelSelection(item.modelId)"
+                  @change="setModelCheck(item.modelId)"
+                ></el-checkbox>
                 <el-dropdown @command="handleCommand" placement="top">
                   <span class="el-dropdown-link">
                     <i class="el-icon-more more"></i>
@@ -171,6 +203,16 @@
                 {{ $t('modelAccess.table.update') }}
               </div>
             </div>
+            <div class="card-btn" v-if="item.modelType === LLM">
+              <el-button
+                size="mini"
+                type="primary"
+                round
+                @click.stop="goModelExprience(item.modelId)"
+              >
+                {{ $t('modelExprience.createConversation') }}
+              </el-button>
+            </div>
           </div>
         </div>
         <el-empty
@@ -202,11 +244,13 @@ import {
   MODEL_TYPE,
 } from './constants';
 import { avatarSrc } from '@/utils/util';
+import { LLM } from '@/views/modelAccess/constants';
 
 export default {
   components: { Pagination, CreateSelectDialog, CreateDialog },
   data() {
     return {
+      LLM,
       listApi: fetchModelList,
       providerList: PROVIDER_TYPE,
       modelTypeList: MODEL_TYPE,
@@ -220,7 +264,15 @@ export default {
         displayName: '',
       },
       loading: false,
+      modelSelection: [],
     };
+  },
+  computed: {
+    checkModelSelection() {
+      return model => {
+        return this.modelSelection.includes(model);
+      };
+    },
   },
   mounted() {
     this.getTableData();
@@ -265,7 +317,7 @@ export default {
       this.$refs.createSelectDialog.openDialog();
     },
     showCreate(item) {
-      this.$refs.createDialog.openDialog(item.key);
+      this.$refs.createDialog && this.$refs.createDialog.openDialog(item.key);
     },
     preUpdate(row) {
       const { modelId, provider } = row || {};
@@ -273,7 +325,8 @@ export default {
       getModelDetail({ modelId }).then(res => {
         const rowObj = res.data || {};
         const newRow = { ...rowObj, ...rowObj.config };
-        this.$refs.createDialog.openDialog(provider, newRow);
+        this.$refs.createDialog &&
+          this.$refs.createDialog.openDialog(provider, newRow);
       });
     },
     preDel(row) {
@@ -317,6 +370,38 @@ export default {
         .catch(() => {
           this.searchData();
         });
+    },
+    goModelExprience(modelId) {
+      this.$router.push({
+        path: 'modelAccess/modelExprience',
+        query: { modelId },
+      });
+    },
+    goModelComparison() {
+      const length = this.modelSelection.length;
+      if (!length) {
+        this.$message.warning(this.$t('modelExprience.warning.selectModel'));
+        return;
+      }
+      if (length > 4) {
+        this.$message.warning(
+          this.$t('modelExprience.tip.maxSelectModel').replace('@', 4),
+        );
+        return;
+      }
+      this.$router.push({
+        path: 'modelAccess/modelExprience',
+        query: { comparisonIds: this.modelSelection.join(',') },
+      });
+    },
+    setModelCheck(modelId) {
+      if (this.modelSelection.includes(modelId)) {
+        this.modelSelection = this.modelSelection.filter(
+          item => item !== modelId,
+        );
+      } else {
+        this.modelSelection.push(modelId);
+      }
     },
   },
 };
@@ -366,6 +451,7 @@ export default {
   padding: 18px 10px 16px 14px;
   position: relative;
   cursor: pointer;
+  overflow: hidden;
   .card-top {
     display: flex;
     align-items: center;
@@ -385,6 +471,9 @@ export default {
   .card-title {
     width: calc(100% - 90px);
   }
+  .card-title-with-select {
+    width: calc(100% - 140px);
+  }
   .card-name {
     font-size: 18px;
     color: #434343;
@@ -396,6 +485,7 @@ export default {
     -webkit-box-orient: vertical;
     line-clamp: 2;
     -webkit-line-clamp: 2;
+    word-break: break-word;
   }
   .card-middle {
     padding-top: 14px;
@@ -442,6 +532,26 @@ export default {
     }
     .no-publishData.no-publishData {
       width: calc(100% - 45px);
+    }
+  }
+  &:hover {
+    .card-btn {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  .card-btn {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px;
+    background-color: #fff;
+    transition: all 0.4s;
+    transform: translateY(100%);
+    opacity: 0;
+    .el-button {
+      width: 100%;
     }
   }
 }

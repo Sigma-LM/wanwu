@@ -20,6 +20,7 @@ func (cfg *Text2Image) Tags() []mp_common.Tag {
 	}
 	return tags
 }
+
 func (cfg *Text2Image) NewReq(req *mp_common.Text2ImageReq) (mp_common.IText2ImageReq, error) {
 	m, err := req.Data()
 	if err != nil {

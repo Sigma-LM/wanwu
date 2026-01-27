@@ -1,25 +1,44 @@
 package mp_common
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
-	"mime/multipart"
-	"strings"
-
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/util"
-	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+	"io"
+)
+
+const (
+	MultiModalTypeText     = "text"
+	MultiModalTypeAudio    = "audio"
+	MultiModalTypeMinioUrl = "minio_url"
 )
 
 // --- openapi request ---
 
-type AsrReq struct {
-	File   *multipart.FileHeader `form:"file" json:"file" validate:"required"`
-	Config AsrConfigOut          `form:"config" json:"config" validate:"required"`
-	ApiKey string                `json:"api_key"`
+type SyncAsrReq struct {
+	Model    string                 `form:"model" json:"model" validate:"required"`
+	Messages []SyncAsrReqMsg        `form:"messages" json:"messages" validate:"required"`
+	Extra    map[string]interface{} `form:"extra" json:"extra,omitempty"`
+}
+
+type SyncAsrReqMsg struct {
+	Content []SyncAsrReqC `form:"content" json:"content" validate:"required"`
+	Role    string        `form:"content" json:"role" validate:"required"`
+}
+
+type SyncAsrReqC struct {
+	Type  string       `form:"type" json:"type" validate:"required"`
+	Text  string       `form:"text" json:"text,omitempty"`
+	Audio SyncAsrAudio `form:"audio" json:"audio,omitempty"`
+}
+
+type SyncAsrAudio struct {
+	Data     string `form:"data" json:"data,omitempty"`
+	FileName string `form:"fileName" json:"fileName,omitempty"`
 }
 
 type AsrConfigOut struct {
@@ -43,11 +62,11 @@ type AsrConfig struct {
 	SpeechNoiseThres    float64 `json:"speech_noise_thres,omitempty"`
 }
 
-func (req *AsrReq) Check() error {
+func (req *SyncAsrReq) Check() error {
 	return nil
 }
 
-func (req *AsrReq) Data() (map[string]interface{}, error) {
+func (req *SyncAsrReq) Data() (map[string]interface{}, error) {
 	m := make(map[string]interface{})
 	b, err := json.Marshal(req)
 	if err != nil {
@@ -61,130 +80,132 @@ func (req *AsrReq) Data() (map[string]interface{}, error) {
 
 // --- openapi response ---
 
-type AsrResp struct {
-	Status  string    `json:"status"`
-	Code    int       `json:"code"`
-	Message string    `json:"msg"`
-	Uuid    string    `json:"uuid"`
-	Result  AsrResult `json:"result"`
+type SyncAsrResp struct {
+	Code    int                       `json:"code"`
+	Choices []SyncAsrReqMsgRespChoice `json:"choices"`
+	Seconds int64                     `json:"seconds"`
 }
-type AsrResult struct {
-	Diarization []DiarizationObj `json:"diarization"`
+
+type SyncAsrReqMsgRespChoice struct {
+	FinishReason string         `json:"finish_reason,omitempty"`
+	Messages     SyncAsrRespMsg `json:"message"`
 }
-type DiarizationObj struct {
-	Start   float32 `json:"start"`
-	End     float32 `json:"end"`
-	Speaker int     `json:"speaker"`
-	Text    string  `json:"text"`
-	Trans   string  `json:"trans"`
+
+type SyncAsrRespMsg struct {
+	Content []SyncAsrRespMsgC      `json:"content"`
+	Extra   map[string]interface{} `json:"extra,omitempty"`
+	Role    MsgRole                `json:"role"`
+}
+
+type SyncAsrRespMsgC struct {
+	Text             string             `json:"text"`
+	SegmentedContent []SegmentedContent `json:"segmented_content"`
+}
+
+type SegmentedContent struct {
+	StartTime string `json:"start"`
+	EndTime   string `json:"end"`
+	Text      string `json:"text"`
+	Speaker   string `json:"speaker"`
 }
 
 // --- request ---
 
-type IAsrReq interface {
-	Data() *AsrReq
+type ISyncAsrReq interface {
+	Data() map[string]interface{}
 }
 
-// asrReq implementation of IAsrReq
-type asrReq struct {
-	data *AsrReq
+// syncAsrReq implementation of ISyncAsrReq
+type syncAsrReq struct {
+	data map[string]interface{}
 }
 
-func NewAsrReq(data *AsrReq) IAsrReq {
-	return &asrReq{data: data}
+func NewSyncAsrReq(data map[string]interface{}) ISyncAsrReq {
+	return &syncAsrReq{data: data}
 }
 
-func (req *asrReq) Data() *AsrReq {
+func (req *syncAsrReq) Data() map[string]interface{} {
 	return req.data
 }
 
 // --- response ---
 
-type IAsrResp interface {
+type ISyncAsrResp interface {
 	String() string
 	Data() (interface{}, bool)
-	ConvertResp() (*AsrResp, bool)
+	ConvertResp() (*SyncAsrResp, bool)
 }
 
-// asrResp implementation of IAsrResp
-type asrResp struct {
+// syncAsrResp implementation of ISyncAsrResp
+type syncAsrResp struct {
 	raw string
 }
 
-func NewAsrResp(raw string) IAsrResp {
-	return &asrResp{raw: raw}
+func NewSyncAsrResp(raw string) ISyncAsrResp {
+	return &syncAsrResp{raw: raw}
 }
 
-func (resp *asrResp) String() string {
+func (resp *syncAsrResp) String() string {
 	return resp.raw
 }
 
-func (resp *asrResp) Data() (interface{}, bool) {
+func (resp *syncAsrResp) Data() (interface{}, bool) {
 	ret := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(resp.raw), &ret); err != nil {
-		log.Errorf("asr resp (%v) convert to data err: %v", resp.raw, err)
+		log.Errorf("sync_asr resp (%v) convert to data err: %v", resp.raw, err)
 		return nil, false
 	}
 	return ret, true
 }
 
-func (resp *asrResp) ConvertResp() (*AsrResp, bool) {
-	var ret *AsrResp
+func (resp *syncAsrResp) ConvertResp() (*SyncAsrResp, bool) {
+	var ret *SyncAsrResp
 	if err := json.Unmarshal([]byte(resp.raw), &ret); err != nil {
-		log.Errorf("asr resp (%v) convert to data err: %v", resp.raw, err)
+		log.Errorf("sync_asr resp (%v) convert to data err: %v", resp.raw, err)
 		return nil, false
 	}
 
-	log.Infof("asr resp: %v", resp.raw)
+	log.Infof("sync_asr resp: %v", resp.raw)
 	if err := util.Validate(ret); err != nil {
-		log.Errorf("asr resp validate err: %v", err)
+		log.Errorf("sync_asr resp validate err: %v", err)
 		return nil, false
 	}
 	return ret, true
 }
 
-// --- asr ---
+// --- sync_asr ---
 
-func Asr(ctx *gin.Context, provider, apiKey, url string, req *AsrReq, headers ...Header) ([]byte, error) {
+func SyncAsr(ctx context.Context, provider, apiKey, url string, req map[string]interface{}, headers ...Header) ([]byte, error) {
 	if apiKey != "" {
 		headers = append(headers, Header{
 			Key:   "Authorization",
 			Value: "Bearer " + apiKey,
 		})
 	}
-	file, err := req.File.Open()
-	if err != nil {
-		return nil, fmt.Errorf("request %v %v asr err: %v", url, provider, err)
-	}
-	configJSON, err := json.Marshal(req.Config)
-	if err != nil {
-		return nil, fmt.Errorf("marshal config failed: %v", err)
-	}
-	defer file.Close()
+
 	request := resty.New().
 		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}). // 关闭证书校验
 		SetTimeout(0).                                             // 关闭请求超时
 		R().
 		SetContext(ctx).
-		SetHeader("Content-Type", "multipart/form-data").
+		SetHeader("Content-Type", "application/json").
 		SetHeader("Accept", "application/json").
-		SetFileReader("file", req.File.Filename, file).
-		SetMultipartField("config", "", "application/json", strings.NewReader(string(configJSON))).
+		SetBody(req).
 		SetDoNotParseResponse(true)
 	for _, header := range headers {
 		request.SetHeader(header.Key, header.Value)
 	}
+
 	resp, err := request.Post(url)
 	if err != nil {
-		return nil, fmt.Errorf("request %v %v asr err: %v", url, provider, err)
+		return nil, fmt.Errorf("request %v %v sync_asr err: %v", url, provider, err)
 	}
 	b, err := io.ReadAll(resp.RawResponse.Body)
 	if err != nil {
-		return nil, fmt.Errorf("request %v %v asr read response body err: %v", url, provider, err)
+		return nil, fmt.Errorf("request %v %v sync_asr read response body failed: %v", url, provider, err)
 	}
 	if resp.StatusCode() >= 300 {
-		return nil, fmt.Errorf("request %v %v asr http status %v msg: %v", url, provider, resp.StatusCode(), string(b))
+		return nil, fmt.Errorf("request %v %v sync_asr http status %v msg: %v", url, provider, resp.StatusCode(), string(b))
 	}
-
 	return b, nil
 }

@@ -42,7 +42,7 @@ func (tool *ToolConfig) load(ctx context.Context) error {
 		return fmt.Errorf("validate tool %v schema path %v err: %v", tool.ToolSquareId, schemaPath, err)
 	}
 	tool.Schema = string(schemaOpenAPI)
-	tools, err := openapi3_util.Schema2ProtocolTools(ctx, schemaOpenAPI)
+	tools, err := openapi3_util.Schema2MCPProtocolTools(ctx, schemaOpenAPI)
 	if err != nil {
 		return fmt.Errorf("schema2protocol tool %v err: %v", tool.ToolSquareId, err)
 	}

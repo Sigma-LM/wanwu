@@ -239,6 +239,7 @@ export default {
               `${this.file.name}` + i18n.t('fileChunk.uploadFail'),
             );
             this.fileList[this.fileIndex]['showRemerge'] = 'true';
+            this.uploadNextTask && this.uploadNextTask();
           }
         });
       } catch (error) {

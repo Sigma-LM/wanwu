@@ -2,14 +2,16 @@ package mp
 
 // model type
 const (
-	ModelTypeLLM        = "llm"
-	ModelTypeEmbedding  = "embedding"
-	ModelTypeRerank     = "rerank"
-	ModelTypeOcr        = "ocr"
-	ModelTypeGui        = "gui"
-	ModelTypePdfParser  = "pdf-parser"
-	ModelTypeAsr        = "asr"
-	ModelTypeText2Image = "text2image"
+	ModelTypeLLM            = "llm"
+	ModelTypeTextEmbedding  = "embedding"
+	ModelTypeTextRerank     = "rerank"
+	ModelTypeMultiEmbedding = "multimodal-embedding"
+	ModelTypeMultiRerank    = "multimodal-rerank"
+	ModelTypeOcr            = "ocr"
+	ModelTypeGui            = "gui"
+	ModelTypePdfParser      = "pdf-parser"
+	ModelTypeSyncAsr        = "sync-asr"
+	ModelTypeText2Image     = "text2image"
 	//ModelTypeOcrDs      = "ocr-deepseek"
 	//ModelTypeOcrPaddle  = "ocr-paddle"
 )
@@ -24,6 +26,7 @@ const (
 	ProviderInfini           = "Infini"
 	ProviderQianfan          = "QianFan"
 	ProviderDeepSeek         = "DeepSeek"
+	ProviderJina             = "Jina"
 )
 
 var (

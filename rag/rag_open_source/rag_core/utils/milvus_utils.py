@@ -24,7 +24,7 @@ def make_request(url: str, data: dict):
             response_info['code'] = 1
             response_info['message'] = str(response.text)
             return response_info
-        final_response = json.loads(response.text)
+        final_response = response.json()
         if final_response['code'] != 0:
             response_info['code'] = final_response['code']
             response_info['message'] = final_response['message']
@@ -83,7 +83,7 @@ def init_knowledge_base(user_id, kb_name, kb_id="", embedding_model_id="", enabl
             logger.error("milvus初始化请求失败：" + repr(response.text))
             return response_info
 
-        init_response = json.loads(response.text)
+        init_response = response.json()
         if init_response['code'] != 0:
             response_info['code'] = init_response['code']
             response_info['message'] = init_response['message']
@@ -113,7 +113,7 @@ def list_knowledge_base(user_id):
             response_info['message'] = str(response.text)
             logger.error("milvus查询用户所有知识库请求失败：" + repr(response.text))
             return response_info
-        result_data = json.loads(response.text)
+        result_data = response.json()
         if result_data['code'] != 0:
             response_info['code'] = result_data['code']
             response_info['message'] = result_data['message']
@@ -144,7 +144,7 @@ def list_knowledge_file(user_id, kb_name, kb_id=""):
             response_info['message'] = str(response.text)
             logger.error("milvus查询知识库所有文档请求失败：" + repr(response.text))
             return response_info
-        result_data = json.loads(response.text)
+        result_data = response.json()
         if result_data['code'] != 0:
             response_info['code'] = result_data['code']
             response_info['message'] = result_data['message']
@@ -174,7 +174,7 @@ def list_knowledge_file_download_link(user_id, kb_name, kb_id=""):
             response_info['message'] = str(response.text)
             logger.error("milvus获取知识库里所有文档的下载链接请求失败：" + repr(response.text))
             return response_info
-        result_data = json.loads(response.text)
+        result_data = response.json()
         if result_data['code'] != 0:
             response_info['code'] = result_data['code']
             response_info['message'] = result_data['message']
@@ -218,7 +218,7 @@ def search_milvus(user_id, kb_names, top_k, question, threshold, search_field, e
             response_info['message'] = str(response.text)
             logger.error("milvus问题检索请求失败：" + repr(response.text))
             return response_info
-        result_data = json.loads(response.text)
+        result_data = response.json()
         if result_data['code'] != 0:
             response_info['code'] = 1
             response_info['message'] = result_data['message']
@@ -315,7 +315,7 @@ def add_milvus(user_id, kb_name, sub_chunk, add_file_name, add_file_path, kb_id=
                 response_info['message'] = '部分文件添加milvus失败: ' + '/t'.join(error_reason)
                 return response_info
 
-            result_data = json.loads(response.text)
+            result_data = response.json()
             if result_data['code'] != 0:
                 fail_count = fail_count + 1
                 if str(result_data['message']) not in error_reason: error_reason.append(str(result_data['message']))
@@ -365,7 +365,7 @@ def del_milvus_kbs(user_id, kb_name, kb_id):
             response_info['message'] = str(response.text)
             logger.error("milvus删除知识库请求失败: " + repr(response.text))
             return response_info
-        del_response = json.loads(response.text)
+        del_response = response.json()
         if del_response['code'] != 0:
             response_info['code'] = del_response['code']
             response_info['message'] = del_response['message']
@@ -392,7 +392,7 @@ def del_milvus_files(user_id, kb_name, file_names, kb_id=""):
             response_info['message'] = str(response.text)
             logger.error("milvus删除知识库文档请求失败: " + repr(response.text))
             return response_info
-        del_files_response = json.loads(response.text)
+        del_files_response = response.json()
         if del_files_response['code'] != 0:
             response_info['code'] = del_files_response['code']
             response_info['message'] = del_files_response['message']
@@ -618,7 +618,7 @@ def get_kb_info(user_id, kb_name):
         if response.status_code != 200:
             error_message = str(response.text)
         else:
-            result_data = json.loads(response.text)
+            result_data = response.json()
             if result_data['code'] != 0:
                 error_message = result_data['message']
             else:
@@ -645,7 +645,7 @@ def get_milvus_content_status(user_id: str, kb_name: str, content_id_list: list)
         if response.status_code != 200:  # 抛出报错
             err = str(response.text)
             raise RuntimeError(f"{kb_name}-{content_id_list},Error get_milvus_content_status: {err}")
-        final_response = json.loads(response.text)
+        final_response = response.json()
         if final_response['code'] == 0:  # 正常获取到了结果
             res_list = final_response['data']["useful_content_id_list"]
             return res_list
@@ -668,7 +668,7 @@ def get_milvus_kb_name_id(user_id: str, kb_name: str):
         if response.status_code != 200:  # 抛出报错
             err = str(response.text)
             raise RuntimeError(f"{kb_name}-,Error get_kb_name_id: {err}")
-        final_response = json.loads(response.text)
+        final_response = response.json()
         if final_response['code'] == 0:  # 正常获取到了结果
             kb_id = final_response['data']["kb_id"]
             return kb_id
@@ -692,7 +692,7 @@ def update_milvus_kb_name(user_id: str, old_kb_name: str, new_kb_name: str):
         if response.status_code != 200:  # 抛出报错
             err = str(response.text)
             return {'code': 1, "message": f"{err}"}
-        final_response = json.loads(response.text)
+        final_response = response.json()
         if final_response['code'] == 0:  # 正常获取到了结果
             return response_info
         else:  # 抛出报错

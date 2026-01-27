@@ -749,6 +749,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.MemoryConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistoryLength": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.MetaDataFilterParams": {
             "type": "object",
             "properties": {
@@ -943,6 +951,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "category": {
+                    "description": "1.单智能体 2.多智能体",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -970,6 +982,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.AssistantMCPInfo"
                     }
                 },
+                "memoryConfig": {
+                    "description": "记忆配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.MemoryConfig"
+                        }
+                    ]
+                },
                 "modelConfig": {
                     "description": "模型",
                     "allOf": [
@@ -977,6 +997,13 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppModelConfig"
                         }
                     ]
+                },
+                "multiAgentInfos": {
+                    "description": "多智能体配置",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.AssistantAgentInfo"
+                    }
                 },
                 "name": {
                     "description": "名称",
@@ -993,6 +1020,14 @@ const docTemplate = `{
                 "publishType": {
                     "description": "发布类型",
                     "type": "string"
+                },
+                "recommendConfig": {
+                    "description": "追问配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.RecommendConfig"
+                        }
+                    ]
                 },
                 "recommendQuestion": {
                     "description": "推荐问题",
@@ -1049,6 +1084,26 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.AssistantWorkFlowInfo"
                     }
+                }
+            }
+        },
+        "response.AssistantAgentInfo": {
+            "type": "object",
+            "properties": {
+                "agentId": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "$ref": "#/definitions/request.Avatar"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -1246,6 +1301,35 @@ const docTemplate = `{
                 "list": {},
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.RecommendConfig": {
+            "type": "object",
+            "properties": {
+                "maxHistory": {
+                    "description": "最大历史会话轮次",
+                    "type": "integer"
+                },
+                "modelConfig": {
+                    "description": "模型信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.AppModelConfig"
+                        }
+                    ]
+                },
+                "prompt": {
+                    "description": "提示词",
+                    "type": "string"
+                },
+                "promptEnable": {
+                    "description": "提示词开关",
+                    "type": "boolean"
+                },
+                "recommendEnable": {
+                    "description": "追问配置开关",
+                    "type": "boolean"
                 }
             }
         },

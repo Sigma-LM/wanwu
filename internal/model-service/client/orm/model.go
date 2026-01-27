@@ -167,10 +167,20 @@ func (c *Client) ListModels(ctx context.Context, tab *model_client.ModelImported
 
 func (c *Client) ListTypeModels(ctx context.Context, tab *model_client.ModelImported) ([]*model_client.ModelImported, *errs.Status) {
 	var modelInfos []*model_client.ModelImported
+	modelRerankTypes := []string{"rerank", "multimodal-rerank"}
+	modelEmbedTypes := []string{"embedding", "multimodal-embedding"}
+	var modelTypeOpt sqlopt.SQLOption
+	if tab.ModelType == "rerank" {
+		modelTypeOpt = sqlopt.WithModelTypes(modelRerankTypes)
+	} else if tab.ModelType == "embedding" {
+		modelTypeOpt = sqlopt.WithModelTypes(modelEmbedTypes)
+	} else {
+		modelTypeOpt = sqlopt.WithModelType(tab.ModelType)
+	}
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(tab.OrgID),
 		sqlopt.WithUserID(tab.UserID),
-		sqlopt.WithModelType(tab.ModelType),
+		modelTypeOpt,
 		sqlopt.WithIsActive(true),
 	).Apply(c.db.WithContext(ctx)).Order("provider DESC").Find(&modelInfos).Error; err != nil {
 		return nil, toErrStatus("model_list_type_models_err", err.Error())

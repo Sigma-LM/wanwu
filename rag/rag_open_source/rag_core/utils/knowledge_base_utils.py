@@ -59,6 +59,14 @@ user_data_path = Path(USER_DATA_PATH)
 chunk_label_redis_client = redis_utils.get_redis_connection(redis_db=5)
 
 
+def is_safe_filename(name: str) -> bool:
+    if "/" in name or "\\" in name:
+        return False
+    if ".." in name:
+        return False
+    return True
+
+
 # -----------------
 # 初始化知识库
 def init_knowledge_base(user_id, kb_name, kb_id="", embedding_model_id="", enable_knowledge_graph = False):
@@ -257,12 +265,14 @@ def del_knowledge_base_files(user_id, kb_name, file_names, kb_id=""):
 
     # --------------2、路径文档
     for file_name in success_files:
-        del_file_path = os.path.join(filepath, file_name)
-        if os.path.isfile(del_file_path): os.remove(del_file_path)
+        if is_safe_filename(file_name):
+            del_file_path = os.path.join(filepath, file_name)
+            if os.path.isfile(del_file_path): os.remove(del_file_path)
     for i in failed_files:
         if '文档不存在' in i[1]:
-            del_file_path = os.path.join(filepath, i[0])
-            if os.path.isfile(del_file_path): os.remove(del_file_path)
+            if is_safe_filename(i[0]):
+                del_file_path = os.path.join(filepath, i[0])
+                if os.path.isfile(del_file_path): os.remove(del_file_path)
 
     if len(failed_files) == 0:
         return response_info
@@ -298,6 +308,8 @@ def add_files(user_id, kb_name, files, sentence_size, overlap_size, chunk_type, 
     filenames_in_milvus = files_in_milvus['data']['knowledge_file_names']
     # filenames_in_milvus=[]
     for f in files:
+        if not is_safe_filename(f.filename):
+            raise ValueError(f"文件名 {f.filename} 不安全")
         if f.filename in filenames_in_milvus:
             duplicate_files.append(f.filename)
         else:

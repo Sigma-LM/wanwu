@@ -36,14 +36,10 @@ func GetExplorationAppList(ctx *gin.Context, userId, orgId string, req request.G
 	if err != nil {
 		return nil, err
 	}
-	// AgentScope Workflow
-	// workFlows, err := explorerationFilterAgentScopeWorkFlow(ctx, explorationApp.Infos, req.Name)
-	// Coze Workflow
 	workFlows, err := explorerationFilterWorkFlow(ctx, explorationApp.Infos, req.Name)
 	if err != nil {
 		return nil, err
 	}
-	// Coze Chatflow
 	chatFlows, err := explorerationFilterChatFlow(ctx, explorationApp.Infos, req.Name)
 	if err != nil {
 		return nil, err
@@ -177,7 +173,7 @@ func explorerationFilterRag(ctx *gin.Context, explorationApp []*app_service.Expl
 		for _, expApp := range explorationApp {
 			if expApp.AppId == id {
 				appInfo := &response.ExplorationAppInfo{
-					AppBriefInfo: appBriefProto2Model(ctx, foundRag),
+					AppBriefInfo: appBriefProto2Model(ctx, foundRag, 0),
 				}
 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
@@ -221,9 +217,11 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 	var retAppList []*response.ExplorationAppInfo
 	for _, id := range ids {
 		var foundAgent *common.AppBrief
+		var category int32
 		for _, ragInfo := range agentList.AssistantInfos {
-			if ragInfo.AppId == id {
-				foundAgent = ragInfo
+			if ragInfo.GetInfo().AppId == id {
+				foundAgent = ragInfo.Info
+				category = ragInfo.Category
 				break
 			}
 		}
@@ -233,7 +231,7 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 		for _, expApp := range apps {
 			if expApp.AppId == id {
 				appInfo := &response.ExplorationAppInfo{
-					AppBriefInfo: appBriefProto2Model(ctx, foundAgent),
+					AppBriefInfo: appBriefProto2Model(ctx, foundAgent, category),
 				}
 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
@@ -351,44 +349,3 @@ func explorerationFilterChatFlow(ctx *gin.Context, apps []*app_service.Explorati
 	}
 	return retAppList, nil
 }
-
-// func explorerationFilterAgentScopeWorkFlow(ctx *gin.Context, apps []*app_service.ExplorationAppInfo, name string) ([]*response.ExplorationAppInfo, error) {
-// 	// 获取工作流详情
-// 	workFlowList, err := ListAgentScopeWorkFlowInternal(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	var retAppList []*response.ExplorationAppInfo
-// 	for _, expApp := range apps {
-// 		for _, workFlow := range workFlowList.List {
-// 			if expApp.AppId == workFlow.Id {
-// 				appInfo := &response.ExplorationAppInfo{
-// 					AppBriefInfo: response.AppBriefInfo{
-// 						AppId:   workFlow.Id,
-// 						AppType: constant.AppTypeWorkflow,
-// 						Avatar:  request.Avatar{},
-// 						Name:    workFlow.ConfigName,
-// 						Desc:    workFlow.ConfigDesc,
-// 					},
-// 				}
-// 				appInfo.CreatedAt = util.Time2Str(expApp.CreatedAt)
-// 				appInfo.UpdatedAt = util.Time2Str(expApp.UpdatedAt)
-// 				appInfo.PublishType = expApp.PublishType
-// 				appInfo.IsFavorite = expApp.IsFavorite
-// 				retAppList = append(retAppList, appInfo)
-// 				break
-// 			}
-// 		}
-// 	}
-// 	// 如果name不为空，过滤结果
-// 	if name != "" {
-// 		var filteredList []*response.ExplorationAppInfo
-// 		for _, ret := range retAppList {
-// 			if strings.Contains(strings.ToLower(ret.AppBriefInfo.Name), strings.ToLower(name)) {
-// 				filteredList = append(filteredList, ret)
-// 			}
-// 		}
-// 		return filteredList, nil
-// 	}
-// 	return retAppList, nil
-// }

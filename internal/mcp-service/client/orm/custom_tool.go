@@ -114,6 +114,15 @@ func (c *Client) ListBuiltinTools(ctx context.Context, orgID, userID string) ([]
 	return builtinToolInfos, nil
 }
 
+func (c *Client) ListBuiltinToolsBySquareIdList(ctx context.Context, squareList []string) ([]*model.BuiltinTool, *err_code.Status) {
+	var builtinToolInfos []*model.BuiltinTool
+	if err := sqlopt.SQLOptions(
+		sqlopt.WithToolSquareIDList(squareList),
+	).Apply(c.db).WithContext(ctx).Find(&builtinToolInfos).Error; err != nil {
+		return nil, toErrStatus("mcp_get_custom_tool_list_by_square_err", err.Error())
+	}
+	return builtinToolInfos, nil
+}
 func (c *Client) GetBuiltinTool(ctx context.Context, builtinTool *model.BuiltinTool) (*model.BuiltinTool, *err_code.Status) {
 	info := &model.BuiltinTool{}
 	if err := sqlopt.SQLOptions(

@@ -107,3 +107,47 @@ func PreviousDateRange(startDate, endDate string) ([]string, []string, error) {
 	// 3. 计算上一个周期，当前周期
 	return DateRange(pervStartTs, pervEndTs), DateRange(startAt, endAt), nil
 }
+
+// NowSpanToHMS 将毫秒时间间隔转换为时分秒格式
+// 输入：开始时间（int64类型）
+// 输出：格式化字符串（如：1天02:15:30 或 02:15:30）
+func NowSpanToHMS(startTime int64) string {
+	milliseconds := time.Now().UnixMilli() - startTime
+	if milliseconds < 0 {
+		return "0秒"
+	}
+
+	// 计算总秒数
+	totalSeconds := milliseconds / 1000
+
+	// 计算天数
+	days := totalSeconds / (24 * 3600)
+	remainingSeconds := totalSeconds % (24 * 3600)
+
+	// 计算小时、分钟、秒
+	hours := remainingSeconds / 3600
+	remainingSeconds %= 3600
+	minutes := remainingSeconds / 60
+	seconds := remainingSeconds % 60
+
+	// 毫秒部分
+	millis := milliseconds % 1000
+
+	// 根据天数决定输出格式
+	if days > 0 {
+		return fmt.Sprintf("%d天%02d:%02d:%02d.%03d", days, hours, minutes, seconds, millis)
+	}
+
+	// 如果有小时
+	if hours > 0 {
+		return fmt.Sprintf("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis)
+	}
+
+	// 如果只有分钟和秒
+	if minutes > 0 {
+		return fmt.Sprintf("%02d:%02d.%03d", minutes, seconds, millis)
+	}
+
+	// 如果只有秒和毫秒
+	return fmt.Sprintf("%d.%03d秒", seconds, millis)
+}

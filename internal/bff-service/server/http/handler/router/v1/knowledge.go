@@ -111,4 +111,15 @@ func registerKnowledge(apiV1 *gin.RouterGroup) {
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/export/record/list", http.MethodGet, v1.GetKnowledgeExportRecordList, "获取知识库导出记录列表", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeView))
 	mid.Sub("knowledge").Reg(apiV1, "/knowledge/export/record", http.MethodDelete, v1.DeleteKnowledgeExportRecord, "删除知识库库导出记录", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
 
+	// 外部知识库API
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external/api/select", http.MethodGet, v1.GetKnowledgeExternalAPIList, "获取外部知识库API列表")
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external/api", http.MethodPost, v1.CreateKnowledgeExternalAPI, "新建外部知识库API")
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external/api", http.MethodPut, v1.UpdateKnowledgeExternalAPI, "编辑外部知识库API")
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external/api", http.MethodDelete, v1.DeleteKnowledgeExternalAPI, "删除外部知识库API")
+	//外部知识库
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external/select", http.MethodGet, v1.GetKnowledgeExternalList, "获取外部知识库列表")
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external", http.MethodPost, v1.CreateKnowledgeExternal, "新建外部知识库")
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external", http.MethodPut, v1.UpdateKnowledgeExternal, "编辑外部知识库", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+	mid.Sub("knowledge").Reg(apiV1, "/knowledge/external", http.MethodDelete, v1.DeleteKnowledgeExternal, "删除外部知识库", middleware.AuthKnowledge("knowledgeId", middleware.KnowledgeEdit))
+
 }

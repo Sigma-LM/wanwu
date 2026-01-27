@@ -227,6 +227,11 @@ definitions:
     required:
     - conversationId
     type: object
+  request.MemoryConfig:
+    properties:
+      maxHistoryLength:
+        type: integer
+    type: object
   request.MetaDataFilterParams:
     properties:
       filterEnable:
@@ -356,6 +361,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.Avatar'
         description: 图标
+      category:
+        description: 1.单智能体 2.多智能体
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -374,10 +382,19 @@ definitions:
         items:
           $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
+      memoryConfig:
+        allOf:
+        - $ref: '#/definitions/request.MemoryConfig'
+        description: 记忆配置
       modelConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
         description: 模型
+      multiAgentInfos:
+        description: 多智能体配置
+        items:
+          $ref: '#/definitions/response.AssistantAgentInfo'
+        type: array
       name:
         description: 名称
         type: string
@@ -390,6 +407,10 @@ definitions:
       publishType:
         description: 发布类型
         type: string
+      recommendConfig:
+        allOf:
+        - $ref: '#/definitions/response.RecommendConfig'
+        description: 追问配置
       recommendQuestion:
         description: 推荐问题
         items:
@@ -428,6 +449,19 @@ definitions:
     required:
     - assistantId
     - name
+    type: object
+  response.AssistantAgentInfo:
+    properties:
+      agentId:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      desc:
+        type: string
+      enable:
+        type: boolean
+      name:
+        type: string
     type: object
   response.AssistantMCPInfo:
     properties:
@@ -558,6 +592,25 @@ definitions:
       list: {}
       total:
         type: integer
+    type: object
+  response.RecommendConfig:
+    properties:
+      maxHistory:
+        description: 最大历史会话轮次
+        type: integer
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型信息
+      prompt:
+        description: 提示词
+        type: string
+      promptEnable:
+        description: 提示词开关
+        type: boolean
+      recommendEnable:
+        description: 追问配置开关
+        type: boolean
     type: object
   response.Response:
     properties:

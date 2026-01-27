@@ -62,7 +62,7 @@ export default {
   },
   components: {
     PromptField,
-    streamInputField
+    streamInputField,
     // EditableDivV3,
   },
   data() {

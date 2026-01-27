@@ -1,11 +1,13 @@
 package callback
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+	minio_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/minio-util"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
@@ -69,7 +71,7 @@ func ModelChatCompletions(ctx *gin.Context) {
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
-	service.ModelChatCompletions(ctx, ctx.Param("modelId"), &data)
+	service.ModelChatCompletions(ctx, ctx.Param("modelId"), &data, nil)
 }
 
 // ModelEmbeddings
@@ -90,22 +92,97 @@ func ModelEmbeddings(ctx *gin.Context) {
 	service.ModelEmbeddings(ctx, ctx.Param("modelId"), &data)
 }
 
-// ModelRerank
+// ModelMultiModalEmbeddings
+//
+//	@Tags		callback
+//	@Summary	Model MultiModal-Embeddings
+//	@Accept		json
+//	@Produce	json
+//	@Param		modelId	path		string								true	"模型ID"
+//	@Param		data	body		mp_common.MultiModalEmbeddingReq{}	true	"请求参数"
+//	@Success	200		{object}	mp_common.MultiModalEmbeddingResp{}
+//	@Router		/model/{modelId}/multimodal-embeddings [post]
+func ModelMultiModalEmbeddings(ctx *gin.Context) {
+	var data mp_common.MultiModalEmbeddingReq
+	if !gin_util.Bind(ctx, &data) {
+		return
+	}
+
+	for i := range data.Input {
+		item := &data.Input[i]
+		if item.Image != "" {
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			if err != nil {
+				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
+				return
+			}
+			item.Image = pureBase64Str
+		}
+		if item.Audio != "" {
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			if err != nil {
+				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v audio to base64 err: %v", data.Model, err)))
+				return
+			}
+			item.Audio = pureBase64Str
+		}
+		if item.Video != "" {
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			if err != nil {
+				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v video to base64 err: %v", data.Model, err)))
+				return
+			}
+			item.Video = pureBase64Str
+		}
+	}
+	service.ModelMultiModalEmbeddings(ctx, ctx.Param("modelId"), &data)
+}
+
+// ModelTextRerank
 //
 //	@Tags		callback
 //	@Summary	Model Rerank
 //	@Accept		json
 //	@Produce	json
-//	@Param		modelId	path		string					true	"模型ID"
-//	@Param		data	body		mp_common.RerankReq{}	true	"请求参数"
+//	@Param		modelId	path		string						true	"模型ID"
+//	@Param		data	body		mp_common.TextRerankReq{}	true	"请求参数"
 //	@Success	200		{object}	mp_common.RerankResp{}
 //	@Router		/model/{modelId}/rerank [post]
-func ModelRerank(ctx *gin.Context) {
-	var data mp_common.RerankReq
+func ModelTextRerank(ctx *gin.Context) {
+	var data mp_common.TextRerankReq
 	if !gin_util.Bind(ctx, &data) {
 		return
 	}
-	service.ModelRerank(ctx, ctx.Param("modelId"), &data)
+	service.ModelTextRerank(ctx, ctx.Param("modelId"), &data)
+}
+
+// ModelMultiModalRerank
+//
+//	@Tags		callback
+//	@Summary	Model MultiModal-Rerank
+//	@Accept		json
+//	@Produce	json
+//	@Param		modelId	path		string							true	"模型ID"
+//	@Param		data	body		mp_common.MultiModalRerankReq{}	true	"请求参数"
+//	@Success	200		{object}	mp_common.MultiModalRerankResp{}
+//	@Router		/model/{modelId}/multimodal-rerank [post]
+func ModelMultiModalRerank(ctx *gin.Context) {
+	var data mp_common.MultiModalRerankReq
+	if !gin_util.Bind(ctx, &data) {
+		return
+	}
+	for i := range data.Documents {
+		item := &data.Documents[i]
+		if item.Image != "" {
+			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			if err != nil {
+				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
+				return
+			}
+			item.Image = pureBase64Str
+		}
+	}
+	service.ModelMultiModalRerank(ctx, ctx.Param("modelId"), &data)
 }
 
 // ModelOcr
@@ -163,23 +240,40 @@ func ModelGui(ctx *gin.Context) {
 	service.ModelGui(ctx, ctx.Param("modelId"), &data)
 }
 
-// ModelAsr
+// ModelSyncAsr
 //
 //	@Tags		callback
-//	@Summary	Model Asr
-//	@Accept		multipart/form-data
+//	@Summary	Model SyncAsr
+//	@Accept		json
 //	@Produce	json
 //	@Param		modelId	path		string	true	"模型ID"
-//	@Param		file	formData	file	true	"语音文件"
-//	@Param		config	formData	string	true	"请求参数"
-//	@Success	200		{object}	mp_common.AsrResp{}
+//	@Param		data	body		mp_common.SyncAsrReq{}	true	"请求参数"
+//	@Success	200		{object}	mp_common.SyncAsrResp{}
 //	@Router		/model/{modelId}/asr [post]
-func ModelAsr(ctx *gin.Context) {
-	var data mp_common.AsrReq
-	if !gin_util.BindForm(ctx, &data) {
+func ModelSyncAsr(ctx *gin.Context) {
+	var data mp_common.SyncAsrReq
+	if !gin_util.Bind(ctx, &data) {
 		return
 	}
-	service.ModelAsr(ctx, ctx.Param("modelId"), &data)
+	if len(data.Messages) > 0 {
+		for i := range data.Messages {
+			contentList := &data.Messages[i].Content
+			for j := range *contentList {
+				if (*contentList)[j].Type == mp_common.MultiModalTypeAudio {
+					(*contentList)[j].Type = mp_common.MultiModalTypeMinioUrl
+				}
+				minioFilePath := (*contentList)[j].Audio.Data
+				_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(context.Background(), minioFilePath)
+				if err != nil {
+					gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("minio_url %s to local file err: %v", minioFilePath, err)))
+					return
+				}
+				(*contentList)[j].Audio.Data = base64StrWithPrefix
+				(*contentList)[j].Audio.FileName = minio_util.GetFilenameFromMinioURL(minioFilePath)
+			}
+		}
+	}
+	service.ModelSyncAsr(ctx, ctx.Param("modelId"), &data)
 }
 
 // ModelText2Image

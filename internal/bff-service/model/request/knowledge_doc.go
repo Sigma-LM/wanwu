@@ -30,12 +30,14 @@ type DocListReq struct {
 }
 
 type DocImportFileConfig struct {
-	DocImportType int            `json:"docImportType"`                   //文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
-	DocSegment    *DocSegment    `json:"docSegment" validate:"required"`  //文档分段配置
-	DocAnalyzer   []string       `json:"docAnalyzer" validate:"required"` //文档解析类型 text / ocr  / model
-	ParserModelId string         `json:"parserModelId"`                   //模型解析或ocr模型id
-	DocPreprocess []string       `json:"docPreprocess"`                   //文本预处理规则 replaceSymbols / deleteLinks
-	DocMetaData   []*DocMetaData `json:"docMetaData"`                     //元数据
+	DocImportType     int            `json:"docImportType"`                   //文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
+	DocSegment        *DocSegment    `json:"docSegment" validate:"required"`  //文档分段配置
+	DocAnalyzer       []string       `json:"docAnalyzer" validate:"required"` //文档解析类型 text / ocr  / model / asr / multimodalModel
+	ParserModelId     string         `json:"parserModelId"`                   //模型解析或ocr模型id
+	AsrModelId        string         `json:"asrModelId"`                      //asr模型id
+	MultimodalModelId string         `json:"multimodalModelId"`               //模态模型id
+	DocPreprocess     []string       `json:"docPreprocess"`                   //文本预处理规则 replaceSymbols / deleteLinks
+	DocMetaData       []*DocMetaData `json:"docMetaData"`                     //元数据
 }
 
 type DocImportReq struct {
@@ -99,7 +101,8 @@ type DeleteDocReq struct {
 }
 
 type DocSegmentListReq struct {
-	DocId string `json:"docId" form:"docId" validate:"required"`
+	DocId   string `json:"docId" form:"docId" validate:"required"`
+	Keyword string `json:"keyword" form:"keyword"`
 	PageSearch
 	CommonCheck
 }

@@ -20,22 +20,32 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	KnowledgeBaseService_SelectKnowledgeList_FullMethodName           = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeList"
-	KnowledgeBaseService_SelectKnowledgeListByIdList_FullMethodName   = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeListByIdList"
-	KnowledgeBaseService_SelectKnowledgeDetailById_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeDetailById"
-	KnowledgeBaseService_SelectKnowledgeDetailByIdList_FullMethodName = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeDetailByIdList"
-	KnowledgeBaseService_SelectKnowledgeDetailByName_FullMethodName   = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeDetailByName"
-	KnowledgeBaseService_CreateKnowledge_FullMethodName               = "/knowledgebase_service.KnowledgeBaseService/CreateKnowledge"
-	KnowledgeBaseService_UpdateKnowledge_FullMethodName               = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledge"
-	KnowledgeBaseService_DeleteKnowledge_FullMethodName               = "/knowledgebase_service.KnowledgeBaseService/DeleteKnowledge"
-	KnowledgeBaseService_KnowledgeHit_FullMethodName                  = "/knowledgebase_service.KnowledgeBaseService/KnowledgeHit"
-	KnowledgeBaseService_GetKnowledgeMetaSelect_FullMethodName        = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaSelect"
-	KnowledgeBaseService_GetKnowledgeMetaValueList_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaValueList"
-	KnowledgeBaseService_UpdateKnowledgeMetaValue_FullMethodName      = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeMetaValue"
-	KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName         = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeStatus"
-	KnowledgeBaseService_GetKnowledgeGraph_FullMethodName             = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeGraph"
-	KnowledgeBaseService_GetExportRecordList_FullMethodName           = "/knowledgebase_service.KnowledgeBaseService/GetExportRecordList"
-	KnowledgeBaseService_DeleteExportRecord_FullMethodName            = "/knowledgebase_service.KnowledgeBaseService/DeleteExportRecord"
+	KnowledgeBaseService_SelectKnowledgeList_FullMethodName            = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeList"
+	KnowledgeBaseService_SelectKnowledgeListByIdList_FullMethodName    = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeListByIdList"
+	KnowledgeBaseService_SelectKnowledgeDetailById_FullMethodName      = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeDetailById"
+	KnowledgeBaseService_SelectKnowledgeDetailByIdList_FullMethodName  = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeDetailByIdList"
+	KnowledgeBaseService_SelectKnowledgeDetailByName_FullMethodName    = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeDetailByName"
+	KnowledgeBaseService_CreateKnowledge_FullMethodName                = "/knowledgebase_service.KnowledgeBaseService/CreateKnowledge"
+	KnowledgeBaseService_UpdateKnowledge_FullMethodName                = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledge"
+	KnowledgeBaseService_DeleteKnowledge_FullMethodName                = "/knowledgebase_service.KnowledgeBaseService/DeleteKnowledge"
+	KnowledgeBaseService_KnowledgeHit_FullMethodName                   = "/knowledgebase_service.KnowledgeBaseService/KnowledgeHit"
+	KnowledgeBaseService_GetKnowledgeMetaSelect_FullMethodName         = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaSelect"
+	KnowledgeBaseService_GetKnowledgeMetaValueList_FullMethodName      = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeMetaValueList"
+	KnowledgeBaseService_UpdateKnowledgeMetaValue_FullMethodName       = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeMetaValue"
+	KnowledgeBaseService_UpdateKnowledgeStatus_FullMethodName          = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeStatus"
+	KnowledgeBaseService_GetKnowledgeGraph_FullMethodName              = "/knowledgebase_service.KnowledgeBaseService/GetKnowledgeGraph"
+	KnowledgeBaseService_GetExportRecordList_FullMethodName            = "/knowledgebase_service.KnowledgeBaseService/GetExportRecordList"
+	KnowledgeBaseService_DeleteExportRecord_FullMethodName             = "/knowledgebase_service.KnowledgeBaseService/DeleteExportRecord"
+	KnowledgeBaseService_SelectKnowledgeExternalAPIList_FullMethodName = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeExternalAPIList"
+	KnowledgeBaseService_SelectKnowledgeExternalAPIInfo_FullMethodName = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeExternalAPIInfo"
+	KnowledgeBaseService_CreateKnowledgeExternalAPI_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/CreateKnowledgeExternalAPI"
+	KnowledgeBaseService_UpdateKnowledgeExternalAPI_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeExternalAPI"
+	KnowledgeBaseService_DeleteKnowledgeExternalAPI_FullMethodName     = "/knowledgebase_service.KnowledgeBaseService/DeleteKnowledgeExternalAPI"
+	KnowledgeBaseService_SelectKnowledgeExternalList_FullMethodName    = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeExternalList"
+	KnowledgeBaseService_SelectKnowledgeExternalInfo_FullMethodName    = "/knowledgebase_service.KnowledgeBaseService/SelectKnowledgeExternalInfo"
+	KnowledgeBaseService_CreateKnowledgeExternal_FullMethodName        = "/knowledgebase_service.KnowledgeBaseService/CreateKnowledgeExternal"
+	KnowledgeBaseService_UpdateKnowledgeExternal_FullMethodName        = "/knowledgebase_service.KnowledgeBaseService/UpdateKnowledgeExternal"
+	KnowledgeBaseService_DeleteKnowledgeExternal_FullMethodName        = "/knowledgebase_service.KnowledgeBaseService/DeleteKnowledgeExternal"
 )
 
 // KnowledgeBaseServiceClient is the client API for KnowledgeBaseService service.
@@ -74,6 +84,26 @@ type KnowledgeBaseServiceClient interface {
 	GetExportRecordList(ctx context.Context, in *GetExportRecordListReq, opts ...grpc.CallOption) (*GetExportRecordListResp, error)
 	// 删除导出记录
 	DeleteExportRecord(ctx context.Context, in *DeleteExportRecordReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取外部知识库API列表
+	SelectKnowledgeExternalAPIList(ctx context.Context, in *KnowledgeExternalAPIListSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalAPISelectListResp, error)
+	// 获取外部知识库API详情
+	SelectKnowledgeExternalAPIInfo(ctx context.Context, in *KnowledgeExternalAPIInfoSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalAPIInfo, error)
+	// 新增外部知识库API
+	CreateKnowledgeExternalAPI(ctx context.Context, in *CreateKnowledgeExternalAPIReq, opts ...grpc.CallOption) (*CreateKnowledgeExternalAPIResp, error)
+	// 修改外部知识库API
+	UpdateKnowledgeExternalAPI(ctx context.Context, in *UpdateKnowledgeExternalAPIReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除外部知识库API
+	DeleteKnowledgeExternalAPI(ctx context.Context, in *DeleteKnowledgeExternalAPIReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取外部知识库列表
+	SelectKnowledgeExternalList(ctx context.Context, in *KnowledgeExternalListSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalSelectListResp, error)
+	// 获取外部知识库详情
+	SelectKnowledgeExternalInfo(ctx context.Context, in *KnowledgeExternalInfoSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalInfo, error)
+	// 新增外部知识库
+	CreateKnowledgeExternal(ctx context.Context, in *CreateKnowledgeExternalReq, opts ...grpc.CallOption) (*CreateKnowledgeExternalResp, error)
+	// 修改外部知识库
+	UpdateKnowledgeExternal(ctx context.Context, in *UpdateKnowledgeExternalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除外部知识库
+	DeleteKnowledgeExternal(ctx context.Context, in *DeleteKnowledgeExternalReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type knowledgeBaseServiceClient struct {
@@ -244,6 +274,106 @@ func (c *knowledgeBaseServiceClient) DeleteExportRecord(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *knowledgeBaseServiceClient) SelectKnowledgeExternalAPIList(ctx context.Context, in *KnowledgeExternalAPIListSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalAPISelectListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(KnowledgeExternalAPISelectListResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_SelectKnowledgeExternalAPIList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) SelectKnowledgeExternalAPIInfo(ctx context.Context, in *KnowledgeExternalAPIInfoSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalAPIInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(KnowledgeExternalAPIInfo)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_SelectKnowledgeExternalAPIInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) CreateKnowledgeExternalAPI(ctx context.Context, in *CreateKnowledgeExternalAPIReq, opts ...grpc.CallOption) (*CreateKnowledgeExternalAPIResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateKnowledgeExternalAPIResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_CreateKnowledgeExternalAPI_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) UpdateKnowledgeExternalAPI(ctx context.Context, in *UpdateKnowledgeExternalAPIReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_UpdateKnowledgeExternalAPI_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) DeleteKnowledgeExternalAPI(ctx context.Context, in *DeleteKnowledgeExternalAPIReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_DeleteKnowledgeExternalAPI_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) SelectKnowledgeExternalList(ctx context.Context, in *KnowledgeExternalListSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalSelectListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(KnowledgeExternalSelectListResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_SelectKnowledgeExternalList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) SelectKnowledgeExternalInfo(ctx context.Context, in *KnowledgeExternalInfoSelectReq, opts ...grpc.CallOption) (*KnowledgeExternalInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(KnowledgeExternalInfo)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_SelectKnowledgeExternalInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) CreateKnowledgeExternal(ctx context.Context, in *CreateKnowledgeExternalReq, opts ...grpc.CallOption) (*CreateKnowledgeExternalResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateKnowledgeExternalResp)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_CreateKnowledgeExternal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) UpdateKnowledgeExternal(ctx context.Context, in *UpdateKnowledgeExternalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_UpdateKnowledgeExternal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *knowledgeBaseServiceClient) DeleteKnowledgeExternal(ctx context.Context, in *DeleteKnowledgeExternalReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, KnowledgeBaseService_DeleteKnowledgeExternal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KnowledgeBaseServiceServer is the server API for KnowledgeBaseService service.
 // All implementations must embed UnimplementedKnowledgeBaseServiceServer
 // for forward compatibility.
@@ -280,6 +410,26 @@ type KnowledgeBaseServiceServer interface {
 	GetExportRecordList(context.Context, *GetExportRecordListReq) (*GetExportRecordListResp, error)
 	// 删除导出记录
 	DeleteExportRecord(context.Context, *DeleteExportRecordReq) (*emptypb.Empty, error)
+	// 获取外部知识库API列表
+	SelectKnowledgeExternalAPIList(context.Context, *KnowledgeExternalAPIListSelectReq) (*KnowledgeExternalAPISelectListResp, error)
+	// 获取外部知识库API详情
+	SelectKnowledgeExternalAPIInfo(context.Context, *KnowledgeExternalAPIInfoSelectReq) (*KnowledgeExternalAPIInfo, error)
+	// 新增外部知识库API
+	CreateKnowledgeExternalAPI(context.Context, *CreateKnowledgeExternalAPIReq) (*CreateKnowledgeExternalAPIResp, error)
+	// 修改外部知识库API
+	UpdateKnowledgeExternalAPI(context.Context, *UpdateKnowledgeExternalAPIReq) (*emptypb.Empty, error)
+	// 删除外部知识库API
+	DeleteKnowledgeExternalAPI(context.Context, *DeleteKnowledgeExternalAPIReq) (*emptypb.Empty, error)
+	// 获取外部知识库列表
+	SelectKnowledgeExternalList(context.Context, *KnowledgeExternalListSelectReq) (*KnowledgeExternalSelectListResp, error)
+	// 获取外部知识库详情
+	SelectKnowledgeExternalInfo(context.Context, *KnowledgeExternalInfoSelectReq) (*KnowledgeExternalInfo, error)
+	// 新增外部知识库
+	CreateKnowledgeExternal(context.Context, *CreateKnowledgeExternalReq) (*CreateKnowledgeExternalResp, error)
+	// 修改外部知识库
+	UpdateKnowledgeExternal(context.Context, *UpdateKnowledgeExternalReq) (*emptypb.Empty, error)
+	// 删除外部知识库
+	DeleteKnowledgeExternal(context.Context, *DeleteKnowledgeExternalReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedKnowledgeBaseServiceServer()
 }
 
@@ -337,6 +487,36 @@ func (UnimplementedKnowledgeBaseServiceServer) GetExportRecordList(context.Conte
 }
 func (UnimplementedKnowledgeBaseServiceServer) DeleteExportRecord(context.Context, *DeleteExportRecordReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteExportRecord not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) SelectKnowledgeExternalAPIList(context.Context, *KnowledgeExternalAPIListSelectReq) (*KnowledgeExternalAPISelectListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectKnowledgeExternalAPIList not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) SelectKnowledgeExternalAPIInfo(context.Context, *KnowledgeExternalAPIInfoSelectReq) (*KnowledgeExternalAPIInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectKnowledgeExternalAPIInfo not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) CreateKnowledgeExternalAPI(context.Context, *CreateKnowledgeExternalAPIReq) (*CreateKnowledgeExternalAPIResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateKnowledgeExternalAPI not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeExternalAPI(context.Context, *UpdateKnowledgeExternalAPIReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateKnowledgeExternalAPI not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) DeleteKnowledgeExternalAPI(context.Context, *DeleteKnowledgeExternalAPIReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteKnowledgeExternalAPI not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) SelectKnowledgeExternalList(context.Context, *KnowledgeExternalListSelectReq) (*KnowledgeExternalSelectListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectKnowledgeExternalList not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) SelectKnowledgeExternalInfo(context.Context, *KnowledgeExternalInfoSelectReq) (*KnowledgeExternalInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectKnowledgeExternalInfo not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) CreateKnowledgeExternal(context.Context, *CreateKnowledgeExternalReq) (*CreateKnowledgeExternalResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateKnowledgeExternal not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) UpdateKnowledgeExternal(context.Context, *UpdateKnowledgeExternalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateKnowledgeExternal not implemented")
+}
+func (UnimplementedKnowledgeBaseServiceServer) DeleteKnowledgeExternal(context.Context, *DeleteKnowledgeExternalReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteKnowledgeExternal not implemented")
 }
 func (UnimplementedKnowledgeBaseServiceServer) mustEmbedUnimplementedKnowledgeBaseServiceServer() {}
 func (UnimplementedKnowledgeBaseServiceServer) testEmbeddedByValue()                              {}
@@ -647,6 +827,186 @@ func _KnowledgeBaseService_DeleteExportRecord_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KnowledgeBaseService_SelectKnowledgeExternalAPIList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KnowledgeExternalAPIListSelectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalAPIList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_SelectKnowledgeExternalAPIList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalAPIList(ctx, req.(*KnowledgeExternalAPIListSelectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_SelectKnowledgeExternalAPIInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KnowledgeExternalAPIInfoSelectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalAPIInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_SelectKnowledgeExternalAPIInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalAPIInfo(ctx, req.(*KnowledgeExternalAPIInfoSelectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_CreateKnowledgeExternalAPI_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateKnowledgeExternalAPIReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).CreateKnowledgeExternalAPI(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_CreateKnowledgeExternalAPI_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).CreateKnowledgeExternalAPI(ctx, req.(*CreateKnowledgeExternalAPIReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_UpdateKnowledgeExternalAPI_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateKnowledgeExternalAPIReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).UpdateKnowledgeExternalAPI(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_UpdateKnowledgeExternalAPI_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).UpdateKnowledgeExternalAPI(ctx, req.(*UpdateKnowledgeExternalAPIReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_DeleteKnowledgeExternalAPI_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteKnowledgeExternalAPIReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).DeleteKnowledgeExternalAPI(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_DeleteKnowledgeExternalAPI_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).DeleteKnowledgeExternalAPI(ctx, req.(*DeleteKnowledgeExternalAPIReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_SelectKnowledgeExternalList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KnowledgeExternalListSelectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_SelectKnowledgeExternalList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalList(ctx, req.(*KnowledgeExternalListSelectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_SelectKnowledgeExternalInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(KnowledgeExternalInfoSelectReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_SelectKnowledgeExternalInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).SelectKnowledgeExternalInfo(ctx, req.(*KnowledgeExternalInfoSelectReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_CreateKnowledgeExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateKnowledgeExternalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).CreateKnowledgeExternal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_CreateKnowledgeExternal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).CreateKnowledgeExternal(ctx, req.(*CreateKnowledgeExternalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_UpdateKnowledgeExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateKnowledgeExternalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).UpdateKnowledgeExternal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_UpdateKnowledgeExternal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).UpdateKnowledgeExternal(ctx, req.(*UpdateKnowledgeExternalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KnowledgeBaseService_DeleteKnowledgeExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteKnowledgeExternalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KnowledgeBaseServiceServer).DeleteKnowledgeExternal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KnowledgeBaseService_DeleteKnowledgeExternal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KnowledgeBaseServiceServer).DeleteKnowledgeExternal(ctx, req.(*DeleteKnowledgeExternalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KnowledgeBaseService_ServiceDesc is the grpc.ServiceDesc for KnowledgeBaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -717,6 +1077,46 @@ var KnowledgeBaseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteExportRecord",
 			Handler:    _KnowledgeBaseService_DeleteExportRecord_Handler,
+		},
+		{
+			MethodName: "SelectKnowledgeExternalAPIList",
+			Handler:    _KnowledgeBaseService_SelectKnowledgeExternalAPIList_Handler,
+		},
+		{
+			MethodName: "SelectKnowledgeExternalAPIInfo",
+			Handler:    _KnowledgeBaseService_SelectKnowledgeExternalAPIInfo_Handler,
+		},
+		{
+			MethodName: "CreateKnowledgeExternalAPI",
+			Handler:    _KnowledgeBaseService_CreateKnowledgeExternalAPI_Handler,
+		},
+		{
+			MethodName: "UpdateKnowledgeExternalAPI",
+			Handler:    _KnowledgeBaseService_UpdateKnowledgeExternalAPI_Handler,
+		},
+		{
+			MethodName: "DeleteKnowledgeExternalAPI",
+			Handler:    _KnowledgeBaseService_DeleteKnowledgeExternalAPI_Handler,
+		},
+		{
+			MethodName: "SelectKnowledgeExternalList",
+			Handler:    _KnowledgeBaseService_SelectKnowledgeExternalList_Handler,
+		},
+		{
+			MethodName: "SelectKnowledgeExternalInfo",
+			Handler:    _KnowledgeBaseService_SelectKnowledgeExternalInfo_Handler,
+		},
+		{
+			MethodName: "CreateKnowledgeExternal",
+			Handler:    _KnowledgeBaseService_CreateKnowledgeExternal_Handler,
+		},
+		{
+			MethodName: "UpdateKnowledgeExternal",
+			Handler:    _KnowledgeBaseService_UpdateKnowledgeExternal_Handler,
+		},
+		{
+			MethodName: "DeleteKnowledgeExternal",
+			Handler:    _KnowledgeBaseService_DeleteKnowledgeExternal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -160,7 +160,24 @@ func ListLlmModels(ctx *gin.Context) {
 //	@Router		/model/select/rerank [get]
 func ListRerankModels(ctx *gin.Context) {
 	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
-		ModelType: mp.ModelTypeRerank,
+		ModelType: mp.ModelTypeTextRerank,
+	})
+	gin_util.Response(ctx, resp, err)
+}
+
+// ListMultiRerankModels
+//
+//	@Tags		model
+//	@Summary	多模态rerank模型列表
+//	@Description
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
+//	@Router		/model/select/multi-rerank [get]
+func ListMultiRerankModels(ctx *gin.Context) {
+	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
+		ModelType: mp.ModelTypeMultiRerank,
 	})
 	gin_util.Response(ctx, resp, err)
 }
@@ -177,7 +194,24 @@ func ListRerankModels(ctx *gin.Context) {
 //	@Router		/model/select/embedding [get]
 func ListEmbeddingModels(ctx *gin.Context) {
 	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
-		ModelType: mp.ModelTypeEmbedding,
+		ModelType: mp.ModelTypeTextEmbedding,
+	})
+	gin_util.Response(ctx, resp, err)
+}
+
+// ListMultiEmbeddingModels
+//
+//	@Tags		model
+//	@Summary	多模态embedding模型列表
+//	@Description
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
+//	@Router		/model/select/multi-embedding [get]
+func ListMultiEmbeddingModels(ctx *gin.Context) {
+	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
+		ModelType: mp.ModelTypeMultiEmbedding,
 	})
 	gin_util.Response(ctx, resp, err)
 }
@@ -233,19 +267,19 @@ func ListGuiModels(ctx *gin.Context) {
 	gin_util.Response(ctx, resp, err)
 }
 
-// ListAsrModels
+// ListSyncAsrModels
 //
 //	@Tags		model
-//	@Summary	asr语音识别模型列表展示
+//	@Summary	同步asr语音识别模型列表展示
 //	@Description
 //	@Security	JWT
 //	@Accept		json
 //	@Produce	json
 //	@Success	200	{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
 //	@Router		/model/select/asr [get]
-func ListAsrModels(ctx *gin.Context) {
+func ListSyncAsrModels(ctx *gin.Context) {
 	resp, err := service.ListTypeModels(ctx, getUserID(ctx), getOrgID(ctx), &request.ListTypeModelsRequest{
-		ModelType: mp.ModelTypeAsr,
+		ModelType: mp.ModelTypeSyncAsr,
 	})
 	gin_util.Response(ctx, resp, err)
 }

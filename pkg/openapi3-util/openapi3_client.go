@@ -212,7 +212,8 @@ func executeRequest(
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("execute method(%v) url(%v) http status(%v)", method, fullURL, resp.StatusCode)
+		respBody, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("execute method(%v) url(%v) http status(%v) resp: %v", method, fullURL, resp.StatusCode, string(respBody))
 	}
 
 	respBody, err := io.ReadAll(resp.Body)

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	net_url "net/url"
 	"strings"
@@ -31,24 +32,16 @@ func FileUrlConvertBase64(ctx *gin.Context, req *request.FileUrlConvertBase64Req
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_read", err.Error())
 	}
-	// 自动检测 MIME 类型
-	mimeType := http.DetectContentType(fileData)
-	base64Data := base64.StdEncoding.EncodeToString(fileData)
 
-	if req.AddPrefix {
-		var prefix string
-		if req.CustomPrefix != "" {
-			prefix = req.CustomPrefix
-		} else {
-			prefix = "data:" + mimeType + ";base64"
-		}
-		if !strings.HasSuffix(prefix, ",") {
-			prefix += ","
-		}
-		base64Data = prefix + base64Data
+	base64Str, base64StrWithPrefix, err := util.FileData2Base64(fileData, req.CustomPrefix)
+	if err != nil {
+		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_convert_base64", err.Error())
 	}
-
-	return base64Data, nil
+	if req.AddPrefix {
+		return base64StrWithPrefix, nil
+	} else {
+		return base64Str, nil
+	}
 }
 
 func UploadFileToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileReq) (*response.UploadFileByWorkflowResp, error) {
@@ -66,16 +59,49 @@ func UploadFileToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileReq) 
 }
 
 func UploadFileBase64ToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileByBase64Req) (*response.UploadFileByWorkflowResp, error) {
-	ext := strings.TrimPrefix(req.FileExt, ".")
+	var finalFileName string
 	if req.FileName == "" {
-		req.FileName = util.GenUUID()
-	}
-	var finalFileName = req.FileName
-	if ext != "" {
-		finalFileName = finalFileName + "." + ext
+		finalFileName = util.GenUUID()
+	} else {
+		finalFileName = req.FileName
 	}
 
-	return UploadFileByWorkflow(ctx, finalFileName, req.File)
+	base64Data := req.File
+	var inferredExt string
+
+	// 尝试从标准 Data URL 提取 MIME 类型
+	if strings.HasPrefix(base64Data, "data:") && strings.Contains(base64Data, ";base64,") {
+		parts := strings.SplitN(base64Data, ",", 2)
+		if len(parts) == 2 {
+			header := parts[0]
+			base64Data = parts[1]
+
+			mimeType := strings.TrimPrefix(header, "data:")
+			if idx := strings.Index(mimeType, ";"); idx != -1 {
+				mimeType = mimeType[:idx]
+			}
+
+			if mimeType != "" {
+				if exts, _ := mime.ExtensionsByType(mimeType); len(exts) > 0 {
+					inferredExt = exts[0]
+				}
+			}
+		}
+	}
+
+	var finalExt string
+	if req.FileExt != "" {
+		ext := strings.TrimPrefix(req.FileExt, ".")
+		finalExt = "." + ext
+	} else if inferredExt != "" {
+		finalExt = inferredExt
+	}
+
+	if finalExt != "" {
+		finalFileName += finalExt
+	}
+
+	return UploadFileByWorkflow(ctx, finalFileName, base64Data)
 }
 
 func UploadFileByWorkflow(ctx *gin.Context, fileName, file string) (*response.UploadFileByWorkflowResp, error) {

@@ -8,8 +8,8 @@ services:
     container_name: ${WANWU_MYSQL_HOST}
     networks:
       - ${WANWU_DOCKER_NETWORK}
-    # ports:
-    #   - 3306:3306
+    ports:
+      - 3306:3306
     volumes:
       - wanwu_mysql_data:/var/lib/mysql
       - ./configs/middleware/mysql/initdb.d:/docker-entrypoint-initdb.d
@@ -273,7 +273,6 @@ services:
       CUSTOM_INFO_RESET_PASSWORD_BY_EMAIL: ${WANWU_BFF_RESET_PASSWORD_BY_EMAIL}
       CUSTOM_INFO_LOGIN_BY_EMAIL: ${WANWU_BFF_LOGIN_BY_EMAIL}
       OAUTH_SWITCH: ${WANWU_BFF_OAUTH_SWITCH}
-      AGENT_USE_OLD_AGENT: ${WANWU_BFF_USE_OLD_AGENT}
     working_dir: /app
     command: ./bin/bff-service
     healthcheck:
@@ -759,71 +758,6 @@ services:
       KAFKA_DOC_STATUS_INIT_URL: http://bff-service:6668/v1/api/doc_status_init
       MODEL_PROVIDER_URL: http://bff-service:6668
       REPLACE_MINIO_DOWNLOAD_URL: ${WANWU_WEB_BASE_URL}/minio/download/api/
-
-  # agent:
-  #   depends_on:
-  #     minio:
-  #       condition: service_healthy
-  #   restart: always
-  #   image: ${WANWU_AGENT_IMAGE}
-  #   container_name: agent-wanwu
-  #   networks:
-  #     - ${WANWU_DOCKER_NETWORK}
-  #   # ports:
-  #   #   - 7258:7258
-  #   #   - 1991:1991
-  #   #   - 1992:1992
-  #   #   - 15001:15001
-  #   #   - 15002:15002
-  #   #   - 15003:15003
-  #   volumes:
-  #     - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/logs:/agent/agent_open_source/logs
-  #     - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/minio/logs:/agent/agent_open_source/minio/logs
-  #     - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/minio/file:/agent/agent_open_source/minio/file
-  #     - ${WANWU_PROJECT_DIR}/agent-wanwu/agent_open_source/agent_plugin/logs:/agent/agent_open_source/agent_plugin/logs
-  #   environment:
-  #     MINIO_ADDRESS: ${WANWU_MINIO_ENDPOINT}
-  #     MINIO_ACCESS_KEY: ${WANWU_MINIO_USER}
-  #     MINIO_SECRET_KEY: ${WANWU_MINIO_PASSWORD}
-  #     # 用于agent并发处理
-  #     WORKERS: 4
-  #     THREADS: 8
-  #     # 用于agent调用外部接口的API前缀
-  #     URL_MODEL: http://bff-service
-  #     URL_MINIO: http://bff-service
-  #     URL_RAG: http://rag-wanwu
-  #     URL_RAG_STREAM: http://bff-service:6668/callback/v1/rag/knowledge/stream/search
-
-  # agentscope:
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #   restart: always
-  #   image: ${WANWU_AGENTSCOPE_IMAGE}
-  #   container_name: agentscope-wanwu
-  #   networks:
-  #     - ${WANWU_DOCKER_NETWORK}
-  #   ports:
-  #     - 6672:6672
-  #   volumes:
-  #     - ./configs/microservice/agentscope/configs/config.yaml:/agentscope/src/agentscope/aibigmodel_workflow/config.yaml
-  #     - ${WANWU_PROJECT_DIR}/agentscope/logs:/agentscope/logs
-  #   environment:
-  #     DB_NAME: ${WANWU_DB_NAME}
-  #     DATABASE_HOST: ${WANWU_MYSQL_HOST}
-  #     DATABASE_PORT: ${WANWU_MYSQL_PORT}
-  #     DATABASE_PASSWORD: ${WANWU_MYSQL_PASSWORD}
-  #     REDIS_HOST: ${WANWU_REDIS_HOST}
-  #     REDIS_PORT: ${WANWU_REDIS_PORT}
-  #     REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
-  #   healthcheck:
-  #     test: ["CMD", "python", "-c", "import socket; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.settimeout(5); result = s.connect_ex(('localhost', 6672)); s.close(); exit(0 if result == 0 else 1)"]
-  #     interval: 15s
-  #     timeout: 5s
-  #     retries: 99
-  #     start_period: 10s
 
   # ------ nginx & frontend ------
   

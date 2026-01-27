@@ -2,14 +2,18 @@
   <div>
     <div class="header">
       <div class="header-api">
-        <el-tag effect="plain" class="root-url">{{ $t('rag.form.apiRootUrl') }}</el-tag>
+        <el-tag effect="plain" class="root-url">
+          {{ $t('rag.form.apiRootUrl') }}
+        </el-tag>
         {{ apiURL }}
       </div>
       <el-button size="small" @click="openApiDialog" class="apikeyBtn">
         <img :src="require('@/assets/imgs/apikey.png')" />
         {{ $t('rag.form.apiKey') }}
       </el-button>
-      <div class="show-doc" @click="jumpApiDoc">{{ $t('rag.form.viewApiKey') }}</div>
+      <div class="show-doc" @click="jumpApiDoc">
+        {{ $t('rag.form.viewApiKey') }}
+      </div>
     </div>
     <el-table :data="tableData" style="width: 100%">
       <el-table-column :label="$t('tool.detail.key')" prop="apiKey" width="300">
@@ -21,10 +25,10 @@
       <el-table-column :label="$t('tool.detail.operate')" width="200">
         <template slot-scope="scope">
           <el-button size="mini" @click="handleCopy(scope.row) && copycb()">
-            {{$t('list.copy')}}
+            {{ $t('list.copy') }}
           </el-button>
           <el-button size="mini" @click="handleDelete(scope.row)">
-            {{$t('list.delete')}}
+            {{ $t('list.delete') }}
           </el-button>
         </template>
       </el-table-column>

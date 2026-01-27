@@ -52,6 +52,7 @@ func (s *Service) AssistantSnapshotCreate(ctx context.Context, req *assistant_se
 		AssistantID:  assistantId,
 		Version:      req.Version,
 		SnapshotDesc: req.Desc,
+		Category:     assistant.Category,
 		// 智能体基本信息
 		AssistantInfo: structToJson(assistant),
 		// 智能体附表信息
@@ -68,6 +69,18 @@ func (s *Service) AssistantSnapshotCreate(ctx context.Context, req *assistant_se
 	if status != nil {
 		log.Errorf("CreateAssistantSnapshot failed: %v", status)
 		return nil, errStatus(errs.Code_AssistantErr, status)
+	}
+
+	// 如果是多智能体，获取多智能体配置，并存入relation表 + 版本
+	if assistant.Category == model.MultiAgent {
+		agents, err := s.cli.FetchMultiAssistantRelationList(ctx, assistantId, "", true)
+		if err != nil {
+			return nil, errStatus(errs.Code_AssistantMultiAgentErr, err)
+		}
+		err = s.cli.BatchCreateMultiAssistantRelation(ctx, agents, req.Version)
+		if err != nil {
+			return nil, errStatus(errs.Code_AssistantMultiAgentErr, err)
+		}
 	}
 
 	return &assistant_service.AssistantSnapshotResp{
@@ -126,8 +139,10 @@ func (s *Service) AssistantSnapshotLatest(ctx context.Context, req *assistant_se
 		Version:     snapshotInfo.Version,
 		Desc:        snapshotInfo.SnapshotDesc,
 		CreateAt:    snapshotInfo.CreatedAt,
+		Category:    int32(snapshotInfo.Category),
 	}, nil
 }
+
 func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_service.AssistantSnapshotInfoReq) (*assistant_service.AssistantInfo, error) {
 	snapshotInfo, status := s.cli.GetAssistantSnapshot(ctx, util.MustU32(req.AssistantId), req.Version)
 
@@ -274,6 +289,24 @@ func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_serv
 		}
 	}
 
+	// 转换RecommendConfig
+	var recommendConfig *assistant_service.AssistantRecommendConfig
+	if snapshotAssistant.RecommendConfig != "" {
+		recommendConfig = &assistant_service.AssistantRecommendConfig{}
+		if err := json.Unmarshal([]byte(snapshotAssistant.RecommendConfig), recommendConfig); err != nil {
+			return nil, errStatus(errs.Code_AssistantErr, &errs.Status{
+				TextKey: "assistant_recommendConfig_unmarshal",
+				Args:    []string{err.Error()},
+			})
+		}
+	}
+
+	// 构建多智能体信息
+	multiAgentInfos, err := s.GetMultiAgentInfos(ctx, snapshotAssistant.ID, "", "", req.Version, false)
+	if err != nil {
+		return nil, err
+	}
+
 	return &assistant_service.AssistantInfo{
 		AssistantId: util.Int2Str(snapshotAssistant.ID),
 		Identity: &assistant_service.Identity{
@@ -294,13 +327,16 @@ func (s *Service) AssistantSnapshotInfo(ctx context.Context, req *assistant_serv
 		SafetyConfig:        safetyConfig,
 		VisionConfig:        visionConfig,
 		MemoryConfig:        memoryConfig,
+		RecommendConfig:     recommendConfig,
 		Scope:               int32(snapshotAssistant.Scope),
 		WorkFlowInfos:       workFlowInfos,
 		McpInfos:            mcpInfos,
 		ToolInfos:           toolInfos,
+		MultiAgentInfos:     multiAgentInfos,
 		CreatTime:           snapshotAssistant.CreatedAt,
 		UpdateTime:          snapshotAssistant.UpdatedAt,
 		Uuid:                snapshotAssistant.UUID,
+		Category:            int32(snapshotAssistant.Category),
 	}, nil
 }
 
@@ -344,8 +380,14 @@ func (s *Service) AssistantSnapshotRollback(ctx context.Context, req *assistant_
 		return nil, errStatus(errs.Code_AssistantErr, toErrStatus("assistant_snapshot", err.Error()))
 	}
 
+	// --- AssistantMultiAgentConfig ---
+	subAgents, err := s.cli.FetchMultiAssistantRelationList(ctx, assistantId, version, false)
+	if err != nil {
+		return nil, errStatus(errs.Code_AssistantMultiAgentErr, err)
+	}
+
 	// 执行回滚事务
-	status = s.cli.RollbackAssistantSnapshot(ctx, assistantInfo, assistantToolConfig, assistantMCPConfig, assistantWorkflowConfig, req.Identity.UserId, req.Identity.OrgId)
+	status = s.cli.RollbackAssistantSnapshot(ctx, assistantInfo, assistantToolConfig, assistantMCPConfig, assistantWorkflowConfig, subAgents, req.Identity.UserId, req.Identity.OrgId)
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantErr, status)
 	}

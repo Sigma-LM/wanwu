@@ -52,6 +52,7 @@ type GuiResp struct {
 	Content GuiContent `json:"content" validate:"required"`
 	Usage   Usage      `json:"usage" validate:"required"`
 }
+
 type GuiContent struct {
 	Description string `json:"description" validate:"required"`
 	Operation   string `json:"operation" validate:"required"`

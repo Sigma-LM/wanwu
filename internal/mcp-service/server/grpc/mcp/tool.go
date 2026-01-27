@@ -3,6 +3,8 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"github.com/UnicomAI/wanwu/internal/mcp-service/client"
+	"github.com/UnicomAI/wanwu/pkg/log"
 	"strings"
 
 	"github.com/UnicomAI/wanwu/api/proto/common"
@@ -47,6 +49,23 @@ func (s *Service) GetToolByIdList(ctx context.Context, req *mcp_service.GetToolB
 	return &mcp_service.GetToolByToolIdListResp{
 		List:               list,
 		ToolSquareInfoList: toolSquareInfo,
+	}, nil
+}
+
+func (s *Service) GetToolDetailByIdList(ctx context.Context, req *mcp_service.GetToolByToolIdListReq) (*mcp_service.GetToolDetailByToolIdListResp, error) {
+	// 内置工具
+	toolSquareInfoList, err := buildToolSquareInfoList(ctx, s.cli, req)
+	if err != nil {
+		return nil, err
+	}
+	// 自定义工具
+	customToolInfoList, err := buildCustomToolInfoList(ctx, s.cli, req)
+	if err != nil {
+		return nil, err
+	}
+	return &mcp_service.GetToolDetailByToolIdListResp{
+		CustomList:         customToolInfoList,
+		ToolSquareInfoList: toolSquareInfoList,
 	}, nil
 }
 
@@ -120,4 +139,70 @@ func (s *Service) GetToolSelect(ctx context.Context, req *mcp_service.GetToolSel
 		List:  list,
 		Total: int32(len(list)),
 	}, nil
+}
+
+func buildToolSquareInfoList(ctx context.Context, cli client.IClient, req *mcp_service.GetToolByToolIdListReq) ([]*mcp_service.SquareToolDetail, error) {
+	// 内置工具
+	var toolSquareInfo []*mcp_service.SquareToolDetail
+	if len(req.BuiltInToolIdList) > 0 {
+		list, err := cli.ListBuiltinToolsBySquareIdList(ctx, req.BuiltInToolIdList)
+		if err != nil {
+			return nil, errStatus(errs.Code_MCPGetCustomToolListErr, err)
+		}
+		var toolInfoMap = make(map[string]*model.BuiltinTool)
+		for _, tool := range list {
+			toolInfoMap[tool.ToolSquareId] = tool
+		}
+		for _, toolCfg := range config.Cfg().Tools {
+			tool := toolInfoMap[toolCfg.ToolSquareId]
+			if tool != nil {
+				apiAuth := &common.ApiAuthWebRequest{}
+				if toolCfg.NeedApiKeyInput {
+					apiAuthJson := tool.AuthJSON
+					if err := json.Unmarshal([]byte(apiAuthJson), apiAuth); err != nil {
+						log.Errorf("mcp_get_square_tool_err %v", err)
+						continue
+					}
+					apiAuth = toBuiltinToolApiAuth(*toolCfg, apiAuth.ApiKeyValue)
+				}
+				toolSquareInfo = append(toolSquareInfo, buildSquareToolDetail(*toolCfg, apiAuth))
+			}
+		}
+	}
+	return toolSquareInfo, nil
+}
+
+func buildCustomToolInfoList(ctx context.Context, cli client.IClient, req *mcp_service.GetToolByToolIdListReq) ([]*mcp_service.GetCustomToolInfoResp, error) {
+	if len(req.CustomToolIdList) == 0 {
+		return nil, nil
+	}
+	// 自定义工具
+	var ids []uint32
+	for _, idStr := range req.CustomToolIdList {
+		id := util.MustU32(idStr)
+		ids = append(ids, id)
+	}
+	infos, err := cli.ListCustomToolsByCustomToolIDs(ctx, ids)
+	if err != nil {
+		return nil, errStatus(errs.Code_MCPGetCustomToolListErr, err)
+	}
+	list := make([]*mcp_service.GetCustomToolInfoResp, 0)
+	for _, info := range infos {
+		apiAuthJson := info.AuthJSON
+		apiAuth := &common.ApiAuthWebRequest{}
+		if err := json.Unmarshal([]byte(apiAuthJson), apiAuth); err != nil {
+			log.Errorf("mcp_get_custom_tool_info_err %s", err)
+			continue
+		}
+		list = append(list, &mcp_service.GetCustomToolInfoResp{
+			CustomToolId:  util.Int2Str(info.ID),
+			AvatarPath:    info.AvatarPath,
+			Name:          info.Name,
+			Description:   info.Description,
+			Schema:        info.Schema,
+			PrivacyPolicy: info.PrivacyPolicy,
+			ApiAuth:       apiAuth,
+		})
+	}
+	return list, nil
 }

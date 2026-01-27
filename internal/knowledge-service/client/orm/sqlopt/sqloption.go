@@ -93,6 +93,24 @@ func WithCategory(category int) SQLOption {
 	})
 }
 
+func WithCategoryList(categoryList []int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(categoryList) == 0 {
+			return db
+		}
+		return db.Where("category IN ?", categoryList)
+	})
+}
+
+func WithExternal(external int) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if external == -1 {
+			return db
+		}
+		return db.Where("external = ?", external)
+	})
+}
+
 func WithTagID(id string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("tag_id = ?", id)
@@ -250,6 +268,7 @@ func WithGraphStatusList(graphStatus []int) SQLOption {
 		return db.Where("graph_status IN ?", graphStatus)
 	})
 }
+
 func WithStatus(status int) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if status == -1 {
@@ -374,5 +393,23 @@ func LikeTag(tag string) SQLOption {
 func WithDelete(deleted int) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("deleted = ?", deleted)
+	})
+}
+
+func WithExternalAPIId(id string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(id) > 0 {
+			return db.Where("external_api_id = ?", id)
+		}
+		return db
+	})
+}
+
+func WithExternalAPIIdList(ids []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(ids) > 0 {
+			return db.Where("external_api_id IN ?", ids)
+		}
+		return db
 	})
 }

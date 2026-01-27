@@ -28,7 +28,6 @@ func registerCommon(apiV1 *gin.RouterGroup) {
 	mid.Sub("common").Reg(apiV1, "/file/merge", http.MethodPost, v1.MergeFile, "合并文件")
 	mid.Sub("common").Reg(apiV1, "/file/clean", http.MethodPost, v1.CleanFile, "清除文件")
 	mid.Sub("common").Reg(apiV1, "/file/delete", http.MethodDelete, v1.DeleteFile, "刪除文件")
-	mid.Sub("common").Reg(apiV1, "/proxy/file/upload", http.MethodPost, v1.ProxyUploadFile, "代理上传文件")
 
 	// 文档中心
 	mid.Sub("common").Reg(apiV1, "/doc_center/search", http.MethodGet, v1.SearchDocCenter, "查找文档中心内容")
@@ -38,11 +37,13 @@ func registerCommon(apiV1 *gin.RouterGroup) {
 	// 模型通用
 	mid.Sub("common").Reg(apiV1, "/model/select/llm", http.MethodGet, v1.ListLlmModels, "llm模型列表展示")
 	mid.Sub("common").Reg(apiV1, "/model/select/rerank", http.MethodGet, v1.ListRerankModels, "rerank模型列表展示")
+	mid.Sub("common").Reg(apiV1, "/model/select/multi-rerank", http.MethodGet, v1.ListMultiRerankModels, "多模态rerank模型列表展示")
 	mid.Sub("common").Reg(apiV1, "/model/select/embedding", http.MethodGet, v1.ListEmbeddingModels, "embedding模型列表展示")
+	mid.Sub("common").Reg(apiV1, "/model/select/multi-embedding", http.MethodGet, v1.ListMultiEmbeddingModels, "多模态embedding模型列表展示")
 	mid.Sub("common").Reg(apiV1, "/model/select/ocr", http.MethodGet, v1.ListOcrModels, "ocr模型列表展示")
 	mid.Sub("common").Reg(apiV1, "/model/select/pdf-parser", http.MethodGet, v1.ListPdfParserModels, "pdf文档解析模型列表展示")
 	mid.Sub("common").Reg(apiV1, "/model/select/gui", http.MethodGet, v1.ListGuiModels, "gui模型列表展示")
-	//mid.Sub("common").Reg(apiV1, "/model/select/asr", http.MethodGet, v1.ListAsrModels, "asr语音识别模型列表展示")
+	mid.Sub("common").Reg(apiV1, "/model/select/sync-asr", http.MethodGet, v1.ListSyncAsrModels, "同步asr语音识别模型列表展示")
 	//mid.Sub("common").Reg(apiV1, "/model/select/text2image", http.MethodGet, v1.ListText2ImageModels, "文生图模型列表展示")
 
 	// 知识库通用

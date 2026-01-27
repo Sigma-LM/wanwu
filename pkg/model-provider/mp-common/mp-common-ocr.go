@@ -2,24 +2,39 @@ package mp_common
 
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
-	"mime/multipart"
-
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+	"io"
+	"mime/multipart"
 )
 
 // --- openapi request ---
 
 type OcrReq struct {
-	Files *multipart.FileHeader `form:"file" json:"file" validate:"required"`
+	Files   *multipart.FileHeader `form:"file" json:"file" `
+	OcrData *string               `form:"data" json:"data"`
+	Url     *string               `form:"url" json:"url"`
 }
 
 func (req *OcrReq) Check() error {
+	nonEmptyCount := 0
+	if req.Files != nil {
+		nonEmptyCount++
+	}
+	if req.OcrData != nil && *req.OcrData != "" {
+		nonEmptyCount++
+	}
+	if req.Url != nil && *req.Url != "" {
+		nonEmptyCount++
+	}
+	if nonEmptyCount != 1 {
+		return fmt.Errorf("参数错误：Files、OcrData、Url 必须且只能传入一个有效参数")
+	}
 	return nil
 }
 
@@ -43,9 +58,12 @@ type OcrResp struct {
 	Version   string    `json:"version"`
 	TimeStamp string    `json:"timestamp"`
 	Id        string    `json:"id"`
+	Sha1      string    `json:"sha1"`
 	TimeCost  float64   `json:"time_cost"`
+	FileName  string    `json:"filename"`
 	OcrData   []OcrData `json:"data" validate:"required,dive"`
 }
+
 type OcrData struct {
 	PageNum []int  `json:"page_num" validate:"required,min=1"`
 	Type    string `json:"type" validate:"required"`
@@ -125,11 +143,7 @@ func Ocr(ctx *gin.Context, provider, apiKey, url string, req *OcrReq, headers ..
 			Value: "Bearer " + apiKey,
 		})
 	}
-	file, err := req.Files.Open()
-	if err != nil {
-		return nil, fmt.Errorf("request %v %v ocr err: %v", url, provider, err)
-	}
-	defer file.Close()
+
 	request := resty.New().
 		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}). // 关闭证书校验
 		SetTimeout(0).                                             // 关闭请求超时
@@ -137,13 +151,41 @@ func Ocr(ctx *gin.Context, provider, apiKey, url string, req *OcrReq, headers ..
 		SetContext(ctx).
 		SetHeader("Content-Type", "multipart/form-data").
 		SetHeader("Accept", "application/json").
-		SetFileReader("file", req.Files.Filename, file).
 		SetDoNotParseResponse(true)
 	for _, header := range headers {
 		request.SetHeader(header.Key, header.Value)
 	}
+	// 根据不同参数类型，构建对应的请求
+	var resp *resty.Response
+	var err error
+	switch {
+	// 传入 Files（文件）
+	case req.Files != nil:
+		file, err := req.Files.Open()
+		if err != nil {
+			return nil, fmt.Errorf("request %v %v ocr err: %v", url, provider, err)
+		}
+		defer file.Close()
+		request.SetFileReader("file", req.Files.Filename, file)
 
-	resp, err := request.Post(url)
+	// 传入 OcrData（base64 编码）
+	case req.OcrData != nil && *req.OcrData != "":
+		// 验证 base64 合法性
+		if _, err := base64.StdEncoding.DecodeString(*req.OcrData); err != nil {
+			return nil, fmt.Errorf("request %v %v ocr err: base64 编码无效 - %v", url, provider, err)
+		}
+
+		request.SetFormData(map[string]string{
+			"data": *req.OcrData,
+		})
+
+	// 传入 Url（公网地址）
+	case req.Url != nil && *req.Url != "":
+		request.SetFormData(map[string]string{
+			"url": *req.Url,
+		})
+	}
+	resp, err = request.Post(url)
 	if err != nil {
 		return nil, fmt.Errorf("request %v %v ocr err: %v", url, provider, err)
 	}

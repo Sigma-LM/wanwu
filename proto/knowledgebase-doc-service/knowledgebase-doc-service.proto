@@ -90,6 +90,19 @@ message KnowledgeInfo {
   string knowledgeName = 2;//知识库名称
   int32 graphSwitch = 3; //知识库图谱开关
   bool showGraphReport = 4; //是否展示知识图谱和社区报告
+  string description = 5; // 知识库描述
+  string embeddingModelId = 6; // emb模型id
+  repeated KeywordsInfo keywords = 7; // 关键词列表
+  string llmModelId = 8; // llm模型id（知识图谱）
+}
+
+message KeywordsInfo {
+  uint32 id = 1;
+  string name = 2;
+  string alias = 3;
+  repeated string knowledgeBaseIds =4;
+  repeated string knowledgeBaseNames =5;
+  string updatedAt = 6;
 }
 
 message ImportDocReq {
@@ -103,6 +116,8 @@ message ImportDocReq {
   string ocrModelId = 8; //ocr模型id
   repeated string docPreprocess = 9;//文本预处理规则
   repeated DocMetaData docMetaDataList = 10; // 元数据列表
+  string asrModelId = 11; // asr模型id
+  string multimodalModelId = 12; // 多模态模型id
 }
 
 
@@ -264,6 +279,7 @@ message DocSegmentListReq{
   string docId = 3;
   int32 pageSize = 4;
   int32 pageNo = 5;
+  string keyword = 6; // 筛选分段
 }
 
 message UpdateDocSegmentStatusReq{

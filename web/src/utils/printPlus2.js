@@ -40,7 +40,6 @@ Print.prototype = {
     let curSentence = this.sentenceArr[this.sIndex];
     this.printStatus = 1;
     if (!curSentence) {
-      console.log(this.sIndex, this.sentenceArr);
       return;
     }
     this.looper = new Looper(

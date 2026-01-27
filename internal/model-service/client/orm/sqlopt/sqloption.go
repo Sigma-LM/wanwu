@@ -45,6 +45,7 @@ func WithUUID(uuid string) SQLOption {
 		return db.Where("uuid = ?", uuid)
 	})
 }
+
 func WithOrgID(orgID string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		if orgID != "" {
@@ -78,6 +79,12 @@ func WithModelType(modelType string) SQLOption {
 			return db.Where("model_type = ?", modelType)
 		}
 		return db
+	})
+}
+
+func WithModelTypes(modelTypes []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("model_type IN ?", modelTypes)
 	})
 }
 
@@ -122,6 +129,21 @@ func LikeDisplayNameOrModel(displayName string) SQLOption {
 				"%"+displayName+"%",
 				"%"+displayName+"%",
 			)
+		}
+		return db
+	})
+}
+
+func WithModelExperienceId(modelExperienceId uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("model_experience_id = ?", modelExperienceId)
+	})
+}
+
+func WithSessionID(sessionId string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if sessionId != "" {
+			return db.Where("session_id = ?", sessionId)
 		}
 		return db
 	})

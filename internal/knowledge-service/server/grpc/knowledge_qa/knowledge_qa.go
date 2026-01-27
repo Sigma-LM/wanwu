@@ -343,6 +343,7 @@ func buildKnowledgeList(knowledgeList []*model.KnowledgeBase) []string {
 	}
 	return knowledgeIdList
 }
+
 func isValidFilterParams(params *knowledgebase_qa_service.MetaDataFilterParams) bool {
 	return params != nil &&
 		params.FilterEnable &&

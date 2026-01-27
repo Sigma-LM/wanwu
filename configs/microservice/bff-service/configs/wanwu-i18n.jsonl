@@ -235,7 +235,7 @@
 {"code":141007,"key":"","langs":{"zh":"正在解析文档，不可删除"}}
 {"code":141008,"key":"","langs":{"zh":"该名称已存在，请重新命名"}}
 {"code":141009,"key":"","langs":{"zh":"查询列表失败，请稍后重试"}}
-{"code":141010,"key":"","langs":{"zh":"命中测试失败，请稍后重试"}}
+{"code":141010,"key":"","langs":{"zh":"命中测试失败，请稍后重试: %v"}}
 {"code":141011,"key":"","langs":{"zh":"查询知识图谱失败，请稍后重试"}}
 {"code":142001,"key":"","langs":{"zh":"文档正在解析文档，不可删除"}}
 {"code":142002,"key":"","langs":{"zh":"文档删除失败，请稍后重试"}}
@@ -308,6 +308,17 @@
 {"code":148011,"key":"","langs":{"zh":"获取导出记录列表失败，请稍后重试"}}
 {"code":148012,"key":"","langs":{"zh":"删除导出记录失败，请稍后重试"}}
 {"code":148013,"key":"","langs":{"zh":"获取问答库文档任务详情失败，请稍后重试"}}
+{"code":149001,"key":"","langs":{"zh":"新建外部知识库API失败，请稍后重试"}}
+{"code":149002,"key":"","langs":{"zh":"删除外部知识库API失败，请稍后重试"}}
+{"code":149003,"key":"","langs":{"zh":"修改外部知识库API失败，请稍后重试"}}
+{"code":149004,"key":"","langs":{"zh":"获取外部知识库API详情失败，请稍后重试"}}
+{"code":149005,"key":"","langs":{"zh":"获取外部知识库API列表失败，请稍后重试"}}
+{"code":149006,"key":"","langs":{"zh":"新建外部知识库失败，请稍后重试"}}
+{"code":149007,"key":"","langs":{"zh":"删除外部知识库失败，请稍后重试"}}
+{"code":149008,"key":"","langs":{"zh":"修改外部知识库失败，请稍后重试"}}
+{"code":149009,"key":"","langs":{"zh":"获取外部知识库详情失败，请稍后重试"}}
+{"code":149010,"key":"","langs":{"zh":"获取外部知识库列表失败，请稍后重试"}}
+{"code":149011,"key":"","langs":{"zh":"校验外部知识库API失败，请稍后重试"}}
 {"code":310001,"key":"mcp_get_square_err","langs":{"zh":"广场MCP不存在"}}
 {"code":310001,"key":"mcp_check_exist_err","langs":{"zh":"检查MCP是否存在来自广场异常: %v"}}
 {"code":310002,"key":"mcp_create_duplicate_square","langs":{"zh":"创建MCP异常: 已存在来自广场"}}
@@ -373,6 +384,8 @@
 {"code":160001,"key":"assistant_visionConfig_marshal","langs":{"zh":"智能体vision配置解析失败: %v"}}
 {"code":160001,"key":"assistant_memoryConfig_marshal","langs":{"zh":"智能体memory配置解析失败: %v"}}
 {"code":160001,"key":"assistant_memoryConfig_unmarshal","langs":{"zh":"智能体memory配置解析失败: %v"}}
+{"code":160001,"key":"assistant_recommendConfig_marshal","langs":{"zh":"智能体recommend配置解析失败: %v"}}
+{"code":160001,"key":"assistant_recommendConfig_unmarshal","langs":{"zh":"智能体recommend配置解析失败: %v"}}
 {"code":160001,"key":"assistant_copy","langs":{"zh":"智能体复制错误: %v"}}
 {"code":160001,"key":"assistant_snapshot","langs":{"zh":"智能体快照错误: %v"}}
 {"code":160001,"key":"assistant_tool","langs":{"zh":"智能体快照回滚tool错误: %v"}}

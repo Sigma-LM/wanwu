@@ -39,22 +39,32 @@ type EmbeddingModelInfo struct {
 }
 
 type KnowledgeInfo struct {
-	KnowledgeId        string              `json:"knowledgeId"`        //知识库id
-	Name               string              `json:"name"`               //知识库名称
-	OrgName            string              `json:"orgName"`            //知识库所属名称
-	Description        string              `json:"description"`        //知识库描述
-	DocCount           int                 `json:"docCount"`           //文档数量
-	EmbeddingModelInfo *EmbeddingModelInfo `json:"embeddingModelInfo"` //embedding模型信息
-	KnowledgeTagList   []*KnowledgeTag     `json:"knowledgeTagList"`   //知识库标签列表
-	CreateUserId       string              `json:"createUserId"`
-	CreateAt           string              `json:"createAt"`       //创建时间
-	PermissionType     int32               `json:"permissionType"` //权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限
-	Share              bool                `json:"share"`          //是分享，还是私有
-	RagName            string              `json:"ragName"`        //rag名称
-	GraphSwitch        int32               `json:"graphSwitch"`    //图谱开关
-	Category           int32               `json:"category"`       // 0: 知识库; 1: 问答库
-	LlmModelId         string              `json:"llmModelId"`     // 知识图谱模型id
-	UpdatedAt          string              `json:"updatedAt"`      // 更新时间
+	KnowledgeId           string                 `json:"knowledgeId"`        //知识库id
+	Name                  string                 `json:"name"`               //知识库名称
+	OrgName               string                 `json:"orgName"`            //知识库所属名称
+	Description           string                 `json:"description"`        //知识库描述
+	DocCount              int                    `json:"docCount"`           //文档数量
+	EmbeddingModelInfo    *EmbeddingModelInfo    `json:"embeddingModelInfo"` //embedding模型信息
+	KnowledgeTagList      []*KnowledgeTag        `json:"knowledgeTagList"`   //知识库标签列表
+	CreateUserId          string                 `json:"createUserId"`
+	CreateAt              string                 `json:"createAt"`              //创建时间
+	PermissionType        int32                  `json:"permissionType"`        //权限类型:0: 查看权限; 10: 编辑权限; 20: 授权权限,数值不连续的原因防止后续有中间权限，目前逻辑 授权权限>编辑权限>查看权限
+	Share                 bool                   `json:"share"`                 //是分享，还是私有
+	RagName               string                 `json:"ragName"`               //rag名称
+	GraphSwitch           int32                  `json:"graphSwitch"`           //图谱开关
+	Category              int32                  `json:"category"`              // 0: 知识库; 1: 问答库
+	LlmModelId            string                 `json:"llmModelId"`            // 知识图谱模型id
+	UpdatedAt             string                 `json:"updatedAt"`             // 更新时间
+	External              int32                  `json:"external"`              // 0: 内部知识库 1：外部知识库
+	ExternalKnowledgeInfo *KnowledgeExternalInfo `json:"externalKnowledgeInfo"` //外部知识库信息
+}
+
+type KnowledgeExternalInfo struct {
+	ExternalKnowledgeId   string `json:"externalKnowledgeId"`   // 外部知识库id
+	ExternalKnowledgeName string `json:"externalKnowledgeName"` // 外部知识库名称
+	ExternalSource        string `json:"externalSource"`        // 外部知识库来源
+	ExternalApiId         string `json:"externalApiId"`         // 外部知识库API id
+	ExternalApiName       string `json:"externalApiName"`       // 外部知识库API名称
 }
 
 type KnowledgeMetaData struct {
@@ -150,4 +160,34 @@ type ListKnowledgeExportRecordResp struct {
 	Status         int    `json:"status"`         //状态
 	ErrorMsg       string `json:"errorMsg"`       //导出状态错误信息
 	KnowledgeName  string `json:"knowledgeName"`
+}
+
+type CreateKnowledgeExternalAPIResp struct {
+	ExternalAPIId string `json:"externalApiId"` // 外部知识库API id
+}
+
+type KnowledgeExternalAPIInfo struct {
+	ExternalAPIId string `json:"externalApiId"` // 外部知识库API id
+	Name          string `json:"name" `         // 外部知识库API 名称
+	Description   string `json:"description"`   // 外部知识库API 描述
+	BaseUrl       string `json:"baseUrl"`       // 外部知识库API endpoint
+	ApiKey        string `json:"apiKey"`        // 外部知识库API Key
+}
+
+type KnowledgeExternalAPIListResp struct {
+	ExternalAPIList []*KnowledgeExternalAPIInfo `json:"externalApiList"` // 外部知识库API列表
+}
+
+type KnowledgeExternalListResp struct {
+	ExternalKnowledgeList []*KnowledgeExternalBriefInfo `json:"externalKnowledgeList"` // 外部知识库列表
+}
+
+type KnowledgeExternalBriefInfo struct {
+	ExternalKnowledgeId   string `json:"externalKnowledgeId"`   // 外部知识库id
+	ExternalKnowledgeName string `json:"externalKnowledgeName"` // 外部知识库名称
+	ExternalApiId         string `json:"externalApiId"`         // 外部知识库API id
+}
+
+type CreateKnowledgeExternalResp struct {
+	KnowledgeId string `json:"knowledgeId"` //知识库id
 }

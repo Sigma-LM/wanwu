@@ -39,6 +39,24 @@ definitions:
       precise:
         type: string
     type: object
+  model_service.ModelExperienceDialog:
+    properties:
+      createdAt:
+        type: integer
+      modelExperienceId:
+        type: string
+      modelId:
+        description: 模型
+        type: string
+      modelSetting:
+        description: 模型参数配置
+        type: string
+      sessionId:
+        description: 会话 ID
+        type: string
+      title:
+        type: string
+    type: object
   mp.AppModelParams:
     properties:
       providerDeepSeek:
@@ -1045,6 +1063,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppKnowledgebaseConfig'
         description: 知识库
+      memoryConfig:
+        allOf:
+        - $ref: '#/definitions/request.MemoryConfig'
+        description: 记忆配置
       modelConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
@@ -1052,6 +1074,10 @@ definitions:
       prologue:
         description: 开场白
         type: string
+      recommendConfig:
+        allOf:
+        - $ref: '#/definitions/request.RecommendConfig'
+        description: 追问配置
       recommendQuestion:
         description: 推荐问题
         items:
@@ -1071,6 +1097,24 @@ definitions:
         description: 视觉配置
     required:
     - assistantId
+    type: object
+  request.AssistantCreateReq:
+    properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
+      category:
+        description: 1:单智能体 2:多智能体
+        type: integer
+      desc:
+        description: 描述
+        type: string
+      name:
+        description: 名称
+        type: string
+    required:
+    - name
     type: object
   request.AssistantIdRequest:
     properties:
@@ -1543,7 +1587,7 @@ definitions:
   request.CreateKnowledgeReq:
     properties:
       category:
-        description: 0:知识库，1:问答库
+        description: 0:知识库，1:问答库,2:多模态知识库
         type: integer
       description:
         type: string
@@ -1945,8 +1989,11 @@ definitions:
     type: object
   request.DocConfigUpdateReq:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model
+        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
         items:
           type: string
         type: array
@@ -1975,6 +2022,9 @@ definitions:
       knowledgeId:
         description: 知识库id
         type: string
+      multimodalModelId:
+        description: 模态模型id
+        type: string
       parserModelId:
         description: 模型解析或ocr模型id
         type: string
@@ -1986,8 +2036,11 @@ definitions:
     type: object
   request.DocImportReq:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model
+        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
         items:
           type: string
         type: array
@@ -2015,6 +2068,9 @@ definitions:
         description: 文档分段配置
       knowledgeId:
         description: 知识库id
+        type: string
+      multimodalModelId:
+        description: 模态模型id
         type: string
       parserModelId:
         description: 模型解析或ocr模型id
@@ -2711,6 +2767,11 @@ definitions:
     - name
     - sseUrl
     type: object
+  request.MemoryConfig:
+    properties:
+      maxHistoryLength:
+        type: integer
+    type: object
   request.MergeFileReq:
     properties:
       chunkName:
@@ -2761,6 +2822,85 @@ definitions:
         description: value
         type: string
     type: object
+  request.ModelExperienceDialogIDRequest:
+    properties:
+      modelExperienceId:
+        description: 模型体验对话ID
+        type: string
+    required:
+    - modelExperienceId
+    type: object
+  request.ModelExperienceDialogRequest:
+    properties:
+      modelId:
+        description: 模型
+        type: string
+      modelSetting:
+        description: 模型参数配置
+      sessionId:
+        description: 会话 ID
+        type: string
+      title:
+        description: 对话标题
+        type: string
+    required:
+    - modelId
+    - sessionId
+    type: object
+  request.ModelExperienceLlmRequest:
+    properties:
+      content:
+        description: 内容
+        type: string
+      fileIdList:
+        description: 文件ID列表
+        items:
+          type: string
+        type: array
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      modelExperienceId:
+        description: 体验对话ID（模型对比时为空）
+        type: string
+      modelId:
+        description: 模型ID
+        type: string
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      sessionId:
+        description: 会话 ID
+        type: string
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
+    required:
+    - content
+    - modelId
+    - sessionId
+    type: object
   request.ModelStatusRequest:
     properties:
       isActive:
@@ -2770,6 +2910,49 @@ definitions:
         type: string
     required:
     - modelId
+    type: object
+  request.MultiAgentConfigUpdateReq:
+    properties:
+      agentId:
+        description: 子智能体id
+        type: string
+      assistantId:
+        description: 多智能体id
+        type: string
+      desc:
+        description: 子智能体描述
+        type: string
+    required:
+    - agentId
+    - assistantId
+    - desc
+    type: object
+  request.MultiAgentCreateReq:
+    properties:
+      agentId:
+        description: 子智能体id
+        type: string
+      assistantId:
+        description: 多智能体id
+        type: string
+    required:
+    - agentId
+    - assistantId
+    type: object
+  request.MultiAgentEnableSwitchReq:
+    properties:
+      agentId:
+        description: 子智能体id
+        type: string
+      assistantId:
+        description: 多智能体id
+        type: string
+      enable:
+        description: 开关状态
+        type: boolean
+    required:
+    - agentId
+    - assistantId
     type: object
   request.OrgCreate:
     properties:
@@ -2857,6 +3040,24 @@ definitions:
     - publishType
     - version
     type: object
+  request.QuestionRecommendRequest:
+    properties:
+      assistantId:
+        description: 智能体id
+        type: string
+      conversationId:
+        description: 会话id，如果非试用则不可为空
+        type: string
+      query:
+        description: 用户问题
+        type: string
+      trial:
+        description: 是否试用
+        type: boolean
+    required:
+    - assistantId
+    - query
+    type: object
   request.RagBrief:
     properties:
       avatar:
@@ -2919,6 +3120,25 @@ definitions:
         type: string
     required:
     - ragId
+    type: object
+  request.RecommendConfig:
+    properties:
+      maxHistory:
+        description: 最大历史会话轮次
+        type: integer
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型信息
+      prompt:
+        description: 提示词
+        type: string
+      promptEnable:
+        description: 提示词开关
+        type: boolean
+      recommendEnable:
+        description: 追问配置开关
+        type: boolean
     type: object
   request.RegisterByEmail:
     properties:
@@ -3642,6 +3862,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.Avatar'
         description: 图标
+      category:
+        description: 1.单智能体 2.多智能体
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -3660,10 +3883,19 @@ definitions:
         items:
           $ref: '#/definitions/response.AssistantMCPInfo'
         type: array
+      memoryConfig:
+        allOf:
+        - $ref: '#/definitions/request.MemoryConfig'
+        description: 记忆配置
       modelConfig:
         allOf:
         - $ref: '#/definitions/request.AppModelConfig'
         description: 模型
+      multiAgentInfos:
+        description: 多智能体配置
+        items:
+          $ref: '#/definitions/response.AssistantAgentInfo'
+        type: array
       name:
         description: 名称
         type: string
@@ -3676,6 +3908,10 @@ definitions:
       publishType:
         description: 发布类型
         type: string
+      recommendConfig:
+        allOf:
+        - $ref: '#/definitions/response.RecommendConfig'
+        description: 追问配置
       recommendQuestion:
         description: 推荐问题
         items:
@@ -3714,6 +3950,19 @@ definitions:
     required:
     - assistantId
     - name
+    type: object
+  response.AssistantAgentInfo:
+    properties:
+      agentId:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      desc:
+        type: string
+      enable:
+        type: boolean
+      name:
+        type: string
     type: object
   response.AssistantCreateResp:
     properties:
@@ -4465,11 +4714,21 @@ definitions:
     type: object
   response.DocKnowledgeInfo:
     properties:
+      description:
+        type: string
+      embeddingModel:
+        $ref: '#/definitions/response.ModelInfo'
       graphSwitch:
         type: integer
+      keywords:
+        items:
+          $ref: '#/definitions/response.KeywordsInfo'
+        type: array
       knowledgeId:
         type: string
       knowledgeName:
+        type: string
+      llmModelId:
         type: string
       showGraphReport:
         type: boolean
@@ -5153,7 +5412,7 @@ definitions:
         description: 图谱错误信息
         type: string
       graphStatus:
-        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+        description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -
         type: integer
       knowledgeId:
         description: 知识库id
@@ -5600,6 +5859,27 @@ definitions:
         description: minio文件的完整路径
         type: string
     type: object
+  response.ModelExperienceDialogRecord:
+    properties:
+      modelExperienceId:
+        description: 模型体验 ID
+        type: string
+      modelId:
+        description: 模型 ID
+        type: string
+      originalContent:
+        description: 原始内容
+        type: string
+      reasoningContent:
+        description: 思考过程
+        type: string
+      role:
+        description: 角色
+        type: string
+      sessionId:
+        description: Session ID
+        type: string
+    type: object
   response.ModelInfo:
     properties:
       avatar:
@@ -5762,12 +6042,6 @@ definitions:
     - name
     - templateId
     type: object
-  response.ProxyUploadFileResp:
-    properties:
-      download_link:
-        description: 上传文件链接
-        type: string
-    type: object
   response.QAHitSearchList:
     properties:
       answer:
@@ -5843,6 +6117,25 @@ definitions:
     - qaRerankConfig
     - ragId
     - rerankConfig
+    type: object
+  response.RecommendConfig:
+    properties:
+      maxHistory:
+        description: 最大历史会话轮次
+        type: integer
+      modelConfig:
+        allOf:
+        - $ref: '#/definitions/request.AppModelConfig'
+        description: 模型信息
+      prompt:
+        description: 提示词
+        type: string
+      promptEnable:
+        description: 提示词开关
+        type: boolean
+      recommendEnable:
+        description: 追问配置开关
+        type: boolean
     type: object
   response.Response:
     properties:
@@ -7655,7 +7948,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.AppBriefConfig'
+          $ref: '#/definitions/request.AssistantCreateReq'
       produces:
       - application/json
       responses:
@@ -7919,6 +8212,159 @@ paths:
       security:
       - JWT: []
       summary: 查看草稿智能体详情
+      tags:
+      - agent
+  /assistant/multi-agent:
+    delete:
+      consumes:
+      - application/json
+      description: 为智能体解绑子智能体
+      parameters:
+      - description: 智能体id与子智能体id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MultiAgentCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除多智能体配置
+      tags:
+      - agent
+    post:
+      consumes:
+      - application/json
+      description: 为智能体绑定已发布的子智能体
+      parameters:
+      - description: 智能体id、子智能体id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MultiAgentCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 添加多智能体配置
+      tags:
+      - agent
+  /assistant/multi-agent/config:
+    put:
+      consumes:
+      - application/json
+      description: 为智能体修改子智能体描述
+      parameters:
+      - description: 智能体id、子智能体id、描述
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MultiAgentConfigUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 修改多智能体配置
+      tags:
+      - agent
+  /assistant/multi-agent/switch:
+    put:
+      consumes:
+      - application/json
+      description: 为智能体启用/停用子智能体
+      parameters:
+      - description: 智能体id、子智能体id、开关状态
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.MultiAgentEnableSwitchReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 启用/停用多智能体配置
+      tags:
+      - agent
+  /assistant/question/recommend:
+    post:
+      consumes:
+      - application/json
+      description: 智能体问题推荐接口
+      parameters:
+      - description: 智能问题推荐请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.QuestionRecommendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 智能体问题推荐接口
+      tags:
+      - agent
+  /assistant/select:
+    get:
+      consumes:
+      - application/json
+      description: 添加多智能体配置-下拉列表接口
+      parameters:
+      - description: assistant名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.AppBriefInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 添加多智能体配置-下拉列表接口
       tags:
       - agent
   /assistant/stream:
@@ -9529,6 +9975,9 @@ paths:
       - in: query
         name: docId
         required: true
+        type: string
+      - in: query
+        name: keyword
         type: string
       - in: query
         name: pageNo
@@ -11464,6 +11913,137 @@ paths:
       summary: 导入模型更新
       tags:
       - model
+  /model/experience/dialog:
+    delete:
+      consumes:
+      - application/json
+      description: 删除模型体验对话
+      parameters:
+      - description: 模型体验对话ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ModelExperienceDialogIDRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除模型体验对话
+      tags:
+      - model.experience
+    post:
+      consumes:
+      - application/json
+      description: 新建/保存对话
+      parameters:
+      - description: 模型体验对话
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ModelExperienceDialogRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 新建/保存对话
+      tags:
+      - model.experience
+  /model/experience/dialog/records:
+    get:
+      consumes:
+      - application/json
+      description: 获取模型体验对话记录列表
+      parameters:
+      - description: 模型体验对话ID
+        in: query
+        name: modelExperienceId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelExperienceDialogRecord'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取模型体验对话记录列表
+      tags:
+      - model.experience
+  /model/experience/dialogs:
+    get:
+      consumes:
+      - application/json
+      description: 获取模型体验对话列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/model_service.ModelExperienceDialog'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取模型体验对话列表
+      tags:
+      - model.experience
+  /model/experience/llm:
+    post:
+      consumes:
+      - application/json
+      description: LLM模型体验
+      parameters:
+      - description: LLM模型体验
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ModelExperienceLlmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 模型体验
+      tags:
+      - model.experience
   /model/list:
     get:
       consumes:
@@ -11613,6 +12193,58 @@ paths:
       security:
       - JWT: []
       summary: llm模型列表
+      tags:
+      - model
+  /model/select/multi-embedding:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 多模态embedding模型列表
+      tags:
+      - model
+  /model/select/multi-rerank:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        $ref: '#/definitions/response.ModelInfo'
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 多模态rerank模型列表
       tags:
       - model
   /model/select/ocr:
@@ -12387,39 +13019,6 @@ paths:
       summary: 获取提示词模板列表
       tags:
       - guest
-  /proxy/file/upload:
-    post:
-      consumes:
-      - multipart/form-data
-      description: 代理文件上传
-      parameters:
-      - description: 原始文件名
-        in: formData
-        name: fileName
-        required: true
-        type: string
-      - description: 文件
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.ProxyUploadFileResp'
-              type: object
-      security:
-      - JWT: []
-      summary: 代理文件上传
-      tags:
-      - common.file
   /rag/chat:
     post:
       consumes:

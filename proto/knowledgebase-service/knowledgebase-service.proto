@@ -39,6 +39,28 @@ service KnowledgeBaseService {
   rpc GetExportRecordList(GetExportRecordListReq) returns (GetExportRecordListResp) {}
   // 删除导出记录
   rpc DeleteExportRecord(DeleteExportRecordReq) returns (google.protobuf.Empty) {}
+
+  // 获取外部知识库API列表
+  rpc SelectKnowledgeExternalAPIList(KnowledgeExternalAPIListSelectReq) returns (KnowledgeExternalAPISelectListResp) {}
+  // 获取外部知识库API详情
+  rpc SelectKnowledgeExternalAPIInfo(KnowledgeExternalAPIInfoSelectReq) returns (KnowledgeExternalAPIInfo) {}
+  // 新增外部知识库API
+  rpc CreateKnowledgeExternalAPI(CreateKnowledgeExternalAPIReq) returns (CreateKnowledgeExternalAPIResp) {}
+  // 修改外部知识库API
+  rpc UpdateKnowledgeExternalAPI(UpdateKnowledgeExternalAPIReq) returns (google.protobuf.Empty) {}
+  // 删除外部知识库API
+  rpc DeleteKnowledgeExternalAPI(DeleteKnowledgeExternalAPIReq) returns (google.protobuf.Empty) {}
+
+  // 获取外部知识库列表
+  rpc SelectKnowledgeExternalList(KnowledgeExternalListSelectReq) returns (KnowledgeExternalSelectListResp) {}
+  // 获取外部知识库详情
+  rpc SelectKnowledgeExternalInfo(KnowledgeExternalInfoSelectReq) returns (KnowledgeExternalInfo) {}
+  // 新增外部知识库
+  rpc CreateKnowledgeExternal(CreateKnowledgeExternalReq) returns (CreateKnowledgeExternalResp) {}
+  // 修改外部知识库
+  rpc UpdateKnowledgeExternal(UpdateKnowledgeExternalReq) returns (google.protobuf.Empty) {}
+  // 删除外部知识库
+  rpc DeleteKnowledgeExternal(DeleteKnowledgeExternalReq) returns (google.protobuf.Empty) {}
 }
 
 message DeleteKnowledgeReq{
@@ -107,7 +129,7 @@ message CreateKnowledgeReq{
   string description = 4;
   EmbeddingModelInfo embeddingModelInfo = 5;
   KnowledgeGraph knowledgeGraph = 6; //知识图谱配置
-  int32 category = 7; //分类信息，0:知识库，1：问答库
+  int32 category = 7; //分类信息，0:知识库，1：问答库，2：多模态知识库
 }
 
 message EmbeddingModelInfo{
@@ -130,6 +152,7 @@ message KnowledgeSelectReq {
   string name = 3; //知识库名称，支持模糊搜索
   repeated string tagIdList = 4; //知识库id 列表
   int32 category = 5; //分类信息，0:知识库，1：问答库
+  int32 external = 6; //外部知识库标识，0:知识库，1:外部知识库
 }
 
 message BatchKnowledgeSelectReq {
@@ -178,6 +201,8 @@ message KnowledgeInfo {
   int32 category = 14; // 0:知识库 1:问答库
   string llmModelId = 15; // 知识图谱-大模型id
   string updatedAt = 16; // 更新时间
+  int32 external = 17; //0:知识库 1:外部知识库
+  KnowledgeExternalInfo knowledgeExternalInfo = 18; // 外部知识库信息
 }
 
 message KnowledgeTagInfo {
@@ -298,4 +323,153 @@ message DeleteExportRecordReq{
   string exportRecordId = 1;//导出记录id
   string userId = 2;
   string orgId = 3;
+}
+
+message CreateKnowledgeExternalAPIReq{
+  string userId = 1;
+  string orgId = 2;
+  string name = 3;
+  string description = 4;
+  string baseUrl = 5;
+  string apiKey = 6;
+}
+
+message CreateKnowledgeExternalAPIResp{
+  string externalAPIId = 1;
+}
+
+message UpdateKnowledgeExternalAPIReq{
+  string userId = 1;
+  string orgId = 2;
+  string externalAPIId = 3;
+  string name = 4;
+  string description = 5;
+  string baseUrl = 6;
+  string apiKey = 7;
+}
+
+message DeleteKnowledgeExternalAPIReq{
+  string userId = 1;
+  string orgId = 2;
+  string externalAPIId = 3;
+}
+
+message KnowledgeExternalAPIListSelectReq {
+  string userId = 1;
+  string orgId = 2;
+  repeated string externalAPIIds = 3;
+}
+
+message KnowledgeExternalAPIInfoSelectReq {
+  string userId = 1;
+  string orgId = 2;
+  string externalAPIId = 3;
+}
+
+message KnowledgeExternalAPIInfo{
+  string userId = 1;
+  string orgId = 2;
+  string externalAPIId = 3;
+  string name = 4;
+  string description = 5;
+  string baseUrl = 6;
+  string apiKey = 7;
+}
+
+message KnowledgeExternalAPISelectListResp{
+  repeated KnowledgeExternalAPIInfo externalAPIList = 1;
+}
+
+message CreateKnowledgeExternalReq{
+  string userId = 1;
+  string orgId = 2;
+  string name = 3;
+  string description = 4;
+  string provider = 5;
+  string externalApiId = 6;
+  string externalKnowledgeId = 7;
+}
+
+message CreateKnowledgeExternalResp{
+  string knowledgeId = 1;
+}
+
+message UpdateKnowledgeExternalReq{
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+  string name = 4;
+  string description = 5;
+  string provider = 6;
+  string externalApiId = 7;
+  string externalKnowledgeId = 8;
+}
+
+message DeleteKnowledgeExternalReq{
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+}
+
+message KnowledgeExternalListSelectReq {
+  string userId = 1;
+  string orgId = 2;
+  string externalAPIId = 3;
+}
+
+message KnowledgeExternalInfoSelectReq {
+  string userId = 1;
+  string orgId = 2;
+  string knowledgeId = 3;
+}
+
+message KnowledgeExternalInfo{
+  string userId = 1;
+  string orgId = 2;
+  string externalKnowledgeId = 3;
+  string externalKnowledgeName = 4;
+  string externalAPIId = 5;
+  string externalAPIName = 6;
+  string externalAPIUrl = 7;
+  string externalAPIKey = 8;
+  string provider = 9;
+  int64  docCount = 10;
+  RetrievalModelInfo retrievalModelInfo = 11;
+
+}
+
+message RetrievalModelInfo{
+  string searchMethod = 1;
+  bool rerankingEnable = 2;
+  string rerankingMode = 3;
+  RerankingModel rerankingModel = 4;
+  Weights weights = 5;
+  int64 topK = 6;
+  bool  scoreThresholdEnabled = 7;
+  float scoreThreshold = 8;
+}
+
+message Weights{
+  string weightType = 1;
+  KeywordSetting keywordSetting = 2;
+  VectorSetting vectorSetting = 3;
+}
+
+message KeywordSetting {
+  float keywordWeight =1;
+}
+
+message VectorSetting {
+  float vectorWeight = 1;
+  string embeddingModelName = 2;
+  string embeddingProviderName = 3;
+}
+
+message RerankingModel{
+  string rerankingProviderName = 1;
+  string rerankingModelName = 2;
+}
+
+message KnowledgeExternalSelectListResp{
+  repeated KnowledgeExternalInfo externalKnowledgeList = 1;
 }

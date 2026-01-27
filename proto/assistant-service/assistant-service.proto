@@ -18,6 +18,8 @@ service AssistantService {
   rpc GetAssistantInfo(GetAssistantInfoReq) returns (AssistantInfo) {}
   rpc GetAssistantIdByUuid(GetAssistantIdByUuidReq) returns (GetAssistantIdByUuidResp) {}
   rpc AssistantCopy(AssistantCopyReq) returns (AssistantCreateResp) {}
+  rpc GetAssistantDetailById(GetAssistantDetailByIdReq) returns (AssistantDetailResp) {}
+  rpc GetMultiAssistantById(GetMultiAssistantByIdReq) returns (MultiAssistantDetailResp) {}
 
   // --- assistant snapshot ---
   rpc AssistantSnapshotCreate(AssistantSnapshotReq) returns (AssistantSnapshotResp) {}
@@ -54,6 +56,7 @@ service AssistantService {
   rpc GetConversationDetailList(GetConversationDetailListReq) returns (GetConversationDetailListResp) {}
   rpc AssistantConversionStream(AssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
   rpc AssistantConversionStreamNew(AssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
+  rpc MultiAssistantConversionStream(MultiAssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
   rpc ConversationDeleteByAssistantId(ConversationDeleteByAssistantIdReq) returns (google.protobuf.Empty) {}
 
   // --- custom prompt ---
@@ -63,6 +66,12 @@ service AssistantService {
   rpc CustomPromptGet(CustomPromptGetReq) returns (CustomPromptInfo) {}
   rpc CustomPromptGetList(CustomPromptGetListReq) returns (CustomPromptList) {}
   rpc CustomPromptCopy(CustomPromptCopyReq) returns (CustomPromptIDResp) {}
+
+  // --- multi-agent ---
+  rpc MultiAgentCreate(MultiAgentCreateReq) returns (google.protobuf.Empty) {}
+  rpc MultiAgentDelete(MultiAgentCreateReq) returns (google.protobuf.Empty) {}
+  rpc MultiAgentEnableSwitch(MultiAgentEnableSwitchReq) returns (google.protobuf.Empty) {}
+  rpc MultiAgentConfigUpdate(MultiAgentConfigUpdateReq) returns (google.protobuf.Empty) {}
 }
 
 message AssistantConversionStreamResp {
@@ -79,13 +88,31 @@ message GetAssistantByIdsReq{
   Identity identity = 2;
 }
 
+message GetMultiAssistantByIdReq{
+  uint32 assistantId = 1;
+  Identity identity = 2;
+  string conversationId = 3; // 如果需要历史会话，则需要传入此数据
+  bool draft = 4;//是否是草稿
+  string version = 5; //多智能体版本,不传就标识是最新版本
+  bool filterSubEnable = 6; //过滤值保留开启的子智能体
+}
+
+message GetAssistantDetailByIdReq{
+  uint32 assistantId = 1;
+  Identity identity = 2;
+  string conversationId = 3; // 如果需要历史会话，则需要传入此数据
+  bool draft = 4;//是否是草稿
+  string version = 5; //单智能体版本,不传就标识是最新版本
+}
+
 message AppBriefList{
-  repeated common.AppBrief assistantInfos = 1;
+  repeated AssistantBrief assistantInfos = 1;
 }
 
 message AssistantCreateReq {
   common.AppBriefConfig assistantBrief = 1;
   Identity identity = 2;
+  int32 category = 3;
 }
 
 message AssistantCreateResp {
@@ -120,6 +147,7 @@ message AssistantSnapshot {
   string version = 3;
   string desc = 4;
   int64 createAt = 5;
+  int32 category = 6;
 }
 
 message AssistantSnapshotListResp {
@@ -157,6 +185,7 @@ message AssistantConfigUpdateReq {
   AssistantSafetyConfig safetyConfig = 10;
   AssistantVisionConfig visionConfig = 11;
   AssistantMemoryConfig memoryConfig = 12;
+  AssistantRecommendConfig recommendConfig = 13; //智能体问题推荐配置信息
 }
 
 message AssistantSafetyConfig {
@@ -257,9 +286,27 @@ message AssistantInfo {
   AssistantSafetyConfig safetyConfig = 18;
   AssistantVisionConfig visionConfig = 19;
   string uuid = 20;
-  AssistantMemoryConfig memoryConfig = 21;
+  repeated AssistantMultiAgentInfos multiAgentInfos = 21;
+  int32 category = 22;
+  AssistantMemoryConfig memoryConfig = 23;
+  AssistantRecommendConfig recommendConfig = 24; //智能体问题推荐配置信息
 }
 
+message AssistantRecommendConfig {
+  bool recommendEnable = 1; // 追问配置开关
+  common.AppModelConfig modelConfig = 2; //模型信息
+  bool promptEnable = 3; // 提示词开关
+  string systemPrompt = 4;//系统提示词
+  int32 maxHistory = 5;//最大历史会话轮次
+}
+
+message AssistantMultiAgentInfos{
+  string agentId = 1; // 子智能体id
+  string name = 2; // 子智能体名称
+  string desc = 3; // 子智能体描述
+  string avatarPath = 4; // 子智能体头像
+  bool enable = 5; // 子智能体是否启用
+}
 
 message AssistantWorkFlowInfos{
   string id = 1;
@@ -489,6 +536,17 @@ message AssistantConversionStreamReq {
   Identity identity = 8;
 }
 
+message MultiAssistantConversionStreamReq {
+  string assistantId = 1;
+  string conversationId = 2;
+  repeated ConversionStreamFile fileInfo = 3;
+  bool trial = 4;
+  string prompt = 5;
+  string systemPrompt = 6;
+  bool draft = 7;
+  Identity identity = 8;
+}
+
 message ConversionStreamFile{
   string fileName = 1;
   int64 fileSize = 2;
@@ -559,4 +617,87 @@ message CustomPromptList {
 message CustomPromptCopyReq {
   string customPromptId = 1;
   Identity identity = 2;
+}
+
+message AssistantDetailResp {
+  AgentDetail agentDetail = 1;
+}
+
+message MultiAssistantDetailResp {
+  AgentDetail multiAgent = 1; //多智能体详情
+  repeated AgentDetail subAgents = 2;//子智能体详情
+}
+
+message AgentDetail {
+  string input = 1;
+  bool stream = 2;
+  repeated string uploadFile = 3;
+  AgentBaseParams agentBaseParams = 4; //智能体基础参数
+  ModelParams modelParams = 5; //模型参数
+  string knowledgeParams = 6; //知识参数,使用方需要自己反序列化
+  ToolParams toolParams = 7;//工具参数
+}
+
+// 基础参数
+message AgentBaseParams {
+  string description = 1;      // 智能体描述
+  string instruction = 2;      // 智能体系统提示词
+  string name = 3;             // 智能体名称
+}
+
+// 模型参数
+message ModelParams {
+  string modelId = 1;
+  int32 maxHistory = 2;
+  optional double temperature = 3;//温度
+  optional double topP = 4; //topP
+  optional double frequencyPenalty = 5; //频率惩罚
+  optional double presencePenalty = 6;//存在惩罚
+  optional int32 maxTokens = 7;//模型输出最大token数，这个字段暂时不设置，因为模型可能触发接口调用不确定是否会超，先不传
+  repeated ConversionHistory history = 8; //聊天历史
+}
+
+message ConversionHistory {
+  string query = 1;
+  string response = 2;
+  repeated string uploadFileUrl = 3;
+}
+
+message MultiAgentCreateReq{
+  string assistantId = 1;
+  string agentId = 2;
+  Identity identity = 3;
+}
+message ToolParams {
+  repeated string pluginToolList = 1;//工具参数,数据结构比较复杂，使用方自己反序列化
+  repeated MCPToolInfo mcpToolList = 2;//mcp参数
+}
+
+message MCPToolInfo {
+  string url = 1;                    // MCP服务URL
+  string transport = 2;              // 传输协议/方式
+
+  // MCP工具方法列表，会根据此方法名的列表进行mcp方法的过滤
+  // 如果此列为空，则表示不进行过滤
+  repeated string toolNameList = 3;
+}
+
+
+message MultiAgentEnableSwitchReq{
+  string assistantId = 1;
+  string agentId = 2;
+  bool enable = 3;
+  Identity identity = 4;
+}
+
+message MultiAgentConfigUpdateReq{
+  string assistantId = 1;
+  string agentId = 2;
+  string desc = 3;
+  Identity identity = 4;
+}
+
+message AssistantBrief{
+  common.AppBrief info = 1;
+  int32 category = 2;
 }

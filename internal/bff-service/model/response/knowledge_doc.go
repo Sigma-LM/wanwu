@@ -27,10 +27,14 @@ type DocSegment struct {
 }
 
 type DocKnowledgeInfo struct {
-	KnowledgeId     string `json:"knowledgeId"`
-	KnowledgeName   string `json:"knowledgeName"`
-	GraphSwitch     int32  `json:"graphSwitch"`
-	ShowGraphReport bool   `json:"showGraphReport"`
+	KnowledgeId     string          `json:"knowledgeId"`
+	KnowledgeName   string          `json:"knowledgeName"`
+	GraphSwitch     int32           `json:"graphSwitch"`
+	ShowGraphReport bool            `json:"showGraphReport"`
+	Description     string          `json:"description"`
+	Keywords        []*KeywordsInfo `json:"keywords"`
+	EmbeddingModel  *ModelInfo      `json:"embeddingModel"`
+	LlmModelId      string          `json:"llmModelId"`
 }
 
 type ListDocResp struct {
@@ -44,7 +48,7 @@ type ListDocResp struct {
 	FileSize      string `json:"fileSize"`      //文件大小，预留
 	SegmentMethod string `json:"segmentMethod"` //分段模式 0:通用分段，1：父子分段
 	Author        string `json:"author"`        //上传文档 作者
-	GraphStatus   int32  `json:"graphStatus"`   //图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败
+	GraphStatus   int32  `json:"graphStatus"`   //图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -
 	GraphErrMsg   string `json:"graphErrMsg"`   //图谱错误信息
 }
 

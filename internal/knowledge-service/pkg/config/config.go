@@ -64,6 +64,7 @@ type Config struct {
 	Kafka              *KafkaConfig        `mapstructure:"kafka" json:"kafka"`
 	UsageLimit         *UsageLimitConfig   `mapstructure:"usage-limit" json:"usageLimit"`
 	RagServer          *RagServerConfig    `mapstructure:"rag-server" json:"ragServer"`
+	DifyServer         *DifyServerConfig   `mapstructure:"dify-server" json:"difyServer"`
 	KnowledgeDocConfig *KnowledgeDocConfig `json:"knowledge-doc-config" mapstructure:"knowledge-doc-config"`
 	SplitterList       []*Splitter         `mapstructure:"splitters" json:"splitters" yaml:"splitters"`
 }
@@ -173,4 +174,10 @@ type RagServerConfig struct {
 	KnowledgeQAHitUri         string `mapstructure:"knowledge-QA-hit-uri" json:"knowledge-QA-hit-uri"`
 	KnowledgeDocSearchUri     string `mapstructure:"knowledge-doc-search-uri" json:"knowledge-doc-search-uri"`
 	Timeout                   int64  `mapstructure:"timeout" json:"timeout"`
+}
+
+type DifyServerConfig struct {
+	GetDatasetsUri string `mapstructure:"get-datasets-uri" json:"get-datasets-uri"`
+	GetDatasetUri  string `mapstructure:"get-dataset-uri" json:"get-dataset-uri"`
+	Timeout        int64  `mapstructure:"timeout" json:"timeout"`
 }

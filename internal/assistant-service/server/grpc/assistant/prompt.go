@@ -38,6 +38,7 @@ func (s *Service) CustomPromptUpdate(ctx context.Context, req *assistant_service
 
 	return &emptypb.Empty{}, nil
 }
+
 func (s *Service) CustomPromptGet(ctx context.Context, req *assistant_service.CustomPromptGetReq) (*assistant_service.CustomPromptInfo, error) {
 	customPrompt, err := s.cli.GetCustomPrompt(ctx, util.MustU32(req.CustomPromptId))
 	if err != nil {

@@ -129,24 +129,3 @@ func DeleteFile(ctx *gin.Context) {
 	resp, err := service.DeleteFile(ctx, &req)
 	gin_util.Response(ctx, resp, err)
 }
-
-// ProxyUploadFile
-//
-//	@Tags			common.file
-//	@Summary		代理文件上传
-//	@Description	代理文件上传
-//	@Security		JWT
-//	@Accept			multipart/form-data
-//	@Produce		json
-//	@Param			fileName	formData	string	true	"原始文件名"
-//	@Param			file		formData	file	true	"文件"
-//	@Success		200			{object}	response.Response{data=response.ProxyUploadFileResp}
-//	@Router			/proxy/file/upload [post]
-func ProxyUploadFile(ctx *gin.Context) {
-	var req request.ProxyUploadFileReq
-	if !gin_util.BindForm(ctx, &req) {
-		return
-	}
-	resp, err := service.ProxyUploadFile(ctx, &req)
-	gin_util.Response(ctx, resp, err)
-}
