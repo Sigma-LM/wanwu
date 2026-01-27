@@ -104,15 +104,14 @@
               <div class="create-img-wrap">
                 <img
                   class="create-type"
-                  src="@/assets/imgs/create_model.svg"
+                  src="@/assets/imgs/card_add_icon.svg"
                   alt=""
                 />
                 <img
                   class="create-img"
-                  src="@/assets/imgs/create_icon.png"
+                  src="@/assets/imgs/create_model.svg"
                   alt=""
                 />
-                <div class="create-filter"></div>
               </div>
               <span>{{ $t('modelAccess.import') }}</span>
             </div>
@@ -140,9 +139,14 @@
                     : 'card-title'
                 "
               >
-                <div class="card-name" :title="item.displayName || item.model">
-                  {{ item.displayName || item.model }}
-                </div>
+                <el-tooltip
+                  placement="top"
+                  :content="item.displayName || item.model"
+                >
+                  <div class="card-name">
+                    {{ item.displayName || item.model }}
+                  </div>
+                </el-tooltip>
               </div>
               <div class="card-top-right" @click.stop="">
                 <el-switch
@@ -157,11 +161,44 @@
                   inactive-text=""
                 />
                 <el-checkbox
-                  style="margin-left: 10px"
+                  style="margin-left: 10px; margin-top: -4px"
                   v-if="item.modelType === LLM"
                   :model-value="checkModelSelection(item.modelId)"
                   @change="setModelCheck(item.modelId)"
                 ></el-checkbox>
+              </div>
+            </div>
+            <div class="card-middle">
+              <div
+                v-if="item.tags"
+                class="card-type"
+                v-for="(it, itIndex) in item.tags"
+                :style="{
+                  color: tagColorList[itIndex].color,
+                  background: tagColorList[itIndex].backgroundColor,
+                }"
+              >
+                {{ it.text }}
+              </div>
+            </div>
+            <div class="card-bottom">
+              <el-tooltip
+                placement="top"
+                :content="providerObj[item.provider] || '--'"
+              >
+                <div
+                  :class="[
+                    'card-bottom-provider',
+                    { 'no-publishData': !item.updatedAt },
+                  ]"
+                >
+                  {{ $t('modelAccess.table.publisher') }}:
+                  {{ providerObj[item.provider] || '--' }}
+                </div>
+              </el-tooltip>
+              <div>
+                {{ item.updatedAt ? item.updatedAt.split(' ')[0] : '--' }}
+                {{ $t('modelAccess.table.update') }}
                 <el-dropdown @command="handleCommand" placement="top">
                   <span class="el-dropdown-link">
                     <i class="el-icon-more more"></i>
@@ -180,27 +217,6 @@
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-              </div>
-            </div>
-            <div class="card-middle">
-              <div v-if="item.tags" class="card-type" v-for="it in item.tags">
-                {{ it.text }}
-              </div>
-            </div>
-            <div class="card-bottom">
-              <div
-                :class="[
-                  'card-bottom-provider',
-                  { 'no-publishData': !item.updatedAt },
-                ]"
-                :title="providerObj[item.provider] || '--'"
-              >
-                {{ $t('modelAccess.table.publisher') }}:
-                {{ providerObj[item.provider] || '--' }}
-              </div>
-              <div style="float: right">
-                {{ item.updatedAt ? item.updatedAt.split(' ')[0] : '--' }}
-                {{ $t('modelAccess.table.update') }}
               </div>
             </div>
             <div class="card-btn" v-if="item.modelType === LLM">
@@ -265,6 +281,13 @@ export default {
       },
       loading: false,
       modelSelection: [],
+      tagColorList: [
+        { color: '#3562E7', backgroundColor: '#E6F0FF' },
+        { color: '#00A56E', backgroundColor: 'rgba(92, 192, 103, 0.15)' },
+        { color: '#E87B00', backgroundColor: '#FFF3E5' },
+        { color: '#0DA5A5', backgroundColor: '#E7F7F7' },
+        { color: '#6349E8', backgroundColor: '#F1EDFF' },
+      ],
     };
   },
   computed: {
@@ -442,11 +465,12 @@ export default {
 .card-item {
   display: inline-block;
   width: calc((100% / 4) - 20px);
-  height: 180px;
+  height: 165px;
   vertical-align: middle;
   margin: 0 10px 20px;
-  background: #ffffff;
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
+  background: url('@/assets/imgs/card_bg.png');
+  background-size: 100% 100%;
+  box-shadow: 0 8px 10px 0 rgba(22, 52, 156, 0.07);
   border-radius: 8px;
   padding: 18px 10px 16px 14px;
   position: relative;
@@ -461,7 +485,6 @@ export default {
     width: 46px;
     height: 46px;
     object-fit: cover;
-    /*padding: 10px 5px;*/
     background: #ffffff;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
     border-radius: 8px;
@@ -488,16 +511,17 @@ export default {
     word-break: break-word;
   }
   .card-middle {
-    padding-top: 14px;
+    padding-top: 10px;
   }
   .card-type {
     display: inline-block;
-    padding: 2px 12px;
-    border-radius: 2px;
+    padding: 0 3px;
+    border-radius: 3px;
     color: $color;
     background: $color_opacity;
-    margin-top: 2px;
+    margin-top: 5px;
     margin-right: 8px;
+    font-size: 12px;
   }
   .card-top-right {
     display: flex;
@@ -511,21 +535,24 @@ export default {
     transform: rotate(90deg);
     font-size: 16px;
     color: #8c8c8f;
+    padding: 5px;
+    border-radius: 4px;
   }
   .more:hover {
-    color: $color;
+    background: #fff;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.06);
   }
   .card-bottom {
     position: absolute;
-    color: #88888b;
+    color: #686f82;
     bottom: 14px;
     left: 15px;
     right: 12px;
-    div {
-      display: inline-block;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     .card-bottom-provider {
-      width: calc(100% - 100px);
+      width: calc(100% - 135px);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -559,9 +586,9 @@ export default {
   border: 1px solid $color;
 }
 .card-item-create {
-  background: $color_opacity;
-  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(56, 75, 247, 0.47);
+  background: #fff;
+  box-shadow: 0 8px 10px 0 rgba(80, 98, 161, 0.07);
+  border: 1px solid $create_card_border_color;
   .app-card-create {
     width: 100%;
     height: 100%;
@@ -572,32 +599,30 @@ export default {
     .create-img-wrap {
       display: inline-block;
       vertical-align: middle;
-      margin-right: 10px;
+      margin-right: 30px;
       position: relative;
       .create-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        background: $color;
-        padding: 10px;
-      }
-      .create-filter {
-        width: 40px;
-        height: 8px;
-        background: rgba(2, 81, 252, 0.3);
-        filter: blur(5px);
-        position: absolute;
-        bottom: -6px;
+        width: 44px;
+        height: 46px;
+        border-radius: 6px;
+        background: linear-gradient(44deg, #edc1ff 0%, #1486ff 100%);
+        padding: 5px;
+        box-shadow: 0 10px 16px 0 rgba(236, 190, 255, 0.5);
       }
       .create-type {
-        width: 30px;
+        width: 32px;
+        height: 32px;
         position: absolute;
-        background: rgba(171, 198, 255, 0.5);
-        backdrop-filter: blur(6.55px);
+        background: linear-gradient(
+          180deg,
+          rgba(197, 222, 255, 0.3) 0%,
+          rgba(255, 255, 255, 0.3) 100%
+        );
+        backdrop-filter: blur(8px);
+        border: 1px solid #d3c2ff;
         border-radius: 5px;
-        padding: 5px;
-        top: -10px;
-        left: -12px;
+        bottom: -8px;
+        right: -16px;
       }
     }
     span {
