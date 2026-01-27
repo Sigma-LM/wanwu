@@ -232,6 +232,7 @@ message AppKnowledgeBase {
   string knowledgeBaseName = 2;
   int32 graphSwitch = 3; // 知识图谱开关
   MetaDataFilterParams metaDataFilterParams = 4;
+  int32 category = 5; // 知识库分类 0-知识库，1-问答库，2-多模态知识库
 }
 
 message MetaDataFilterParams {

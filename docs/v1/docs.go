@@ -14872,6 +14872,10 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "category": {
+                    "description": "知识库类别 0-知识库，1-问答库，2-多模态知识库",
+                    "type": "integer"
+                },
                 "external": {
                     "description": "外部数据库标识",
                     "type": "integer"
@@ -19522,7 +19526,7 @@ const docTemplate = `{
                     ]
                 },
                 "category": {
-                    "description": "1.单智能体 2.多智能体",
+                    "description": "智能体分类 1.单智能体 2.多智能体",
                     "type": "integer"
                 },
                 "createdAt": {

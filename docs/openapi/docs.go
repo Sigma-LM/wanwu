@@ -2108,6 +2108,10 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "category": {
+                    "description": "知识库类别 0-知识库，1-问答库，2-多模态知识库",
+                    "type": "integer"
+                },
                 "external": {
                     "description": "外部数据库标识",
                     "type": "integer"

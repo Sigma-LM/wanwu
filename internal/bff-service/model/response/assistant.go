@@ -25,9 +25,9 @@ type Assistant struct {
 	MultiAgentInfos        []*AssistantAgentInfo          `json:"multiAgentInfos"`     // 多智能体配置
 	CreatedAt              string                         `json:"createdAt"`           // 创建时间
 	UpdatedAt              string                         `json:"updatedAt"`           // 更新时间
-	NewAgent               bool                           `json:"newAgent"`            //是否是新版本智能体
-	PublishType            string                         `json:"publishType"`         //发布类型
-	Category               int32                          `json:"category"`            // 1.单智能体 2.多智能体
+	NewAgent               bool                           `json:"newAgent"`            // 是否是新版本智能体
+	PublishType            string                         `json:"publishType"`         // 发布类型
+	Category               int32                          `json:"category"`            // 智能体分类 1.单智能体 2.多智能体
 }
 
 type AssistantWorkFlowInfo struct {
