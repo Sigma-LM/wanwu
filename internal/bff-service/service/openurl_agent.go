@@ -153,3 +153,17 @@ func getAppUrlInfoAndCheck(ctx *gin.Context, suffix string) (*app_service.AppUrl
 	ctx.Set(gin_util.X_ORG_ID, appUrlInfo.OrgId)
 	return appUrlInfo, nil
 }
+
+func AppUrlQuestionRecommend(ctx *gin.Context, req request.UrlQuestionRecommendRequest, xCid, suffix string) error {
+	appUrlInfo, err := getAppUrlInfoAndCheck(ctx, suffix)
+	if err != nil {
+		return err
+	}
+	err = AssistantQuestionRecommend(ctx, xCid, appUrlInfo.OrgId, &request.QuestionRecommendRequest{
+		Query:          req.Query,
+		AssistantId:    appUrlInfo.AppId,
+		ConversationId: req.ConversationId,
+		Trial:          false,
+	})
+	return err
+}
