@@ -198,7 +198,7 @@ message KnowledgeInfo {
   int32 shareCount = 11;//共享数量
   string ragName = 12;//传给rag的知识库名称
   int32 graphSwitch = 13; //知识图谱开关
-  int32 category = 14; // 0:知识库 1:问答库
+  int32 category = 14; // 0:知识库 1:问答库 2: 多模态知识库
   string llmModelId = 15; // 知识图谱-大模型id
   string updatedAt = 16; // 更新时间
   int32 external = 17; //0:知识库 1:外部知识库

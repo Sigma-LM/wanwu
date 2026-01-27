@@ -801,6 +801,7 @@ func transKnowledgeParams(paramsList []request.AppKnowledgeBase) []*assistant_se
 			KnowledgeBaseId:      base.ID,
 			KnowledgeBaseName:    base.Name,
 			GraphSwitch:          base.GraphSwitch,
+			Category:             base.Category,
 			MetaDataFilterParams: transKnowledgeMetaParams(base.MetaDataFilterParams),
 		})
 	}
@@ -1056,6 +1057,7 @@ func buildKnowledgeBases(kbInfoList *knowledgeBase_service.KnowledgeDetailSelect
 				Name:                 info.Name,
 				GraphSwitch:          info.GraphSwitch,
 				External:             info.External,
+				Category:             info.Category,
 				MetaDataFilterParams: params,
 			})
 		}

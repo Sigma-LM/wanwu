@@ -345,6 +345,7 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 			Name:        kbInfo.Name,
 			GraphSwitch: kbInfo.GraphSwitch,
 			External:    kbInfo.External,
+			Category:    kbInfo.Category,
 		}
 		// 转换元数据过滤配置
 		metaFilter := perConfig.RagMetaFilter
