@@ -3799,6 +3799,9 @@ const docTemplate = `{
                     "description": "模型发布时间",
                     "type": "string"
                 },
+                "scopeType": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {

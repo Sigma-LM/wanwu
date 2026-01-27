@@ -9329,6 +9329,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int32",
                         "description": "模型体验对话ID",
                         "name": "modelExperienceId",
                         "in": "query",
@@ -17302,6 +17303,9 @@ const docTemplate = `{
                 "publishDate": {
                     "description": "模型发布时间",
                     "type": "string"
+                },
+                "scopeType": {
+                    "type": "string"
                 }
             }
         },
@@ -20551,6 +20555,9 @@ const docTemplate = `{
                     "description": "模型发布时间",
                     "type": "string"
                 },
+                "scopeType": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
@@ -22884,6 +22891,9 @@ const docTemplate = `{
                 },
                 "publishDate": {
                     "description": "模型发布时间",
+                    "type": "string"
+                },
+                "scopeType": {
                     "type": "string"
                 },
                 "tags": {

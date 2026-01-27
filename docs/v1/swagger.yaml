@@ -2383,6 +2383,8 @@ definitions:
       publishDate:
         description: 模型发布时间
         type: string
+      scopeType:
+        type: string
     required:
     - displayName
     - model
@@ -4592,6 +4594,8 @@ definitions:
       publishDate:
         description: 模型发布时间
         type: string
+      scopeType:
+        type: string
       tags:
         items:
           $ref: '#/definitions/mp_common.Tag'
@@ -6156,6 +6160,8 @@ definitions:
         type: string
       publishDate:
         description: 模型发布时间
+        type: string
+      scopeType:
         type: string
       tags:
         items:
@@ -12470,6 +12476,7 @@ paths:
       description: 获取模型体验对话记录列表
       parameters:
       - description: 模型体验对话ID
+        format: int32
         in: query
         name: modelExperienceId
         required: true

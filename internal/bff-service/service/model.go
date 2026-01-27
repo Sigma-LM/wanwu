@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
+	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
@@ -67,7 +67,13 @@ func GetModel(ctx *gin.Context, userId, orgId string, req *request.GetModelReque
 	if err != nil {
 		return nil, err
 	}
-	return toModelInfo(ctx, resp)
+	m, err := toModelInfo(ctx, resp, userId, orgId)
+	if err != nil {
+		return nil, err
+	} else if m == nil {
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "No access permission to the model")
+	}
+	return m, nil
 }
 
 func GetModelById(ctx *gin.Context, req *request.GetModelRequest) (*response.ModelInfo, error) {
@@ -82,11 +88,12 @@ func ListModels(ctx *gin.Context, userId, orgId string, req *request.ListModelsR
 		IsActive:    req.IsActive,
 		UserId:      userId,
 		OrgId:       orgId,
+		ScopeType:   req.ScopeType,
 	})
 	if err != nil {
 		return nil, err
 	}
-	list, err := toModelInfos(ctx, resp.Models)
+	list, err := toModelInfos(ctx, resp.Models, userId, orgId)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +125,7 @@ func ListTypeModels(ctx *gin.Context, userId, orgId string, req *request.ListTyp
 	if err != nil {
 		return nil, err
 	}
-	list, err := toModelInfos(ctx, resp.Models)
+	list, err := toModelInfos(ctx, resp.Models, userId, orgId)
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +146,11 @@ func getModelIdByUuid(ctx *gin.Context, uuid string) (string, error) {
 }
 
 func parseImportAndUpdateClientReq(userId, orgId string, req *request.ImportOrUpdateModelRequest) (*model_service.ModelInfo, error) {
+	if req.ScopeType == config.ModelScopeTypePublic {
+		if userId != config.SystemAdminUserID || orgId != config.TopOrgID {
+			return nil, grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "Only system administrators can make the model public")
+		}
+	}
 	clientReq := &model_service.ModelInfo{
 		Provider:      req.Provider,
 		ModelId:       req.ModelId,
@@ -151,6 +163,7 @@ func parseImportAndUpdateClientReq(userId, orgId string, req *request.ImportOrUp
 		OrgId:         orgId,
 		IsActive:      true,
 		ModelDesc:     req.ModelDesc,
+		ScopeType:     req.ScopeType,
 	}
 	configStr, err := req.ConfigString()
 	if err != nil {
@@ -160,19 +173,22 @@ func parseImportAndUpdateClientReq(userId, orgId string, req *request.ImportOrUp
 	return clientReq, nil
 }
 
-func toModelInfos(ctx *gin.Context, models []*model_service.ModelInfo) ([]*response.ModelInfo, error) {
+func toModelInfos(ctx *gin.Context, models []*model_service.ModelInfo, currentUserId, currentOrgId string) ([]*response.ModelInfo, error) {
 	var ret []*response.ModelInfo
 	for _, m := range models {
-		info, err := toModelInfo(ctx, m)
+		info, err := toModelInfo(ctx, m, currentUserId, currentOrgId)
 		if err != nil {
 			return nil, err
+		}
+		if info == nil {
+			continue
 		}
 		ret = append(ret, info)
 	}
 	return ret, nil
 }
 
-func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo) (*response.ModelInfo, error) {
+func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo, currentUserId, currentOrgId string) (*response.ModelInfo, error) {
 	modelConfig, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v get model config err: %v", modelInfo.ModelId, err))
@@ -198,6 +214,7 @@ func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo) (*respons
 		ModelDesc:   modelInfo.ModelDesc,
 		Config:      modelConfig,
 		Tags:        tags,
+		ScopeType:   modelInfo.ScopeType,
 	}
 	if res.DisplayName == "" {
 		res.DisplayName = res.Model
