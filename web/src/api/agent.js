@@ -386,5 +386,23 @@ export const getWorkflowList = data => {
   });
 };
 
-// 智能体-追问sse
-export const getRecommendQuestionUrl = `${USER_API}/assistant/question/recommend`;
+/**
+ * 获取推荐问题的接口URL
+ * 根据类型和助手ID，返回对应环境下的推荐问题接口地址
+ *
+ * @param {string} [type='agentChat']
+ *   - 'agentChat': 默认场景
+ *   - 'webChat': openurl场景
+ * @param {string} [assistantId] - agentID（在非agentChat类型时必填）
+ */
+export const getRecommendQuestionUrl = (type = 'agentChat', assistantId) => {
+  if (type === 'agentChat') {
+    return `${USER_API}/assistant/question/recommend`;
+  } else {
+    // 非agentChat类型需要assistantId
+    if (!assistantId) {
+      throw new Error('非agentChat类型必须提供assistantId参数');
+    }
+    return `${OPENURL_API}/agent/${assistantId}/recommend`;
+  }
+};

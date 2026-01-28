@@ -484,18 +484,31 @@ export default {
         }
       };
 
-      const _this = this;
+      const api = getRecommendQuestionUrl(this.type, params.assistantId);
+      let headers = {
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        Authorization: 'Bearer ' + this.token,
+        'x-user-id': this.userInfo.uid,
+        'x-org-id': this.userInfo.orgId,
+      };
 
-      fetchEventSource(`${getRecommendQuestionUrl}`, {
+      // webchat场景使用不同的请求配置
+      if (this.type === 'webChat') {
+        headers = {
+          'X-Client-ID': this.getHeaderConfig
+            ? this.getHeaderConfig().headers['X-Client-ID']
+            : '',
+        };
+        delete params.assistantId;
+        delete params.trial;
+      }
+
+      const _this = this;
+      fetchEventSource(api, {
         method: 'POST',
         signal,
         openWhenHidden: true,
-        headers: {
-          'Content-Type': 'text/event-stream; charset=utf-8',
-          Authorization: 'Bearer ' + this.token,
-          'x-user-id': this.userInfo.uid,
-          'x-org-id': this.userInfo.orgId,
-        },
+        headers,
         body: JSON.stringify(params),
         async onopen(response) {
           if (
