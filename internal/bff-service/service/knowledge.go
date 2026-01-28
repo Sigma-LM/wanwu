@@ -199,67 +199,31 @@ func DeleteKnowledge(ctx *gin.Context, userId, orgId string, r *request.DeleteKn
 	return resp, nil
 }
 
-// KnowledgeHit 知识库命中测试
+// KnowledgeHit 知识库命中
 func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
-	if len(r.KnowledgeList) == 0 || r.Question == "" || r.KnowledgeMatchParams == nil {
-		return nil, grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "knowledge params is empty")
-	}
-	var knowledgeIdList []string
-	for _, knowledge := range r.KnowledgeList {
-		knowledgeIdList = append(knowledgeIdList, knowledge.ID)
-	}
 	matchParams := r.KnowledgeMatchParams
-	resp, err := RagKnowledgeHit(ctx, &request.RagSearchKnowledgeBaseReq{
-		UserId:          userId,
-		Question:        r.Question,
-		KnowledgeIdList: knowledgeIdList,
-		TopK:            matchParams.TopK,
-		Threshold:       float64(matchParams.Threshold),
-		RerankModelId:   buildRerankId(matchParams.PriorityMatch, matchParams.RerankModelId),
-		RetrieveMethod:  buildRetrieveMethod(r.KnowledgeMatchParams.MatchType),
-		RerankMod:       buildRerankMod(matchParams.PriorityMatch),
-		Weight:          buildWeight(matchParams.PriorityMatch, matchParams.SemanticsPriority, matchParams.KeywordPriority),
-		TermWeight:      buildTermWeight(matchParams.TermWeight, matchParams.TermWeightEnable),
-		UseGraph:        matchParams.UseGraph,
+	resp, err := knowledgeBase.KnowledgeHit(ctx.Request.Context(), &knowledgebase_service.KnowledgeHitReq{
+		Question:      r.Question,
+		UserId:        userId,
+		OrgId:         orgId,
+		KnowledgeList: buildKnowledgeListReq(r),
+		KnowledgeMatchParams: &knowledgebase_service.KnowledgeMatchParams{
+			MatchType:         matchParams.MatchType,
+			RerankModelId:     matchParams.RerankModelId,
+			PriorityMatch:     matchParams.PriorityMatch,
+			SemanticsPriority: matchParams.SemanticsPriority,
+			KeywordPriority:   matchParams.KeywordPriority,
+			TopK:              matchParams.TopK,
+			Score:             matchParams.Threshold,
+			TermWeight:        matchParams.TermWeight,
+			TermWeightEnable:  matchParams.TermWeightEnable,
+			UseGraph:          matchParams.UseGraph,
+		},
 	})
 	if err != nil {
 		return nil, err
 	}
-	return buildRagKnowledgeHitResp(resp), nil
-}
-
-// buildKnowledgeHitResp 构造知识库命中返回
-func buildRagKnowledgeHitResp(resp *KnowledgeHitData) *response.KnowledgeHitResp {
-	var searchList = make([]*response.ChunkSearchList, 0)
-	if len(resp.SearchList) > 0 {
-		for _, search := range resp.SearchList {
-			childContentList := make([]*response.ChildContent, 0)
-			for _, child := range search.ChildContentList {
-				childContentList = append(childContentList, &response.ChildContent{
-					ChildSnippet: child.ChildSnippet,
-					Score:        float64(child.Score),
-				})
-			}
-			childScore := make([]float64, 0)
-			for _, score := range search.ChildScore {
-				childScore = append(childScore, float64(score))
-			}
-			searchList = append(searchList, &response.ChunkSearchList{
-				Title:            search.Title,
-				Snippet:          search.Snippet,
-				KnowledgeName:    search.KbName,
-				ChildContentList: childContentList,
-				ChildScore:       childScore,
-				ContentType:      search.ContentType,
-			})
-		}
-	}
-	return &response.KnowledgeHitResp{
-		Prompt:     resp.Prompt,
-		Score:      resp.Score,
-		SearchList: searchList,
-		UseGraph:   resp.UseGraph,
-	}
+	return buildKnowledgeHitResp(resp), nil
 }
 
 func KnowledgeHitOpenapi(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
@@ -401,6 +365,30 @@ func buildKnowledgeMetaList(metaList []*knowledgebase_service.KnowledgeMetaData)
 	return &response.GetKnowledgeMetaSelectResp{MetaList: retMetaList}
 }
 
+// buildKnowledgeListReq 构造命中测试 - 知识库列表参数
+func buildKnowledgeListReq(r *request.KnowledgeHitReq) []*knowledgebase_service.KnowledgeParams {
+	var knowledgeList []*knowledgebase_service.KnowledgeParams
+	for _, k := range r.KnowledgeList {
+		filterParams := k.MetaDataFilterParams
+		knowledgeList = append(knowledgeList, &knowledgebase_service.KnowledgeParams{
+			KnowledgeId:          k.ID,
+			MetaDataFilterParams: buildMetaDataFilterParams(filterParams),
+		})
+	}
+	return knowledgeList
+}
+
+func buildMetaDataFilterParams(filterParams *request.MetaDataFilterParams) *knowledgebase_service.MetaDataFilterParams {
+	if filterParams == nil {
+		return &knowledgebase_service.MetaDataFilterParams{}
+	}
+	return &knowledgebase_service.MetaDataFilterParams{
+		FilterEnable:     filterParams.FilterEnable,
+		FilterLogicType:  filterParams.FilterLogicType,
+		MetaFilterParams: buildMetaFilterParams(filterParams.MetaFilterParams),
+	}
+}
+
 // buildKnowledgeInfoList 构造知识库列表结果
 func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_service.KnowledgeSelectListResp) *response.KnowledgeListResp {
 	if knowledgeListResp == nil || len(knowledgeListResp.KnowledgeList) == 0 {
@@ -493,6 +481,56 @@ func buildTagList(tagList []*knowledgebase_service.KnowledgeTagInfo) []*response
 		}
 	}
 	return retTagList
+}
+
+// buildKnowledgeHitResp 构造知识库命中返回
+func buildKnowledgeHitResp(resp *knowledgebase_service.KnowledgeHitResp) *response.KnowledgeHitResp {
+	var searchList = make([]*response.ChunkSearchList, 0)
+	if len(resp.SearchList) > 0 {
+		for _, search := range resp.SearchList {
+			childContentList := make([]*response.ChildContent, 0)
+			for _, child := range search.ChildContentList {
+				childContentList = append(childContentList, &response.ChildContent{
+					ChildSnippet: child.ChildSnippet,
+					Score:        float64(child.Score),
+				})
+			}
+			childScore := make([]float64, 0)
+			for _, score := range search.ChildScore {
+				childScore = append(childScore, float64(score))
+			}
+			searchList = append(searchList, &response.ChunkSearchList{
+				Title:            search.Title,
+				Snippet:          search.Snippet,
+				KnowledgeName:    search.KnowledgeName,
+				ChildContentList: childContentList,
+				ChildScore:       childScore,
+				ContentType:      search.ContentType,
+			})
+		}
+	}
+	return &response.KnowledgeHitResp{
+		Prompt:     resp.Prompt,
+		Score:      resp.Score,
+		SearchList: searchList,
+		UseGraph:   resp.UseGraph,
+	}
+}
+
+func buildMetaFilterParams(meta []*request.MetaFilterParams) []*knowledgebase_service.MetaFilterParams {
+	if len(meta) == 0 {
+		return make([]*knowledgebase_service.MetaFilterParams, 0)
+	}
+	var metaList []*knowledgebase_service.MetaFilterParams
+	for _, m := range meta {
+		metaList = append(metaList, &knowledgebase_service.MetaFilterParams{
+			Key:       m.Key,
+			Value:     m.Value,
+			Type:      m.Type,
+			Condition: m.Condition,
+		})
+	}
+	return metaList
 }
 
 func buildKnowledgeMetaValueRespList(resp *knowledgebase_service.KnowledgeMetaValueListResp) *response.KnowledgeMetaValueListResp {
@@ -627,54 +665,6 @@ func buildKnowledgeExternal(resp *knowledgebase_service.KnowledgeExternalSelectL
 		})
 	}
 	return &response.KnowledgeExternalListResp{ExternalKnowledgeList: externalKnowledgeList}
-}
-
-// buildRerankId 构造重排序模型id
-func buildRerankId(priorityType int32, rerankId string) string {
-	if priorityType == 1 {
-		return ""
-	}
-	return rerankId
-}
-
-// buildRetrieveMethod 构造检索方式
-func buildRetrieveMethod(matchType string) string {
-	switch matchType {
-	case "vector":
-		return "semantic_search"
-	case "text":
-		return "full_text_search"
-	case "mix":
-		return "hybrid_search"
-	}
-	return ""
-}
-
-// buildRerankMod 构造重排序模式
-func buildRerankMod(priorityType int32) string {
-	if priorityType == 1 {
-		return "weighted_score"
-	}
-	return "rerank_model"
-}
-
-// buildTermWeight 构造关键词系数信息
-func buildTermWeight(termWeight float32, termWeightEnable bool) float32 {
-	if termWeightEnable {
-		return termWeight
-	}
-	return 0.0
-}
-
-// buildWeight 构造权重信息
-func buildWeight(priorityType int32, semanticsPriority float32, keywordPriority float32) *request.WeightParams {
-	if priorityType != 1 {
-		return nil
-	}
-	return &request.WeightParams{
-		VectorWeight: semanticsPriority,
-		TextWeight:   keywordPriority,
-	}
 }
 
 // buildHitParams 构造命中测试参数
