@@ -354,7 +354,7 @@ export default {
         maxImageSize: 3,
         maxVideoClipSize: 10,
         maxTextLength: 512,
-        supportFileTypes: [],
+        supportFileTypes: [IMAGE, VIDEO],
         avatar: {
           key: '',
           path: '',
@@ -518,11 +518,13 @@ export default {
         maxImageSize: 3,
         maxVideoClipSize: 10,
         maxTextLength: 512,
-        supportFileTypes: [],
+        supportFileTypes: [IMAGE, VIDEO],
         avatar: { key: '', path: '' },
       });
-      this.$refs.createForm.resetFields();
-      this.$refs.createForm.clearValidate();
+      if (this.$refs.createForm) {
+        this.$refs.createForm.resetFields();
+        this.$refs.createForm.clearValidate();
+      }
     },
     handleSubmit() {
       this.$refs.createForm.validate(async valid => {
