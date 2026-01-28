@@ -161,11 +161,29 @@
                   inactive-text=""
                 />
                 <el-checkbox
-                  style="margin-left: 10px; margin-top: -4px"
+                  style="margin-left: 10px; margin-top: -2px"
                   v-if="item.modelType === LLM"
                   :model-value="checkModelSelection(item.modelId)"
                   @change="setModelCheck(item.modelId)"
                 ></el-checkbox>
+                <el-dropdown @command="handleCommand" placement="top">
+                  <span class="el-dropdown-link">
+                    <i class="el-icon-more more"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item :command="{ type: 'edit', item }">
+                      <i class="el-icon-edit-outline card-opera-icon"></i>
+                      {{ $t('common.button.edit') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item
+                      class="card-delete"
+                      :command="{ type: 'delete', item }"
+                    >
+                      <i class="el-icon-delete card-opera-icon" />
+                      {{ $t('common.button.delete') }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               </div>
             </div>
             <div class="card-middle">
@@ -199,24 +217,6 @@
               <div>
                 {{ item.updatedAt ? item.updatedAt.split(' ')[0] : '--' }}
                 {{ $t('modelAccess.table.update') }}
-                <el-dropdown @command="handleCommand" placement="top">
-                  <span class="el-dropdown-link">
-                    <i class="el-icon-more more"></i>
-                  </span>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item :command="{ type: 'edit', item }">
-                      <i class="el-icon-edit-outline card-opera-icon"></i>
-                      {{ $t('common.button.edit') }}
-                    </el-dropdown-item>
-                    <el-dropdown-item
-                      class="card-delete"
-                      :command="{ type: 'delete', item }"
-                    >
-                      <i class="el-icon-delete card-opera-icon" />
-                      {{ $t('common.button.delete') }}
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
               </div>
             </div>
             <div class="card-btn" v-if="item.modelType === LLM">
@@ -535,7 +535,7 @@ export default {
     transform: rotate(90deg);
     font-size: 16px;
     color: #8c8c8f;
-    padding: 5px;
+    padding: 5px 5px 4px 5px;
     border-radius: 4px;
   }
   .more:hover {
@@ -552,7 +552,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     .card-bottom-provider {
-      width: calc(100% - 135px);
+      width: calc(100% - 105px);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
