@@ -488,6 +488,7 @@ export default {
     import: '模型导入',
     support: '支持',
     noSupport: '不支持',
+    noInferUrl: '暂无统一示例',
     type: {
       yuanjing: '联通元景',
       qwen: '通义千问',
