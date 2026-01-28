@@ -159,6 +159,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          M
         </el-form-item>
         <el-form-item
           v-if="showMaxVideoLimit()"
@@ -170,6 +171,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          M
         </el-form-item>
         <el-form-item
           v-if="isMultiModal()"
@@ -181,6 +183,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          tokens
         </el-form-item>
         <el-form-item
           v-if="showMaxAudioLimit()"
@@ -192,6 +195,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          M
         </el-form-item>
         <el-form-item
           v-if="showContextSize()"
@@ -203,6 +207,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          tokens
         </el-form-item>
         <el-form-item
           v-if="createForm.modelType === llm"
@@ -214,6 +219,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          tokens
         </el-form-item>
         <el-form-item
           v-if="provider.key !== ollama"
@@ -413,6 +419,13 @@ export default {
             trigger: 'blur',
           },
           { validator: validateUrls, trigger: 'blur' },
+        ],
+        supportFileTypes: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'change',
+          },
         ],
       },
       row: {},

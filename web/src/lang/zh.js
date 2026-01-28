@@ -536,7 +536,7 @@ export default {
       vision: '图文问答',
       supportFileType: '支持的文件类型',
       maxTextSize: '最大文本长度',
-      maxVideoLimit: '最大视频片长度',
+      maxVideoLimit: '最大视频片限制',
       maxPicLimit: '最大图片限制',
       maxAudioLimit: '最大音频限制',
     },
