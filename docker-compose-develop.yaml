@@ -339,6 +339,10 @@ services:
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
       URL_RAG_DOC_PARSER: http://rag-wanwu:8681/rag/doc_parser
       URL_MINIO_DOWNLOAD: ${WANWU_WEB_BASE_URL}/minio/download/api
+      GUNICORN_WORKERS: 2
+      GUNICORN_TIMEOUT: 600
+      GUNICORN_THREADS: 4
+      
 
   workflow:
     restart: always
