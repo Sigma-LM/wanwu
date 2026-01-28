@@ -114,11 +114,13 @@ export const TYPE_OBJ = {
     [JINA]: 'jina_c08*********wMm',
   },
   inferUrl: {
+    [`${MULTIMODAL_EMBEDDING}_${YUAN_JING}`]: '--',
+    [`${MULTIMODAL_RERANK}_${YUAN_JING}`]: '--',
+    [`${ASR}_${YUAN_JING}`]:
+      'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [OCR]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [GUI]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [PDF_PARSER]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
-    [ASR]:
-      'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [YUAN_JING]: 'https://maas.ai-yuanjing.com/openapi/compatible-mode/v1',
     [OPENAI_API]: 'https://api.siliconflow.cn/v1',
     [OLLAMA]: 'https://192.168.21.100:11434/v1',
