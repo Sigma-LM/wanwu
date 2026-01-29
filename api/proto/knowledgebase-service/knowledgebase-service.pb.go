@@ -1262,7 +1262,7 @@ type KnowledgeInfo struct {
 	ShareCount            int32                  `protobuf:"varint,11,opt,name=shareCount,proto3" json:"shareCount,omitempty"`                      //共享数量
 	RagName               string                 `protobuf:"bytes,12,opt,name=ragName,proto3" json:"ragName,omitempty"`                             //传给rag的知识库名称
 	GraphSwitch           int32                  `protobuf:"varint,13,opt,name=graphSwitch,proto3" json:"graphSwitch,omitempty"`                    //知识图谱开关
-	Category              int32                  `protobuf:"varint,14,opt,name=category,proto3" json:"category,omitempty"`                          // 0:知识库 1:问答库
+	Category              int32                  `protobuf:"varint,14,opt,name=category,proto3" json:"category,omitempty"`                          // 0:知识库 1:问答库 2: 多模态知识库
 	LlmModelId            string                 `protobuf:"bytes,15,opt,name=llmModelId,proto3" json:"llmModelId,omitempty"`                       // 知识图谱-大模型id
 	UpdatedAt             string                 `protobuf:"bytes,16,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`                         // 更新时间
 	External              int32                  `protobuf:"varint,17,opt,name=external,proto3" json:"external,omitempty"`                          //0:知识库 1:外部知识库

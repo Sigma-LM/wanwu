@@ -1499,6 +1499,13 @@ definitions:
     - assistantId
     - prompt
     type: object
+  request.ConversationDeleteRequest:
+    properties:
+      assistantId:
+        type: string
+    required:
+    - assistantId
+    type: object
   request.ConversationIdRequest:
     properties:
       conversationId:
@@ -1529,8 +1536,6 @@ definitions:
         type: string
       systemPrompt:
         type: string
-      trial:
-        type: boolean
     required:
     - assistantId
     - prompt
@@ -3140,7 +3145,6 @@ definitions:
         description: 用户问题
         type: string
       trial:
-        description: 是否试用
         type: boolean
     required:
     - assistantId
@@ -8338,6 +8342,75 @@ paths:
       security:
       - JWT: []
       summary: 智能体对话详情历史列表
+      tags:
+      - agent
+  /assistant/conversation/draft:
+    delete:
+      consumes:
+      - application/json
+      description: 删除草稿智能体对话
+      parameters:
+      - description: 智能体对话删除参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ConversationDeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除草稿智能体对话
+      tags:
+      - agent
+  /assistant/conversation/draft/detail:
+    get:
+      consumes:
+      - application/json
+      description: 草稿智能体对话详情历史列表
+      parameters:
+      - description: 智能体id
+        in: query
+        name: assistantId
+        required: true
+        type: string
+      - description: 页面编号
+        in: query
+        name: pageNo
+        required: true
+        type: integer
+      - description: 单页数量
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ConversationDetailInfo'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 草稿智能体对话详情历史列表
       tags:
       - agent
   /assistant/conversation/list:

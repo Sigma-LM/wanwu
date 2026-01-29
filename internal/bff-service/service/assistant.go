@@ -664,10 +664,11 @@ func assistantSafetyConvert(ctx *gin.Context, resp *assistant_service.AssistantS
 	}, nil
 }
 
-func ConversationCreate(ctx *gin.Context, userId, orgId string, req request.ConversationCreateRequest) (response.ConversationCreateResp, error) {
+func ConversationCreate(ctx *gin.Context, userId, orgId string, req request.ConversationCreateRequest, conversationType string) (response.ConversationCreateResp, error) {
 	resp, err := assistant.ConversationCreate(ctx.Request.Context(), &assistant_service.ConversationCreateReq{
-		AssistantId: req.AssistantId,
-		Prompt:      req.Prompt,
+		AssistantId:      req.AssistantId,
+		Prompt:           req.Prompt,
+		ConversationType: conversationType,
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 			OrgId:  orgId,
@@ -695,11 +696,59 @@ func ConversationDelete(ctx *gin.Context, userId, orgId string, req request.Conv
 	return nil, nil
 }
 
+func GetDraftConversationIdByAssistantID(ctx *gin.Context, userId, orgId string, req request.ConversationGetListRequest) (*response.ConversationIdResp, error) {
+	resp, err := assistant.GetConversationIdByAssistantId(ctx.Request.Context(), &assistant_service.GetConversationIdByAssistantIdReq{
+		AssistantId:      req.AssistantId,
+		ConversationType: constant.ConversationTypeDraft,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &response.ConversationIdResp{
+		ConversationId: resp.ConversationId,
+	}, nil
+}
+
+func DraftConversationDeleteByAssistantID(ctx *gin.Context, userId, orgId string, req request.ConversationDeleteRequest) (interface{}, error) {
+	// 获取 conversation_id
+	conversationIdResp, err := assistant.GetConversationIdByAssistantId(ctx.Request.Context(), &assistant_service.GetConversationIdByAssistantIdReq{
+		AssistantId:      req.AssistantId,
+		ConversationType: constant.ConversationTypeDraft,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+
+	if conversationIdResp == nil || err != nil {
+		return nil, err
+	}
+
+	// 删除草稿会话
+	_, err = assistant.ConversationDelete(ctx.Request.Context(), &assistant_service.ConversationDeleteReq{
+		ConversationId: conversationIdResp.ConversationId,
+		Identity: &assistant_service.Identity{
+			UserId: userId,
+			OrgId:  orgId,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
 func GetConversationList(ctx *gin.Context, userId, orgId string, req request.ConversationGetListRequest) (response.PageResult, error) {
 	resp, err := assistant.GetConversationList(ctx.Request.Context(), &assistant_service.GetConversationListReq{
-		AssistantId: req.AssistantId,
-		PageSize:    int32(req.PageSize),
-		PageNo:      int32(req.PageNo),
+		AssistantId:      req.AssistantId,
+		ConversationType: constant.ConversationTypePublished,
+		PageSize:         int32(req.PageSize),
+		PageNo:           int32(req.PageNo),
 		Identity: &assistant_service.Identity{
 			UserId: userId,
 		},
