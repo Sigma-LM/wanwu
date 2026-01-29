@@ -2397,6 +2397,123 @@ const docTemplate = `{
                 }
             }
         },
+        "/assistant/conversation/draft": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除草稿智能体对话",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "删除草稿智能体对话",
+                "parameters": [
+                    {
+                        "description": "智能体对话删除参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ConversationDeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/assistant/conversation/draft/detail": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "草稿智能体对话详情历史列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "草稿智能体对话详情历史列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "智能体id",
+                        "name": "assistantId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面编号",
+                        "name": "pageNo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "单页数量",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.ConversationDetailInfo"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/assistant/conversation/list": {
             "get": {
                 "security": [
@@ -15877,6 +15994,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ConversationDeleteRequest": {
+            "type": "object",
+            "required": [
+                "assistantId"
+            ],
+            "properties": {
+                "assistantId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.ConversationIdRequest": {
             "type": "object",
             "required": [
@@ -15926,9 +16054,6 @@ const docTemplate = `{
                 },
                 "systemPrompt": {
                     "type": "string"
-                },
-                "trial": {
-                    "type": "boolean"
                 }
             }
         },
@@ -18270,7 +18395,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "trial": {
-                    "description": "是否试用",
                     "type": "boolean"
                 }
             }

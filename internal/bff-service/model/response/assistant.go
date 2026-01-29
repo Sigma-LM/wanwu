@@ -105,6 +105,10 @@ type ConversationCreateResp struct {
 	ConversationId string `json:"conversationId"`
 }
 
+type ConversationIdResp struct {
+	ConversationId string `json:"conversationId"`
+}
+
 type AssistantCreateResp struct {
 	AssistantId string `json:"assistantId"`
 }

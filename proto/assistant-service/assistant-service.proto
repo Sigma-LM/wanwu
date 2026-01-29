@@ -52,12 +52,12 @@ service AssistantService {
   // --- conversation ---
   rpc ConversationCreate(ConversationCreateReq) returns (ConversationCreateResp) {}
   rpc ConversationDelete(ConversationDeleteReq) returns (google.protobuf.Empty) {}
+  rpc GetConversationIdByAssistantId(GetConversationIdByAssistantIdReq) returns (ConversationIdResp) {}
   rpc GetConversationList(GetConversationListReq) returns (GetConversationListResp) {}
   rpc GetConversationDetailList(GetConversationDetailListReq) returns (GetConversationDetailListResp) {}
   rpc AssistantConversionStream(AssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
   rpc AssistantConversionStreamNew(AssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
   rpc MultiAssistantConversionStream(MultiAssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
-  rpc ConversationDeleteByAssistantId(ConversationDeleteByAssistantIdReq) returns (google.protobuf.Empty) {}
 
   // --- custom prompt ---
   rpc CustomPromptCreate(CustomPromptCreateReq) returns (CustomPromptIDResp) {}
@@ -454,7 +454,8 @@ message AssistantToolConfigReq {
 message ConversationCreateReq {
   string assistantId = 1;
   string prompt = 2;
-  Identity identity = 3;
+  string conversationType = 3;
+  Identity identity = 4;
 }
 
 message ConversationCreateResp {
@@ -466,11 +467,22 @@ message ConversationDeleteReq {
   Identity identity = 2;
 }
 
+message ConversationIdResp {
+  string conversationId = 1;
+}
+
+message GetConversationIdByAssistantIdReq{
+  string assistantId = 1;
+  string conversationType = 2;
+  Identity identity = 3;
+}
+
 message GetConversationListReq {
   string assistantId = 1;
-  int32 pageSize = 2;
-  int32 pageNo = 3;
-  Identity identity = 4;
+  string conversationType = 2;
+  int32 pageSize = 3;
+  int32 pageNo = 4;
+  Identity identity = 5;
 }
 
 message GetConversationListResp {
@@ -530,33 +542,26 @@ message AssistantConversionStreamReq {
   string assistantId = 1;
   string conversationId = 2;
   repeated ConversionStreamFile fileInfo = 3;
-  bool trial = 4;
-  string prompt = 5;
-  string systemPrompt = 6;
-  bool draft = 7;
-  Identity identity = 8;
+  string prompt = 4;
+  string systemPrompt = 5;
+  bool draft = 6;
+  Identity identity = 7;
 }
 
 message MultiAssistantConversionStreamReq {
   string assistantId = 1;
   string conversationId = 2;
   repeated ConversionStreamFile fileInfo = 3;
-  bool trial = 4;
-  string prompt = 5;
-  string systemPrompt = 6;
-  bool draft = 7;
-  Identity identity = 8;
+  string prompt = 4;
+  string systemPrompt = 5;
+  bool draft = 6;
+  Identity identity = 7;
 }
 
 message ConversionStreamFile{
   string fileName = 1;
   int64 fileSize = 2;
   string fileUrl = 3;
-}
-
-message ConversationDeleteByAssistantIdReq {
-  string assistantId = 1;
-  Identity identity = 2;
 }
 
 message AssistantWorkFlowDeleteByWorkflowIdReq {

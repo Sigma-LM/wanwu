@@ -16,6 +16,10 @@ import (
 	"strings"
 	"time"
 
+	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
+
+	"github.com/UnicomAI/wanwu/internal/assistant-service/service"
+
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/api/proto/common"
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
@@ -24,7 +28,6 @@ import (
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/config"
-	"github.com/UnicomAI/wanwu/internal/assistant-service/service"
 	"github.com/UnicomAI/wanwu/pkg/constant"
 	"github.com/UnicomAI/wanwu/pkg/es"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
@@ -32,7 +35,6 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
-	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	pkgUtil "github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/google/uuid"
@@ -47,16 +49,12 @@ const (
 // ConversationCreate 创建对话
 func (s *Service) ConversationCreate(ctx context.Context, req *assistant_service.ConversationCreateReq) (*assistant_service.ConversationCreateResp, error) {
 	// 组装model参数
-	assistantID, err := pkgUtil.U32(req.AssistantId)
-	if err != nil {
-		return nil, err
-	}
-
 	conversation := &model.Conversation{
-		AssistantId: assistantID,
-		Title:       req.Prompt, // 使用prompt作为初始标题
-		UserId:      req.Identity.UserId,
-		OrgId:       req.Identity.OrgId,
+		AssistantId:      util.MustU32(req.AssistantId),
+		Title:            req.Prompt, // 使用prompt作为初始标题
+		ConversationType: req.ConversationType,
+		UserId:           req.Identity.UserId,
+		OrgId:            req.Identity.OrgId,
 	}
 
 	// 调用client方法创建对话
@@ -65,7 +63,7 @@ func (s *Service) ConversationCreate(ctx context.Context, req *assistant_service
 	}
 
 	return &assistant_service.ConversationCreateResp{
-		ConversationId: strconv.FormatUint(uint64(conversation.ID), 10),
+		ConversationId: util.Int2Str(conversation.ID),
 	}, nil
 }
 
@@ -82,7 +80,30 @@ func (s *Service) ConversationDelete(ctx context.Context, req *assistant_service
 		return nil, errStatus(errs.Code_AssistantConversationErr, status)
 	}
 
+	// 删除es中的对话详情
+	fieldConditions := map[string]interface{}{
+		"conversationId.keyword": req.ConversationId,
+		"userId.keyword":         req.Identity.UserId,
+	}
+	indexPattern := "conversation_detail_infos_*"
+	if err := es.Assistant().DeleteByFields(ctx, indexPattern, fieldConditions); err != nil {
+		log.Errorf("从ES删除对话详情失败，conversationId: %s, error: %v", req.ConversationId, err)
+	}
+
 	return &emptypb.Empty{}, nil
+}
+
+// GetConversationIdByAssistantId 获取对话记录id
+func (s *Service) GetConversationIdByAssistantId(ctx context.Context, req *assistant_service.GetConversationIdByAssistantIdReq) (*assistant_service.ConversationIdResp, error) {
+	// 调用client方法获取对话
+	conversation, status := s.cli.GetConversationByAssistantID(ctx, req.AssistantId, req.ConversationType)
+	if status != nil {
+		return nil, errStatus(errs.Code_AssistantConversationErr, status)
+	}
+
+	return &assistant_service.ConversationIdResp{
+		ConversationId: util.Int2Str(conversation.ID),
+	}, nil
 }
 
 // GetConversationList 对话列表
@@ -91,7 +112,7 @@ func (s *Service) GetConversationList(ctx context.Context, req *assistant_servic
 	offset := (req.PageNo - 1) * req.PageSize
 
 	// 调用client方法获取对话列表
-	conversations, total, status := s.cli.GetConversationList(ctx, req.AssistantId, req.Identity.UserId, req.Identity.OrgId, offset, req.PageSize)
+	conversations, total, status := s.cli.GetConversationList(ctx, req.AssistantId, req.ConversationType, req.Identity.UserId, req.Identity.OrgId, offset, req.PageSize)
 	if status != nil {
 		return nil, errStatus(errs.Code_AssistantConversationErr, status)
 	}
@@ -100,8 +121,8 @@ func (s *Service) GetConversationList(ctx context.Context, req *assistant_servic
 	var conversationInfos []*assistant_service.ConversationInfo
 	for _, conversation := range conversations {
 		conversationInfos = append(conversationInfos, &assistant_service.ConversationInfo{
-			ConversationId: strconv.FormatUint(uint64(conversation.ID), 10),
-			AssistantId:    strconv.FormatUint(uint64(conversation.AssistantId), 10),
+			ConversationId: util.Int2Str(conversation.ID),
+			AssistantId:    util.Int2Str(conversation.AssistantId),
 			Title:          conversation.Title,
 			CreatTime:      conversation.CreatedAt,
 		})
@@ -180,8 +201,8 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamServer) error {
 	ctx := stream.Context()
 	reqUserId := req.Identity.UserId
-	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, trial: %v, prompt: %s",
-		req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Trial, req.Prompt)
+	log.Debugf("Assistant服务开始智能体流式对话，assistantId: %s, userId: %s, orgId: %s, conversationId: %s, fileInfo: %+v, prompt: %s",
+		req.AssistantId, reqUserId, req.Identity.OrgId, req.ConversationId, req.FileInfo, req.Prompt)
 
 	// 用于跟踪流式响应状态的变量
 	var fullResponse strings.Builder
@@ -193,7 +214,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 	// 使用defer统一处理上下文取消的情况
 	defer func() {
 		// 只有在上下文被手动取消且还未保存过对话时，才保存"已被终止"消息
-		if ctx.Err() != nil && !req.Trial && !conversationSaved {
+		if ctx.Err() != nil && !conversationSaved {
 			var terminationMessage string
 
 			if !streamStarted {
@@ -304,7 +325,7 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 	}
 
 	// 历史聊天记录配置
-	if !req.Trial && req.ConversationId != "" {
+	if req.ConversationId != "" {
 		s.setHistoryParams(ctx, sseReq, req)
 	}
 
@@ -379,30 +400,25 @@ func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConv
 		}
 		line, err := reader.ReadBytes('\n')
 		if err != nil && err == io.EOF { //正常結束
-			// 问答调试不保存
-			if !req.Trial {
-				// 只有在上下文未被取消的情况下才保存并标记为已保存
-				if ctx.Err() == nil {
-					saveConversation(ctx, req, fullResponse.String(), searchList)
-					conversationSaved = true // 标记已保存
-				}
-				// 如果上下文被取消，不设置conversationSaved，让defer函数处理终止消息
+			// 只有在上下文未被取消的情况下才保存并标记为已保存
+			if ctx.Err() == nil {
+				saveConversation(ctx, req, fullResponse.String(), searchList)
+				conversationSaved = true // 标记已保存
 			}
+			// 如果上下文被取消，不设置conversationSaved，让defer函数处理终止消息
 			log.Debugf("Assistant服务流式响应正常结束，assistantId: %s, 总处理行数: %d", req.AssistantId, lineCount)
 			return nil
 		}
 		if err != nil && err == io.ErrUnexpectedEOF { //异常結束
 			// 真正的SSE读取错误，保存"已中断"消息
 			log.Errorf("Assistant服务读取流式响应失败，assistantId: %s, error: %v, 已处理行数: %d", req.AssistantId, err, lineCount)
-			if !req.Trial {
-				errorMessage := "本次回答已中断"
-				if hasReadFirstMessage && fullResponse.Len() > 0 {
-					errorMessage = fullResponse.String() + "\n" + errorMessage
-				}
-				saveConversation(ctx, req, errorMessage, searchList)
-				conversationSaved = true // 标记已保存，避免defer中重复保存
-				log.Debugf("Assistant服务保存了中断消息，assistantId: %s, errorMessage: %s", req.AssistantId, errorMessage)
+			errorMessage := "本次回答已中断"
+			if hasReadFirstMessage && fullResponse.Len() > 0 {
+				errorMessage = fullResponse.String() + "\n" + errorMessage
 			}
+			saveConversation(ctx, req, errorMessage, searchList)
+			conversationSaved = true // 标记已保存，避免defer中重复保存
+			log.Debugf("Assistant服务保存了中断消息，assistantId: %s, errorMessage: %s", req.AssistantId, errorMessage)
 			SSEError(stream, "本次回答已中断")
 			return grpc_util.ErrorStatusWithKey(errs.Code_AssistantConversationErr, "assistant_conversation", "本次回答已中断")
 		}
@@ -1290,14 +1306,6 @@ func saveConversationDetailToES(ctx context.Context, req *assistant_service.Assi
 	return nil
 }
 
-// ConversationDeleteByAssistantId 根据智能体ID删除对话
-func (s *Service) ConversationDeleteByAssistantId(ctx context.Context, req *assistant_service.ConversationDeleteByAssistantIdReq) (*emptypb.Empty, error) {
-	if status := s.cli.DeleteConversationByAssistantID(ctx, req.AssistantId, req.Identity.UserId, req.Identity.OrgId); status != nil {
-		return nil, errStatus(errs.Code_AssistantConversationErr, status)
-	}
-	return &emptypb.Empty{}, nil
-}
-
 // extractCodeFromStreamData 从流式数据中安全提取code字段
 // JSON解析后数字类型为float64，需要安全转换为int
 func extractCodeFromStreamData(streamData map[string]interface{}) (int, bool) {
@@ -1455,7 +1463,7 @@ func buildConversationParams(req *assistant_service.AssistantConversionStreamReq
 func buildAgentSendRequest(req *assistant_service.AssistantConversionStreamReq) func(ctx context.Context) (string, *http.Response, context.CancelFunc, error) {
 	var conversationID string
 	// 历史聊天记录配置
-	if !req.Trial && req.ConversationId != "" {
+	if req.ConversationId != "" {
 		conversationID = req.ConversationId
 	}
 	// 底层智能体能力接口请求体

@@ -49,3 +49,11 @@ const (
 	SingleAgent = 1
 	MultiAgent  = 2
 )
+
+// conversation type
+const (
+	ConversationTypeWebURL    = "openurl"   // openurl
+	ConversationTypePublished = "published" // 已发布
+	ConversationTypeDraft     = "draft"     // 草稿
+	ConversationTypeOpenAPI   = "openapi"   // openapi
+)
