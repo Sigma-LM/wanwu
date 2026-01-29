@@ -600,7 +600,7 @@ export default {
       } else if (type === 'knowledge_start') {
         return this.$t('app.knowledgeSearch');
       } else if (type === 'qa_finish') {
-        return this.$t('knowledgeManage.qaDatabase.name');
+        return this.$t('knowledgeManage.qaDatabase.title');
       } else {
         return this.$t('menu.knowledge');
       }

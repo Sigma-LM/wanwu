@@ -87,6 +87,7 @@
       @setKnowledgeSet="knowledgeRecallSet"
       :config="knowledgeRecallConfig"
       :category="category"
+      :knowledgeCategory="knowledgeCategory"
       :isAllExternal="isAllExternalKnowledgeSelected"
     />
   </div>
@@ -95,6 +96,7 @@
 import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import metaDataFilterField from './metaDataFilterField.vue';
 import knowledgeRecallField from './knowledgeRecallField.vue';
+import { KNOWLEDGE } from '@/views/knowledge/constants';
 export default {
   name: 'QaDatabase',
   components: { knowledgeSelect, metaDataFilterField, knowledgeRecallField },
@@ -106,7 +108,11 @@ export default {
     },
     category: {
       type: Number,
-      default: 0,
+      default: KNOWLEDGE,
+    },
+    knowledgeCategory: {
+      type: Number,
+      default: KNOWLEDGE,
     },
     required: {
       type: Boolean,

@@ -18,23 +18,23 @@
         @submit.native.prevent
       >
         <!-- tabs -->
-        <div class="tabs" v-if="!isEdit && category === 0">
+        <div class="tabs" v-if="!isEdit && category === KNOWLEDGE">
           <div
-            :class="['tab', { active: tabActive === 0 }]"
-            @click="tabClick(0)"
+            :class="['tab', { active: tabActive === INTERNAL }]"
+            @click="tabClick(INTERNAL)"
           >
             {{ $t('knowledgeManage.internal') }}
           </div>
           <div
-            :class="['tab', { active: tabActive === 1 }]"
-            @click="tabClick(1)"
+            :class="['tab', { active: tabActive === EXTERNAL }]"
+            @click="tabClick(EXTERNAL)"
           >
             {{ $t('knowledgeManage.external') }}
           </div>
         </div>
         <el-form-item
           :label="
-            category === 0
+            category === KNOWLEDGE
               ? $t('knowledgeManage.knowledgeName')
               : $t('knowledgeManage.qaDatabase.name')
           "
@@ -47,21 +47,35 @@
             show-word-limit
           ></el-input>
         </el-form-item>
-        <el-form-item :label="$t('knowledgeManage.desc')" prop="description">
+        <el-form-item
+          :label="
+            category === KNOWLEDGE
+              ? $t('knowledgeManage.desc')
+              : $t('knowledgeManage.qaDatabase.desc')
+          "
+          prop="description"
+        >
           <el-input
             v-model="ruleForm.description"
             :placeholder="$t('common.input.inputDesc')"
           ></el-input>
         </el-form-item>
-        <template v-if="tabActive === 0">
+        <template v-if="tabActive === INTERNAL">
           <el-form-item label="Embedding" prop="embeddingModelInfo.modelId">
             <modelSelect
               v-model="ruleForm.embeddingModelInfo.modelId"
-              :options="EmbeddingOptions"
+              :options="
+                localCategory === MULTIMODAL
+                  ? multiEmbeddingOptions
+                  : EmbeddingOptions
+              "
               :disabled="isEdit"
             />
           </el-form-item>
-          <el-form-item prop="knowledgeGraph.switch" v-if="category === 0">
+          <el-form-item
+            prop="knowledgeGraph.switch"
+            v-if="category === KNOWLEDGE && localCategory === KNOWLEDGE"
+          >
             <template #label>
               <span>{{ $t('knowledgeManage.create.knowledgeGraph') }}:</span>
               <el-tooltip
@@ -206,7 +220,7 @@
             </div>
           </el-form-item>
         </template>
-        <template v-if="tabActive === 1">
+        <template v-if="tabActive === EXTERNAL">
           <el-form-item
             :label="$t('knowledgeManage.externalSource')"
             prop="externalSource"
@@ -289,17 +303,24 @@ import {
   createExternal,
   editExternal,
 } from '@/api/knowledge';
-import { selectModelList } from '@/api/modelAccess';
+import { getMultiEmbeddingList, selectModelList } from '@/api/modelAccess';
 import { KNOWLEDGE_GRAPH_TIPS } from '../config';
 import uploadChunk from '@/mixins/uploadChunk';
 import { delfile } from '@/api/chunkFile';
 import modelSelect from '@/components/modelSelect.vue';
+import {
+  INTERNAL,
+  EXTERNAL,
+  KNOWLEDGE,
+  QA,
+  MULTIMODAL,
+} from '@/views/knowledge/constants';
 
 export default {
   props: {
     category: {
       type: Number,
-      default: 0,
+      default: KNOWLEDGE,
     },
   },
   components: {
@@ -316,8 +337,14 @@ export default {
       }
     };
     return {
+      INTERNAL,
+      EXTERNAL,
+      KNOWLEDGE,
+      QA,
+      MULTIMODAL,
       dialogVisible: false,
-      tabActive: 0,
+      tabActive: INTERNAL,
+      localCategory: this.category,
       ruleForm: {
         name: '',
         description: '',
@@ -334,6 +361,7 @@ export default {
         externalKnowledgeId: '',
       },
       EmbeddingOptions: [],
+      multiEmbeddingOptions: [],
       knowledgeGraphModelOptions: [],
       externalSourceOptions: [{ sourceId: 'dify', displayName: 'Dify' }],
       externalApiOptions: [],
@@ -426,6 +454,11 @@ export default {
   },
   created() {
     this.getEmbeddingList();
+    getMultiEmbeddingList().then(res => {
+      if (res.code === 0) {
+        this.multiEmbeddingOptions = res.data.list || [];
+      }
+    });
     this.getModelData(); //获取模型列表
   },
   methods: {
@@ -440,7 +473,7 @@ export default {
       }
     },
     getTitle() {
-      if (this.category === 0) {
+      if (this.category === KNOWLEDGE) {
         if (this.isEdit) {
           return this.$t('knowledgeManage.editInfo');
         } else {
@@ -519,7 +552,21 @@ export default {
     clearform() {
       ((this.isEdit = false), (this.knowledgeId = ''));
       this.$refs.ruleForm.resetFields();
-      this.$refs.ruleForm.clearValidate();
+      this.ruleForm = {
+        name: '',
+        description: '',
+        embeddingModelInfo: {
+          modelId: '',
+        },
+        knowledgeGraph: {
+          llmModelId: '',
+          schemaUrl: '',
+          switch: false,
+        },
+        externalSource: 'dify',
+        externalApiId: '',
+        externalKnowledgeId: '',
+      };
       this.fileList = [];
       this.cancelAllRequests();
       this.file = null;
@@ -702,10 +749,12 @@ export default {
     createKnowledge() {
       const data = {
         ...this.ruleForm,
-        category: this.category,
+        category: this.localCategory,
       };
       const request =
-        this.tabActive === 1 ? createExternal(data) : createKnowledgeItem(data);
+        this.tabActive === EXTERNAL
+          ? createExternal(data)
+          : createKnowledgeItem(data);
       request
         .then(res => {
           if (res.code === 0) {
@@ -726,7 +775,9 @@ export default {
         knowledgeId: this.knowledgeId,
       };
       const request =
-        this.tabActive === 1 ? editExternal(data) : editKnowledgeItem(data);
+        this.tabActive === EXTERNAL
+          ? editExternal(data)
+          : editKnowledgeItem(data);
       request
         .then(res => {
           if (res.code === 0) {
@@ -745,7 +796,10 @@ export default {
     showDialog(row) {
       this.dialogVisible = true;
       this.isEdit = Boolean(row);
+      this.tabActive = INTERNAL;
+      this.localCategory = this.category;
       if (row) {
+        this.localCategory = row.category;
         this.knowledgeId = row.knowledgeId;
         this.ruleForm = {
           name: row.name,
@@ -758,12 +812,17 @@ export default {
             switch: row.graphSwitch === 1,
             schemaUrl: '',
           },
-          externalSource: row.externalKnowledgeInfo.externalSource,
-          externalApiId: row.externalKnowledgeInfo.externalApiId,
-          externalKnowledgeId: row.externalKnowledgeInfo.externalKnowledgeId,
+          externalSource: 'dify',
+          externalApiId: '',
+          externalKnowledgeId: '',
         };
-        if (row.external === 1) {
-          this.tabActive = 1;
+        if (row.external === EXTERNAL) {
+          this.ruleForm.externalSource =
+            row.externalKnowledgeInfo.externalSource;
+          this.ruleForm.externalApiId = row.externalKnowledgeInfo.externalApiId;
+          this.ruleForm.externalKnowledgeId =
+            row.externalKnowledgeInfo.externalKnowledgeId;
+          this.tabActive = EXTERNAL;
           this.externalApiOptions = [
             {
               externalApiId: this.ruleForm.externalApiId,
@@ -808,6 +867,52 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/style/tabs';
+
+.card {
+  display: flex;
+
+  .card-item {
+    flex: 1;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    padding: 15px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    .card-img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      padding: 10px 6px;
+      background: #ffffff;
+      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      border: 0 solid #d9d9d9;
+      margin-right: 16px;
+    }
+    .card-name {
+      font-size: 17px;
+      font-weight: bold;
+      color: $color_title;
+      margin-bottom: 5px;
+    }
+    .card-detail {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+  }
+  .card-item:hover,
+  .card-item.is-active {
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
+    border: 1px solid $color;
+    .card-name {
+      color: $color;
+    }
+  }
+}
 
 .knowledge-create-dialog {
   ::v-deep .el-dialog__body {
