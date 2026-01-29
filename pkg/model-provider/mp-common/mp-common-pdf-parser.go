@@ -16,8 +16,9 @@ import (
 // --- openapi request ---
 
 type PdfParserReq struct {
-	Files    *multipart.FileHeader `form:"file" json:"file" validate:"required"`
-	FileName string                `form:"file_name" json:"file_name" validate:"required"`
+	Files        *multipart.FileHeader `form:"file" json:"file" validate:"required"`
+	FileName     string                `form:"file_name" json:"file_name" validate:"required"`
+	ExtractImage *int64                `form:"extract_image" json:"extract_image,omitempty"`
 }
 
 func (req *PdfParserReq) Check() error {
