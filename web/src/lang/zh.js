@@ -1159,8 +1159,20 @@ export default {
         deleteSplitterTitle: '确认要删除当前分隔符？',
       },
     },
+    textKnowledgeDatabase: {
+      title: '文本知识库',
+      desc: '实现文本知识的有效抽取、分类、存储与语义解析，为后续知识检索、问答等场景提供知识支撑。',
+    },
+    multiKnowledgeDatabase: {
+      title: '多模态知识库',
+      desc: '实现多模态知识库内容解析，支持融合图像、音频、视频等多种模态的知识内容，为需要结合多类型信息的复杂场景提供多维度的知识支撑。',
+      mixWarning:
+        '您所选模型为Text Rerank模型，重排时会忽略掉多模态文件，请谨慎选择',
+    },
     qaDatabase: {
-      name: '问答库',
+      title: '问答库',
+      name: '问答库名称',
+      desc: '问答库描述',
       editInfo: '编辑问答库',
       createKnowledge: '新建问答库',
       question: '问题',
