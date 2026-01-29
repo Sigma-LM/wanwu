@@ -130,7 +130,8 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
+        <!-- 多模态模型去掉支持的文件类型选择 -->
+        <!--<el-form-item
           v-if="isMultiModal()"
           :label="$t('modelAccess.table.supportFileType')"
           prop="supportFileTypes"
@@ -148,7 +149,7 @@
               :value="item"
             ></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item
           v-if="showMaxPicLimit()"
           :label="$t('modelAccess.table.maxPicLimit')"
@@ -161,7 +162,8 @@
           ></el-input-number>
           M
         </el-form-item>
-        <el-form-item
+        <!-- 多模态模型去掉视频片限制，和最大文本长度 -->
+        <!--<el-form-item
           v-if="showMaxVideoLimit()"
           :label="$t('modelAccess.table.maxVideoLimit')"
           prop="maxVideoClipSize"
@@ -184,7 +186,7 @@
             :min="0"
           ></el-input-number>
           tokens
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item
           v-if="showMaxAudioLimit()"
           :label="$t('modelAccess.table.maxAudioLimit')"
@@ -354,9 +356,9 @@ export default {
         maxTokens: 4096,
         maxAsrFileSize: 10,
         maxImageSize: 3,
-        maxVideoClipSize: 10,
+        /*maxVideoClipSize: 10,
         maxTextLength: 512,
-        supportFileTypes: [IMAGE, VIDEO],
+        supportFileTypes: [IMAGE, VIDEO],*/
         avatar: {
           key: '',
           path: '',
@@ -422,13 +424,13 @@ export default {
           },
           { validator: validateUrls, trigger: 'blur' },
         ],
-        supportFileTypes: [
+        /*supportFileTypes: [
           {
             required: true,
             message: this.$t('common.select.placeholder'),
             trigger: 'change',
           },
-        ],
+        ],*/
       },
       row: {},
       provider: {},
@@ -461,7 +463,7 @@ export default {
       const { modelType, visionSupport } = this.createForm || {};
       return (
         (modelType === LLM && visionSupport === 'support') ||
-        this.showFileTypeLimit(IMAGE)
+        this.isMultiModal() // this.showFileTypeLimit(IMAGE)
       );
     },
     showMaxVideoLimit() {
@@ -518,9 +520,9 @@ export default {
         maxTokens: 4096,
         maxAsrFileSize: 10,
         maxImageSize: 3,
-        maxVideoClipSize: 10,
+        /*maxVideoClipSize: 10,
         maxTextLength: 512,
-        supportFileTypes: [IMAGE, VIDEO],
+        supportFileTypes: [IMAGE, VIDEO],*/
         avatar: { key: '', path: '' },
       });
       if (this.$refs.createForm) {
@@ -539,11 +541,11 @@ export default {
             visionSupport,
             contextSize,
             maxTokens,
-            maxTextLength,
+            /*maxTextLength,
             maxVideoClipSize,
+            supportFileTypes,*/
             maxImageSize,
             maxAsrFileSize,
-            supportFileTypes,
           } = this.createForm;
           const form = {
             ...this.createForm,
@@ -555,9 +557,9 @@ export default {
               ...(this.showVision() && { visionSupport }),
               ...(this.showContextSize() && { contextSize }),
               ...(this.showMaxAudioLimit() && { maxAsrFileSize }),
-              ...(this.showMaxVideoLimit() && { maxVideoClipSize }),
               ...(this.showMaxPicLimit() && { maxImageSize }),
-              ...(this.isMultiModal() && { supportFileTypes, maxTextLength }),
+              /*...(this.showMaxVideoLimit() && { maxVideoClipSize }),
+              ...(this.isMultiModal() && { supportFileTypes, maxTextLength }),*/
             },
           };
           const deleteKeys = [
@@ -567,11 +569,11 @@ export default {
             'visionSupport',
             'contextSize',
             'maxTokens',
-            'maxTextLength',
+            /*'maxTextLength',
             'maxVideoClipSize',
+            'supportFileTypes',*/
             'maxImageSize',
             'maxAsrFileSize',
-            'supportFileTypes',
           ];
           deleteKeys.forEach(key => {
             delete form[key];
