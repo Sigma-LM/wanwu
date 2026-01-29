@@ -32,7 +32,10 @@
             {{ $t('knowledgeManage.external') }}
           </div>
         </div>
-        <div class="card" v-if="!isEdit && category === KNOWLEDGE">
+        <div
+          class="card"
+          v-if="!isEdit && category === KNOWLEDGE && tabActive === INTERNAL"
+        >
           <div
             :class="['card-item', { 'is-active': localCategory === KNOWLEDGE }]"
             @click="localCategory = KNOWLEDGE"

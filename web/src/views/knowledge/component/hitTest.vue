@@ -103,7 +103,7 @@
               <div>
                 <div class="resultContent">
                   <template v-if="item.contentType !== 'qa'">
-                    {{ item.snippet.slice(0, 100) }}...
+                    <div v-html="md.render(item.snippet)"></div>
                   </template>
                   <template v-else>
                     <div>
@@ -447,8 +447,9 @@ export default {
       }
 
       .resultContent {
-        img {
-          width: 100%;
+        ::v-deep img {
+          width: 25%;
+          height: 25%;
         }
       }
 
