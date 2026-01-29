@@ -134,7 +134,7 @@ rag-server:
   update-qa-pair-status-uri: '/rag/update-QA-status'
   batch-delete-qa-pairs-uri: '/rag/batch-delete-QAs'
   knowledge-QA-hit-uri: '/callback/v1/rag/search-QA-base'
-  timeout: 60
+  timeout: 120
 
 dify-server:
   get-datasets-uri: '/datasets'
