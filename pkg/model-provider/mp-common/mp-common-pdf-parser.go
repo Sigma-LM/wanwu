@@ -39,11 +39,13 @@ func (req *PdfParserReq) Data() (map[string]interface{}, error) {
 // --- openapi response ---
 
 type PdfParserResp struct {
-	Code    string `json:"code" validate:"required"`
-	Content string `json:"content" validate:"required"`
-	Message string `json:"message" validate:"required"`
-	Status  string `json:"status"`
-	TraceId string `json:"trace_id"`
+	Code           string `json:"code" validate:"required"`
+	Content        string `json:"content" validate:"required"`
+	Message        string `json:"message" validate:"required"`
+	Status         string `json:"status"`
+	TraceId        string `json:"trace_id"`
+	PrefixImageUrl string `json:"prefix_image_url"`
+	Version        string `json:"version"`
 }
 
 // --- request ---

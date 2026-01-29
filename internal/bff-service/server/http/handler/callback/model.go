@@ -333,15 +333,15 @@ func ModelSyncAsr(ctx *gin.Context) {
 			for j := range *contentList {
 				if (*contentList)[j].Type == mp_common.MultiModalTypeAudio {
 					(*contentList)[j].Type = mp_common.MultiModalTypeMinioUrl
+					minioFilePath := (*contentList)[j].Audio.Data
+					_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(ctx.Request.Context(), minioFilePath)
+					if err != nil {
+						gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("minio_url %s to local file err: %v", minioFilePath, err)))
+						return
+					}
+					(*contentList)[j].Audio.Data = base64StrWithPrefix
+					(*contentList)[j].Audio.FileName = minio_util.GetFilenameFromMinioURL(minioFilePath)
 				}
-				minioFilePath := (*contentList)[j].Audio.Data
-				_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(ctx.Request.Context(), minioFilePath)
-				if err != nil {
-					gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("minio_url %s to local file err: %v", minioFilePath, err)))
-					return
-				}
-				(*contentList)[j].Audio.Data = base64StrWithPrefix
-				(*contentList)[j].Audio.FileName = minio_util.GetFilenameFromMinioURL(minioFilePath)
 			}
 		}
 	}
