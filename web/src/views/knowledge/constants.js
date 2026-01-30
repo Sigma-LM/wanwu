@@ -45,3 +45,11 @@ export const QA_STATUS_PENDING = 0;
 export const QA_STATUS_PROCESSING = 1;
 export const QA_STATUS_FINISHED = 2;
 export const QA_STATUS_FAILED = 3;
+
+// 知识库类型
+export const INTERNAL = 0;
+export const EXTERNAL = 1;
+export const KNOWLEDGE = 0;
+export const QA = 1;
+export const MULTIMODAL = 2;
+export const MIX_MULTIMODAL = 3;

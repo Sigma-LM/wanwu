@@ -38,6 +38,7 @@
             :config="formInline"
             :showGraphSwitch="graphSwitch"
             :category="type === 'qa' ? 1 : 0"
+            :knowledgeCategory="category"
             :isAllExternal="external === 1"
           />
         </div>
@@ -222,6 +223,7 @@ export default {
       name: this.$route.query.name,
       graphSwitch: this.$route.query.graphSwitch || false,
       type: this.$route.query.type || '',
+      category: Number(this.$route.query.category || 0),
       external: Number(this.$route.query.external || 0),
       activeNames: [],
     };
@@ -239,7 +241,7 @@ export default {
     },
     getTitle(contentType) {
       const map = {
-        qa: this.$t('knowledgeManage.qaDatabase.name'),
+        qa: this.$t('knowledgeManage.qaDatabase.title'),
         graph: this.$t('knowledgeManage.hitTest.graph'),
         community_report: this.$t('knowledgeManage.hitTest.communityReport'),
       };

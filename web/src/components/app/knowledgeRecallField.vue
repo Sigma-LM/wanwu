@@ -13,6 +13,7 @@
           :config="config"
           :showGraphSwitch="showGraphSwitch"
           :category="category"
+          :knowledgeCategory="knowledgeCategory"
           :isAllExternal="isAllExternal"
         />
       </span>
@@ -30,7 +31,13 @@
 <script>
 import searchConfig from '@/components/searchConfig.vue';
 export default {
-  props: ['showGraphSwitch', 'config', 'category', 'isAllExternal'],
+  props: [
+    'showGraphSwitch',
+    'config',
+    'category',
+    'knowledgeCategory',
+    'isAllExternal',
+  ],
   components: {
     searchConfig,
   },
