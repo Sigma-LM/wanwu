@@ -294,6 +294,15 @@ definitions:
     required:
     - prompt
     type: object
+  request.UrlQuestionRecommendRequest:
+    properties:
+      conversationId:
+        type: string
+      query:
+        type: string
+    required:
+    - query
+    type: object
   response.AppUrlConfig:
     properties:
       appUrlInfo:
@@ -828,6 +837,40 @@ paths:
       security:
       - JWT: []
       summary: 获取智能体对话列表
+      tags:
+      - openurl
+  /agent/{suffix}/recommend:
+    post:
+      consumes:
+      - application/json
+      description: 智能体推荐问题
+      parameters:
+      - description: 临时唯一标识
+        in: header
+        name: X-Client-ID
+        required: true
+        type: string
+      - description: Url后缀
+        in: path
+        name: suffix
+        required: true
+        type: string
+      - description: 智能体推荐问题参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UrlQuestionRecommendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 智能体推荐问题
       tags:
       - openurl
   /agent/{suffix}/stream:
