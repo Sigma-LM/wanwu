@@ -710,6 +710,7 @@ export default {
   },
   async created() {
     const query = this.$route.query;
+    this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
     if (query.mode === 'config' && this.docIdList.length === 1) {
       await getDocConfig({
         docId: this.docIdList[0],

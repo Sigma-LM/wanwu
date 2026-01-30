@@ -75,7 +75,7 @@
                   type="primary"
                   @click="
                     $router.push(
-                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&graphSwitch=${graphSwitch}`,
+                      `/knowledge/hitTest?knowledgeId=${docQuery.knowledgeId}&graphSwitch=${graphSwitch}&category=${category}`,
                     )
                   "
                 >
@@ -499,6 +499,7 @@ export default {
     return {
       knowledgeName: '',
       description: '',
+      category: 0,
       embeddingModel: {},
       keywords: [],
       llmModelId: '',
@@ -607,6 +608,7 @@ export default {
     clearIptValue() {},
     showEdit() {
       this.$refs.createKnowledge.showDialog({
+        category: this.category,
         knowledgeId: this.docQuery.knowledgeId,
         name: this.knowledgeName,
         description: this.description,
@@ -984,6 +986,7 @@ export default {
         this.showGraphReport = tableInfo.docKnowledgeInfo.showGraphReport;
         this.knowledgeName = tableInfo.docKnowledgeInfo.knowledgeName;
         this.description = tableInfo.docKnowledgeInfo.description;
+        this.category = tableInfo.docKnowledgeInfo.category;
         this.embeddingModel = tableInfo.docKnowledgeInfo.embeddingModel;
         this.keywords = tableInfo.docKnowledgeInfo.keywords;
         this.llmModelId = tableInfo.docKnowledgeInfo.llmModelId;

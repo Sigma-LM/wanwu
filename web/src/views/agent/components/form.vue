@@ -346,7 +346,8 @@
         <div class="block">
           <knowledgeDataField
             :knowledgeConfig="editForm.knowledgeBaseConfig"
-            :category="0"
+            :category="KNOWLEDGE"
+            :knowledgeCategory="getCategory"
             @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
@@ -664,6 +665,12 @@ import {
   AGENT_CONFIG_RECOMMEND_CONFIG_MODEL_CONFIG_DEFAULT_CONFIG,
 } from '@/views/agent/constants';
 import {
+  EXTERNAL,
+  KNOWLEDGE,
+  MULTIMODAL,
+  MIX_MULTIMODAL,
+} from '@/views/knowledge/constants';
+import {
   deleteMcp,
   enableMcp,
   getAgentInfo,
@@ -773,12 +780,31 @@ export default {
     useToolNum() {
       return this.allTools.filter(item => item.enable).length;
     },
+    getCategory() {
+      const knowledgebases = this.editForm.knowledgeBaseConfig.knowledgebases;
+      if (!knowledgebases || knowledgebases.length === 0) {
+        return KNOWLEDGE;
+      }
+
+      const categories = knowledgebases.map(kb => kb.category);
+      const hasKnowledge = categories.includes(KNOWLEDGE);
+      const hasMultiModal = categories.includes(MULTIMODAL);
+
+      if (hasKnowledge && hasMultiModal) {
+        return MIX_MULTIMODAL;
+      } else if (hasMultiModal) {
+        return MULTIMODAL;
+      } else {
+        return KNOWLEDGE;
+      }
+    },
   },
   data() {
     return {
       AGENT,
       SINGLE_AGENT,
       MULTIPLE_AGENT,
+      KNOWLEDGE,
       disableClick: false,
       version: '',
       promptType: 'create',
@@ -1337,7 +1363,7 @@ export default {
 
       const isAllExternalKnowledgeSelected =
         !this.editForm.knowledgeBaseConfig.knowledgebases.some(
-          kb => kb.external !== 1,
+          kb => kb.external !== EXTERNAL,
         );
 
       const _knowledgeBaseConfig = {

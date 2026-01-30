@@ -63,16 +63,17 @@ export const PROVIDER_IMG_OBJ = {
 
 const COMMON_MODEL_KEY = [LLM, RERANK, EMBEDDING];
 const OLL_MODEL_KEY = [LLM, EMBEDDING];
+const MULTIMODAL_KEY = [MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING];
 export const PROVIDER_MODEL_KEY = {
   [OPENAI_API]: COMMON_MODEL_KEY,
-  [YUAN_JING]: [...COMMON_MODEL_KEY, OCR, GUI, PDF_PARSER],
+  [YUAN_JING]: [...COMMON_MODEL_KEY, OCR, GUI, PDF_PARSER], // ...MULTIMODAL_KEY
   [OLLAMA]: OLL_MODEL_KEY,
   [QWEN]: COMMON_MODEL_KEY,
   [HUOSHAN]: OLL_MODEL_KEY,
   [INFINI]: COMMON_MODEL_KEY,
   [DEEPSEEK]: [LLM],
   [QIANFAN]: COMMON_MODEL_KEY,
-  [JINA]: [RERANK, EMBEDDING, MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING],
+  [JINA]: [RERANK, EMBEDDING, ...MULTIMODAL_KEY],
 };
 
 export const PROVIDER_TYPE = Object.keys(PROVIDER_OBJ).map(key => {
@@ -113,11 +114,13 @@ export const TYPE_OBJ = {
     [JINA]: 'jina_c08*********wMm',
   },
   inferUrl: {
+    [`${MULTIMODAL_EMBEDDING}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
+    [`${MULTIMODAL_RERANK}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
+    [`${ASR}_${YUAN_JING}`]:
+      'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [OCR]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [GUI]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [PDF_PARSER]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
-    [ASR]:
-      'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [YUAN_JING]: 'https://maas.ai-yuanjing.com/openapi/compatible-mode/v1',
     [OPENAI_API]: 'https://api.siliconflow.cn/v1',
     [OLLAMA]: 'https://192.168.21.100:11434/v1',

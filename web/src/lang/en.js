@@ -430,6 +430,11 @@ export default {
       createdAt: '创建时间',
       creator: '创建人',
       status: '应用状态',
+      custom: '自定义',
+      permanent: '永久',
+      week: '一周',
+      month: '一个月',
+      threeMonth: '三个月',
     },
     dialog: {
       create: 'API Key创建',
@@ -483,6 +488,7 @@ export default {
     import: '模型导入',
     support: '支持',
     noSupport: '不支持',
+    noInferUrl: '暂无统一示例',
     type: {
       yuanjing: '联通元景',
       qwen: '通义千问',
@@ -543,6 +549,9 @@ export default {
     createConversation: '模型体验',
     addModel: '+模型',
     exitModelComparison: '退出模型对比',
+    stop: '停止生成',
+    thinking: '思考中',
+    all: '全部',
     warning: {
       deleteModel: '移除模型后不保留历史记录，是否移除?',
       deleteHistory: '是否确认删除该对话历史记录？',

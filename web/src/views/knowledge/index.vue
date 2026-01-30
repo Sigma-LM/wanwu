@@ -16,7 +16,7 @@
           :class="['knowledge-tab', { active: category === 1 }]"
           @click="tabClick(1)"
         >
-          {{ $t('knowledgeManage.qaDatabase.name') }}
+          {{ $t('knowledgeManage.qaDatabase.title') }}
         </div>
       </div>
       <div class="search-box">

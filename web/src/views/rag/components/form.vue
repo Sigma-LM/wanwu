@@ -195,7 +195,7 @@
         <div class="block">
           <knowledgeDataField
             :knowledgeConfig="editForm.qaKnowledgeBaseConfig"
-            :category="1"
+            :category="QA"
             @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
@@ -208,7 +208,8 @@
         <div class="block">
           <knowledgeDataField
             :knowledgeConfig="editForm.knowledgeBaseConfig"
-            :category="0"
+            :category="KNOWLEDGE"
+            :knowledgeCategory="getCategory"
             @getSelectKnowledge="getSelectKnowledge"
             @knowledgeDelete="knowledgeDelete"
             @knowledgeRecallSet="knowledgeRecallSet"
@@ -290,6 +291,13 @@ import LinkIcon from '@/components/linkIcon.vue';
 import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
 import { RAG } from '@/utils/commonSet';
+import {
+  EXTERNAL,
+  KNOWLEDGE,
+  QA,
+  MULTIMODAL,
+  MIX_MULTIMODAL,
+} from '@/views/knowledge/constants';
 import CopyIcon from '@/components/copyIcon.vue';
 import { avatarSrc } from '@/utils/util';
 export default {
@@ -309,6 +317,8 @@ export default {
   data() {
     return {
       RAG,
+      QA,
+      KNOWLEDGE,
       disableClick: false,
       version: '',
       rerankOptions: [],
@@ -448,6 +458,26 @@ export default {
         }, 500);
       },
       deep: true,
+    },
+  },
+  computed: {
+    getCategory() {
+      const knowledgebases = this.editForm.knowledgeBaseConfig.knowledgebases;
+      if (!knowledgebases || knowledgebases.length === 0) {
+        return KNOWLEDGE;
+      }
+
+      const categories = knowledgebases.map(kb => kb.category);
+      const hasKnowledge = categories.includes(KNOWLEDGE);
+      const hasMultiModal = categories.includes(MULTIMODAL);
+
+      if (hasKnowledge && hasMultiModal) {
+        return MIX_MULTIMODAL;
+      } else if (hasMultiModal) {
+        return MULTIMODAL;
+      } else {
+        return KNOWLEDGE;
+      }
     },
   },
   mounted() {
@@ -729,7 +759,7 @@ export default {
 
         const isAllExternalKnowledgeSelected =
           !this.editForm.knowledgeBaseConfig.knowledgebases.some(
-            kb => kb.external !== 1,
+            kb => kb.external !== EXTERNAL,
           );
         const _knowledgeBaseConfig = {
           knowledgebases: this.editForm.knowledgeBaseConfig.knowledgebases,

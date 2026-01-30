@@ -161,7 +161,6 @@ export default {
   color: $color;
 }
 
-// .explore-aside-app{
 .appList:hover {
   background-color: $color_opacity !important;
 }
@@ -193,9 +192,9 @@ export default {
   }
 }
 
-// }
 .page-wrapper {
   margin: 20px;
+  padding-bottom: 20px;
   box-sizing: border-box;
 
   .header-top {

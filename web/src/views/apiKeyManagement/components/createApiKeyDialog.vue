@@ -30,14 +30,26 @@
         :label="$t('apiKeyManage.table.expiredAt')"
         prop="expiredAt"
       >
-        <el-date-picker
+        <el-radio-group
+          @change="changeSelectRadio"
+          v-model="radio"
           style="width: 100%"
-          type="date"
-          v-model="form.expiredAt"
-          value-format="yyyy-MM-dd"
-          :placeholder="$t('common.select.placeholder')"
-          :picker-options="pickerOptions"
-        ></el-date-picker>
+        >
+          <el-radio label="0">{{ $t('apiKeyManage.table.custom') }}</el-radio>
+          <el-radio label="1">
+            {{ $t('apiKeyManage.table.permanent') }}
+          </el-radio>
+        </el-radio-group>
+        <div v-if="radio === '0'">
+          <el-date-picker
+            style="width: 100%"
+            type="date"
+            v-model="form.expiredAt"
+            value-format="yyyy-MM-dd"
+            :placeholder="$t('common.select.placeholder')"
+            :picker-options="pickerOptions"
+          ></el-date-picker>
+        </div>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -60,11 +72,15 @@
 import Pagination from '@/components/pagination.vue';
 import SearchInput from '@/components/searchInput.vue';
 import { createApiKey, editApiKey } from '@/api/apiKeyManagement';
+
+const PERMANENT_TIME = '9999-12-31';
+
 export default {
   components: { Pagination, SearchInput },
   data() {
     return {
       isEdit: false,
+      radio: '0',
       form: {
         name: '',
         desc: '',
@@ -83,17 +99,58 @@ export default {
             trigger: 'change',
           },
         ],
+        expiredAt: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'blur',
+          },
+        ],
       },
       pickerOptions: {
         disabledDate: time => {
           return time.getTime() < Date.now();
         },
+        shortcuts: [
+          {
+            text: this.$t('apiKeyManage.table.week'),
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', date);
+            },
+          },
+          {
+            text: this.$t('apiKeyManage.table.month'),
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', date);
+            },
+          },
+          {
+            text: this.$t('apiKeyManage.table.threeMonth'),
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', date);
+            },
+          },
+        ],
       },
       dialogVisible: false,
       submitLoading: false,
     };
   },
   methods: {
+    changeSelectRadio(value) {
+      if (value === '0') {
+        this.form.expiredAt = '';
+      } else {
+        this.form.expiredAt = PERMANENT_TIME;
+        this.$refs.form.clearValidate('expiredAt');
+      }
+    },
     setFormValue(row) {
       const obj = { ...this.form };
       for (let key in obj) {
@@ -109,7 +166,10 @@ export default {
     openDialog(row) {
       this.row = row;
       this.isEdit = Boolean(row && row.keyId);
-      this.setFormValue(row);
+      this.radio = row ? (row.expiredAt ? '0' : '1') : '0';
+      this.setFormValue(
+        row ? { ...row, expiredAt: row.expiredAt || PERMANENT_TIME } : row,
+      );
 
       this.dialogVisible = true;
     },
@@ -118,7 +178,10 @@ export default {
         if (!valid) return;
 
         this.submitLoading = true;
-        const params = { ...this.form };
+        const params = {
+          ...this.form,
+          expiredAt: this.radio === '0' ? this.form.expiredAt : '',
+        };
         if (this.isEdit) params.keyId = this.row.keyId;
         try {
           const res = this.isEdit

@@ -479,6 +479,11 @@ export default {
       createdAt: '创建时间',
       creator: '创建人',
       status: '应用状态',
+      custom: '自定义',
+      permanent: '永久',
+      week: '一周',
+      month: '一个月',
+      threeMonth: '三个月',
     },
     dialog: {
       create: 'API Key创建',
@@ -497,6 +502,7 @@ export default {
     import: '模型导入',
     support: '支持',
     noSupport: '不支持',
+    noInferUrl: '暂无统一示例',
     type: {
       yuanjing: '联通元景',
       qwen: '通义千问',
@@ -557,6 +563,9 @@ export default {
     selectModel: '选择模型',
     addModel: '+模型',
     exitModelComparison: '退出模型对比',
+    stop: '停止生成',
+    thinking: '思考中',
+    all: '全部',
     warning: {
       deleteModel: '移除模型后不保留历史记录，是否移除?',
       deleteHistory: '是否确认删除该对话历史记录？',
@@ -1150,14 +1159,27 @@ export default {
         deleteSplitterTitle: '确认要删除当前分隔符？',
       },
     },
+    textKnowledgeDatabase: {
+      title: '文本知识库',
+      desc: '实现文本知识的有效抽取、分类、存储与语义解析，为后续知识检索、问答等场景提供知识支撑。',
+    },
+    multiKnowledgeDatabase: {
+      title: '多模态知识库',
+      desc: '实现多模态知识库内容解析，支持融合图像、音频、视频等多种模态的知识内容，为需要结合多类型信息的复杂场景提供多维度的知识支撑。',
+      mixWarning:
+        '您所选模型为Text Rerank模型，重排时会忽略掉多模态文件，请谨慎选择',
+    },
     qaDatabase: {
-      name: '问答库',
+      title: '问答库',
+      name: '问答库名称',
+      desc: '问答库描述',
       editInfo: '编辑问答库',
       createKnowledge: '新建问答库',
       question: '问题',
       answer: '回答',
       metaData: '元数据',
       createQaPair: '新建问答对',
+      editQaPair: '编辑问答对',
       uploadTips:
         '支持上传csv格式文件，单个文件不超过10MB;最多上传1个文件，文件中问答对最多添加1000条。',
       uploadTips1: '批量导入的问答对内容都将被处理成纯文本形式',

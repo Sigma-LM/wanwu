@@ -62,7 +62,9 @@
             align="left"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.expiredAt || '--' }}</span>
+              <span>
+                {{ scope.row.expiredAt || $t('apiKeyManage.table.permanent') }}
+              </span>
             </template>
           </el-table-column>
           >

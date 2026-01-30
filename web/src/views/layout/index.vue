@@ -638,7 +638,7 @@ export default {
         height: 100%;
       }
       .left-nav-content-wrap {
-        height: calc(100% - 115px);
+        height: calc(100% - 128px);
         overflow: auto;
       }
       .left-nav-content {

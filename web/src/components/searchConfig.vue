@@ -246,9 +246,17 @@
   </el-form>
 </template>
 <script>
-import { getRerankList } from '@/api/modelAccess';
+import { getRerankList, getMultiRerankList } from '@/api/modelAccess';
+import { QA, MULTIMODAL, MIX_MULTIMODAL } from '@/views/knowledge/constants';
 export default {
-  props: ['setType', 'config', 'showGraphSwitch', 'category', 'isAllExternal'],
+  props: [
+    'setType',
+    'config',
+    'showGraphSwitch',
+    'category',
+    'knowledgeCategory',
+    'isAllExternal',
+  ],
   data() {
     return {
       debounceTimer: null,
@@ -259,7 +267,7 @@ export default {
         knowledgeMatchParams: {
           keywordPriority: 0.8, //关键词权重
           matchType: '', //vector（向量检索）、text（文本检索）、mix（混合检索：向量+文本）
-          priorityMatch: this.category && this.category === 1 ? 0 : 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
+          priorityMatch: this.category && this.category === QA ? 0 : 1, //权重匹配，只有在混合检索模式下，选择权重设置后，这个才设置为1
           rerankModelId: '', //rerank模型id
           threshold: 0.4, //过滤分数阈值
           semanticsPriority: 0.2, //语义权重
@@ -295,7 +303,7 @@ export default {
           isWeight: true,
           Weight: '',
           mixTypeValue:
-            this.category && this.category === 1 ? 'rerank' : 'weight',
+            this.category && this.category === QA ? 'rerank' : 'weight',
           showContent: false,
           mixTypeRange: 0.2,
           mixType: [
@@ -391,7 +399,7 @@ export default {
       return Object.prototype.hasOwnProperty.call(item, key);
     },
     filteredMixType(item) {
-      if (this.category && this.category === 1) {
+      if (this.category && this.category === QA) {
         return item.mixType.filter((_, idx) => idx !== 0);
       }
       return item.mixType;
@@ -426,7 +434,7 @@ export default {
         ...item,
         showContent: item.value === n.value ? !item.showContent : false,
       }));
-      if (this.category === 0) {
+      if (this.category === QA) {
         this.formInline.knowledgeMatchParams.priorityMatch =
           n.value !== 'mix' ? 0 : 1;
       } else {
@@ -443,7 +451,11 @@ export default {
     },
     getRerankData() {
       this.rerankLoading = true;
-      getRerankList()
+      const request =
+        this.knowledgeCategory === MULTIMODAL
+          ? getMultiRerankList()
+          : getRerankList();
+      request
         .then(res => {
           if (res.code === 0) {
             this.rerankOptions = res.data.list || [];
@@ -465,6 +477,19 @@ export default {
         delete formData.knowledgeMatchParams.maxHistory;
         this.$emit('sendConfigInfo', formData);
       } else {
+        const selectedRerankOption = this.rerankOptions.find(
+          item =>
+            item.modelId === this.formInline.knowledgeMatchParams.rerankModelId,
+        );
+        if (
+          this.knowledgeCategory === MIX_MULTIMODAL &&
+          selectedRerankOption &&
+          selectedRerankOption.modelType !== 'multimodal-rerank'
+        ) {
+          this.$message.warning(
+            this.$t('knowledgeManage.multiKnowledgeDatabase.mixWarning'),
+          );
+        }
         const payload = JSON.parse(JSON.stringify(this.formInline));
         this.$emit('sendConfigInfo', payload);
       }

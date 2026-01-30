@@ -126,6 +126,7 @@ export default {
             name: item.name,
             graphSwitch: item.graphSwitch,
             external: item.external,
+            category: item.category,
           });
         }
       } else {
