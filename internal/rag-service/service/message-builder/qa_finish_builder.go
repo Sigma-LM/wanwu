@@ -3,9 +3,9 @@ package message_builder
 import (
 	"context"
 	"encoding/json"
-	"github.com/UnicomAI/wanwu/pkg/log"
 
 	rag_manage_service "github.com/UnicomAI/wanwu/internal/rag-service/service/rag-manage-service"
+	"github.com/UnicomAI/wanwu/pkg/log"
 )
 
 type QAFinishBuilder struct {

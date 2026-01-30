@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	"github.com/UnicomAI/wanwu/internal/model-service/client/model"

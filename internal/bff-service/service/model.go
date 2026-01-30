@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
@@ -67,13 +68,7 @@ func GetModel(ctx *gin.Context, userId, orgId string, req *request.GetModelReque
 	if err != nil {
 		return nil, err
 	}
-	m, err := toModelInfo(ctx, resp, userId, orgId)
-	if err != nil {
-		return nil, err
-	} else if m == nil {
-		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "No access permission to the model")
-	}
-	return m, nil
+	return toModelInfo(ctx, resp)
 }
 
 func GetModelById(ctx *gin.Context, req *request.GetModelRequest) (*response.ModelInfo, error) {
@@ -93,7 +88,7 @@ func ListModels(ctx *gin.Context, userId, orgId string, req *request.ListModelsR
 	if err != nil {
 		return nil, err
 	}
-	list, err := toModelInfos(ctx, resp.Models, userId, orgId)
+	list, err := toModelInfos(ctx, resp.Models)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +120,7 @@ func ListTypeModels(ctx *gin.Context, userId, orgId string, req *request.ListTyp
 	if err != nil {
 		return nil, err
 	}
-	list, err := toModelInfos(ctx, resp.Models, userId, orgId)
+	list, err := toModelInfos(ctx, resp.Models)
 	if err != nil {
 		return nil, err
 	}
@@ -173,22 +168,19 @@ func parseImportAndUpdateClientReq(userId, orgId string, req *request.ImportOrUp
 	return clientReq, nil
 }
 
-func toModelInfos(ctx *gin.Context, models []*model_service.ModelInfo, currentUserId, currentOrgId string) ([]*response.ModelInfo, error) {
+func toModelInfos(ctx *gin.Context, models []*model_service.ModelInfo) ([]*response.ModelInfo, error) {
 	var ret []*response.ModelInfo
 	for _, m := range models {
-		info, err := toModelInfo(ctx, m, currentUserId, currentOrgId)
+		info, err := toModelInfo(ctx, m)
 		if err != nil {
 			return nil, err
-		}
-		if info == nil {
-			continue
 		}
 		ret = append(ret, info)
 	}
 	return ret, nil
 }
 
-func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo, currentUserId, currentOrgId string) (*response.ModelInfo, error) {
+func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo) (*response.ModelInfo, error) {
 	modelConfig, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v get model config err: %v", modelInfo.ModelId, err))

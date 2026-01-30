@@ -178,7 +178,7 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 	}, nil
 }
 
-func (s *Service) AssistantConversionStreamNew(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamNewServer) error {
+func (s *Service) AssistantConversionStream(req *assistant_service.AssistantConversionStreamReq, stream assistant_service.AssistantService_AssistantConversionStreamServer) error {
 	//会话处理
 	conversationProcessor := &service.ConversationProcessor{
 		SSEWriter: sse_util.NewGrpcSSEWriter(stream, "AssistantConversionStreamNew", nil),

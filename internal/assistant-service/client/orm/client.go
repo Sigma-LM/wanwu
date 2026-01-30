@@ -3,6 +3,8 @@ package orm
 import (
 	"context"
 	"errors"
+	"regexp"
+
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"github.com/UnicomAI/wanwu/pkg/constant"
@@ -10,7 +12,6 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"gorm.io/gorm"
-	"regexp"
 )
 
 type Client struct {

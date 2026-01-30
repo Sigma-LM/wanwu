@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/rag-service/config"
 	http_client "github.com/UnicomAI/wanwu/internal/rag-service/pkg/http-client"
 	"github.com/UnicomAI/wanwu/pkg/log"
+	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 )
 
 const (

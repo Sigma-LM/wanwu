@@ -75,10 +75,10 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 		Draft: !needLatestPublished,
 	}
 	var stream grpc.ServerStreamingClient[assistant_service.AssistantConversionStreamResp]
-	if agentInfo.Category == constant.MultiAgent {
+	if agentInfo.Category == constant.AgentCategoryMulti {
 		stream, err = assistant.MultiAssistantConversionStream(ctx.Request.Context(), buildMultiAssistantConversionStreamReq(agentReq))
 	} else {
-		stream, err = assistant.AssistantConversionStreamNew(ctx.Request.Context(), agentReq)
+		stream, err = assistant.AssistantConversionStream(ctx.Request.Context(), agentReq)
 	}
 	if err != nil {
 		return nil, err

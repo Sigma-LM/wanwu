@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/UnicomAI/wanwu/pkg/log"
 	safe_go_util "github.com/UnicomAI/wanwu/pkg/safe-go-util"
 	"google.golang.org/grpc"
-	"net/http"
 )
 
 type SSEReader[Res any] struct {

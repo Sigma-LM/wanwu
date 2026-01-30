@@ -44,10 +44,10 @@ const (
 	MCPServerToolTypeOpenAPI     = "openapi" // 用户导入的openapi
 )
 
-// agent type
+// agent category
 const (
-	SingleAgent = 1
-	MultiAgent  = 2
+	AgentCategorySingle = 1
+	AgentCategoryMulti  = 2
 )
 
 // conversation type
