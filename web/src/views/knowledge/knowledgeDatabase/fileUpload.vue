@@ -1241,7 +1241,7 @@ export default {
         this.ruleForm.docInfoList = this.docInfoList;
         if (this.ruleForm.asrModelId) this.ruleForm.docAnalyzer.push('asr');
         if (this.ruleForm.multimodalModelId)
-          this.ruleForm.docAnalyzer.push('multimodalModel');
+          this.ruleForm.docAnalyzer.push('multimodal');
         let data = null;
         if (
           this.ruleForm.docSegment.segmentType === '0' &&
