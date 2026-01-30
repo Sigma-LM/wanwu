@@ -336,6 +336,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/agent/{suffix}/recommend": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "智能体推荐问题",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "openurl"
+                ],
+                "summary": "智能体推荐问题",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "临时唯一标识",
+                        "name": "X-Client-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Url后缀",
+                        "name": "suffix",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "智能体推荐问题参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UrlQuestionRecommendRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/agent/{suffix}/stream": {
             "post": {
                 "security": [
@@ -843,6 +896,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "prompt": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UrlQuestionRecommendRequest": {
+            "type": "object",
+            "required": [
+                "query"
+            ],
+            "properties": {
+                "conversationId": {
+                    "type": "string"
+                },
+                "query": {
                     "type": "string"
                 }
             }

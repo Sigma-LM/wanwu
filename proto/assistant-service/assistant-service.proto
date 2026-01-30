@@ -55,7 +55,6 @@ service AssistantService {
   rpc GetConversationIdByAssistantId(GetConversationIdByAssistantIdReq) returns (ConversationIdResp) {}
   rpc GetConversationList(GetConversationListReq) returns (GetConversationListResp) {}
   rpc GetConversationDetailList(GetConversationDetailListReq) returns (GetConversationDetailListResp) {}
-  rpc AssistantConversionStream(AssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
   rpc AssistantConversionStreamNew(AssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
   rpc MultiAssistantConversionStream(MultiAssistantConversionStreamReq) returns (stream AssistantConversionStreamResp) {}
 

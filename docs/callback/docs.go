@@ -2002,10 +2002,16 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
+                "prefix_image_url": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 },
                 "trace_id": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
