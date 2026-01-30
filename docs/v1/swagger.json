@@ -9322,6 +9322,7 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int32",
                         "description": "模型体验对话ID",
                         "name": "modelExperienceId",
                         "in": "query",
@@ -17295,6 +17296,9 @@
                 "publishDate": {
                     "description": "模型发布时间",
                     "type": "string"
+                },
+                "scopeType": {
+                    "type": "string"
                 }
             }
         },
@@ -20544,6 +20548,9 @@
                     "description": "模型发布时间",
                     "type": "string"
                 },
+                "scopeType": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
@@ -22877,6 +22884,9 @@
                 },
                 "publishDate": {
                     "description": "模型发布时间",
+                    "type": "string"
+                },
+                "scopeType": {
                     "type": "string"
                 },
                 "tags": {
