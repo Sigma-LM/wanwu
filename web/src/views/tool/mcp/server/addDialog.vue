@@ -16,9 +16,8 @@
         >
           <el-form-item :label="$t('tool.server.avatar')" prop="avatar">
             <upload-avatar
-              :avatar="ruleForm.avatar"
+              v-model="ruleForm.avatar"
               :default-avatar="defaultAvatar"
-              @update-avatar="handleUpdateAvatar"
             />
           </el-form-item>
           <el-form-item :label="$t('tool.server.name')" prop="name">
@@ -111,9 +110,6 @@ export default {
         this.ruleForm = item;
         this.title = this.$t('tool.server.editTitle');
       } else this.title = this.$t('tool.server.addTitle');
-    },
-    handleUpdateAvatar(avatar) {
-      this.ruleForm = { ...this.ruleForm, avatar: avatar };
     },
     handleClose() {
       this.dialogVisible = false;

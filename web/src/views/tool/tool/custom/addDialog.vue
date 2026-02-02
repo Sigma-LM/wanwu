@@ -17,9 +17,8 @@
             >
               <p class="block-title rl">{{ $t('tool.custom.avatar') }}</p>
               <upload-avatar
-                :avatar="form.avatar"
+                v-model="form.avatar"
                 :default-avatar="defaultAvatar"
-                @update-avatar="handleUpdateAvatar"
               />
             </div>
             <div class="block prompt-box" v-show="!dialogDetailVisible">
@@ -466,9 +465,6 @@ export default {
       this.dialogToolVisible = true;
       this.form.description = ' ';
       this.title = this.$t('tool.custom.toolTitle');
-    },
-    handleUpdateAvatar(avatar) {
-      this.form = { ...this.form, avatar: avatar };
     },
     exampleChange(value) {
       this.form.schema = this.schemaConfig[value];
