@@ -80,7 +80,63 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成结果"
+                  "properties": {
+                    "code": { "type": "string", "example": "" },
+                    "message": { "type": "string", "example": "" },
+                    "request_id": { "type": "string", "example": "6b3980c1-3d18-4e07-aba7-8c08ae3e0e1d" },
+                    "status_code": { "type": "integer", "example": 200 },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "audio": { "type": "string", "nullable": true, "example": null },
+                        "text": { "type": "string", "nullable": true, "example": null },
+                        "finish_reason": { "type": "string", "nullable": true, "example": null },
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "finish_reason": { "type": "string", "example": "stop" },
+                              "message": {
+                                "type": "object",
+                                "properties": {
+                                  "role": { "type": "string", "example": "assistant" },
+                                  "content": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "image": { "type": "string", "format": "uri", "example": "https://..." }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "task_metric": {
+                          "type": "object",
+                          "properties": {
+                            "FAILED": { "type": "integer", "example": 0 },
+                            "SUCCEEDED": { "type": "integer", "example": 1 },
+                            "TOTAL": { "type": "integer", "example": 1 }
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "characters": { "type": "integer", "example": 0 },
+                        "height": { "type": "integer", "example": 1280 },
+                        "width": { "type": "integer", "example": 1280 },
+                        "image_count": { "type": "integer", "example": 1 },
+                        "input_tokens": { "type": "integer", "example": 0 },
+                        "output_tokens": { "type": "integer", "example": 0 }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -155,7 +211,65 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成结果 (通常包含 task_id 或生成的图片地址)"
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "description": "请求的唯一标识符",
+                      "example": "bf37ca26-0abe-98e4-8065-xxxxxx"
+                    },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "finish_reason": {
+                                "type": "string",
+                                "description": "生成停止的原因",
+                                "example": "stop"
+                              },
+                              "message": {
+                                "type": "object",
+                                "properties": {
+                                  "role": {
+                                    "type": "string",
+                                    "description": "角色名称",
+                                    "example": "assistant"
+                                  },
+                                  "content": {
+                                    "type": "array",
+                                    "description": "生成的内容列表，包含图片地址",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "image": {
+                                          "type": "string",
+                                          "format": "uri",
+                                          "description": "生成图片的访问地址",
+                                          "example": "https://dashscope-result-sz.oss-cn-shenzhen.aliyuncs.com/xxx.png"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "description": "本次请求的计量信息",
+                      "properties": {
+                        "width": { "type": "integer", "example": 1536 },
+                        "height": { "type": "integer", "example": 1024 },
+                        "image_count": { "type": "integer", "example": 2 }
+                      }
+                    }
+                  }
                 }
               }
             }

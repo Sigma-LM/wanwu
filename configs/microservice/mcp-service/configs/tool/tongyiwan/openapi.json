@@ -73,7 +73,50 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成结果"
+                  "properties": {
+                    "request_id": { "type": "string" },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "finished": { "type": "boolean" },
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "finish_reason": { "type": "string" },
+                              "message": {
+                                "type": "object",
+                                "properties": {
+                                  "role": { "type": "string" },
+                                  "content": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": { "type": "string" },
+                                        "image": { "type": "string", "format": "uri" }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "image_count": { "type": "integer" },
+                        "input_tokens": { "type": "integer" },
+                        "output_tokens": { "type": "integer" },
+                        "total_tokens": { "type": "integer" },
+                        "size": { "type": "string" }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -149,7 +192,73 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成结果 (通常包含 task_id 或生成的图片地址)"
+                  "properties": {
+                    "request_id": {
+                      "type": "string"
+                    },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "finished": {
+                          "type": "boolean"
+                        },
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "finish_reason": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "object",
+                                "properties": {
+                                  "role": {
+                                    "type": "string"
+                                  },
+                                  "content": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string"
+                                        },
+                                        "image": {
+                                          "type": "string",
+                                          "format": "uri"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "image_count": {
+                          "type": "integer"
+                        },
+                        "input_tokens": {
+                          "type": "integer"
+                        },
+                        "output_tokens": {
+                          "type": "integer"
+                        },
+                        "total_tokens": {
+                          "type": "integer"
+                        },
+                        "size": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -238,24 +347,45 @@
         },
         "responses": {
           "200": {
-            "description": "任务提交成功",
+            "description": "视频生成任务状态查询成功",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成任务结果 (Task ID 或 结果 URL)"
+                  "properties": {
+                    "status_code": { "type": "integer" },
+                    "request_id": { "type": "string" },
+                    "code": { "type": "string", "nullable": true },
+                    "message": { "type": "string" },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "task_id": { "type": "string" },
+                        "task_status": { "type": "string" },
+                        "video_url": { "type": "string", "format": "uri" },
+                        "submit_time": { "type": "string" },
+                        "scheduled_time": { "type": "string" },
+                        "end_time": { "type": "string" },
+                        "orig_prompt": { "type": "string" }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "video_count": { "type": "integer" },
+                        "video_duration": { "type": "integer" },
+                        "video_ratio": { "type": "string" },
+                        "duration": { "type": "integer" },
+                        "input_video_duration": { "type": "integer" },
+                        "output_video_duration": { "type": "integer" },
+                        "audio": { "type": "boolean" },
+                        "SR": { "type": "integer" }
+                      }
+                    }
+                  }
                 }
               }
             }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "未授权"
-          },
-          "500": {
-            "description": "服务器内部错误"
           }
         }
       }
@@ -333,24 +463,41 @@
         },
         "responses": {
           "200": {
-            "description": "任务提交成功",
+            "description": "视频生成任务成功/查询成功",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成任务结果 (Task ID 或 结果 URL)"
+                  "properties": {
+                    "status_code": { "type": "integer" },
+                    "request_id": { "type": "string" },
+                    "code": { "type": "string", "nullable": true },
+                    "message": { "type": "string" },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "task_id": { "type": "string" },
+                        "task_status": { "type": "string" },
+                        "video_url": { "type": "string", "format": "uri" },
+                        "submit_time": { "type": "string" },
+                        "scheduled_time": { "type": "string" },
+                        "end_time": { "type": "string" },
+                        "orig_prompt": { "type": "string" },
+                        "actual_prompt": { "type": "string" }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "video_count": { "type": "integer" },
+                        "video_duration": { "type": "integer" },
+                        "video_ratio": { "type": "string" }
+                      }
+                    }
+                  }
                 }
               }
             }
-          },
-          "400": {
-            "description": "请求参数错误 (如缺少 image_url)"
-          },
-          "401": {
-            "description": "未授权"
-          },
-          "500": {
-            "description": "服务器内部错误"
           }
         }
       }
@@ -425,24 +572,45 @@
         },
         "responses": {
           "200": {
-            "description": "任务提交成功",
+            "description": "视频生成任务成功/查询成功",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "description": "返回生成任务结果 (Task ID 或 结果 URL)"
+                  "properties": {
+                    "status_code": { "type": "integer" },
+                    "request_id": { "type": "string" },
+                    "code": { "type": "string", "nullable": true },
+                    "message": { "type": "string" },
+                    "output": {
+                      "type": "object",
+                      "properties": {
+                        "task_id": { "type": "string" },
+                        "task_status": { "type": "string" },
+                        "video_url": { "type": "string", "format": "uri" },
+                        "submit_time": { "type": "string" },
+                        "scheduled_time": { "type": "string" },
+                        "end_time": { "type": "string" },
+                        "orig_prompt": { "type": "string" }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "video_count": { "type": "integer" },
+                        "video_duration": { "type": "integer" },
+                        "video_ratio": { "type": "string" },
+                        "duration": { "type": "integer" },
+                        "size": { "type": "string" },
+                        "input_video_duration": { "type": "integer" },
+                        "output_video_duration": { "type": "integer" },
+                        "SR": { "type": "integer" }
+                      }
+                    }
+                  }
                 }
               }
             }
-          },
-          "400": {
-            "description": "请求参数错误"
-          },
-          "401": {
-            "description": "未授权"
-          },
-          "500": {
-            "description": "服务器内部错误"
           }
         }
       }
