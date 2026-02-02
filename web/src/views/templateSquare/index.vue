@@ -42,7 +42,7 @@
 </template>
 <script>
 import TempSquare from './tempSquare.vue';
-import PromptTempSquare from './promptTempSquare.vue';
+import PromptTempSquare from './prompt/promptTempSquare.vue';
 import { WORKFLOW, PROMPT } from './constants';
 
 export default {
