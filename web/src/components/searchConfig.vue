@@ -399,7 +399,10 @@ export default {
       return Object.prototype.hasOwnProperty.call(item, key);
     },
     filteredMixType(item) {
-      if (this.category && this.category === QA) {
+      if (
+        this.category &&
+        (this.category === QA || this.category === MULTIMODAL)
+      ) {
         return item.mixType.filter((_, idx) => idx !== 0);
       }
       return item.mixType;
@@ -451,10 +454,10 @@ export default {
     },
     getRerankData() {
       this.rerankLoading = true;
-      const request =
-        this.knowledgeCategory === MULTIMODAL
-          ? getMultiRerankList()
-          : getRerankList();
+      const request = getRerankList();
+      // this.knowledgeCategory === MULTIMODAL
+      //   ? getMultiRerankList()
+      //   : getRerankList();
       request
         .then(res => {
           if (res.code === 0) {

@@ -28,15 +28,15 @@
         <div v-if="active === 1">
           <div class="fileBtn">
             <el-radio-group v-model="fileType" @change="fileTypeChange">
-              <el-radio-button label="file">
-                {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}
-              </el-radio-button>
               <el-radio-button label="fileMultiModal" v-if="category === 2">
                 {{
                   $t(
                     'knowledgeManage.knowledgeDatabase.fileUpload.fileMultiModal',
                   )
                 }}
+              </el-radio-button>
+              <el-radio-button label="file">
+                {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}
               </el-radio-button>
               <el-radio-button label="fileUrl">
                 {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.fileUrl') }}
