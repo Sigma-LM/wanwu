@@ -17,9 +17,8 @@
         >
           <el-form-item :label="$t('tool.integrate.avatar')" prop="avatar">
             <upload-avatar
-              :avatar="ruleForm.avatar"
+              v-model="ruleForm.avatar"
               :default-avatar="defaultAvatar"
-              @update-avatar="handleUpdateAvatar"
             />
           </el-form-item>
           <el-form-item :label="$t('tool.integrate.name')" prop="name">
@@ -200,9 +199,6 @@ export default {
       this.$emit('handleClose', false);
       this.$refs['ruleForm'].resetFields();
       this.mcpList = [];
-    },
-    handleUpdateAvatar(avatar) {
-      this.ruleForm = { ...this.ruleForm, avatar: avatar };
     },
     submitForm() {
       this.$refs['ruleForm'].validate(valid => {
