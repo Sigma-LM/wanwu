@@ -245,14 +245,12 @@
             :title="
               $t('common.hint.inferUrl') +
               (typeObj.inferUrl[`${createForm.modelType}_${provider.key}`] ||
-                typeObj.inferUrl[createForm.modelType] ||
                 typeObj.inferUrl[provider.key] ||
                 '--')
             "
             :placeholder="
               $t('common.hint.inferUrl') +
               (typeObj.inferUrl[`${createForm.modelType}_${provider.key}`] ||
-                typeObj.inferUrl[createForm.modelType] ||
                 typeObj.inferUrl[provider.key] ||
                 '--')
             "
