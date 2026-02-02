@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"encoding/json"
-
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/grpc-consumer/consumer/assistant"
@@ -14,6 +13,7 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
+	"github.com/cloudwego/eino/components/tool"
 	"github.com/gin-gonic/gin"
 )
 
@@ -104,6 +104,22 @@ func (s *SingleAgent) Run(ctx context.Context, input *adk.AgentInput, options ..
 	return s.ChatModelAgent.Run(ctx, process, options...)
 }
 
+func (s *SingleAgent) Resume(ctx context.Context, info *adk.ResumeInfo, opts ...adk.AgentRunOption) *adk.AsyncIterator[*adk.AgentEvent] {
+	return s.ChatModelAgent.Resume(ctx, info, opts...)
+}
+
+func (s *SingleAgent) OnSetSubAgents(ctx context.Context, subAgents []adk.Agent) error {
+	return s.ChatModelAgent.OnSetSubAgents(ctx, subAgents)
+}
+
+func (s *SingleAgent) OnSetAsSubAgent(ctx context.Context, parent adk.Agent) error {
+	return s.ChatModelAgent.OnSetAsSubAgent(ctx, parent)
+}
+
+func (s *SingleAgent) OnDisallowTransferToParent(ctx context.Context) error {
+	return s.ChatModelAgent.OnDisallowTransferToParent(ctx)
+}
+
 // buildAgentChatInfo 构建智能体信息
 func buildAgentChatInfo(ctx *gin.Context, req *request.AgentChatParams) (*service_model.AgentChatInfo, error) {
 	modelInfo, err := SearchModel(ctx, req.ModelParams.ModelId)
@@ -140,11 +156,16 @@ func createAgent(ctx *gin.Context, req *request.AgentChatParams, chatModel model
 	if err != nil {
 		return nil, err
 	}
+	var exit tool.BaseTool
+	if req.MultiAgent {
+		exit = &adk.ExitTool{}
+	}
 	return adk.NewChatModelAgent(ctx, &adk.ChatModelAgentConfig{
 		Model:       chatModel,
 		Name:        baseParams.Name,
 		Description: baseParams.Description,
 		Instruction: baseParams.Instruction,
 		ToolsConfig: toolsConfig,
+		Exit:        exit,
 	})
 }

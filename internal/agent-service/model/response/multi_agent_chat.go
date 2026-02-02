@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	AgentStartLabel = "transfer_to_agent"
+	AgentStartLabel    = "transfer_to_agent"
+	defaultAgentAvatar = "/v1/static/icon/agent-default-icon.png"
 )
 
 type AgentText struct {
@@ -28,10 +29,10 @@ type AgentInfo struct {
 
 // MultiNewAgentChatRespWithTool 多智能体涉及各子智能体展示切换，而且在最后很可能不输出finish_reason = stop 而是输出以tool==exit，如果现有的工具名==exit 可能有bug,todo 输出方法考虑重构
 func MultiNewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext, req *request.AgentChatContext) ([]string, error) {
-	contentList, subAgentEventData, notStop := buildMultiContentWithTool(chatMessage, respContext)
+	contentList, subAgentEventData, notStop := buildMultiContentWithTool(chatMessage, respContext, req)
 	var outputList = make([]string, 0)
 	if len(contentList) == 0 && subAgentEventData != nil {
-		return buildSubAgentEventInfo(chatMessage, subAgentEventData)
+		return buildSubAgentEventInfo(req, chatMessage, subAgentEventData)
 	}
 	for _, content := range contentList {
 		var agentChatResp = &AgentChatResp{
@@ -56,7 +57,7 @@ func MultiNewAgentChatRespWithTool(chatMessage *schema.Message, respContext *Age
 	return outputList, nil
 }
 
-func buildSubAgentEventInfo(chatMessage *schema.Message, subAgentEventData *SubAgentEventData) ([]string, error) {
+func buildSubAgentEventInfo(respContext *request.AgentChatContext, chatMessage *schema.Message, subAgentEventData *SubEventData) ([]string, error) {
 	var outputList = make([]string, 0)
 	var agentChatResp = &AgentChatResp{
 		Code:           agentSuccessCode,
@@ -66,6 +67,7 @@ func buildSubAgentEventInfo(chatMessage *schema.Message, subAgentEventData *SubA
 		EventData:      subAgentEventData,
 		GenFileUrlList: []interface{}{},
 		History:        []interface{}{},
+		SearchList:     buildSubAgentSearchList(subAgentEventData, respContext),
 		Finish:         buildFinish(chatMessage, true),
 		Usage:          buildUsage(chatMessage),
 	}
@@ -77,7 +79,7 @@ func buildSubAgentEventInfo(chatMessage *schema.Message, subAgentEventData *SubA
 	return outputList, nil
 }
 
-func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext) ([]string, *SubAgentEventData, bool) {
+func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext, req *request.AgentChatContext) ([]string, *SubEventData, bool) {
 	first, start := agentStart(chatMessage, respContext)
 	var contentList = make([]string, 0)
 	//子智能体开始
@@ -100,12 +102,13 @@ func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentCh
 			_ = json.Unmarshal([]byte(tempMessage), agentInfo)
 			respContext.CurrentAgent = agentInfo.AgentName
 			respContext.CurrentAgentId = uuid.New().String()
-			return contentList, BuildStartSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+			respContext.CurrentAgentAvatar = buildAgentAvatar(agentInfo.AgentName, req)
+			return contentList, BuildStartSubAgent(respContext), false
 		}
 	}
 	//子智能体结束
 	if chatMessage.ResponseMeta != nil && chatMessage.ResponseMeta.FinishReason == "stop" && len(respContext.CurrentAgent) > 0 {
-		subAgentEventData := BuildEndSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent, util.NowSpanToHMS(respContext.AgentStartTime))
+		subAgentEventData := BuildEndSubAgent(respContext, util.NowSpanToHMS(respContext.AgentStartTime))
 		respContext.CurrentAgentId = ""
 		respContext.CurrentAgent = ""
 		return contentList, subAgentEventData, true
@@ -125,7 +128,8 @@ func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentCh
 		var retList []string
 
 		for _, tool := range chatMessage.ToolCalls {
-			if len(tool.Function.Arguments) > 0 {
+			newTool := isNewTool(tool, respContext)
+			if !newTool && len(tool.Function.Arguments) > 0 { //只有此次不是新工具才add 参数，处理先输出方法名，后流式输出参数的情况
 				retList = append(retList, tool.Function.Arguments)
 				continue
 			}
@@ -144,28 +148,34 @@ func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentCh
 					retList = append(retList, toolName)
 				}
 
-				if isNewTool(tool, respContext) {
+				if newTool {
 					respContext.ToolParamsStartCount = respContext.ToolParamsStartCount + 1
 					retList = append(retList, toolStartTitle)
 					retList = append(retList, toolParamsStartFormat)
 					respContext.ToolCountMap[tool.ID] = 1
+					if len(tool.Function.Arguments) > 0 { //处理一次性同时返回 方法名和参数的情况
+						retList = append(retList, tool.Function.Arguments)
+					}
+					if toolParamsEnd(chatMessage) { //处理一次性同时返回 方法名和参数的情况 ,同时返回结束了
+						retList = append(retList, toolParamsEndFormat)
+					}
 				}
 			}
 		}
 
-		return retList, BuildProcessSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+		return retList, BuildProcessSubAgent(respContext), false
 	} else if toolParamsEnd(chatMessage) {
 		respContext.ToolParamsEndCount = respContext.ToolParamsEndCount + 1
-		return []string{toolParamsEndFormat}, BuildProcessSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+		return []string{toolParamsEndFormat}, BuildProcessSubAgent(respContext), false
 	} else if toolEnd(chatMessage) {
 		respContext.ToolEnd = true
 		toolResult := fmt.Sprintf(toolEndFormat, chatMessage.ToolName, chatMessage.Content)
 		respContext.ToolCountMap[chatMessage.ToolCallID] = 0
-		return []string{toolResult, toolEndTitle}, BuildProcessSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+		return []string{toolResult, toolEndTitle}, BuildProcessSubAgent(respContext), false
 	} else {
 		//在工具期间，不输出任何content内容
 		if respContext.ToolStart && !respContext.ToolEnd {
-			return []string{}, BuildProcessSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+			return []string{}, BuildProcessSubAgent(respContext), false
 		}
 		//替换内容准备(工具未开始，但是输出了内容)
 		if !respContext.ToolStart {
@@ -177,7 +187,7 @@ func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentCh
 				if replaceContent == chatMessage.Content {
 					respContext.ReplaceContentDone = true
 					respContext.ReplaceContentStr = replaceContent
-					return []string{}, BuildProcessSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+					return []string{}, BuildProcessSubAgent(respContext), false
 				}
 			}
 			if !respContext.ReplaceContentDone {
@@ -185,8 +195,19 @@ func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentCh
 			}
 
 		}
-		return []string{chatMessage.Content}, BuildProcessSubAgent(respContext.CurrentAgentId, respContext.CurrentAgent), false
+		return []string{chatMessage.Content}, BuildProcessSubAgent(respContext), false
 	}
+}
+
+func buildAgentAvatar(agentName string, req *request.AgentChatContext) string {
+	if len(req.SubAgentMap) == 0 {
+		return defaultAgentAvatar
+	}
+	agentConfig := req.SubAgentMap[agentName]
+	if agentConfig == nil || len(agentConfig.AgentAvatar) == 0 {
+		return defaultAgentAvatar
+	}
+	return agentConfig.AgentAvatar
 }
 
 func exitToolStart(chatMessage *schema.Message, respContext *AgentChatRespContext) bool {
@@ -226,7 +247,7 @@ func agentStart(chatMessage *schema.Message, respContext *AgentChatRespContext) 
 }
 
 // buildEventType 事件类型构造
-func buildEventType(subEvent *SubAgentEventData) AgentEventType {
+func buildEventType(subEvent *SubEventData) AgentEventType {
 	if subEvent == nil {
 		return MainAgentEventType
 	}

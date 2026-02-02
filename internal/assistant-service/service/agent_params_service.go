@@ -50,10 +50,13 @@ func (a *AgentChatParamsBuilder) AgentBaseParams() *AgentChatParamsBuilder {
 	if a.err != nil {
 		return a
 	}
+	assistant := a.agent.Assistant
 	a.params.AgentBaseParams = &assistant_service.AgentBaseParams{
-		Name:        a.agent.Assistant.Name,
-		Description: a.agent.Assistant.Desc,
-		Instruction: a.agent.Assistant.Instructions,
+		Name:        assistant.Name,
+		Description: assistant.Desc,
+		Instruction: assistant.Instructions,
+		AgentId:     assistant.UUID,
+		Avatar:      assistant.AvatarPath,
 	}
 	return a
 }

@@ -79,20 +79,33 @@ type ConversationInfo struct {
 }
 
 type ConversationDetailInfo struct {
-	Id             string                 `json:"id"`
-	AssistantId    string                 `json:"assistantId"`
-	ConversationId string                 `json:"conversationId"`
-	Prompt         string                 `json:"prompt"`
-	SysPrompt      string                 `json:"sysPrompt"`
-	Response       string                 `json:"response"`
-	SearchList     interface{}            `json:"searchList"`
-	QaType         int32                  `json:"qa_type"`
-	CreatedBy      string                 `json:"createdBy"`
-	CreatedAt      int64                  `json:"createdAt"`
-	UpdatedAt      int64                  `json:"updatedAt"`
-	RequestFiles   []AssistantRequestFile `json:"requestFiles"`
-	FileSize       int64                  `json:"fileSize"`
-	FileName       string                 `json:"fileName"`
+	Id                  string                 `json:"id"`
+	AssistantId         string                 `json:"assistantId"`
+	ConversationId      string                 `json:"conversationId"`
+	Prompt              string                 `json:"prompt"`
+	SysPrompt           string                 `json:"sysPrompt"`
+	Response            string                 `json:"response"`
+	SearchList          interface{}            `json:"searchList"`
+	QaType              int32                  `json:"qa_type"`
+	CreatedBy           string                 `json:"createdBy"`
+	CreatedAt           int64                  `json:"createdAt"`
+	UpdatedAt           int64                  `json:"updatedAt"`
+	RequestFiles        []AssistantRequestFile `json:"requestFiles"`
+	FileSize            int64                  `json:"fileSize"`
+	FileName            string                 `json:"fileName"`
+	SubConversationList []*SubConversation     `json:"subConversationList"`
+}
+
+type SubConversation struct {
+	Response         string      ` json:"response"`
+	SearchList       interface{} `json:"searchList"`
+	ParentId         string      ` json:"parentId"`        // 事件挂载id
+	Id               string      ` json:"id"`              // 事件id
+	Name             string      `json:"name"`             // 事件名称
+	Profile          string      `json:"profile"`          // 事件头像
+	TimeCost         string      `json:"timeCost"`         // 耗时
+	Status           int32       `json:"status"`           // 1:成功，2：失败
+	ConversationType string      `json:"conversationType"` // subAgent：子智能体；agentTool：主智能体工具；subAgentTool：子智能体工具
 }
 
 type AssistantRequestFile struct {
