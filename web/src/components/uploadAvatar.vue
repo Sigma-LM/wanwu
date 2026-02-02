@@ -21,8 +21,12 @@ import { uploadAvatar } from '@/api/user';
 import { avatarSrc } from '@/utils/util';
 
 export default {
+  model: {
+    prop: 'value',
+    event: 'input',
+  },
   props: {
-    avatar: {
+    value: {
       type: Object,
       default: () => ({
         key: '',
@@ -37,8 +41,8 @@ export default {
   },
   computed: {
     avatarSrc() {
-      if (this.avatar.path) {
-        return avatarSrc(this.avatar.path);
+      if (this.value.path) {
+        return avatarSrc(this.value.path);
       }
       return this.defaultAvatar;
     },
@@ -51,7 +55,7 @@ export default {
         formData.append('avatar', data.file);
         uploadAvatar(formData, config).then(res => {
           if (res.code === 0) {
-            this.$emit('update-avatar', res.data);
+            this.$emit('input', res.data);
           }
         });
       }
