@@ -101,6 +101,10 @@ div[data-name] {
 }
 .page-wrapper {
   padding: 0 10px;
+  margin: 16px;
+  background: #fff;
+  border-radius: 8px;
+  min-height: calc(100vh - 108px);
 }
 .page-title {
   font-size: 18px;

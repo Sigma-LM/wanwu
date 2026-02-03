@@ -116,7 +116,7 @@ export default {
     },
     handleClick(mcpServerId) {
       this.$router.push({
-        path: `/tool/detail/server?mcpServerId=${mcpServerId}`,
+        path: `/mcpService/detail/server?mcpServerId=${mcpServerId}`,
       });
     },
     handleAddServer(item) {

@@ -29,25 +29,29 @@ export default {
   data() {
     return {
       tabActive: 0,
+      toolTabObj: {
+        builtIn: 0,
+        custom: 1,
+      },
     };
   },
   watch: {
     $route: {
       handler() {
-        if (this.$route.query.mcp === 'builtIn') this.tabActive = 0;
-        else if (this.$route.query.mcp === 'custom') this.tabActive = 1;
-        else this.tabActive = 0;
+        this.setInitTab();
       },
       // 深度观察监听
       deep: true,
     },
   },
   mounted() {
-    if (this.$route.query.mcp === 'builtIn') this.tabActive = 0;
-    else if (this.$route.query.mcp === 'custom') this.tabActive = 1;
-    else this.tabActive = 0;
+    this.setInitTab();
   },
   methods: {
+    setInitTab() {
+      const { tool } = this.$route.query || {};
+      this.tabActive = this.toolTabObj[tool] || 0;
+    },
     tabClick(status) {
       this.tabActive = status;
     },
@@ -58,19 +62,4 @@ export default {
   },
 };
 </script>
-<style lang="scss" scoped>
-.mcp-tabs {
-  .mcp-tab {
-    width: 100px !important;
-    height: 30px !important;
-    line-height: 30px !important;
-    font-size: 10px !important;
-    color: #666666 !important;
-    border-bottom: 1px solid #cccccc !important;
-  }
-  .active {
-    background: #cccccc !important;
-    color: #333 !important;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

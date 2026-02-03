@@ -1,3 +1,5 @@
 export const basePath =
   window.APP_BASE_PATH || process.env.VUE_APP_BASE_PATH || '';
-export const config = {};
+export const config = {
+  backgroundColor: '#F7F8FA',
+};
