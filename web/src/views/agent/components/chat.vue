@@ -78,9 +78,6 @@
 </template>
 
 <script>
-// import SessionComponentSe from './SessionComponentSe';
-// import EditableDivV3 from './EditableDivV3';
-// import Prologue from './Prologue';
 import streamMessageField from '@/components/stream/streamMessageField';
 import streamInputField from '@/components/stream/streamInputField';
 import streamGreetingField from '@/components/stream/streamGreetingField';
@@ -128,12 +125,9 @@ export default {
     },
   },
   components: {
-    // SessionComponentSe,
-    // EditableDivV3,
     streamMessageField,
     streamInputField,
     streamGreetingField,
-    // Prologue,
   },
   mixins: [sseMethod],
   computed: {
@@ -297,7 +291,7 @@ export default {
       this.recommendConfig.loading = false;
       this.inputVal = val || this.$refs['editable'].getPrompt();
       this.fileId = fileInfo || [];
-      this.isTestChat = this.chatType === 'test' ? true : false;
+      this.isTestChat = this.chatType === 'test';
       this.fileList = fileList || this.$refs['editable'].getFileList();
       if (!this.inputVal) {
         this.$message.warning(this.$t('agent.inputContent'));

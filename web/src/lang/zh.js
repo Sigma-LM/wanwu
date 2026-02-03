@@ -1812,6 +1812,7 @@ export default {
     recommendedQuestion: '推荐问题:',
     qaUplodFileTips: '文件上传成功，请手动刷新问答库列表',
     imgLimit: '图片类型限制{num}个文件，其他类型限制1个文件',
+    imgLimitOnly: '图片类型限制{num}个文件',
     imgLimitTips: '非图片类型文件会替换已有文件',
     uploadModelTips:
       ' *若该智能体基于大语言模型创建，则上传图片暂时无法进行解析',

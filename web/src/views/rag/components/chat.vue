@@ -39,7 +39,7 @@
             ref="editable"
             source="perfectReminder"
             :fileTypeArr="fileTypeArr"
-            :type="'webChat'"
+            :type="'ragChat'"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
           />
@@ -50,12 +50,9 @@
 </template>
 
 <script>
-// import SessionComponentSe from './SessionComponentSe';
-// import EditableDivV3 from './EditableDivV3';
 import streamMessageField from '@/components/stream/streamMessageField';
 import streamGreetingField from '@/components/stream/streamGreetingField';
 import streamInputField from '@/components/stream/streamInputField';
-// import Prologue from './Prologue';
 import sseMethod from '@/mixins/sseMethod';
 import { mapGetters } from 'vuex';
 
@@ -75,9 +72,6 @@ export default {
     },
   },
   components: {
-    // SessionComponentSe,
-    // EditableDivV3,
-    // Prologue,
     streamGreetingField,
     streamMessageField,
     streamInputField,
@@ -100,7 +94,7 @@ export default {
       expandForm: {
         starterPrompts: [],
       },
-      fileTypeArr: ['doc/*'],
+      fileTypeArr: ['image/*'],
     };
   },
   created() {},
@@ -121,6 +115,7 @@ export default {
       // this.setParams()
       this.setSseParams({
         ragId: this.editForm.appId,
+        fileInfo: this.$refs['editable'].getFileIdList(),
         question: this.inputVal,
       });
       this.doragSend();

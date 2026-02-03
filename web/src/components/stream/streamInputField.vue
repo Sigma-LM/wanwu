@@ -62,7 +62,7 @@
             class="upload-icon"
             :src="require('@/assets/imgs/uploadIcon.png')"
             @click="preUpload"
-            v-if="type !== 'webChat'"
+            v-if="type !== 'webChat' && maxPicNum > 0"
           />
         </div>
         <div class="editable-wp-right rl" draggable="true">
@@ -97,6 +97,7 @@
     <streamUploadField
       ref="upload"
       :fileTypeArr="fileTypeArr"
+      :type="type"
       @setFileId="setFileId"
       @setFile="setFile"
     />
@@ -191,8 +192,6 @@ export default {
         '#738cbd',
       ],
       randomReminderList: [], //随机8个提示词
-      randomReminderShow: false,
-      refreshLoading: false,
     };
   },
   watch: {
