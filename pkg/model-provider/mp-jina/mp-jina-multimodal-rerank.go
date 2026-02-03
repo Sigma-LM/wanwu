@@ -2,6 +2,7 @@ package mp_jina
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
@@ -32,6 +33,19 @@ func (cfg *MultiModalRerank) NewReq(req *mp_common.MultiModalRerankReq) (mp_comm
 	m, err := req.Data()
 	if err != nil {
 		return nil, err
+	}
+	queryVal := m["query"]
+	switch q := queryVal.(type) {
+	case string:
+		m["query"] = q
+	case map[string]interface{}:
+		if textVal, ok := q["text"].(string); ok && textVal != "" {
+			m["query"] = textVal
+		} else {
+			return nil, fmt.Errorf("query对象格式无效，必须包含非空text字符串字段")
+		}
+	default:
+		return nil, fmt.Errorf("不支持的query类型: %T，仅支持字符串或{text:string}格式对象", q)
 	}
 	return mp_common.NewRerankReq(m), nil
 }
