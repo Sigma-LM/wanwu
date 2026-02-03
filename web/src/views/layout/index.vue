@@ -720,7 +720,13 @@ export default {
         }
       }
       .no-header-main {
-        height: 100vh;
+        height: 100%;
+        .page-container {
+          height: 100%;
+          .right-page-content {
+            height: 100%;
+          }
+        }
       }
     }
   }

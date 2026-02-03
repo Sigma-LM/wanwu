@@ -21,12 +21,16 @@ export default {
 <style lang="scss" scoped>
 .wp {
   width: 100%;
-  height: 100vh;
+  height: calc(100% - 3px);
   background: #f4f5f6;
   iframe {
     width: 100%;
     height: 100%;
     border: none;
+    ::v-deep body {
+      overflow: hidden !important;
+      height: 100vh !important;
+    }
   }
 }
 </style>
