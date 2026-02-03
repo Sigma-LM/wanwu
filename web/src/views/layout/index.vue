@@ -701,6 +701,8 @@ export default {
         background-color: #fff;
         line-height: 60px;
         height: 60px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        z-index: 2;
       }
       .el-main {
         position: relative;
