@@ -1,6 +1,6 @@
 <template>
-  <div class="routerview-container rl">
-    <div class="info page-wrapper hide-loading-bg">
+  <div class="routerview-container rl page-wrapper">
+    <div class="info hide-loading-bg">
       <p class="page-title form-header rl">
         <i class="el-icon-arrow-left" @click="$router.go(-1)" />
         <img class="page-title-img" src="@/assets/imgs/userInfo.png" alt="" />

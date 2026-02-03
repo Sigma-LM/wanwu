@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper" style="margin: 0 10px">
+  <div class="page-wrapper">
     <div class="page-title">
       <i class="el-icon-arrow-left" @click="$router.go(-1)" />
       <img class="page-title-img" src="@/assets/imgs/org.png" alt="" />
