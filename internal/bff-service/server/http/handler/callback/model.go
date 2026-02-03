@@ -253,6 +253,22 @@ func ModelMultiModalRerank(ctx *gin.Context) {
 			item.Image = base64StrWithPrefix
 		}
 	}
+	switch queryVal := data.Query.(type) {
+	case string:
+	case map[string]interface{}:
+		if imageUrl, ok := queryVal["image"].(string); ok && imageUrl != "" {
+			_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(ctx, imageUrl)
+			if err != nil {
+				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v query image to base64 err: %v", data.Model, err)))
+				return
+			}
+			queryVal["image"] = base64StrWithPrefix
+			data.Query = queryVal
+		}
+	default:
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("unsupported query type: %T, only support string or map[string]interface{}", queryVal)))
+		return
+	}
 	service.ModelMultiModalRerank(ctx, ctx.Param("modelId"), &data)
 }
 

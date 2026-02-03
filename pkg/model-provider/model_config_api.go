@@ -359,7 +359,7 @@ func ToModelConfig(provider, modelType, cfg string) (interface{}, error) {
 				MaxVideoClipSize:    &maxVideoClipSize,
 				MaxImageSize:        &maxImageSize,
 				SupportFileTypes:    []string{"image"},
-				SupportImageInQuery: false,
+				SupportImageInQuery: true,
 			}
 		case ModelTypeTextEmbedding:
 			ret = &mp_yuanjing.Embedding{}
