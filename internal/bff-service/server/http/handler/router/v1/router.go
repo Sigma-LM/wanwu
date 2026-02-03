@@ -48,7 +48,7 @@ func Register(apiV1 *gin.RouterGroup) {
 	registerSetting(apiV1)
 
 	// statistic_client
-	registerStatisticClient(apiV1)
+	// registerStatisticClient(apiV1)
 
 	// oauth
 	registerOauth(apiV1)
