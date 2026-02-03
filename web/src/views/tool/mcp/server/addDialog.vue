@@ -152,7 +152,7 @@ export default {
                   this.$emit('handleFetch', false);
                   this.handleClose();
                   this.$router.push({
-                    path: `/tool/detail/server?mcpServerId=${res.data.mcpServerId}`,
+                    path: `/mcpService/detail/server?mcpServerId=${res.data.mcpServerId}`,
                   });
                 }
               })

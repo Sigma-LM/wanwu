@@ -3,28 +3,11 @@
     <div class="common_bg">
       <div class="page-title">
         <img class="page-title-img" src="@/assets/imgs/tool.svg" alt="" />
-        <span class="page-title-name">{{ $t('menu.tool') }}</span>
-      </div>
-      <!-- tabs -->
-      <div class="mcp-tabs">
-        <div
-          :class="['mcp-tab', { active: ![tool, prompt].includes(tabActive) }]"
-          @click="tabClick(mcp)"
-        >
-          {{ $t('tool.mcp') }}
-        </div>
-        <div
-          :class="['mcp-tab', { active: tabActive === tool }]"
-          @click="tabClick(tool)"
-        >
-          {{ $t('tool.tool') }}
-        </div>
-        <div
-          :class="['mcp-tab', { active: tabActive === prompt }]"
-          @click="tabClick(prompt)"
-        >
-          {{ $t('tool.prompt.title') }}
-        </div>
+        <span class="page-title-name">
+          {{
+            menuObj[tabActive] ? menuObj[tabActive].name : $t('menu.resource')
+          }}
+        </span>
       </div>
 
       <mcp ref="mcp" v-if="![tool, prompt].includes(tabActive)" />
@@ -46,25 +29,29 @@ export default {
       mcp: MCP,
       tool: TOOL,
       prompt: PROMPT,
+      menuObj: {
+        [MCP]: { name: this.$t('menu.mcpService') },
+        [TOOL]: { name: this.$t('menu.tool') },
+        [PROMPT]: { name: this.$t('menu.prompt') },
+      },
     };
   },
   watch: {
     $route: {
       handler() {
-        const { type } = this.$route.query || {};
-        this.tabActive = type;
+        this.changeRoute();
       },
       // 深度观察监听
       deep: true,
     },
   },
   mounted() {
-    const { type } = this.$route.query || {};
-    this.tabActive = type;
+    this.changeRoute();
   },
   methods: {
-    tabClick(type) {
-      this.tabActive = type;
+    changeRoute() {
+      const { routeType } = this.$route.meta || {};
+      this.tabActive = routeType;
     },
   },
   components: {

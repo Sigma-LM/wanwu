@@ -5,6 +5,7 @@ import router from './router';
 import { store } from './store';
 import { i18n } from './lang';
 import './router/permission';
+import './assets/icons';
 
 import ElementUi from 'element-ui';
 import moment from 'moment';
@@ -17,7 +18,7 @@ Vue.use(ElementUi, {
   i18n: (key, value) => i18n.t(key, value), // 根据选的语言切换 Element-ui 的语言
 });
 
-Vue.prototype.$config = config;
+Vue.prototype.$config = config || {};
 Vue.prototype.$basePath = basePath;
 Vue.prototype.$guid = guid;
 Vue.prototype.$copy = function copy(text) {
