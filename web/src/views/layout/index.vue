@@ -1,208 +1,77 @@
 <template>
   <div class="layout full-menu" :style="`background: ${bgColor}`">
     <el-container class="outer-container">
-      <div class="left-nav" v-if="isShowNav">
-        <div class="left-nav-container">
-          <!--不展示平台的图标-->
-          <div style="padding: 0 15px">
-            <div
-              style="padding: 10px 0 14px; border-bottom: 1px solid #d9d9d9"
-              v-if="homeLogoPath"
-            >
-              <img
-                style="width: 50px; margin-left: -5px"
-                :src="avatarSrc(homeLogoPath)"
-              />
-            </div>
+      <!-- 左侧内容 -->
+      <div v-if="isShowMenu" class="left-aside-container">
+        <div class="left-header-container">
+          <div
+            style="padding-top: 10px; text-align: center"
+            v-if="homeLogoPath"
+          >
+            <img
+              v-if="!isCollapse"
+              style="height: 46px"
+              :src="avatarSrc(homeLogoPath)"
+            />
+            <img
+              v-else
+              style="width: 50%; margin-top: 10px"
+              src="@/assets/imgs/wanwu.png"
+            />
           </div>
-          <div class="left-nav-content-wrap">
-            <div class="left-nav-content">
-              <div
-                :class="[
-                  'nav-item',
-                  { 'is-active': currentNavMenu.key === item.key },
-                ]"
-                v-for="(item, index) in navList"
-                :key="item.key + index"
-                @click="clickNavMenu(item)"
-                v-if="checkPerm(item.perm)"
-              >
-                <div v-if="item.key !== 'line'">
-                  <div class="left-nav-img-wrap">
-                    <img
-                      class="left-menu-width left-nav-img"
-                      :src="
-                        currentNavMenu.key === item.key
-                          ? item.imgActive
-                          : item.img
-                      "
-                      alt=""
-                    />
-                  </div>
-                  <div class="nav-menu-name">{{ item.name }}</div>
-                </div>
-                <div v-if="item.key === 'line'">
-                  <div
-                    style="padding: 0 18px; height: 0.5px; background: #d9d9d9"
-                  ></div>
-                </div>
+          <!-- 组织切换 -->
+          <div class="menu-org-select-wrapper" v-if="!isCollapse">
+            <img style="width: 16px" src="@/assets/imgs/org_user.svg" alt="" />
+            <ChangeOrg
+              :org="org"
+              :orgList="orgList"
+              :getCurrentOrgName="getCurrentOrgName"
+              :changeOrg="changeOrg"
+            />
+          </div>
+          <el-popover
+            v-else
+            popper-class="menu-org-popover"
+            placement="right"
+            width="220"
+            trigger="click"
+          >
+            <ChangeOrg
+              :org="org"
+              :orgList="orgList"
+              :getCurrentOrgName="getCurrentOrgName"
+              :changeOrg="changeOrg"
+            />
+            <div slot="reference">
+              <div style="text-align: center; cursor: pointer">
+                <img
+                  style="width: 20px; margin-top: 24px"
+                  src="@/assets/imgs/org_user.svg"
+                  alt=""
+                />
               </div>
             </div>
-          </div>
-          <!--取消整体的新建展示-->
-          <!--<div style="padding: 0 15px">
-            <div style="padding: 14px 0 10px; border-top: 1px solid #D9D9D9">
-              <img class="total-create" src="@/assets/imgs/totalCreate.png" alt="" @click="showCreateTotalDialog">
-              <CreateTotalDialog ref="createTotalDialog" />
-            </div>
-          </div>-->
-          <div class="nav-bottom">
-            <!--隐藏文档下载菜单-->
-            <!--<div>
-              <img class="left-menu-width" src="@/assets/imgs/doc.png" alt="" @click="showDocDownloadDialog" />
-              <DocDownloadDialog ref="docDownloadDialog" />
-            </div>-->
-            <AboutDialog ref="aboutDialog" />
-            <div style="margin-top: 15px">
-              <el-popover placement="right" width="220" trigger="click">
-                <div
-                  style="margin-bottom: 6px"
-                  class="menu--popover-item"
-                  :title="getCurrentOrgName()"
-                >
-                  <el-select
-                    v-model="org.orgId"
-                    :placeholder="$t('header.org.placeholder')"
-                    filterable
-                    class="menu__org_select"
-                    v-if="orgList && orgList.length"
-                    @change="changeOrg"
-                  >
-                    <el-option
-                      v-for="(item, index) in orgList"
-                      :command="index"
-                      :key="item.id + index"
-                      :label="item.name"
-                      :value="item.id"
-                    />
-                  </el-select>
-                </div>
-                <div
-                  :class="[
-                    'menu--popover-wrap',
-                    { 'wrap-last': popoverList.length === index + 1 },
-                  ]"
-                  v-for="(it, index) in popoverList"
-                  :key="'popoverList' + index"
-                >
-                  <div
-                    v-if="checkPerm(item.perm)"
-                    v-for="item in it"
-                    :key="item.name"
-                    class="menu--popover-item"
-                    @click="menuClick(item)"
-                  >
-                    <img
-                      class="menu--popover-item-img"
-                      :src="item.img"
-                      alt=""
-                    />
-                    <el-tooltip
-                      v-if="item.isTip"
-                      effect="dark"
-                      :content="item.tipContent"
-                      placement="top-start"
-                    >
-                      <span
-                        style="display: inline-block; width: 150px"
-                        class="menu--popover-item-name"
-                      >
-                        {{ item.name }}
-                      </span>
-                    </el-tooltip>
-                    <span v-if="!item.isTip" class="menu--popover-item-name">
-                      {{ item.name }}
-                    </span>
-                    <img
-                      v-if="item.icon"
-                      class="menu--popover-item-icon"
-                      :src="item.icon"
-                      alt=""
-                    />
-                    <span
-                      v-if="item.version"
-                      class="menu--popover-item-version"
-                    >
-                      {{ version || '' }}
-                    </span>
-                  </div>
-                </div>
-                <div slot="reference">
-                  <img
-                    class="left-menu-width"
-                    src="@/assets/imgs/account.png"
-                    alt=""
-                  />
-                </div>
-              </el-popover>
-            </div>
-          </div>
+          </el-popover>
         </div>
-      </div>
-      <div class="left-page-container" v-if="isShowNav"></div>
-      <!-- 容器 -->
-      <el-container :class="['inner-container']">
-        <!--取消整体的菜单展示 isShowMenu 一直为 false-->
-        <el-aside
-          v-if="isShowMenu && menuList && menuList.length"
-          class="full-menu-aside"
-        >
+        <!-- 菜单 -->
+        <el-aside v-if="menuList && menuList.length" class="full-menu-aside">
           <el-menu
             :default-openeds="defaultOpeneds"
             :default-active="activeIndex"
             :key="menuKey"
-            :class="[{ 'el-menu-hasOrg': currentNavMenu.key === 'workspace' }]"
+            :collapse="isCollapse"
           >
-            <!--组织切换-->
-            <div
-              class="header__org_container"
-              v-if="currentNavMenu.key === 'workspace'"
-            >
-              <div class="header__org_wrapper">
-                <img class="head-icon" src="@/assets/imgs/head.png" alt="" />
-                <el-select
-                  v-model="org.orgId"
-                  :placeholder="$t('header.org.placeholder')"
-                  filterable
-                  class="header__org_select"
-                  v-if="orgList && orgList.length"
-                  @change="changeOrg"
-                >
-                  <el-option
-                    v-for="(item, index) in orgList"
-                    :command="index"
-                    :key="item.id + index"
-                    :class="org.orgId === item.id ? 'header__org_active' : ''"
-                    :label="item.name"
-                    :value="item.id"
-                  />
-                </el-select>
-              </div>
-            </div>
             <!--菜单渲染-->
             <div v-for="(n, i) in menuList" :key="`${i}ml`">
               <!--有下一级-->
               <el-submenu
                 v-if="n.children && checkPerm(n.perm)"
                 :index="n.index"
-                :class="['edit-popover']"
               >
                 <template slot="title">
-                  <img
-                    class="menu-icon"
-                    :src="activeIndex.includes(n.index) ? n.imgActive : n.img"
-                    alt=""
-                  />
+                  <div class="menu-svg">
+                    <svg-icon class="menu-icon" :icon-class="n.icon" />
+                  </div>
                   <span class="menu-withIcon-title">{{ n.name }}</span>
                 </template>
                 <div
@@ -213,7 +82,7 @@
                   <el-submenu
                     v-if="m.children"
                     :index="m.index"
-                    :class="['menu-indent', 'edit-popover']"
+                    :class="['menu-indent']"
                   >
                     <template slot="title">{{ m.name }}</template>
                     <div
@@ -224,7 +93,7 @@
                       <el-submenu
                         v-if="p.children"
                         :index="p.index"
-                        :class="['menu-indent-sub', 'edit-popover']"
+                        :class="['menu-indent-sub']"
                       >
                         <template slot="title">{{ p.name }}</template>
                         <el-menu-item
@@ -233,10 +102,7 @@
                           :index="item.index"
                           v-if="checkPerm(item.perm)"
                           @click="menuClick(item)"
-                          :class="[
-                            'edit-popover',
-                            { 'is-active': activeIndex === item.index },
-                          ]"
+                          :class="[{ 'is-active': activeIndex === item.index }]"
                         >
                           {{ item.name }}
                         </el-menu-item>
@@ -245,10 +111,7 @@
                         v-else
                         :index="p.index"
                         @click="menuClick(p)"
-                        :class="[
-                          'edit-popover',
-                          { 'is-active': activeIndex === p.index },
-                        ]"
+                        :class="[{ 'is-active': activeIndex === p.index }]"
                       >
                         {{ p.name }}
                       </el-menu-item>
@@ -260,7 +123,6 @@
                     @click="menuClick(m)"
                     :class="[
                       'menu-indent-item',
-                      'edit-popover',
                       { 'is-active': activeIndex === m.index },
                     ]"
                   >
@@ -273,23 +135,80 @@
                 :index="n.index"
                 v-if="!n.children && checkPerm(n.perm)"
                 @click="menuClick(n)"
-                :class="[
-                  'edit-popover',
-                  { 'is-active': activeIndex === n.index },
-                ]"
+                :class="[{ 'is-active': activeIndex === n.index }]"
               >
-                <img
-                  class="menu-icon"
-                  :src="activeIndex === n.index ? n.imgActive : n.img"
-                  alt=""
-                />
+                <svg-icon class="menu-icon" :icon-class="n.icon" />
                 <span class="menu-withIcon-title">{{ n.name }}</span>
               </el-menu-item>
             </div>
           </el-menu>
+          <div class="menu-control-icon" @click="changeMenuCollapse">
+            <i class="el-icon-arrow-left" v-if="!isCollapse"></i>
+            <i class="el-icon-arrow-right" v-else></i>
+          </div>
         </el-aside>
+      </div>
+      <!-- 容器 -->
+      <el-container :class="['inner-container']">
+        <!-- 右侧头部 -->
+        <el-header class="header-info" v-if="isShowMenu">
+          <el-popover placement="bottom" width="220" trigger="hover">
+            <div
+              :class="[
+                'menu--popover-wrap',
+                { 'wrap-last': popoverList.length === index + 1 },
+              ]"
+              v-for="(it, index) in popoverList"
+              :key="'popoverList' + index"
+            >
+              <div
+                v-if="checkPerm(item.perm)"
+                v-for="item in it"
+                :key="item.name"
+                class="menu--popover-item"
+                @click="menuClick(item)"
+              >
+                <img class="menu--popover-item-img" :src="item.img" alt="" />
+                <el-tooltip
+                  v-if="item.isTip"
+                  effect="dark"
+                  :content="item.tipContent"
+                  placement="top-start"
+                >
+                  <span
+                    style="display: inline-block; width: 150px"
+                    class="menu--popover-item-name"
+                  >
+                    {{ item.name }}
+                  </span>
+                </el-tooltip>
+                <span v-if="!item.isTip" class="menu--popover-item-name">
+                  {{ item.name }}
+                </span>
+                <img
+                  v-if="item.icon"
+                  class="menu--popover-item-icon"
+                  :src="item.icon"
+                  alt=""
+                />
+                <span v-if="item.version" class="menu--popover-item-version">
+                  {{ version || '' }}
+                </span>
+              </div>
+            </div>
+            <div class="header-user-content" slot="reference">
+              <img
+                class="header-icon"
+                v-if="userAvatar"
+                :src="avatarSrc(userAvatar)"
+              />
+              <div>{{ userInfo.userName }}</div>
+              <i class="el-icon-more header-more"></i>
+            </div>
+          </el-popover>
+        </el-header>
         <!-- 右侧内容 -->
-        <el-main>
+        <el-main :class="[{ 'no-header-main': !isShowMenu }]">
           <div class="page-container">
             <div class="right-page-content">
               <router-view></router-view>
@@ -317,30 +236,25 @@ import {
   avatarSrc,
 } from '@/utils/util';
 import ChangeLang from '@/components/changeLang.vue';
-import DocDownloadDialog from '@/components/docDownloadDialog.vue';
-import CreateTotalDialog from '@/components/createTotalDialog.vue';
-import AboutDialog from '@/components/aboutDialog.vue';
+import ChangeOrg from '@/components/changeOrg.vue';
 import { DOC_FIRST_KEY } from '@/views/docCenter/constants';
 
 export default {
   name: 'Layout',
-  components: { ChangeLang, DocDownloadDialog, CreateTotalDialog, AboutDialog },
+  components: { ChangeLang, ChangeOrg },
   data() {
     return {
-      basePath: this.$basePath,
+      isCollapse: false,
       homeLogoPath: '',
       bgColor: '',
       version: '',
-      defaultOpeneds: [],
       orgList: [],
       org: { orgId: '' },
-      navList: menuList,
-      currentNavMenu: {},
+      defaultOpeneds: [],
       menuList: [],
       menuKey: 'menu_key',
-      activeIndex: '0',
-      isShowMenu: false,
-      isShowNav: true,
+      activeIndex: '',
+      isShowMenu: true,
       popoverList: [
         [
           {
@@ -382,10 +296,6 @@ export default {
             name: this.$t('menu.about'),
             img: require('@/assets/imgs/about_icon.svg'),
             version: 'version',
-            redirect: () => {
-              // 不展示关于弹窗
-              // this.showAboutDialog()
-            },
           },
         ],
         [
@@ -403,10 +313,10 @@ export default {
   watch: {
     $route: {
       handler(val) {
-        // this.justifyIsShowMenu(val.path)
-        this.justifyIsShowNav(val.path);
+        this.justifyIsShowMenu(val.path);
         this.getMenuList(val.path);
         this.redirectUserInfo();
+        this.initScroll();
       },
       // 深度观察监听
       deep: true,
@@ -421,9 +331,7 @@ export default {
       handler(val) {
         const { home = {}, tab = {}, about = {} } = val.data || {};
         this.homeLogoPath = home.logo ? home.logo.path : '';
-        this.bgColor =
-          home.backgroundColor ||
-          'linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%)';
+        this.bgColor = home.backgroundColor || this.$config.backgroundColor;
         this.version = about.version || '1.0';
         replaceIcon(tab.logo ? tab.logo.path : '');
         replaceTitle(tab.title);
@@ -431,7 +339,7 @@ export default {
       deep: true,
     },
     permission: {
-      handler(val) {
+      handler() {
         // 如果没修改过密码，重新向到修改密码
         this.redirectUserInfo();
       },
@@ -439,18 +347,24 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('user', ['orgInfo', 'userInfo', 'commonInfo', 'permission']),
+    ...mapGetters('user', [
+      'orgInfo',
+      'userInfo',
+      'commonInfo',
+      'permission',
+      'userAvatar',
+    ]),
   },
   async created() {
     // 判断是否展示左侧菜单
-    this.justifyIsShowNav(this.$route.path);
-    // this.justifyIsShowMenu(this.$route.path)
+    this.justifyIsShowMenu(this.$route.path);
 
     // 设置语言
     // await this.setLanguage()
 
     // 获取菜单
     this.getCurrentMenu();
+    this.setLocalMenuCollapse();
 
     // 只有登陆状态下才查询接口，否则会一直刷新
     if (localStorage.getItem('access_cert')) this.getPermissionInfo();
@@ -475,6 +389,16 @@ export default {
       window.location.href =
         window.location.origin + this.$basePath + '/aibase/login';
     },
+    setLocalMenuCollapse() {
+      this.isCollapse = localStorage.getItem('menu_collapse') === 'true';
+    },
+    initScroll() {
+      const pageContainer = document.querySelector('.page-container');
+      if (pageContainer) {
+        pageContainer.scrollTop = 0;
+        pageContainer.scrollLeft = 0;
+      }
+    },
     getCurrentOrgName() {
       const currentOrg =
         this.orgList.filter(item => item.id === this.org.orgId)[0] || {};
@@ -489,59 +413,28 @@ export default {
       const path = `${this.$basePath}/aibase` + val;
       return val && path.includes(`${this.$basePath}/aibase/docCenter/pages`);
     },
-    justifyIsShowNav(path) {
-      const notShowArr = ['/userInfo', '/permission', '/workflow'];
-      let isShowNav = true;
+    justifyIsShowMenu(path) {
+      const notShowArr = ['/workflow'];
+      let isShowMenu = true;
       if (this.justifyDocPages(path)) {
-        isShowNav = false;
+        isShowMenu = false;
       } else {
         for (let item of notShowArr) {
           if (item === path) {
-            isShowNav = false;
+            isShowMenu = false;
             break;
           }
         }
       }
-      this.isShowNav = isShowNav;
-    },
-    justifyIsShowMenu(path) {
-      const notShowArr = ['/workflow', '/agent/test', '/rag/test', '/explore'];
-      let isShowMenu = true;
-      for (let item of notShowArr) {
-        if (item === path) {
-          isShowMenu = false;
-          break;
-        }
-      }
       this.isShowMenu = isShowMenu;
-    },
-    /*showCreateTotalDialog() {
-      this.$refs.createTotalDialog.openDialog()
-    },
-    showDocDownloadDialog() {
-      this.$refs.docDownloadDialog.openDialog();
-    },*/
-    showAboutDialog() {
-      this.$refs.aboutDialog.openDialog();
-    },
-    clickNavMenu(item) {
-      this.currentNavMenu = item || {};
-      const menus = item.children || [];
-      this.menuList = menus;
-
-      if (menus && menus.length) {
-        // 切换 nav 菜单跳转有权限的第一个
-        const { path } = fetchPermFirPath(menus);
-        this.$router.push({ path });
-        this.changeMenuIndex(fetchCurrentPathIndex(path, menus));
-      } else {
-        this.$router.push({ path: item.path });
-      }
     },
     async setLanguage() {
       const langCode = localStorage.getItem('locale');
       // 主要解决本地和线上两个 localStorage 语言不同问题，使用用户本地缓存的语言
       if (langCode) await changeLang({ language: langCode });
+    },
+    setMenuOpeneds(menus) {
+      this.defaultOpeneds = menus.map(item => item.index);
     },
     menuClick(item) {
       if (item.redirect) {
@@ -555,28 +448,12 @@ export default {
       // 获取当前菜单
       this.getMenuList(path);
     },
-    getCurrentNav(path) {
-      // 获取一级路由, 如果是 appSpace 获取两级
-      const pathArray = path.split('/') || [];
-      const firstLevelPath =
-        pathArray[1] === 'appSpace'
-          ? `/${pathArray[1] || ''}/${pathArray[2] || ''}`
-          : `/${pathArray[1] || ''}`;
-
-      const currentNav = menuList.find(item =>
-        JSON.stringify(item).includes(firstLevelPath),
-      );
-      return currentNav || {};
-    },
     getMenuList(path) {
-      const currentNavMenu = this.getCurrentNav(path);
-      this.currentNavMenu = currentNavMenu;
       // 获取当前菜单列表
-      const menus = currentNavMenu.children || [];
-      if (!menus.length) return;
+      const menus = menuList;
 
       this.menuList = menus;
-      this.defaultOpeneds = menus.map(item => item.index);
+      this.setMenuOpeneds(menus);
 
       // 给当前 activeIndex 赋值
       this.changeMenuIndex(fetchCurrentPathIndex(path, menus));
@@ -604,6 +481,13 @@ export default {
       this.getMenuList(path);
       this.menuClick({ path });
     },
+    changeMenuCollapse() {
+      this.isCollapse = !this.isCollapse;
+      if (!this.isCollapse) {
+        this.setMenuOpeneds(this.menuList);
+      }
+      localStorage.setItem('menu_collapse', this.isCollapse);
+    },
   },
 };
 </script>
@@ -614,186 +498,236 @@ export default {
 }
 .full-menu.layout {
   height: 100%;
-  /*background: linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%);*/
   .outer-container {
     height: 100%;
-    .left-page-container {
-      width: 80px;
-      height: 100%;
-    }
-    .left-nav {
-      width: 75px;
-      text-align: center;
-      padding: 0.5% 0 8px 0;
-      position: fixed;
-      height: calc(100% - 16px);
-      overflow: auto;
-      background: #f7f7fc;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-      margin: 8px 6px;
-      z-index: 20;
-      .left-nav-container {
-        position: relative;
-        height: 100%;
-      }
-      .left-nav-content-wrap {
-        height: calc(100% - 128px);
-        overflow: auto;
-      }
-      .left-nav-content {
-        padding: 6px 5px;
-        display: flex;
-        flex-direction: column;
-        height: auto;
-        align-items: center;
-        justify-content: space-around;
-      }
-      .total-create {
-        width: 24px;
-        cursor: pointer;
-      }
-      .left-menu-width {
-        width: 20px;
-        height: 20px;
-        object-fit: contain;
-      }
-      .nav-item {
-        /*margin: calc((100vh - 560px) / 28) 0;*/
-        margin: 0.6vh 0;
-        color: $inactivate_color;
-        font-weight: bold;
-        cursor: pointer;
-        border-radius: 8px;
-        .nav-menu-name {
-          font-size: 11px;
-          margin-top: 3px;
-        }
-      }
-      //.nav-item:hover,
-      .nav-item.is-active {
-        color: $color;
-        .left-nav-img {
-          width: 100%;
-          height: 100%;
-          padding: 8px;
-        }
-        .left-nav-img-wrap {
-          width: 36px;
-          height: 36px;
-          display: inline-block;
-          border-radius: 50%;
-          background: #fff;
-          box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
-        }
-      }
-      .nav-bottom {
+
+    .left-aside-container {
+      position: relative;
+      background: #fff;
+      border-right: 1px solid #d8d8d8;
+      .left-header-container {
         position: absolute;
-        bottom: 0;
+        top: 0;
         width: 100%;
-        text-align: center;
-        padding-bottom: 8px;
-        img {
-          cursor: pointer;
+        z-index: 10;
+      }
+      .menu-org-select-wrapper ::v-deep {
+        display: flex;
+        align-items: center;
+        margin: 8px 14px 0;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px;
+        padding-left: 12px;
+        .el-select .el-input.is-focus .el-input__inner,
+        .el-input__inner,
+        .el-input__inner:focus {
+          border: none !important;
+          outline: none !important;
+          padding-left: 12px;
         }
       }
     }
+
     /*element ui 样式重写*/
+    .el-aside.full-menu-aside {
+      height: calc(100vh - 110px);
+      width: 100% !important;
+      background: #fff;
+      border-radius: 10px 0 0 10px;
+      margin-top: 110px;
+      position: relative;
+
+      .menu-control-icon {
+        position: absolute;
+        bottom: 20px;
+        right: 0;
+        width: 18px;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 6px 0 0 6px;
+        background: linear-gradient(
+          164deg,
+          #57e4fd -12%,
+          #41c9ff 25%,
+          #4161fe 118%
+        );
+        text-align: center;
+        cursor: pointer;
+        i {
+          color: #fff;
+          font-size: 14px;
+        }
+      }
+
+      .el-menu {
+        height: 100%;
+        width: 200px;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: none;
+        .menu-indent ::v-deep .el-submenu__title,
+        .menu-indent-item {
+          padding-left: 45px !important;
+        }
+        .menu-indent-sub ::v-deep .el-submenu__title {
+          padding-left: 60px !important;
+        }
+        .menu-withIcon-title {
+          display: inline-block;
+        }
+        .menu-svg {
+          .menu-icon {
+            font-size: 15px;
+            margin-right: 10px;
+          }
+          .svg-icon {
+            color: #868d9c;
+          }
+        }
+      }
+      .el-menu ::v-deep {
+        .el-menu-item {
+          color: $color_title;
+        }
+        .el-submenu__title,
+        .el-menu-item span,
+        .el-submenu__title span {
+          font-size: 14px !important;
+        }
+        .el-menu-item.is-active,
+        .el-menu-item:focus {
+          background-color: $color_opacity !important;
+        }
+        .el-menu-item.is-active,
+        .el-submenu.is-active {
+          .el-submenu__title:hover {
+            background-color: $color_opacity !important;
+          }
+          .svg-icon {
+            color: $color !important;
+          }
+        }
+        .el-submenu__title {
+          span {
+            font-size: 14px !important;
+          }
+        }
+        .el-submenu.is-active .el-submenu__title {
+          border-bottom-color: $color !important;
+        }
+        .el-submenu__title,
+        .el-menu-item {
+          height: 40px;
+          display: flex;
+          align-items: center;
+          border-radius: 6px;
+          margin: 10px;
+          min-width: auto;
+        }
+      }
+      .el-menu--collapse.el-menu ::v-deep {
+        width: 64px;
+        .el-submenu__title {
+          padding-left: 0 !important;
+          display: block !important;
+        }
+        .el-submenu__icon-arrow.el-icon-arrow-right,
+        .menu-withIcon-title {
+          display: none;
+        }
+        .menu-svg {
+          width: 44px;
+          height: 40px;
+          border-radius: 6px;
+          text-align: center;
+          line-height: 40px;
+          .menu-icon {
+            font-size: 18px;
+            margin-right: 0;
+          }
+        }
+        .el-submenu.is-active {
+          .menu-svg {
+            background: linear-gradient(
+              145deg,
+              #57e4fd -1%,
+              #41c9ff 32%,
+              #4161fe 114%
+            );
+            .svg-icon {
+              color: #fff !important;
+            }
+          }
+        }
+      }
+    }
     .inner-container {
       width: calc(100% - 80px);
       height: 100%;
       border-radius: 10px;
-      .el-aside.full-menu-aside {
+      .header-info {
+        width: 100%;
         height: 100%;
-        width: 220px !important;
-        background-color: rgba(255, 255, 255, 0);
-        border-radius: 10px 0 0 10px;
-        overflow-y: auto;
-        overflow-x: auto;
-        .el-menu {
-          min-height: 100%;
-          width: auto;
-          overflow-x: auto;
-          overflow-y: hidden;
-          .menu-indent ::v-deep .el-submenu__title,
-          .menu-indent-item {
-            padding-left: 49px !important;
-          }
-          .menu-indent-sub ::v-deep .el-submenu__title {
-            padding-left: 60px !important;
-          }
-          .menu-icon {
-            width: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .header-user-content {
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          padding: 0 16px;
+          height: 40px;
+          background: #f2f8ff;
+          color: #1f1f1f;
+          font-size: 14px;
+          cursor: pointer;
+
+          .header-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
             margin-right: 10px;
           }
-          .menu-withIcon-title {
-            display: inline-block;
+
+          .header-more {
+            margin-left: 8px;
+            transform: rotate(90deg);
+            font-size: 16px;
+            color: #a2a7b4;
           }
         }
+      }
+      .el-header {
+        background-color: #fff;
+        line-height: 60px;
+        height: 60px;
       }
       .el-main {
         position: relative;
         margin: 0 !important;
         padding: 0 !important;
         width: 100%;
-        height: 100vh;
+        height: calc(100vh - 60px);
         overflow: auto;
         .page-container {
-          height: 100%;
-          overflow: auto;
-          padding-right: 2px;
+          height: calc(100% - 16px);
           .right-page-content {
             min-width: 1250px;
+            min-height: calc(100% - 33px);
+            margin-bottom: 16px;
+            padding-bottom: 1px;
+          }
+        }
+      }
+      .no-header-main {
+        height: 100%;
+        .page-container {
+          height: 100%;
+          .right-page-content {
             height: 100%;
           }
         }
       }
-      ::v-deep .el-menu-item {
-        color: $color_title;
-      }
-      ::v-deep .el-submenu__title,
-      ::v-deep .el-menu-item span,
-      ::v-deep .el-submenu__title span {
-        font-size: 14px !important;
-      }
-      ::v-deep .el-menu-item.is-active,
-      ::v-deep .el-menu-item:focus {
-        background-color: $color_opacity !important;
-      }
-      ::v-deep .el-menu-item.is-active,
-      ::v-deep .el-submenu.is-active {
-        .el-submenu__title:hover {
-          background-color: $color_opacity !important;
-        }
-      }
-      /*::v-deep .el-submenu.is-active {
-        .el-submenu__title:hover {
-          background-color: rgba(255, 255, 255, 0) !important;
-        }
-      }*/
-      ::v-deep .el-submenu__title {
-        span {
-          font-size: 14px !important;
-        }
-      }
-      ::v-deep .el-submenu.is-active .el-submenu__title {
-        border-bottom-color: $color !important;
-      }
-      ::v-deep .el-menu .el-submenu__title,
-      ::v-deep .el-menu .el-menu-item {
-        height: 40px;
-        line-height: 40px;
-        border-radius: 6px;
-        margin: 10px 20px;
-        min-width: auto;
-      }
-      ::v-deep .el-menu {
-        border: none;
-      }
-    }
-    .inner-container.is-use-model {
-      margin-top: 0;
-      height: 100%;
     }
   }
   .outer-container ::v-deep {
@@ -801,71 +735,24 @@ export default {
     .el-submenu.is-active > .el-submenu__title,
     .el-submenu.is-active > .el-submenu__title i:first-child,
     .el-submenu.is-active > .el-submenu__title .el-submenu__icon-arrow {
-      color: $color !important;
+      color: $color;
+    }
+    .el-submenu .el-submenu__icon-arrow.el-icon-arrow-down:before {
+      content: '\e790';
     }
   }
 }
 
-.header__org_container {
-  padding: 12px 15px 0 15px;
-  .header__org_wrapper {
-    padding-bottom: 8px;
-    border-bottom: 1px solid #ebebeb;
-  }
-  .head-icon {
-    width: 26px;
-    margin: 0 0 0 10px;
-    padding-bottom: 2px;
-    display: inline-block;
-    vertical-align: bottom;
-  }
-}
-
-.header__org_active {
-  color: $color !important;
-}
-.header__org_select,
-.menu__org_select ::v-deep {
-  width: calc(100% - 37px);
-  .el-input__inner:focus,
-  .el-input__inner:hover,
-  .el-input.is-focus .el-input__inner {
-    border-color: #fff !important; // #dcdfe6
-  }
-  .el-input__inner {
-    background-color: rgba(255, 255, 255, 0);
-    border: 1px solid #fff;
-    color: $color_title;
-    font-weight: bold;
-    padding-left: 10px;
-  }
-  .el-input__inner::placeholder {
-    color: rgba(18, 18, 18, 0.7);
-  }
-  .el-input {
-    .el-select__caret {
-      color: #aaa;
-      font-size: 15px;
-    }
-  }
-}
-.menu__org_select ::v-deep {
-  width: 190px;
-  .el-input__inner {
-    background-color: rgba(255, 255, 255, 0);
-    border: none !important;
-    color: $color_title !important;
-    font-weight: normal;
-    padding-left: 0 !important;
-    margin-left: 0 !important;
-  }
-}
 .menu--popover-wrap {
-  border-top: 1px solid #ebebeb;
+  border-bottom: 1px solid #ebebeb;
   padding: 4px 0 6px 0;
+}
+.menu--popover-wrap:first-of-type {
+  padding-top: 0;
 }
 .menu--popover-wrap.wrap-last {
   padding-bottom: 0;
+  border-bottom: none;
 }
 .menu--popover-item {
   font-size: 13px;

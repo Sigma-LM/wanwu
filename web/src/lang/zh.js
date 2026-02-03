@@ -55,15 +55,22 @@ export default {
     version: '版本',
   },
   menu: {
+    modelService: '模型服务',
+    resource: '资源库',
+    square: '探索广场',
     explore: '应用广场',
     templateSquare: '模板广场',
     apiKey: 'API Key 管理',
-    workspace: '工作室',
-    tool: '资源库',
+    mcpService: 'MCP服务',
+    tool: '工具',
+    prompt: '提示词',
     mcp: 'MCP广场',
     safetyGuard: '安全护栏',
+    operationManage: '运营管理',
+    statistics: '统计分析',
+    oauth: 'OAuth密钥管理',
     app: {
-      index: '应用空间',
+      index: '应用开发',
       all: '全部',
       agent: '智能体',
       rag: '文本问答',
@@ -340,6 +347,7 @@ export default {
   },
   user: {
     title: '用户管理',
+    name: '用户',
     button: {
       create: '新增用户',
       invite: '邀请用户',
@@ -381,6 +389,7 @@ export default {
   },
   role: {
     title: '角色管理',
+    name: '角色',
     form: {
       role: '角色名搜索',
     },
@@ -411,6 +420,7 @@ export default {
   },
   org: {
     title: '组织管理',
+    name: '组织',
     form: {
       org: '组织名搜索',
     },

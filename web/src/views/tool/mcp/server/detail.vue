@@ -1,7 +1,7 @@
 <template>
   <div class="mcp-detail" id="timeScroll">
     <span class="back" @click="back">
-      {{ $t('menu.back') + $t('menu.tool') }}
+      {{ $t('menu.back') + $t('menu.resource') }}
     </span>
     <div class="mcp-title">
       <img
@@ -363,7 +363,7 @@ export default {
       });
     },
     back() {
-      this.$router.push({ path: '/tool?type=mcp&mcp=server' });
+      this.$router.push({ path: '/mcpService?mcp=server' });
     },
   },
 };

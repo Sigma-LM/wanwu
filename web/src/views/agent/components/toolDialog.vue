@@ -264,9 +264,9 @@ export default {
     },
     goCreate() {
       if (this.activeValue === 'tool') {
-        this.$router.push({ path: '/tool?type=tool&mcp=custom' });
+        this.$router.push({ path: '/tool?tool=custom' });
       } else if (this.activeValue === 'mcp') {
-        this.$router.push({ path: '/tool?type=mcp&mcp=integrate' });
+        this.$router.push({ path: '/mcpService?mcp=integrate' });
       } else {
         this.$router.push({ path: '/appSpace/workflow' });
       }

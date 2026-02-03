@@ -144,9 +144,7 @@ export default {
     commonInfo: {
       handler(val) {
         const { home = {} } = val.data || {};
-        this.bgColor =
-          home.backgroundColor ||
-          'linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%)';
+        this.bgColor = home.backgroundColor || this.$config.backgroundColor;
       },
       deep: true,
       immediate: true,
