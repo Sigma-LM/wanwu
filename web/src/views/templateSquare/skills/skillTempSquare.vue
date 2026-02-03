@@ -9,7 +9,7 @@
                 style="margin-right: 2px"
                 :placeholder="$t('tempSquare.searchText')"
                 ref="searchInput"
-                @handleSearch="doGetWorkflowTempList"
+                @handleSearch="doGetSkillTempList"
               />
             </div>
 
@@ -25,7 +25,7 @@
                     <img
                       class="card-logo"
                       v-if="item.avatar && item.avatar.path"
-                      :src="item.avatar.path"
+                      :src="avatarSrc(item.avatar.path)"
                     />
                     <div class="mcp_detailBox">
                       <span class="mcp_name">{{ item.name }}</span>
@@ -64,7 +64,8 @@
   </div>
 </template>
 <script>
-import { getWorkflowTempList, downloadWorkflow } from '@/api/templateSquare';
+import { getSkillTempList, downloadSkill } from '@/api/templateSquare';
+import { avatarSrc } from '@/utils/util';
 import SearchInput from '@/components/searchInput.vue';
 export default {
   components: { SearchInput },
@@ -75,23 +76,23 @@ export default {
   data() {
     return {
       basePath: this.$basePath,
-      category: this.$t('square.all'),
       list: [],
       templateUrl: '',
       loading: false,
     };
   },
   mounted() {
-    this.doGetWorkflowTempList();
+    this.doGetSkillTempList();
   },
   methods: {
-    doGetWorkflowTempList() {
+    avatarSrc,
+    doGetSkillTempList() {
       const searchInput = this.$refs.searchInput;
       const params = {
         name: searchInput.value,
       };
 
-      getWorkflowTempList(params)
+      getSkillTempList(params)
         .then(res => {
           const { list } = res.data || {};
           this.list = list || [];
@@ -100,22 +101,22 @@ export default {
         .catch(() => (this.loading = false));
     },
     downloadTemplate(item) {
-      downloadWorkflow({ templateId: item.templateId }).then(response => {
+      downloadSkill({ skillId: item.skillId }).then(response => {
         const blob = new Blob([response], { type: response.type });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = item.name + '.json';
+        link.download = item.name + '.zip';
         link.click();
         window.URL.revokeObjectURL(link.href);
-        this.doGetWorkflowTempList();
+        this.doGetSkillTempList();
       });
     },
     handleClick(val) {
       const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`;
       this.$router.push({
         path,
-        query: { templateSquareId: val.templateId, type: this.type },
+        query: { templateSquareId: val.skillId, type: this.type },
       });
     },
   },
