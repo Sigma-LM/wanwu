@@ -393,7 +393,7 @@ export default {
       this.isCollapse = localStorage.getItem('menu_collapse') === 'true';
     },
     initScroll() {
-      const pageContainer = document.querySelector('.page-container');
+      const pageContainer = document.querySelector('.el-main');
       if (pageContainer) {
         pageContainer.scrollTop = 0;
         pageContainer.scrollLeft = 0;
