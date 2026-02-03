@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"net/http"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
@@ -29,6 +30,14 @@ func ModelMultiModalRerank(ctx *gin.Context, modelID string, req *mp_common.Mult
 		}
 	}
 
+	// jina 传参为不带前缀base64
+	if modelInfo.Provider == mp.ProviderJina {
+		for i := range req.Documents {
+			if req.Documents[i].Image != "" {
+				req.Documents[i].Image, _ = util.CheckAndRemoveBase64Prefix(req.Documents[i].Image)
+			}
+		}
+	}
 	// multiModalRerank config
 	multiModalRerank, err := mp.ToModelConfig(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
 	if err != nil {

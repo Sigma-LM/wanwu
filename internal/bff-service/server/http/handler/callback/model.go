@@ -245,12 +245,12 @@ func ModelMultiModalRerank(ctx *gin.Context) {
 	for i := range data.Documents {
 		item := &data.Documents[i]
 		if item.Image != "" {
-			pureBase64Str, _, err := minio_util.MinioUrlToBase64(ctx, item.Image)
+			_, base64StrWithPrefix, err := minio_util.MinioUrlToBase64(ctx, item.Image)
 			if err != nil {
 				gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v image to base64 err: %v", data.Model, err)))
 				return
 			}
-			item.Image = pureBase64Str
+			item.Image = base64StrWithPrefix
 		}
 	}
 	service.ModelMultiModalRerank(ctx, ctx.Param("modelId"), &data)

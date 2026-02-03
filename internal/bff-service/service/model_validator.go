@@ -302,9 +302,14 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 	if !ok {
 		return fmt.Errorf("invalid provider")
 	}
-	base64Str, _, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
+	base64Str, base64StrWithPrefix, err := util.File2Base64(config.Cfg().Model.PngTestFilePath, "")
 	if err != nil {
 		return err
+	}
+	// jina 传参为不带前缀base64
+	urlData := base64StrWithPrefix
+	if modelInfo.Provider == mp.ProviderJina {
+		urlData = base64Str
 	}
 	// mock  request
 	req := &mp_common.MultiModalRerankReq{
@@ -315,7 +320,7 @@ func ValidateMultiRerankModel(ctx *gin.Context, modelInfo *model_service.ModelIn
 				Text: "北极",
 			},
 			{
-				Image: base64Str,
+				Image: urlData,
 			},
 		},
 	}
