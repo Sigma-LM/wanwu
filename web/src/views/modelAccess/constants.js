@@ -66,7 +66,14 @@ const OLL_MODEL_KEY = [LLM, EMBEDDING];
 const MULTIMODAL_KEY = [MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING];
 export const PROVIDER_MODEL_KEY = {
   [OPENAI_API]: COMMON_MODEL_KEY,
-  [YUAN_JING]: [...COMMON_MODEL_KEY, OCR, GUI, PDF_PARSER, ASR], // ...MULTIMODAL_KEY
+  [YUAN_JING]: [
+    ...COMMON_MODEL_KEY,
+    MULTIMODAL_RERANK,
+    OCR,
+    GUI,
+    PDF_PARSER,
+    ASR,
+  ], // ...MULTIMODAL_KEY
   [OLLAMA]: OLL_MODEL_KEY,
   [QWEN]: [...COMMON_MODEL_KEY, ASR],
   [HUOSHAN]: OLL_MODEL_KEY,
@@ -117,7 +124,8 @@ export const TYPE_OBJ = {
     [`${ASR}_${QWEN}`]:
       'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
     [`${MULTIMODAL_EMBEDDING}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
-    [`${MULTIMODAL_RERANK}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
+    [`${MULTIMODAL_RERANK}_${YUAN_JING}`]:
+      'https://maas-api.ai-yuanjing.com/openapi/v1/yuanjing/reranker',
     [`${ASR}_${YUAN_JING}`]:
       'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
     [`${OCR}_${YUAN_JING}`]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
