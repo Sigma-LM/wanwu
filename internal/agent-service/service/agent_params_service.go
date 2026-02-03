@@ -22,10 +22,13 @@ func BuildMultiAgentParams(multiAgentChatParams *request.MultiAgentChatParams, m
 }
 
 func buildAgentBaseParams(assistantDetail *assistant_service.AgentDetail) *request.AgentBaseParams {
+	baseParams := assistantDetail.AgentBaseParams
 	return &request.AgentBaseParams{
-		Description: assistantDetail.AgentBaseParams.Description,
-		Instruction: assistantDetail.AgentBaseParams.Instruction,
-		Name:        assistantDetail.AgentBaseParams.Name,
+		AgentId:     baseParams.AgentId,
+		Description: baseParams.Description,
+		Instruction: baseParams.Instruction,
+		Name:        baseParams.Name,
+		Avatar:      baseParams.Avatar,
 		CallDetail:  true,
 	}
 }

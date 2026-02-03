@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
@@ -55,7 +54,6 @@ func (p *PromptVariables) AssemblePromptVariables(ctx context.Context, reqContex
 
 	subAgentInfoList := reqContext.AgentChatReq.SubAgentInfoList
 	if reqContext.AgentChatReq.MultiAgent && len(subAgentInfoList) > 0 {
-		variables[prompt.PlaceholderOfSubAgent] = buildSubAgent(subAgentInfoList)
 		variables[prompt.PlaceholderOfSubAgentCount] = strconv.Itoa(len(subAgentInfoList))
 	}
 
@@ -137,12 +135,4 @@ func buildFileMessage(minioFilePath string) (*schema.MessageInputPart, error) {
 			},
 		},
 	}, nil
-}
-
-func buildSubAgent(agentList []*request.SubAgentInfo) string {
-	builder := strings.Builder{}
-	for _, params := range agentList {
-		builder.WriteString(fmt.Sprintf(prompt.SupervisorAgentTemplate, params.Name, params.Description))
-	}
-	return builder.String()
 }

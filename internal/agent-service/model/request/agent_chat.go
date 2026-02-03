@@ -13,6 +13,7 @@ type AgentChatContext struct {
 	AgentChatInfo    *service_model.AgentChatInfo
 	KnowledgeHitData *model.KnowledgeHitData //  rag命中数据
 	Generator        *adk.AsyncGenerator[*adk.AgentEvent]
+	SubAgentMap      map[string]*AgentConfig
 }
 
 type SubAgentInfo struct {
@@ -42,10 +43,13 @@ type AgentChatParams struct {
 }
 
 type AgentBaseParams struct {
+	AgentId     string `json:"agentId"` //智能体Id
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Instruction string `json:"instruction"`
+	Avatar      string `json:"avatar"`
 	CallDetail  bool   `json:"callDetail"` //是否展示调用详情
+
 }
 
 type ModelParams struct {

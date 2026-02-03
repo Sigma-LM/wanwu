@@ -27,14 +27,15 @@ const (
 )
 
 type AgentChatRespContext struct {
-	MainAgentName    string //主智能体名称
-	MultiAgent       bool   //多智能体
-	AgentStart       bool   //智能体开始
-	AgentStartTime   int64
-	AgentTempMessage strings.Builder
-	CurrentAgent     string //当前智能体
-	CurrentAgentId   string //当前智能体Id
-	ExitTool         bool   //退出工具开始
+	MainAgentName      string //主智能体名称
+	MultiAgent         bool   //多智能体
+	AgentStart         bool   //智能体开始
+	AgentStartTime     int64
+	AgentTempMessage   strings.Builder
+	CurrentAgent       string //当前智能体
+	CurrentAgentId     string //当前智能体Id
+	CurrentAgentAvatar string //当前智能体图片
+	ExitTool           bool   //退出工具开始
 	//上面为多智能体相关参数
 	HasTool            bool // 是否包含工具
 	ToolStart          bool // 是否工具已开始
@@ -63,7 +64,7 @@ type AgentChatResp struct {
 	Message        string          `json:"message"`
 	Response       string          `json:"response"`
 	EventType      AgentEventType  `json:"eventType"`
-	EventData      interface{}     `json:"eventData"`
+	EventData      *SubEventData   `json:"eventData"`
 	GenFileUrlList []interface{}   `json:"gen_file_url_list"`
 	History        []interface{}   `json:"history"`
 	Finish         int             `json:"finish"`
@@ -136,12 +137,10 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 		respContext.ToolStart = true
 		respContext.HasTool = true
 		var retList []string
-		//if len(respContext.ToolCountMap) == 0 {
-		//	retList = append(retList, toolStartTitle)
-		//}
 
 		for _, tool := range chatMessage.ToolCalls {
-			if len(tool.Function.Arguments) > 0 {
+			newTool := isNewTool(tool, respContext)
+			if !newTool && len(tool.Function.Arguments) > 0 { //只有此次不是新工具才add 参数，处理先输出方法名，后流式输出参数的情况
 				retList = append(retList, tool.Function.Arguments)
 				continue
 			}
@@ -160,11 +159,17 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 					retList = append(retList, toolName)
 				}
 
-				if isNewTool(tool, respContext) {
+				if newTool {
 					respContext.ToolParamsStartCount = respContext.ToolParamsStartCount + 1
 					retList = append(retList, toolStartTitle)
 					retList = append(retList, toolParamsStartFormat)
 					respContext.ToolCountMap[tool.ID] = 1
+					if len(tool.Function.Arguments) > 0 { //处理一次性同时返回 方法名和参数的情况
+						retList = append(retList, tool.Function.Arguments)
+					}
+					if toolParamsEnd(chatMessage) { //处理一次性同时返回 方法名和参数的情况 ,同时返回结束了
+						retList = append(retList, toolParamsEndFormat)
+					}
 				}
 			}
 		}
@@ -177,16 +182,6 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 		respContext.ToolEnd = true
 		toolResult := fmt.Sprintf(toolEndFormat, chatMessage.ToolName, chatMessage.Content)
 		respContext.ToolCountMap[chatMessage.ToolCallID] = 0
-		//var allStop = true
-		//for _, tool := range respContext.ToolCountMap {
-		//	if tool > 0 {
-		//		allStop = false
-		//		break
-		//	}
-		//}
-		//if !allStop {
-		//	return []string{toolResult}
-		//}
 		return []string{toolResult, toolEndTitle}
 	} else {
 		//在工具期间，不输出任何content内容
@@ -209,18 +204,6 @@ func buildContentWithTool(chatMessage *schema.Message, respContext *AgentChatRes
 			if !respContext.ReplaceContentDone {
 				respContext.ReplaceContent.WriteString(chatMessage.Content)
 			}
-
-			//if !respContext.ReplaceContentDone {
-			//	respContext.ReplaceContent.WriteString(chatMessage.Content)
-			//	if strings.HasSuffix(chatMessage.Content, endLine) {
-			//		respContext.ReplaceContentDone = true
-			//		respContext.ReplaceContentStr = respContext.ReplaceContent.String()
-			//	}
-			//} else {
-			//	if respContext.ReplaceContentStr == chatMessage.Content {
-			//		return []string{}
-			//	}
-			//}
 		}
 		return []string{chatMessage.Content}
 	}
@@ -274,6 +257,18 @@ func buildUsage(chatMessage *schema.Message) *AgentChatUsage {
 		}
 	}
 	return &AgentChatUsage{}
+}
+
+func buildSubAgentSearchList(subAgentEventData *SubEventData, req *request.AgentChatContext) []interface{} {
+	if subAgentEventData == nil || req == nil || len(req.SubAgentMap) == 0 {
+		return nil
+	}
+	config := req.SubAgentMap[subAgentEventData.Name]
+	if config == nil || config.AgentChatContext == nil {
+		return nil
+	}
+
+	return buildSearchList(config.AgentChatContext)
 }
 
 func buildSearchList(req *request.AgentChatContext) []interface{} {

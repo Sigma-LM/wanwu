@@ -777,33 +777,24 @@ func GetConversationDetailList(ctx *gin.Context, userId, orgId string, req reque
 	var convertedList []response.ConversationDetailInfo
 	for _, item := range resp.Data {
 		convertedItem := response.ConversationDetailInfo{
-			Id:             item.Id,
-			AssistantId:    item.AssistantId,
-			ConversationId: item.ConversationId,
-			Prompt:         item.Prompt,
-			SysPrompt:      item.SysPrompt,
-			Response:       item.Response,
-			QaType:         item.QaType,
-			CreatedBy:      item.CreatedBy,
-			CreatedAt:      item.CreatedAt,
-			UpdatedAt:      item.UpdatedAt,
-			RequestFiles:   transRequestFiles(item.RequestFiles),
-			FileSize:       item.FileSize,
-			FileName:       item.FileName,
+			Id:                  item.Id,
+			AssistantId:         item.AssistantId,
+			ConversationId:      item.ConversationId,
+			Prompt:              item.Prompt,
+			SysPrompt:           item.SysPrompt,
+			Response:            item.Response,
+			QaType:              item.QaType,
+			CreatedBy:           item.CreatedBy,
+			CreatedAt:           item.CreatedAt,
+			UpdatedAt:           item.UpdatedAt,
+			RequestFiles:        transRequestFiles(item.RequestFiles),
+			FileSize:            item.FileSize,
+			FileName:            item.FileName,
+			SubConversationList: buildSubConversationList(item.SubConversationList),
 		}
 
 		// 将SearchList从string转换为interface{}
-		if item.SearchList != "" {
-			var searchList interface{}
-			if err := json.Unmarshal([]byte(item.SearchList), &searchList); err != nil {
-				log.Warnf("解析SearchList失败，使用原始字符串，error: %v, searchList: %s", err, item.SearchList)
-				convertedItem.SearchList = item.SearchList
-			} else {
-				convertedItem.SearchList = searchList
-			}
-		} else {
-			convertedItem.SearchList = nil
-		}
+		convertedItem.SearchList = buildSearchList(item.SearchList)
 
 		convertedList = append(convertedList, convertedItem)
 
@@ -815,6 +806,40 @@ func GetConversationDetailList(ctx *gin.Context, userId, orgId string, req reque
 	}
 
 	return response.PageResult{Total: resp.Total, List: convertedList, PageNo: req.PageNo, PageSize: req.PageSize}, nil
+}
+
+func buildSearchList(searchListStr string) interface{} {
+	// 将SearchList从string转换为interface{}
+	if searchListStr != "" {
+		var searchList interface{}
+		if err := json.Unmarshal([]byte(searchListStr), &searchList); err != nil {
+			log.Warnf("解析SearchList失败，使用原始字符串，error: %v, searchList: %s", err, searchListStr)
+			return searchList
+		} else {
+			return searchListStr
+		}
+	}
+	return nil
+}
+
+func buildSubConversationList(conversationList []*assistant_service.SubConversation) []*response.SubConversation {
+	if len(conversationList) == 0 {
+		return make([]*response.SubConversation, 0)
+	}
+	var subConversationList []*response.SubConversation
+	for _, conversation := range conversationList {
+		subConversationList = append(subConversationList, &response.SubConversation{
+			Response:         conversation.Response,
+			SearchList:       buildSearchList(conversation.SearchList),
+			Id:               conversation.Id,
+			Name:             conversation.Name,
+			Profile:          conversation.Profile,
+			TimeCost:         conversation.TimeCost,
+			Status:           conversation.Status,
+			ConversationType: conversation.ConversationType,
+		})
+	}
+	return subConversationList
 }
 
 func transKnowledgebases2Proto(kbConfig request.AppKnowledgebaseConfig) *assistant_service.AssistantKnowledgeBaseConfig {

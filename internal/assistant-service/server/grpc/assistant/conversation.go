@@ -150,20 +150,21 @@ func (s *Service) GetConversationDetailList(ctx context.Context, req *assistant_
 		}
 
 		conversationDetails = append(conversationDetails, &assistant_service.ConversionDetailInfo{
-			Id:             detail.Id,
-			AssistantId:    detail.AssistantId,
-			ConversationId: detail.ConversationId,
-			Prompt:         detail.Prompt,
-			SysPrompt:      detail.SysPrompt,
-			Response:       detail.Response,
-			SearchList:     detail.SearchList,
-			QaType:         detail.QaType,
-			CreatedBy:      detail.UserId, // 使用CreatedBy字段映射UserId
-			CreatedAt:      detail.CreatedAt,
-			UpdatedAt:      detail.UpdatedAt,
-			RequestFiles:   transRequestFiles(detail.FileInfo),
-			FileSize:       detail.FileSize,
-			FileName:       detail.FileName,
+			Id:                  detail.Id,
+			AssistantId:         detail.AssistantId,
+			ConversationId:      detail.ConversationId,
+			Prompt:              detail.Prompt,
+			SysPrompt:           detail.SysPrompt,
+			Response:            detail.Response,
+			SearchList:          detail.SearchList,
+			QaType:              detail.QaType,
+			CreatedBy:           detail.UserId, // 使用CreatedBy字段映射UserId
+			CreatedAt:           detail.CreatedAt,
+			UpdatedAt:           detail.UpdatedAt,
+			RequestFiles:        transRequestFiles(detail.FileInfo),
+			FileSize:            detail.FileSize,
+			FileName:            detail.FileName,
+			SubConversationList: buildSubConversationList(detail.SubConversationDetailList),
 		})
 	}
 
@@ -297,5 +298,33 @@ func buildAgentSendRequest(req *assistant_service.AssistantConversionStreamReq) 
 		ctx, cancelFunction := context.WithTimeout(ctx, params.Timeout)
 		result, err := http_client.Default().PostJsonOriResp(ctx, params)
 		return monitorKey, result, cancelFunction, err
+	}
+}
+
+func buildSubConversationList(subConversationDetailList []*model.SubConversationDetail) []*assistant_service.SubConversation {
+	if len(subConversationDetailList) == 0 {
+		return make([]*assistant_service.SubConversation, 0)
+	}
+	var retList []*assistant_service.SubConversation
+	for _, detail := range subConversationDetailList {
+		retList = append(retList, buildSubConversation(detail))
+	}
+	return retList
+}
+
+func buildSubConversation(detail *model.SubConversationDetail) *assistant_service.SubConversation {
+	data := detail.EventData
+	if data == nil {
+		data = &model.SubEventData{}
+	}
+	return &assistant_service.SubConversation{
+		Response:         detail.Content,
+		SearchList:       detail.SearchList,
+		Id:               data.Id,
+		Name:             data.Name,
+		Profile:          data.Profile,
+		TimeCost:         data.TimeCost,
+		Status:           int32(data.Status),
+		ConversationType: string(detail.ConversationType),
 	}
 }
