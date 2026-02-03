@@ -252,7 +252,14 @@
             </span>
           </p>
         </div>
-        <div class="block" v-if="editForm.visionsupport === 'support'">
+        <div
+          class="block"
+          v-if="
+            editForm.visionsupport === 'support' &&
+            getCategory !== KNOWLEDGE &&
+            visionsupportRerank
+          "
+        >
           <p class="block-title common-set">
             <span class="common-set-label">
               {{ $t('agent.form.vision') }}
@@ -325,7 +332,11 @@ import ModelSet from './modelSetDialog.vue';
 import metaSet from '@/components/metaSet';
 import setSafety from '@/components/setSafety';
 import VersionPopover from '@/components/versionPopover';
-import { getRerankList, selectModelList } from '@/api/modelAccess';
+import {
+  getModelDetail,
+  getRerankList,
+  selectModelList,
+} from '@/api/modelAccess';
 import { getRagInfo, getRagPublishedInfo, updateRagConfig } from '@/api/rag';
 import Chat from './chat';
 import chiChat from '@/components/app/chiChat.vue';
@@ -401,6 +412,7 @@ export default {
           },
         ],
       },
+      visionsupportRerank: '',
       editForm: {
         appId: '',
         avatar: {},
@@ -507,6 +519,21 @@ export default {
         }, 500);
       },
       deep: true,
+    },
+    'editForm.knowledgeBaseConfig.config.rerankModelId': {
+      handler(newVal) {
+        if (newVal)
+          getModelDetail({
+            modelId: this.editForm.knowledgeBaseConfig.config.rerankModelId,
+          }).then(res => {
+            if (res.code === 0) {
+              this.visionsupportRerank =
+                res.data.modelType === 'multimodal-rerank';
+            }
+          });
+      },
+      deep: true,
+      immediate: true,
     },
   },
   computed: {
@@ -618,7 +645,7 @@ export default {
             this.editForm.name = res.data.name;
             this.editForm.desc = res.data.desc;
             this.editForm.visionConfig = res.data.visionConfig;
-            this.setMaxPicNum(this.editForm.visionConfig);
+            this.setMaxPicNum(this.editForm.visionConfig.picNum);
             this.setModelInfo(res.data.modelConfig.modelId);
 
             if (
@@ -862,6 +889,9 @@ export default {
             provider: qaRerankInfo ? qaRerankInfo.provider : '',
           },
           safetyConfig: this.editForm.safetyConfig,
+          visionConfig: {
+            picNum: this.editForm.visionConfig.picNum,
+          },
         };
         const res = await updateRagConfig(fromParams);
 

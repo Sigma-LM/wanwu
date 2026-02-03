@@ -232,7 +232,10 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
+      <el-form-item
+        class="searchType-list graph-switch"
+        v-if="showGraphSwitch === 'true'"
+      >
         <template #label>
           <span class="graph-switch-title">
             {{ $t('knowledgeManage.graph.useGraph') }}

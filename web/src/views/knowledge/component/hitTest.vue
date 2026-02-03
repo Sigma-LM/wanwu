@@ -473,8 +473,8 @@ export default {
 
       .resultContent {
         ::v-deep img {
-          width: 25%;
-          height: 25%;
+          max-width: 25%;
+          max-height: 25%;
         }
       }
 

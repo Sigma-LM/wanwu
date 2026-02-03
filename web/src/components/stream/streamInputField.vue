@@ -62,7 +62,9 @@
             class="upload-icon"
             :src="require('@/assets/imgs/uploadIcon.png')"
             @click="preUpload"
-            v-if="type !== 'webChat' && maxPicNum > 0"
+            v-if="
+              type !== 'webChat' && !(type === 'ragChat' && maxPicNum === 0)
+            "
           />
         </div>
         <div class="editable-wp-right rl" draggable="true">
