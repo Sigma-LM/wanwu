@@ -164,6 +164,10 @@
   }
 }
 
+.el-select-dropdown.is-multiple .el-select-dropdown__item.selected {
+  margin-bottom: 3px;
+}
+
 .el-select .el-input.is-focus .el-input__inner {
   border-color: $color !important;
 }

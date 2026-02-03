@@ -8,7 +8,7 @@ export const MULTIMODAL_EMBEDDING = 'multimodal-embedding';
 export const OCR = 'ocr';
 export const GUI = 'gui';
 export const PDF_PARSER = 'pdf-parser';
-export const ASR = 'asr';
+export const ASR = 'sync-asr';
 
 export const MODEL_TYPE_OBJ = {
   [LLM]: 'LLM',
@@ -19,7 +19,7 @@ export const MODEL_TYPE_OBJ = {
   [OCR]: 'OCR',
   [GUI]: 'GUI',
   [PDF_PARSER]: i18n.t('modelAccess.type.pdfParser'),
-  // [ASR]: i18n.t('modelAccess.type.asr')
+  [ASR]: i18n.t('modelAccess.type.asr'),
 };
 
 export const MODEL_TYPE = Object.keys(MODEL_TYPE_OBJ).map(key => ({
@@ -66,9 +66,16 @@ const OLL_MODEL_KEY = [LLM, EMBEDDING];
 const MULTIMODAL_KEY = [MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING];
 export const PROVIDER_MODEL_KEY = {
   [OPENAI_API]: COMMON_MODEL_KEY,
-  [YUAN_JING]: [...COMMON_MODEL_KEY, OCR, GUI, PDF_PARSER], // ...MULTIMODAL_KEY
+  [YUAN_JING]: [
+    ...COMMON_MODEL_KEY,
+    MULTIMODAL_RERANK,
+    OCR,
+    GUI,
+    PDF_PARSER,
+    ASR,
+  ], // ...MULTIMODAL_KEY
   [OLLAMA]: OLL_MODEL_KEY,
-  [QWEN]: COMMON_MODEL_KEY,
+  [QWEN]: [...COMMON_MODEL_KEY, ASR],
   [HUOSHAN]: OLL_MODEL_KEY,
   [INFINI]: COMMON_MODEL_KEY,
   [DEEPSEEK]: [LLM],
@@ -114,13 +121,17 @@ export const TYPE_OBJ = {
     [JINA]: 'jina_c08*********wMm',
   },
   inferUrl: {
+    [`${ASR}_${QWEN}`]:
+      'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
     [`${MULTIMODAL_EMBEDDING}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
-    [`${MULTIMODAL_RERANK}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
+    [`${MULTIMODAL_RERANK}_${YUAN_JING}`]:
+      'https://maas-api.ai-yuanjing.com/openapi/v1/yuanjing/reranker',
     [`${ASR}_${YUAN_JING}`]:
       'https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr',
-    [OCR]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
-    [GUI]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
-    [PDF_PARSER]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
+    [`${OCR}_${YUAN_JING}`]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
+    [`${GUI}_${YUAN_JING}`]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
+    [`${PDF_PARSER}_${YUAN_JING}`]:
+      'https://maas-api.ai-yuanjing.com/openapi/v1',
     [YUAN_JING]: 'https://maas.ai-yuanjing.com/openapi/compatible-mode/v1',
     [OPENAI_API]: 'https://api.siliconflow.cn/v1',
     [OLLAMA]: 'https://192.168.21.100:11434/v1',
@@ -131,4 +142,11 @@ export const TYPE_OBJ = {
     [QIANFAN]: 'https://qianfan.baidubce.com/v2',
     [JINA]: 'https://api.jina.ai/v1',
   },
+};
+
+export const IMAGE = 'image';
+export const VIDEO = 'video';
+export const SUPPORT_FILE_TYPE_OBJ = {
+  [IMAGE]: i18n.t('modelAccess.supportFileType.pic'),
+  [VIDEO]: i18n.t('modelAccess.supportFileType.video'),
 };
