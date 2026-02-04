@@ -86,7 +86,6 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex';
 import { generateChatConfig } from './helper';
 import StreamInputField from '@/components/stream/streamInputField.vue';
 import ModelChatPane from './components/ModelChatPane.vue';
@@ -126,7 +125,6 @@ export default {
   },
   data() {
     return {
-      bgColor: '#fff',
       loading: false,
       sessionRefs: {},
       modelChatList: [],
@@ -138,14 +136,6 @@ export default {
     };
   },
   watch: {
-    commonInfo: {
-      handler(val) {
-        const { home = {} } = val.data || {};
-        this.bgColor = home.backgroundColor || this.$config.backgroundColor;
-      },
-      deep: true,
-      immediate: true,
-    },
     modelOptions: {
       handler() {
         if (this.isModelExprience && !this.modelChatList.length) {
@@ -157,7 +147,6 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('user', ['commonInfo']),
     title() {
       return this.mode === 'modelExprience'
         ? this.$t('modelExprience.title')
@@ -588,6 +577,9 @@ export default {
   overflow: hidden;
   height: calc(100vh - 92px);
 
+  &.modelExprience {
+    width: 100%;
+  }
   &.modelComparison {
     position: absolute;
     left: 20px;
