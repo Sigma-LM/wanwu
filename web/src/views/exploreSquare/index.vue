@@ -209,6 +209,7 @@ export default {
 
     .taglist_warp {
       display: flex;
+      margin-top: -20px;
 
       .tagList {
         margin: 10px;
