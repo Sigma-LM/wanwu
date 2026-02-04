@@ -110,6 +110,20 @@ const constantRoutes = [
         meta: { perm: [PERMS.MODEL_MANAGE] },
       },
       {
+        path: '/skill',
+        component: resolve =>
+          require([
+            '@/views/templateSquare/skills/skillTempSquare.vue',
+          ], resolve),
+        meta: { perm: [PERMS.SKILL] },
+      },
+      {
+        path: '/skill/detail',
+        component: resolve =>
+          require(['@/views/templateSquare/tempDetail.vue'], resolve),
+        meta: { perm: [PERMS.SKILL] },
+      },
+      {
         path: '/tool',
         component: resolve => require(['@/views/tool'], resolve),
         meta: { perm: [PERMS.TOOL], routeType: TOOL },

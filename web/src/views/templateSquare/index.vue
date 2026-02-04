@@ -4,14 +4,14 @@
       class="page-wrapper"
       :style="isPublic ? `background: ${bgColor}; height: 100%` : ''"
     >
-      <div class="page-title">
+      <!--<div class="page-title">
         <img
           class="page-title-img"
           :src="require('@/assets/imgs/template_square.svg')"
           alt=""
         />
         <span class="page-title-name">{{ $t('menu.templateSquare') }}</span>
-      </div>
+      </div>-->
       <!-- tabs -->
       <div class="templateSquare-tabs">
         <div
@@ -34,11 +34,7 @@
         :type="prompt"
         v-if="type === prompt"
       />
-      <SkillTempSquare
-        :isPublic="isPublic"
-        :type="skill"
-        v-if="type === skill"
-      />
+      <SkillTempSquare :type="skill" v-if="type === skill" />
     </div>
   </div>
 </template>
@@ -88,7 +84,9 @@ export default {
   height: 100%;
 
   .templateSquare-tabs {
-    margin: 20px;
+    margin: 0 20px;
+    padding-top: 20px;
+    padding-bottom: 10px;
 
     .templateSquare-tab {
       display: inline-block;

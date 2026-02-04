@@ -50,6 +50,12 @@ export const menuList = [
         perm: PERMS.PROMPT,
       },
       {
+        name: 'Skill',
+        index: 'resource-skill',
+        path: '/skill',
+        perm: PERMS.SKILL,
+      },
+      {
         name: i18n.t('menu.safetyGuard'),
         index: 'resource-safetyGuard',
         path: '/safety',

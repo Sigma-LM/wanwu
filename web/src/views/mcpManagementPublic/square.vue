@@ -1,10 +1,10 @@
 <template>
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
-      <div class="page-title">
+      <!--<div class="page-title">
         <img class="page-title-img" src="@/assets/imgs/mcp_menu.svg" alt="" />
         <span class="page-title-name">{{ $t('menu.mcp') }}</span>
-      </div>
+      </div>-->
       <div class="mcp-content-box mcp-third">
         <div class="mcp-main">
           <div class="mcp-content">

@@ -1,14 +1,14 @@
 <template>
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
-      <div class="page-title">
+      <!--<div class="page-title">
         <img class="page-title-img" src="@/assets/imgs/tool.svg" alt="" />
         <span class="page-title-name">
           {{
             menuObj[tabActive] ? menuObj[tabActive].name : $t('menu.resource')
           }}
         </span>
-      </div>
+      </div>-->
 
       <mcp ref="mcp" v-if="![tool, prompt].includes(tabActive)" />
       <tool ref="tool" v-if="tabActive === tool" />
@@ -84,7 +84,8 @@ export default {
   }
 
   .mcp-tabs {
-    margin: 20px;
+    margin: 0 20px;
+    padding-top: 20px;
 
     .mcp-tab {
       display: inline-block;
