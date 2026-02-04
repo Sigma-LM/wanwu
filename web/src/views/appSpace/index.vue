@@ -1,6 +1,6 @@
 <template>
   <div class="page-wrapper">
-    <div class="page-title">
+    <!--<div class="page-title">
       <img
         class="page-title-img"
         :src="
@@ -11,7 +11,7 @@
       <span class="page-title-name">
         {{ typeObj[type] ? typeObj[type].title : $t('appSpace.title') }}
       </span>
-    </div>
+    </div>-->
     <div class="hide-loading-bg" style="padding: 20px" v-loading="loading">
       <search-input
         :placeholder="$t('appSpace.search')"

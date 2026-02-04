@@ -1,29 +1,19 @@
 <template>
-  <div class="tempSquare-management">
+  <div class="tempSquare-management page-wrapper">
     <div class="tempSquare-content-box tempSquare-third">
       <div class="tempSquare-main">
         <div class="tempSquare-content">
           <div class="tempSquare-card-box">
-            <div class="card-search card-search-cust" v-if="!templateUrl">
-              <div>
-                <span
-                  v-for="item in typeList"
-                  :key="item.key"
-                  :class="['tab-span', { 'is-active': typeRadio === item.key }]"
-                  @click="changeTab(item.key)"
-                >
-                  {{ item.name }}
-                </span>
-              </div>
+            <div class="card-search card-search-cust">
               <search-input
                 style="margin-right: 2px"
                 :placeholder="$t('tempSquare.searchText')"
                 ref="searchInput"
-                @handleSearch="doGetWorkflowTempList"
+                @handleSearch="doGetSkillTempList"
               />
             </div>
 
-            <div class="card-loading-box" v-if="list.length && !templateUrl">
+            <div class="card-loading-box" v-if="list.length">
               <div class="card-box" v-loading="loading">
                 <div
                   class="card"
@@ -35,7 +25,7 @@
                     <img
                       class="card-logo"
                       v-if="item.avatar && item.avatar.path"
-                      :src="item.avatar.path"
+                      :src="avatarSrc(item.avatar.path)"
                     />
                     <div class="mcp_detailBox">
                       <span class="mcp_name">{{ item.name }}</span>
@@ -47,23 +37,13 @@
                     </div>
                   </div>
                   <div class="card-des">{{ item.desc }}</div>
-                  <div class="card-bottom">
-                    <div class="card-bottom-left">
+                  <div class="card-bottom" style="justify-content: flex-end">
+                    <!--<div class="card-bottom-left">
                       {{ $t('tempSquare.downloadCount') }}：{{
                         item.downloadCount || 0
                       }}
-                    </div>
+                    </div>-->
                     <div class="card-bottom-right">
-                      <el-tooltip
-                        v-if="!isPublic"
-                        :content="$t('tempSquare.copy')"
-                        placement="top"
-                      >
-                        <i
-                          class="el-icon-copy-document"
-                          @click.stop="copyTemplate(item)"
-                        ></i>
-                      </el-tooltip>
                       <el-tooltip
                         :content="$t('tempSquare.download')"
                         placement="top"
@@ -85,92 +65,61 @@
         </div>
       </div>
     </div>
-    <HintDialog :templateUrl="templateUrl" ref="hintDialog" />
-    <CreateWorkflow type="clone" ref="cloneWorkflowDialog" />
   </div>
 </template>
 <script>
-import { getWorkflowTempList, downloadWorkflow } from '@/api/templateSquare';
+import { getSkillTempList, downloadSkill } from '@/api/templateSquare';
+import { avatarSrc } from '@/utils/util';
 import SearchInput from '@/components/searchInput.vue';
-import HintDialog from './components/hintDialog.vue';
-import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
 export default {
-  components: { SearchInput, HintDialog, CreateWorkflow },
+  components: { SearchInput },
   props: {
-    isPublic: true,
     type: '',
   },
   data() {
     return {
       basePath: this.$basePath,
-      category: this.$t('square.all'),
       list: [],
       templateUrl: '',
       loading: false,
-      typeRadio: 'all',
-      typeList: [
-        { name: this.$t('square.all'), key: 'all' },
-        { name: this.$t('square.gov'), key: 'gov' },
-        { name: this.$t('square.industry'), key: 'industry' },
-        { name: this.$t('square.edu'), key: 'edu' },
-        { name: this.$t('square.tourism'), key: 'tourism' },
-        // {name: this.$t('square.medical'), key: 'medical'},
-        { name: this.$t('square.data'), key: 'data' },
-        { name: this.$t('square.creator'), key: 'create' },
-        { name: this.$t('square.search'), key: 'search' },
-      ],
     };
   },
   mounted() {
-    this.doGetWorkflowTempList();
+    this.doGetSkillTempList();
   },
   methods: {
-    changeTab(key) {
-      this.typeRadio = key;
-      this.$refs.searchInput.value = '';
-      this.doGetWorkflowTempList();
-    },
-    showHintDialog() {
-      this.$refs.hintDialog.openDialog();
-    },
-    doGetWorkflowTempList() {
+    avatarSrc,
+    doGetSkillTempList() {
       const searchInput = this.$refs.searchInput;
-      let params = {
+      const params = {
         name: searchInput.value,
-        category: this.typeRadio,
       };
 
-      getWorkflowTempList(params)
+      getSkillTempList(params)
         .then(res => {
-          const { downloadLink = {}, list } = res.data || {};
-          this.templateUrl = downloadLink.url;
-          if (downloadLink.url) this.showHintDialog();
-
+          const { list } = res.data || {};
           this.list = list || [];
           this.loading = false;
         })
         .catch(() => (this.loading = false));
     },
-    copyTemplate(item) {
-      this.$refs.cloneWorkflowDialog.openDialog(item);
-    },
     downloadTemplate(item) {
-      downloadWorkflow({ templateId: item.templateId }).then(response => {
+      downloadSkill({ skillId: item.skillId }).then(response => {
         const blob = new Blob([response], { type: response.type });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = item.name + '.json';
+        link.download = item.name + '.zip';
         link.click();
         window.URL.revokeObjectURL(link.href);
-        this.doGetWorkflowTempList();
+        this.doGetSkillTempList();
       });
     },
     handleClick(val) {
-      const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`;
+      const path = '/skill/detail';
       this.$router.push({
         path,
-        query: { templateSquareId: val.templateId, type: this.type },
+        query: { templateSquareId: val.skillId, type: this.type },
       });
     },
   },
@@ -179,4 +128,10 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/style/tempSquare.scss';
+.tempSquare-management {
+  .card-search-cust {
+    justify-content: flex-start;
+    margin-top: 15px;
+  }
+}
 </style>

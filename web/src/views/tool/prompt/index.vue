@@ -2,7 +2,7 @@
   <div class="mcp-content-box customize">
     <div class="mcp-content">
       <div class="card-search card-search-cust">
-        <div style="width: 100%; text-align: right">
+        <div style="width: 100%">
           <search-input
             :placeholder="$t('tool.prompt.search')"
             ref="searchInput"
@@ -168,6 +168,9 @@ export default {
   width: 50px;
   height: 50px;
   object-fit: cover;
+}
+.mcp-content-box {
+  padding-top: 10px;
 }
 .mcp-content-box .noData {
   width: 100%;

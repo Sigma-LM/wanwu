@@ -13,7 +13,8 @@ export const PERMS = {
   MCP_SERVICE: 'resource.mcp', // 资源库-MCP服务
   TOOL: 'resource.tool', // 资源库-工具
   PROMPT: 'resource.prompt', // 资源库-提示词
-  SAFETY: 'resource.safety', //安全护栏
+  SKILL: 'resource.skill', // 资源库-Skill
+  SAFETY: 'resource.safety', // 资源库-安全护栏
 
   APP_SPACE: 'app', // 应用开发
   RAG: 'app.rag', // 应用开发-文本问答
