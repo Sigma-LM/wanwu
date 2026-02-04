@@ -1,6 +1,6 @@
 <template>
   <div
-    class="section"
+    class="section page-wrapper"
     v-loading="loading.itemStatus"
     :class="{ 'disable-clicks': obj.disable === 'true' }"
   >

@@ -117,7 +117,8 @@
 }
 
 .agent-from-content {
-  height: 100%;
+  height: calc(100vh - 92px);
+  min-height: 400px;
   width: 100%;
   overflow: hidden !important;
 }

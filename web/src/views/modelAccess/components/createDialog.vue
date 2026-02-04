@@ -93,6 +93,7 @@
           prop="modelDesc"
         >
           <el-input
+            type="text"
             v-model="createForm.modelDesc"
             :placeholder="$t('common.input.placeholder')"
           ></el-input>
@@ -115,14 +116,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
-          v-if="
-            createForm.modelType === llm &&
-            showVisionList.includes(provider.key)
-          "
-          label="Vision"
-          prop="visionSupport"
-        >
+        <el-form-item v-if="showVision()" label="Vision" prop="visionSupport">
           <el-select
             v-model="createForm.visionSupport"
             :placeholder="$t('common.select.placeholder')"
@@ -136,8 +130,77 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <!-- 多模态模型去掉支持的文件类型选择 -->
+        <!--<el-form-item
+          v-if="isMultiModal()"
+          :label="$t('modelAccess.table.supportFileType')"
+          prop="supportFileTypes"
+        >
+          <el-select
+            v-model="createForm.supportFileTypes"
+            :placeholder="$t('common.select.placeholder')"
+            style="width: 100%"
+            multiple
+          >
+            <el-option
+              v-for="item in Object.keys(supportFileTypeObj)"
+              :key="item"
+              :label="supportFileTypeObj[item]"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>-->
         <el-form-item
-          v-if="[llm, embedding, rerank].includes(createForm.modelType)"
+          v-if="showMaxPicLimit()"
+          :label="$t('modelAccess.table.maxPicLimit')"
+          prop="maxImageSize"
+        >
+          <el-input-number
+            v-model="createForm.maxImageSize"
+            :placeholder="$t('common.input.placeholder')"
+            :min="0"
+          ></el-input-number>
+          M
+        </el-form-item>
+        <!-- 多模态模型去掉视频片限制，和最大文本长度 -->
+        <!--<el-form-item
+          v-if="showMaxVideoLimit()"
+          :label="$t('modelAccess.table.maxVideoLimit')"
+          prop="maxVideoClipSize"
+        >
+          <el-input-number
+            v-model="createForm.maxVideoClipSize"
+            :placeholder="$t('common.input.placeholder')"
+            :min="0"
+          ></el-input-number>
+          M
+        </el-form-item>
+        <el-form-item
+          v-if="isMultiModal()"
+          :label="$t('modelAccess.table.maxTextSize')"
+          prop="maxTextLength"
+        >
+          <el-input-number
+            v-model="createForm.maxTextLength"
+            :placeholder="$t('common.input.placeholder')"
+            :min="0"
+          ></el-input-number>
+          tokens
+        </el-form-item>-->
+        <el-form-item
+          v-if="showMaxAudioLimit()"
+          :label="$t('modelAccess.table.maxAudioLimit')"
+          prop="maxAsrFileSize"
+        >
+          <el-input-number
+            v-model="createForm.maxAsrFileSize"
+            :placeholder="$t('common.input.placeholder')"
+            :min="0"
+          ></el-input-number>
+          M
+        </el-form-item>
+        <el-form-item
+          v-if="showContextSize()"
           :label="$t('modelAccess.table.contextSize')"
           prop="contextSize"
         >
@@ -146,6 +209,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          tokens
         </el-form-item>
         <el-form-item
           v-if="createForm.modelType === llm"
@@ -157,6 +221,7 @@
             :placeholder="$t('common.input.placeholder')"
             :min="0"
           ></el-input-number>
+          tokens
         </el-form-item>
         <el-form-item
           v-if="provider.key !== ollama"
@@ -180,14 +245,12 @@
             :title="
               $t('common.hint.inferUrl') +
               (typeObj.inferUrl[`${createForm.modelType}_${provider.key}`] ||
-                typeObj.inferUrl[createForm.modelType] ||
                 typeObj.inferUrl[provider.key] ||
                 '--')
             "
             :placeholder="
               $t('common.hint.inferUrl') +
               (typeObj.inferUrl[`${createForm.modelType}_${provider.key}`] ||
-                typeObj.inferUrl[createForm.modelType] ||
                 typeObj.inferUrl[provider.key] ||
                 '--')
             "
@@ -225,17 +288,23 @@ import {
   PROVIDER_TYPE,
   PROVIDER_OBJ,
   FUNC_CALLING,
-  LLM,
   DEFAULT_CALLING,
   DEFAULT_SUPPORT,
   SUPPORT_LIST,
   TYPE_OBJ,
-  OLLAMA,
-  EMBEDDING,
+  LLM,
   RERANK,
+  EMBEDDING,
+  MULTIMODAL_EMBEDDING,
+  MULTIMODAL_RERANK,
+  ASR,
+  OLLAMA,
   YUAN_JING,
   QWEN,
   QIANFAN,
+  SUPPORT_FILE_TYPE_OBJ,
+  IMAGE,
+  VIDEO,
 } from '../constants';
 import LinkIcon from '@/components/linkIcon.vue';
 
@@ -259,13 +328,21 @@ export default {
       modelType: [],
       functionCalling: FUNC_CALLING,
       supportList: SUPPORT_LIST,
+      supportFileTypeObj: SUPPORT_FILE_TYPE_OBJ,
       typeObj: TYPE_OBJ,
       llm: LLM,
-      ollama: OLLAMA,
       embedding: EMBEDDING,
-      rerank: RERANK,
+      ollama: OLLAMA,
       yuanjing: YUAN_JING,
       showVisionList: [YUAN_JING, QWEN, QIANFAN],
+      showContextSizeList: [
+        LLM,
+        EMBEDDING,
+        RERANK,
+        MULTIMODAL_RERANK,
+        MULTIMODAL_EMBEDDING,
+        ASR,
+      ],
       createForm: {
         model: '',
         displayName: '',
@@ -275,6 +352,11 @@ export default {
         modelDesc: '',
         contextSize: 8000,
         maxTokens: 4096,
+        maxAsrFileSize: 10,
+        maxImageSize: 3,
+        /*maxVideoClipSize: 10,
+        maxTextLength: 512,
+        supportFileTypes: [IMAGE, VIDEO],*/
         avatar: {
           key: '',
           path: '',
@@ -340,6 +422,13 @@ export default {
           },
           { validator: validateUrls, trigger: 'blur' },
         ],
+        /*supportFileTypes: [
+          {
+            required: true,
+            message: this.$t('common.select.placeholder'),
+            trigger: 'change',
+          },
+        ],*/
       },
       row: {},
       provider: {},
@@ -349,6 +438,38 @@ export default {
   },
   methods: {
     avatarSrc,
+    isMultiModal() {
+      return [MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING].includes(
+        this.createForm.modelType,
+      );
+    },
+    showVision() {
+      return (
+        this.createForm.modelType === LLM &&
+        this.showVisionList.includes(this.provider.key)
+      );
+    },
+    showContextSize() {
+      return this.showContextSizeList.includes(this.createForm.modelType);
+    },
+    showFileTypeLimit(type) {
+      return (
+        this.isMultiModal() && this.createForm.supportFileTypes.includes(type)
+      );
+    },
+    showMaxPicLimit() {
+      const { modelType, visionSupport } = this.createForm || {};
+      return (
+        (modelType === LLM && visionSupport === 'support') ||
+        this.isMultiModal() // this.showFileTypeLimit(IMAGE)
+      );
+    },
+    showMaxVideoLimit() {
+      return this.showFileTypeLimit(VIDEO);
+    },
+    showMaxAudioLimit() {
+      return this.createForm.modelType === ASR;
+    },
     uploadAvatar(file, key) {
       const formData = new FormData();
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
@@ -395,10 +516,17 @@ export default {
         visionSupport: DEFAULT_SUPPORT,
         contextSize: 8000,
         maxTokens: 4096,
+        maxAsrFileSize: 10,
+        maxImageSize: 3,
+        /*maxVideoClipSize: 10,
+        maxTextLength: 512,
+        supportFileTypes: [IMAGE, VIDEO],*/
         avatar: { key: '', path: '' },
       });
-      this.$refs.createForm.resetFields();
-      this.$refs.createForm.clearValidate();
+      if (this.$refs.createForm) {
+        this.$refs.createForm.resetFields();
+        this.$refs.createForm.clearValidate();
+      }
     },
     handleSubmit() {
       this.$refs.createForm.validate(async valid => {
@@ -411,33 +539,43 @@ export default {
             visionSupport,
             contextSize,
             maxTokens,
+            /*maxTextLength,
+            maxVideoClipSize,
+            supportFileTypes,*/
+            maxImageSize,
+            maxAsrFileSize,
           } = this.createForm;
-          const functionCallingObj =
-            modelType === LLM ? { functionCalling, maxTokens } : {};
-          const visionSupportObj =
-            modelType === LLM && this.showVisionList.includes(this.provider.key)
-              ? { visionSupport }
-              : {};
-          const contextSizeObj = [LLM, EMBEDDING, RERANK].includes(modelType)
-            ? { contextSize }
-            : {};
           const form = {
             ...this.createForm,
             provider: this.provider.key || '',
             config: {
               apiKey,
               endpointUrl,
-              ...functionCallingObj,
-              ...visionSupportObj,
-              ...contextSizeObj,
+              ...(modelType === LLM && { functionCalling, maxTokens }),
+              ...(this.showVision() && { visionSupport }),
+              ...(this.showContextSize() && { contextSize }),
+              ...(this.showMaxAudioLimit() && { maxAsrFileSize }),
+              ...(this.showMaxPicLimit() && { maxImageSize }),
+              /*...(this.showMaxVideoLimit() && { maxVideoClipSize }),
+              ...(this.isMultiModal() && { supportFileTypes, maxTextLength }),*/
             },
           };
-          delete form.apiKey;
-          delete form.endpointUrl;
-          delete form.functionCalling;
-          delete form.visionSupport;
-          delete form.contextSize;
-          delete form.maxTokens;
+          const deleteKeys = [
+            'apiKey',
+            'endpointUrl',
+            'functionCalling',
+            'visionSupport',
+            'contextSize',
+            'maxTokens',
+            /*'maxTextLength',
+            'maxVideoClipSize',
+            'supportFileTypes',*/
+            'maxImageSize',
+            'maxAsrFileSize',
+          ];
+          deleteKeys.forEach(key => {
+            delete form[key];
+          });
 
           try {
             this.loading = true;
@@ -458,7 +596,7 @@ export default {
   },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .createForm {
   padding: 0 45px 0 20px;
   .avatar-uploader {

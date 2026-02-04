@@ -247,7 +247,7 @@ export default {
             if (res.code === 0) {
               this.$message.success(this.$t('tempSquare.copySuccess'));
               this.dialogVisible = false;
-              this.$router.push({ path: '/tool', query: { type: PROMPT } });
+              this.$router.push({ path: '/prompt' });
             }
             return;
           }

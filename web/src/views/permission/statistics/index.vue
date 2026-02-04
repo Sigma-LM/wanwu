@@ -198,7 +198,7 @@ export default {
   height: 100%;
   padding: 0;
   padding-top: 48px !important;
-  background: #fff;
+  /*background: #fff;*/
   overflow: hidden;
   z-index: 100;
   .statistics_content_box {

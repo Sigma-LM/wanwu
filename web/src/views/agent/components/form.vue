@@ -1,5 +1,8 @@
 <template>
-  <div class="agent-from-content" :class="{ 'disable-clicks': disableClick }">
+  <div
+    class="agent-from-content page-wrapper"
+    :class="{ 'disable-clicks': disableClick }"
+  >
     <div class="form-header">
       <div class="header-left">
         <span class="el-icon-arrow-left btn" @click="goBack"></span>

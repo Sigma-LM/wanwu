@@ -1,11 +1,11 @@
 <template>
-  <div class="page-wrapper" style="margin: 0 10px">
+  <div class="page-wrapper">
     <div class="page-title">
       <i class="el-icon-arrow-left" @click="$router.go(-1)" />
       <img class="page-title-img" src="@/assets/imgs/org.png" alt="" />
       <span class="page-title-name">{{ $t('menu.setting') }}</span>
     </div>
-    <!-- tabs -->
+    <!-- tabs: UI 改版统计分析、OAuth 提出到菜单，无需切换 tab -->
     <div class="setting-tabs" v-if="checkPerm(settingPerm)">
       <div
         :class="['setting-tab', { active: tabActive === 0 }]"
@@ -19,7 +19,7 @@
       >
         {{ $t('infoSetting.title') }}
       </div>
-      <div
+      <!--<div
         :class="['setting-tab', { active: tabActive === 2 }]"
         @click="tabClick(2)"
         v-if="checkPerm(statisticsPerm)"
@@ -32,7 +32,7 @@
         v-if="checkPerm(oauthPerm)"
       >
         {{ $t('oauth.title') }}
-      </div>
+      </div>-->
     </div>
 
     <div v-if="tabActive === 0" style="margin: 0 20px">
@@ -82,9 +82,17 @@ export default {
       statisticsPerm: PERMS.STATISTIC,
       oauthPerm: PERMS.OAUTH,
       list: [
-        { name: '用户', key: 'user', perm: PERMS.PERMISSION_USER },
-        { name: '角色', key: 'role', perm: PERMS.PERMISSION_ROLE },
-        { name: '组织', key: 'org', perm: PERMS.PERMISSION_ORG },
+        {
+          name: this.$t('user.name'),
+          key: 'user',
+          perm: PERMS.PERMISSION_USER,
+        },
+        {
+          name: this.$t('role.name'),
+          key: 'role',
+          perm: PERMS.PERMISSION_ROLE,
+        },
+        { name: this.$t('org.name'), key: 'org', perm: PERMS.PERMISSION_ORG },
       ],
     };
   },

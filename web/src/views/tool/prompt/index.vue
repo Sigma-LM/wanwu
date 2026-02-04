@@ -89,7 +89,6 @@ import {
   getCustomPromptList,
   deleteCustomPrompt,
   copyCustomPrompt,
-  copyPromptTemplate,
 } from '@/api/templateSquare';
 import { avatarSrc } from '@/utils/util';
 export default {
