@@ -1,9 +1,9 @@
 <template>
-  <div
-    class="templateSquare"
-    :style="`background: ${isPublic ? bgColor : 'none'}`"
-  >
-    <div class="page-wrapper">
+  <div class="templateSquare">
+    <div
+      class="page-wrapper"
+      :style="isPublic ? `background: ${bgColor}; height: 100%` : ''"
+    >
       <div class="page-title">
         <img
           class="page-title-img"
@@ -14,28 +14,30 @@
       </div>
       <!-- tabs -->
       <div class="templateSquare-tabs">
-        <!--<div :class="['templateSquare-tab',{ 'active': type === workflow }]" @click="tabClick(workflow)">
-          {{$t('tempSquare.workflow')}}
-        </div>-->
         <div
-          :class="['templateSquare-tab', { active: type === prompt }]"
-          @click="tabClick(prompt)"
+          v-for="item in tabList"
+          :key="item.type"
+          :class="['templateSquare-tab', { active: type === item.type }]"
+          @click="tabClick(item.type)"
         >
-          {{ $t('tempSquare.prompt') }}
+          {{ item.name }}
         </div>
       </div>
 
       <TempSquare
         :isPublic="isPublic"
         :type="workflow"
-        ref="tempSquare"
         v-if="type === workflow"
       />
       <PromptTempSquare
         :isPublic="isPublic"
         :type="prompt"
-        ref="promptTempSquare"
         v-if="type === prompt"
+      />
+      <SkillTempSquare
+        :isPublic="isPublic"
+        :type="skill"
+        v-if="type === skill"
       />
     </div>
   </div>
@@ -43,10 +45,11 @@
 <script>
 import TempSquare from './tempSquare.vue';
 import PromptTempSquare from './prompt/promptTempSquare.vue';
-import { WORKFLOW, PROMPT } from './constants';
+import SkillTempSquare from './skills/skillTempSquare.vue';
+import { WORKFLOW, PROMPT, SKILL } from './constants';
 
 export default {
-  components: { TempSquare, PromptTempSquare },
+  components: { TempSquare, PromptTempSquare, SkillTempSquare },
   data() {
     return {
       isPublic: true,
@@ -54,16 +57,27 @@ export default {
         'linear-gradient(1deg, rgb(247, 252, 255) 50%, rgb(233, 246, 254) 98%)',
       workflow: WORKFLOW,
       prompt: PROMPT,
+      skill: SKILL,
       type: '',
+      tabList: [
+        // { name: this.$t('tempSquare.workflow'), type: WORKFLOW },
+        { name: this.$t('tempSquare.prompt'), type: PROMPT },
+        // { name: 'Skills', type: SKILL },
+      ],
     };
   },
   created() {
     this.isPublic = this.$route.path.includes('/public/');
-    this.type = this.$route.query.type || PROMPT; //WORKFLOW
+    this.type = this.$route.query.type || PROMPT; // WORKFLOW
   },
   methods: {
     tabClick(type) {
       this.type = type;
+      if (type === PROMPT) {
+        this.$router.replace({ query: {} });
+      } else {
+        this.$router.replace({ query: { type } });
+      }
     },
   },
 };

@@ -1,31 +1,44 @@
 <template>
   <div
-    class="tempSquare-detail"
-    :style="`background: ${isPublic ? bgColor : 'none'}`"
+    class="tempSquare-detail page-wrapper"
+    :style="isPublic ? `background: ${bgColor}; min-height: 100%` : ''"
   >
     <span class="back" @click="back">
       {{ $t('menu.back') + $t('menu.templateSquare') }}
     </span>
     <div class="tempSquare-title">
-      <img
-        class="logo"
-        v-if="detail.avatar && detail.avatar.path"
-        :src="detail.avatar.path"
-      />
-      <div :class="['info', { fold: foldStatus }]">
-        <p class="name">{{ detail.name }}</p>
-        <p v-if="detail.desc && detail.desc.length > 260" class="desc">
-          {{ foldStatus ? detail.desc : detail.desc.slice(0, 268) + '...' }}
-          <span class="arrow" v-show="detail.desc.length > 260" @click="fold">
-            {{
-              foldStatus ? $t('common.button.fold') : $t('common.button.detail')
-            }}
-          </span>
-        </p>
-        <p v-else class="desc">{{ detail.desc }}</p>
+      <div class="tempSquare-title-left">
+        <img
+          class="logo"
+          v-if="detail.avatar && detail.avatar.path"
+          :src="
+            type === workflow
+              ? detail.avatar.path
+              : avatarSrc(detail.avatar.path)
+          "
+        />
+        <div :class="['info', { fold: foldStatus }]">
+          <p class="name">{{ detail.name }}</p>
+          <p v-if="detail.desc && detail.desc.length > 260" class="desc">
+            {{ foldStatus ? detail.desc : detail.desc.slice(0, 268) + '...' }}
+            <span class="arrow" v-show="detail.desc.length > 260" @click="fold">
+              {{
+                foldStatus
+                  ? $t('common.button.fold')
+                  : $t('common.button.detail')
+              }}
+            </span>
+          </p>
+          <p v-else class="desc">{{ detail.desc }}</p>
+        </div>
       </div>
       <div>
-        <el-button type="primary" size="mini" @click="copyTemplate(detail)">
+        <el-button
+          v-if="type === workflow"
+          type="primary"
+          size="mini"
+          @click="copyTemplate(detail)"
+        >
           {{ $t('tempSquare.copy') }}
         </el-button>
         <el-button type="primary" size="mini" @click="downloadTemplate(detail)">
@@ -45,16 +58,19 @@
         </div>
 
         <div>
-          <div class="overview bg-border">
-            <div class="overview-item">
+          <div
+            class="overview bg-border"
+            v-if="detail.summary || detail.feature || detail.scenario"
+          >
+            <div class="overview-item" v-if="detail.summary">
               <div class="item-title">• &nbsp;{{ $t('square.summary') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.summary)"></div>
             </div>
-            <div class="overview-item">
+            <div class="overview-item" v-if="detail.feature">
               <div class="item-title">• &nbsp;{{ $t('square.feature') }}</div>
               <div class="item-desc" v-html="parseTxt(detail.feature)"></div>
             </div>
-            <div class="overview-item">
+            <div class="overview-item" v-if="detail.scenario">
               <div class="item-title">• &nbsp;{{ $t('square.scenario') }}</div>
               <div class="item-desc">
                 <div v-html="parseTxt(detail.scenario)"></div>
@@ -67,13 +83,13 @@
               <div class="item-desc" v-html="parseTxt(detail.note)"></div>
             </div>
           </div>
-          <div class="overview bg-border" v-if="detail.detail">
+          <div class="overview bg-border" v-if="detail.skillMarkdown">
             <div class="overview-item">
-              <div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>
+              <!--<div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>-->
               <div class="item-desc">
                 <div
                   class="readme-content markdown-body tempSquare-markdown"
-                  v-html="md.render(detail.detail || '')"
+                  v-html="md.render(detail.skillMarkdown || '')"
                 ></div>
               </div>
             </div>
@@ -94,7 +110,9 @@
           <img
             class="logo"
             v-if="item.avatar && item.avatar.path"
-            :src="item.avatar.path"
+            :src="
+              type === workflow ? item.avatar.path : avatarSrc(item.avatar.path)
+            "
           />
           <p class="name">{{ item.name }}</p>
           <p class="intro">{{ item.desc }}</p>
@@ -110,8 +128,12 @@ import {
   downloadWorkflow,
   getWorkflowRecommendsList,
   getWorkflowTempInfo,
+  getSkillTempInfo,
+  getSkillTempList,
+  downloadSkill,
 } from '@/api/templateSquare';
 import { WORKFLOW } from './constants';
+import { avatarSrc } from '@/utils/util';
 import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
 
 export default {
@@ -123,6 +145,7 @@ export default {
       bgColor:
         'linear-gradient(1deg, rgb(247, 252, 255) 50%, rgb(233, 246, 254) 98%)',
       type: '',
+      workflow: WORKFLOW,
       md: md,
       isFromSquare: true,
       templateSquareId: '',
@@ -150,6 +173,7 @@ export default {
     this.getRecommendList();
   },
   methods: {
+    avatarSrc,
     initData() {
       const { type, templateSquareId } = this.$route.query || {};
       this.templateSquareId = templateSquareId;
@@ -160,37 +184,46 @@ export default {
       const main = document.querySelector('.el-main > .page-container');
       if (main) main.scrollTop = 0;
     },
-    getDetailData() {
-      getWorkflowTempInfo({ templateId: this.templateSquareId }).then(res => {
-        this.detail = res.data || {};
-      });
+    async getDetailData() {
+      const res =
+        this.type === WORKFLOW
+          ? await getWorkflowTempInfo({ templateId: this.templateSquareId })
+          : await getSkillTempInfo({ skillId: this.templateSquareId });
+      this.detail = res.data || {};
     },
-    getRecommendList() {
-      const params = { templateId: this.templateSquareId };
-      getWorkflowRecommendsList(params).then(res => {
-        this.recommendList = res.data.list || [];
-      });
+    async getRecommendList() {
+      const res =
+        this.type === WORKFLOW
+          ? await getWorkflowRecommendsList({
+              templateId: this.templateSquareId,
+            })
+          : await getSkillTempList();
+      this.recommendList = res.data.list || [];
     },
     copyTemplate(item) {
       this.$refs.cloneWorkflowDialog.openDialog(item);
     },
-    downloadTemplate(item) {
-      downloadWorkflow({ templateId: item.templateId }).then(response => {
-        const blob = new Blob([response], { type: response.type });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = item.name + '.json';
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
+    async downloadTemplate(item) {
+      const isWorkflow = this.type === WORKFLOW;
+      const res = isWorkflow
+        ? await downloadWorkflow({ templateId: item.templateId })
+        : await downloadSkill({ skillId: item.skillId });
+      const blob = new Blob([res], { type: res.type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = item.name + (isWorkflow ? '.json' : '.zip');
+      link.click();
+      window.URL.revokeObjectURL(link.href);
     },
     getPath() {
       return this.isPublic ? '/public/templateSquare' : '/templateSquare';
     },
     handleClick(val) {
+      const templateSquareId =
+        this.type === WORKFLOW ? val.templateId : val.skillId;
       this.$router.push(
-        `${this.getPath()}/detail?templateSquareId=${val.templateId}`,
+        `${this.getPath()}/detail?templateSquareId=${templateSquareId}&type=${this.type}`,
       );
     },
     // 解析文本，遇到.换行等
@@ -231,6 +264,12 @@ export default {
     padding: 20px 0;
     display: flex;
     border-bottom: 1px solid #bfbfbf;
+    justify-content: space-between;
+    align-items: center;
+    .tempSquare-title-left {
+      display: flex;
+      align-items: center;
+    }
     .logo {
       width: 54px;
       height: 54px;
@@ -238,7 +277,6 @@ export default {
     }
     .info {
       position: relative;
-      width: calc(100% - 200px);
       margin-left: 15px;
       .name {
         font-size: 16px;
