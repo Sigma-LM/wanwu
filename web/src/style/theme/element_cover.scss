@@ -418,3 +418,11 @@
 .el-checkbox__inner:hover {
   border-color: $color;
 }
+
+.el-menu--vertical {
+  .el-menu {
+    .el-menu-item {
+      font-size: 15px;
+    }
+  }
+}
