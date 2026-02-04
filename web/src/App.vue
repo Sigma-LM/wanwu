@@ -99,6 +99,10 @@ div[data-name] {
     margin-bottom: 20px;
   }
 }
+.right-content-full {
+  margin: -16px;
+  width: calc(100% + 32px);
+}
 .page-wrapper {
   padding: 0 10px;
   background: #fff;

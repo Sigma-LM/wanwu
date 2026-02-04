@@ -1,6 +1,5 @@
 <template>
   <div :class="[mode]" class="page-wrapper wrap-fullheight conversation-pane">
-    <!--:style="`background: ${bgColor}`"-->
     <div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/model.svg" alt="" />
       <span class="page-title-name">{{ title }}</span>
