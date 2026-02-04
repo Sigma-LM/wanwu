@@ -1,5 +1,5 @@
 <template>
-  <div class="wp">
+  <div class="wp right-content-full">
     <iframe id="inlineFrameExample" :src="workflowUrl"></iframe>
   </div>
 </template>
@@ -20,7 +20,6 @@ export default {
 
 <style lang="scss" scoped>
 .wp {
-  width: 100%;
   height: calc(100vh - 63px);
   background: #f4f5f6;
   iframe {

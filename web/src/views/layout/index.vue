@@ -732,6 +732,7 @@ export default {
           height: 100%;
           .right-page-content {
             height: 100%;
+            padding: 0;
           }
         }
       }
