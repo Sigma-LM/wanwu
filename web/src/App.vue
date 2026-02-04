@@ -26,7 +26,7 @@ body,
 html {
   width: 100%;
   height: 100%;
-  /*overflow: hidden;*/
+  overflow: hidden;
   /*font-family:'Microsoft YaHei', Arial, sans-serif;*/
   font-family: 'Source Han Sans SC', 'Segoe UI';
 }
