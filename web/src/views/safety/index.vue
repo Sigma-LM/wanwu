@@ -1,10 +1,10 @@
 <template>
   <div class="page-wrapper">
-    <div class="page-title">
+    <!--<div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/safety.svg" alt="" />
       <span class="page-title-name">{{ $t('safety.title') }}</span>
       <p class="page-tips">{{ $t('safety.tips') }}</p>
-    </div>
+    </div>-->
     <div style="padding: 0 20px 20px 20px">
       <safetyList
         :appData="safetyData"

@@ -1,13 +1,13 @@
 <template>
   <div class="page-wrapper api-key-management">
-    <div class="page-title">
+    <!--<div class="page-title">
       <img
         class="page-title-img"
         :src="require('@/assets/imgs/api_key_management.svg')"
         alt=""
       />
       <span class="page-title-name">{{ $t('menu.apiKey') }}</span>
-    </div>
+    </div>-->
     <div class="table-wrap list-common wrap-fullheight">
       <div class="table-box">
         <el-button
@@ -219,7 +219,7 @@ export default {
 
 <style lang="scss" scoped>
 .table-wrap {
-  margin: 20px 18px 0 18px;
+  padding: 20px 18px;
 }
 .table-box {
   .table-header {

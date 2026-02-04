@@ -130,7 +130,7 @@ export default {
 @import '@/style/tempSquare.scss';
 .tempSquare-management {
   .card-search-cust {
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 15px;
   }
 }
