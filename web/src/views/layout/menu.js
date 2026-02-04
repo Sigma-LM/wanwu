@@ -50,7 +50,7 @@ export const menuList = [
         perm: PERMS.PROMPT,
       },
       {
-        name: 'Skill',
+        name: 'Skills',
         index: 'resource-skill',
         path: '/skill',
         perm: PERMS.SKILL,
