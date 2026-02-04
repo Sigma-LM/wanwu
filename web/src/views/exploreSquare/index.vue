@@ -193,7 +193,6 @@ export default {
 }
 
 .page-wrapper {
-  margin: 20px;
   padding: 10px 30px 20px;
   box-sizing: border-box;
 

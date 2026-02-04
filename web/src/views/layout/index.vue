@@ -577,7 +577,7 @@ export default {
         }
         .menu-svg {
           .menu-icon {
-            font-size: 15px;
+            font-size: 16px;
             margin-right: 10px;
           }
           .svg-icon {
@@ -590,9 +590,8 @@ export default {
           color: $color_title;
         }
         .el-submenu__title,
-        .el-menu-item span,
-        .el-submenu__title span {
-          font-size: 14px !important;
+        .el-menu-item span {
+          font-size: 15px !important;
         }
         .el-menu-item.is-active,
         .el-menu-item:focus {
@@ -609,7 +608,7 @@ export default {
         }
         .el-submenu__title {
           span {
-            font-size: 14px !important;
+            font-size: 15px !important;
           }
         }
         .el-submenu.is-active .el-submenu__title {
@@ -621,8 +620,9 @@ export default {
           display: flex;
           align-items: center;
           border-radius: 6px;
-          margin: 10px;
+          margin: 6px;
           min-width: auto;
+          font-size: 15px;
         }
       }
       .el-menu--collapse.el-menu ::v-deep {
@@ -658,6 +658,10 @@ export default {
               color: #fff !important;
             }
           }
+        }
+        .el-submenu__title,
+        .el-menu-item {
+          margin: 12px 10px;
         }
       }
     }
@@ -703,6 +707,8 @@ export default {
         height: 60px;
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
         z-index: 2;
+        background: url('@/assets/imgs/nav_bg.png');
+        background-size: 100% 100%;
       }
       .el-main {
         position: relative;
@@ -712,12 +718,11 @@ export default {
         height: calc(100vh - 60px);
         overflow: auto;
         .page-container {
-          height: calc(100% - 16px);
+          height: 100%;
           .right-page-content {
             min-width: 1250px;
-            min-height: calc(100% - 33px);
-            margin-bottom: 16px;
-            padding-bottom: 1px;
+            min-height: calc(100% - 32px);
+            padding: 16px;
           }
         }
       }

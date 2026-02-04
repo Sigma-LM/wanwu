@@ -141,6 +141,7 @@ export default {
   display: flex;
   flex-direction: row;
   padding: 0;
+  height: calc(100vh - 92px);
   .history-wrapper {
     flex-shrink: 0;
     display: flex;

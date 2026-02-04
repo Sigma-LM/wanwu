@@ -1,9 +1,6 @@
 <template>
-  <div
-    :class="[mode]"
-    :style="`background: ${bgColor}`"
-    class="page-wrapper wrap-fullheight conversation-pane"
-  >
+  <div :class="[mode]" class="page-wrapper wrap-fullheight conversation-pane">
+    <!--:style="`background: ${bgColor}`"-->
     <div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/model.svg" alt="" />
       <span class="page-title-name">{{ title }}</span>
@@ -589,12 +586,13 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  width: 100%;
+  height: calc(100vh - 92px);
+
   &.modelComparison {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
+    left: 20px;
+    right: 20px;
+    top: 20px;
     bottom: 0;
     z-index: 999;
   }

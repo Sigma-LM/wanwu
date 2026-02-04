@@ -340,9 +340,8 @@ export default {
         color: $color_title;
       }
       ::v-deep .el-submenu__title,
-      ::v-deep .el-menu-item span,
-      ::v-deep .el-submenu__title span {
-        font-size: 14px !important;
+      ::v-deep .el-menu-item span {
+        font-size: 15px !important;
       }
       ::v-deep .el-menu-item.is-active,
       ::v-deep .el-menu-item:focus {
@@ -356,7 +355,7 @@ export default {
       }
       ::v-deep .el-submenu__title {
         span {
-          font-size: 14px !important;
+          font-size: 15px !important;
         }
       }
       ::v-deep .el-submenu.is-active .el-submenu__title {

@@ -1,5 +1,5 @@
 <template>
-  <div class="mcp-detail" id="timeScroll">
+  <div class="mcp-detail page-wrapper" id="timeScroll">
     <span class="back" @click="back">
       <span class="el-icon-arrow-left"></span>
       {{ $t('menu.back') }}
@@ -160,7 +160,6 @@ export default {
 .mcp-detail {
   padding: 20px;
   overflow: auto;
-  margin: 20px;
   .back {
     color: $color;
     cursor: pointer;
