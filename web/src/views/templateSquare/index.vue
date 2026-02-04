@@ -34,11 +34,7 @@
         :type="prompt"
         v-if="type === prompt"
       />
-      <SkillTempSquare
-        :isPublic="isPublic"
-        :type="skill"
-        v-if="type === skill"
-      />
+      <SkillTempSquare :type="skill" v-if="type === skill" />
     </div>
   </div>
 </template>

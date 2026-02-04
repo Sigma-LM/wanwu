@@ -1,5 +1,5 @@
 <template>
-  <div class="tempSquare-management">
+  <div class="tempSquare-management page-wrapper">
     <div class="tempSquare-content-box tempSquare-third">
       <div class="tempSquare-main">
         <div class="tempSquare-content">
@@ -74,7 +74,6 @@ import SearchInput from '@/components/searchInput.vue';
 export default {
   components: { SearchInput },
   props: {
-    isPublic: true,
     type: '',
   },
   data() {
@@ -117,7 +116,7 @@ export default {
       });
     },
     handleClick(val) {
-      const path = `${this.isPublic ? '/public' : ''}/templateSquare/detail`;
+      const path = '/skill/detail';
       this.$router.push({
         path,
         query: { templateSquareId: val.skillId, type: this.type },
@@ -132,7 +131,7 @@ export default {
 .tempSquare-management {
   .card-search-cust {
     justify-content: flex-end;
-    margin-top: -35px;
+    margin-top: 15px;
   }
 }
 </style>

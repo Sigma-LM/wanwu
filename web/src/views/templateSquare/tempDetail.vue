@@ -132,7 +132,7 @@ import {
   getSkillTempList,
   downloadSkill,
 } from '@/api/templateSquare';
-import { WORKFLOW } from './constants';
+import { SKILL, WORKFLOW } from './constants';
 import { avatarSrc } from '@/utils/util';
 import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
 
@@ -217,7 +217,11 @@ export default {
       window.URL.revokeObjectURL(link.href);
     },
     getPath() {
-      return this.isPublic ? '/public/templateSquare' : '/templateSquare';
+      return this.type === SKILL
+        ? '/skill'
+        : this.isPublic
+          ? '/public/templateSquare'
+          : '/templateSquare';
     },
     handleClick(val) {
       const templateSquareId =
