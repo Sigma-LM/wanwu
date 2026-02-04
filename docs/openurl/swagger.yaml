@@ -586,6 +586,10 @@ definitions:
       response:
         type: string
       searchList: {}
+      subConversationList:
+        items:
+          $ref: '#/definitions/response.SubConversation'
+        type: array
       sysPrompt:
         type: string
       updatedAt:
@@ -633,6 +637,33 @@ definitions:
         type: integer
       data: {}
       msg:
+        type: string
+    type: object
+  response.SubConversation:
+    properties:
+      conversationType:
+        description: subAgent：子智能体；agentTool：主智能体工具；subAgentTool：子智能体工具
+        type: string
+      id:
+        description: 事件id
+        type: string
+      name:
+        description: 事件名称
+        type: string
+      parentId:
+        description: 事件挂载id
+        type: string
+      profile:
+        description: 事件头像
+        type: string
+      response:
+        type: string
+      searchList: {}
+      status:
+        description: 1:成功，2：失败
+        type: integer
+      timeCost:
+        description: 耗时
         type: string
     type: object
   response.VisionConfig:

@@ -48,6 +48,9 @@ func Init() {
 	// resource.safety
 	mid.Sub("resource").NewSub("safety", "安全护栏", route.PermNeedCheck, true, true)
 
+	// resource.skill
+	mid.Sub("resource").NewSub("skill", "Skills", route.PermNeedCheck, true, true)
+
 	// --- app ---
 	mid.NewSub("app", "应用开发", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 

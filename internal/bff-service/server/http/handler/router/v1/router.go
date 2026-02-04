@@ -29,6 +29,9 @@ func Register(apiV1 *gin.RouterGroup) {
 	// safety
 	registerSafety(apiV1)
 
+	// skill
+	registerAgentSkill(apiV1)
+
 	// rag
 	registerRag(apiV1)
 
