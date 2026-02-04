@@ -531,6 +531,7 @@ export default {
                 res.data.modelType === 'multimodal-rerank';
             }
           });
+        else this.visionsupportRerank = false;
       },
       deep: true,
       immediate: true,
@@ -890,7 +891,12 @@ export default {
           },
           safetyConfig: this.editForm.safetyConfig,
           visionConfig: {
-            picNum: this.editForm.visionConfig.picNum,
+            picNum:
+              this.editForm.visionsupport === 'support' &&
+              this.getCategory !== KNOWLEDGE &&
+              this.visionsupportRerank
+                ? this.editForm.visionConfig.picNum
+                : 0,
           },
         };
         const res = await updateRagConfig(fromParams);

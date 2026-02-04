@@ -322,10 +322,9 @@ export default {
               ...this.sseResponse,
               ...this.sseParams,
               query: prompt,
-              fileName: '',
-              fileSize: '',
+              fileList: this.fileList,
               response: '',
-              filepath: '',
+              filepath: data.file_url || '',
               requestFileUrls: '',
               gen_file_url_list: [],
               searchList:

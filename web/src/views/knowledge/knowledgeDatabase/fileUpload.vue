@@ -749,7 +749,8 @@ export default {
       confirmFlag: true,
       urlValidate: false,
       active: this.$route.query.mode === 'config' ? 2 : 1,
-      fileType: 'file',
+      fileType:
+        Number(this.$route.query.category) === 2 ? 'fileMultiModal' : 'file',
       withCompressed: false,
       knowledgeId: this.$route.query.id,
       knowledgeName: this.$route.query.name,

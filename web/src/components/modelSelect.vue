@@ -9,6 +9,7 @@
     :loading-text="loadingText"
     :loading="loading"
     :filterable="filterable"
+    :clearable="clearable"
   >
     <el-option
       v-for="item in options"
@@ -65,6 +66,10 @@ export default {
       default: false,
     },
     filterable: {
+      type: Boolean,
+      default: false,
+    },
+    clearable: {
       type: Boolean,
       default: false,
     },

@@ -103,8 +103,9 @@ export default {
       this.inputVal = question;
       this.preSend(question);
     },
-    async preSend(val, fileId, fileInfo) {
+    async preSend(val, fileList, fileInfo) {
       this.inputVal = val || this.$refs['editable'].getPrompt();
+      this.fileList = fileList || this.$refs['editable'].getFileList();
       if (!this.inputVal) {
         this.$message.warning(this.$t('agent.inputContent'));
         return;
