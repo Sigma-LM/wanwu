@@ -116,6 +116,9 @@
 {"code":110000,"key":"bff_file_http_get","langs":{"zh":"文件下载错误: %v"}}
 {"code":110000,"key":"bff_file_read","langs":{"zh":"文件读取失败: %v"}}
 {"code":110000,"key":"bff_workflow_upload_file","langs":{"zh":"工作流上传文件错误: %v"}}
+{"code":0,"key":"------ model ------","langs":{}}
+{"code":110000,"key":"bff_model_perm","langs":{"zh":"模型(%v)权限校验失败，请更换模型重试"}}
+{"code":110011,"key":"","langs":{"zh":"模型(%v)已禁用"}}
 {"code":0,"key":"------ custom ------","langs":{}}
 {"code":0,"key":"bff_custom_home_title","langs":{"en":"Yuanjing Wanwu Intelligent Body Platform","zh":"元景万悟智能体平台"}}
 {"code":0,"key":"bff_custom_tab_title","langs":{"en":"Yuanjing Wanwu","zh":"元景万悟"}}
