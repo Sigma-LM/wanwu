@@ -37,18 +37,22 @@
                     </div>
                   </div>
                   <div class="card-des">{{ item.desc }}</div>
-                  <div class="card-bottom">
-                    <div class="card-bottom-left">
+                  <div class="card-bottom" style="justify-content: flex-end">
+                    <!--<div class="card-bottom-left">
                       {{ $t('tempSquare.downloadCount') }}：{{
                         item.downloadCount || 0
                       }}
-                    </div>
+                    </div>-->
                     <div class="card-bottom-right">
-                      <i
-                        class="el-icon-download"
-                        :title="$t('tempSquare.download')"
-                        @click.stop="downloadTemplate(item)"
-                      ></i>
+                      <el-tooltip
+                        :content="$t('tempSquare.download')"
+                        placement="top"
+                      >
+                        <i
+                          class="el-icon-download"
+                          @click.stop="downloadTemplate(item)"
+                        ></i>
+                      </el-tooltip>
                     </div>
                   </div>
                 </div>

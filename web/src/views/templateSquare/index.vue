@@ -1,9 +1,9 @@
 <template>
-  <div
-    class="templateSquare"
-    :style="`background: ${isPublic ? bgColor : 'none'}`"
-  >
-    <div class="page-wrapper">
+  <div class="templateSquare">
+    <div
+      class="page-wrapper"
+      :style="isPublic ? `background: ${bgColor}; height: 100%` : ''"
+    >
       <div class="page-title">
         <img
           class="page-title-img"
@@ -62,7 +62,7 @@ export default {
       tabList: [
         // { name: this.$t('tempSquare.workflow'), type: WORKFLOW },
         { name: this.$t('tempSquare.prompt'), type: PROMPT },
-        { name: 'Skills', type: SKILL },
+        // { name: 'Skills', type: SKILL },
       ],
     };
   },

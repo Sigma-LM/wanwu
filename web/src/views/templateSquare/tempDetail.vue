@@ -1,7 +1,7 @@
 <template>
   <div
-    class="tempSquare-detail"
-    :style="`background: ${isPublic ? bgColor : 'none'}`"
+    class="tempSquare-detail page-wrapper"
+    :style="isPublic ? `background: ${bgColor}; min-height: 100%` : ''"
   >
     <span class="back" @click="back">
       {{ $t('menu.back') + $t('menu.templateSquare') }}

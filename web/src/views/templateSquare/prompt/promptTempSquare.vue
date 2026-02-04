@@ -51,12 +51,16 @@
                     class="card-bottom"
                     style="display: block; width: 100%; text-align: right"
                   >
-                    <i
+                    <el-tooltip
                       v-if="!isPublic"
-                      class="el-icon-copy-document"
-                      :title="$t('tempSquare.copy')"
-                      @click.stop="copyPromptTemplate(item)"
-                    ></i>
+                      :content="$t('tempSquare.copy')"
+                      placement="top"
+                    >
+                      <i
+                        class="el-icon-copy-document"
+                        @click.stop="copyPromptTemplate(item)"
+                      ></i>
+                    </el-tooltip>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper mcp-management">
+  <div class="mcp-management">
     <div class="common_bg">
       <!-- tabs -->
       <div class="mcp-tabs">
