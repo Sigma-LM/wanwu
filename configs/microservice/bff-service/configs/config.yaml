@@ -97,6 +97,7 @@ default-icon:
   mcpServer: "/v1/static/icon/mcp-server-default-icon.png"
   tool: "/v1/static/icon/custom-tool-default-icon.png"
   prompt: "/v1/static/icon/prompt-default-icon.png"
+  skill: "/v1/static/icon/skill-default-icon.png"
 
 doc-center:
   frontend_prefix: /aibase/docCenter/pages
@@ -190,6 +191,8 @@ workflow-template:
 prompt-template:
   configPath: configs/microservice/bff-service/configs/prompt_template_config.yaml
 
+skills-template:
+  configPath: configs/microservice/bff-service/configs/skills_template_config.yaml
 # --- middleware ---
 
 minio:

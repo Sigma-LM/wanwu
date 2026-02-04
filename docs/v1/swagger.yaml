@@ -3883,6 +3883,28 @@ definitions:
         description: 状态
         type: boolean
     type: object
+  response.AgentSkillDetail:
+    properties:
+      author:
+        description: 作者
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 模板头像
+      desc:
+        description: 模板描述
+        type: string
+      name:
+        description: 模板名称
+        type: string
+      skillId:
+        description: 模板ID
+        type: string
+      skillMarkdown:
+        description: 模板markdown预览
+        type: string
+    type: object
   response.AnalysisDocUrlResp:
     properties:
       urlList:
@@ -4383,6 +4405,10 @@ definitions:
       response:
         type: string
       searchList: {}
+      subConversationList:
+        items:
+          $ref: '#/definitions/response.SubConversation'
+        type: array
       sysPrompt:
         type: string
       updatedAt:
@@ -6536,6 +6562,33 @@ definitions:
         description: 数量
         type: number
     type: object
+  response.SubConversation:
+    properties:
+      conversationType:
+        description: subAgent：子智能体；agentTool：主智能体工具；subAgentTool：子智能体工具
+        type: string
+      id:
+        description: 事件id
+        type: string
+      name:
+        description: 事件名称
+        type: string
+      parentId:
+        description: 事件挂载id
+        type: string
+      profile:
+        description: 事件头像
+        type: string
+      response:
+        type: string
+      searchList: {}
+      status:
+        description: 1:成功，2：失败
+        type: integer
+      timeCost:
+        description: 耗时
+        type: string
+    type: object
   response.ToolAction4Workflow:
     properties:
       actionId:
@@ -6949,6 +7002,91 @@ info:
   title: AI Agent Productivity Platform API
   version: v0.0.1
 paths:
+  /agent/skill/detail:
+    get:
+      consumes:
+      - application/json
+      description: 获取skill模板详情
+      parameters:
+      - description: skill模板ID
+        in: query
+        name: skillId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.AgentSkillDetail'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取skill模板详情
+      tags:
+      - guest
+  /agent/skill/download:
+    get:
+      consumes:
+      - application/json
+      description: 下载skill模板
+      parameters:
+      - description: skill模板ID
+        in: query
+        name: skillId
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 下载skill模板
+      tags:
+      - guest
+  /agent/skill/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取skill模板列表
+      parameters:
+      - description: skill模板名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.AgentSkillDetail'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取skill模板列表
+      tags:
+      - guest
   /api/key:
     delete:
       consumes:
@@ -12476,6 +12614,7 @@ paths:
       description: 获取模型体验对话记录列表
       parameters:
       - description: 模型体验对话ID
+        format: int32
         in: query
         name: modelExperienceId
         required: true
