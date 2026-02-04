@@ -10,7 +10,7 @@ import (
 
 func registerAgentSkill(apiV1 *gin.RouterGroup) {
 	// skills 模板
-	mid.Sub("resource.skill").Reg(apiV1, "/agent/skill/list/g", http.MethodGet, v1.GetAgentSkillList, "获取skill模板列表")
-	mid.Sub("resource.skill").Reg(apiV1, "/agent/skill/detail/g", http.MethodGet, v1.GetAgentSkillDetail, "获取skill模板详情")
-	mid.Sub("resource.skill").Reg(apiV1, "/agent/skill/download/g", http.MethodGet, v1.DownloadAgentSkill, "下载skill模板")
+	mid.Sub("resource.skill").Reg(apiV1, "/agent/skill/list", http.MethodGet, v1.GetAgentSkillList, "获取skill模板列表")
+	mid.Sub("resource.skill").Reg(apiV1, "/agent/skill/detail", http.MethodGet, v1.GetAgentSkillDetail, "获取skill模板详情")
+	mid.Sub("resource.skill").Reg(apiV1, "/agent/skill/download", http.MethodGet, v1.DownloadAgentSkill, "下载skill模板")
 }
