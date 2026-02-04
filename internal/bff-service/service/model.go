@@ -130,6 +130,51 @@ func ListTypeModels(ctx *gin.Context, userId, orgId string, req *request.ListTyp
 	}, nil
 }
 
+func CheckModelUserPermission(ctx *gin.Context, userId, orgId string, modelIds []string) ([]string, error) {
+	resp, err := model.GetModelByIds(ctx.Request.Context(), &model_service.GetModelByIdsReq{ModelIds: modelIds})
+	if err != nil {
+		return nil, err
+	}
+	// 创建模型ID到模型信息的映射
+	modelMap := make(map[string]*model_service.ModelInfo)
+	for _, model := range resp.Models {
+		modelMap[model.ModelId] = model
+	}
+	// 校验所有传入的modelIds，收集有权限的模型ID
+	var authorizedModelIds []string
+	var unauthorizedModelId string
+	for _, modelId := range modelIds {
+		model, exists := modelMap[modelId]
+		if !exists {
+			// 模型不存在
+			unauthorizedModelId = modelId
+			continue
+		}
+		// 校验模型权限
+		var hasPermission bool
+		switch model.GetScopeType() {
+		case config.ModelScopeTypePrivate: // 私有
+			hasPermission = (model.UserId == userId)
+		case config.ModelScopeTypePublic: // 公开
+			hasPermission = true // 公开模型，任何人都可以访问
+		case config.ModelScopeTypeOrg: // 指定组织可见
+			hasPermission = (model.OrgId == orgId)
+		default:
+			hasPermission = (model.UserId == userId)
+		}
+		if hasPermission {
+			authorizedModelIds = append(authorizedModelIds, modelId)
+		} else {
+			unauthorizedModelId = modelId
+		}
+	}
+
+	if unauthorizedModelId != "" {
+		return authorizedModelIds, grpc_util.ErrorStatusWithKey(err_code.Code_BFFGeneral, "bff_model_perm", unauthorizedModelId)
+	}
+	return authorizedModelIds, nil
+}
+
 // --- internal ---
 
 func getModelIdByUuid(ctx *gin.Context, uuid string) (string, error) {

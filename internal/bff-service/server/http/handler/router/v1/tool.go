@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	v1 "github.com/UnicomAI/wanwu/internal/bff-service/server/http/handler/v1"
+	"github.com/UnicomAI/wanwu/internal/bff-service/server/http/middleware"
 	mid "github.com/UnicomAI/wanwu/pkg/gin-util/mid-wrap"
 	"github.com/gin-gonic/gin"
 )
@@ -58,6 +59,6 @@ func registerTool(apiV1 *gin.RouterGroup) {
 	mid.Sub("resource.prompt").Reg(apiV1, "/prompt/custom/list", http.MethodGet, v1.GetCustomPromptList, "获取自定义Prompt列表")
 	mid.Sub("resource.prompt").Reg(apiV1, "/prompt/custom/copy", http.MethodPost, v1.CopyCustomPrompt, "复制自定义Prompt")
 	mid.Sub("resource.prompt").Reg(apiV1, "/prompt/template", http.MethodPost, v1.CreatePromptByTemplate, "复制提示词模板")
-	mid.Sub("resource.prompt").Reg(apiV1, "/prompt/optimize", http.MethodPost, v1.GetPromptOptimize, "提示词优化")
+	mid.Sub("resource.prompt").Reg(apiV1, "/prompt/optimize", http.MethodPost, v1.GetPromptOptimize, "提示词优化", middleware.AuthModel([]string{"modelId"}))
 
 }
