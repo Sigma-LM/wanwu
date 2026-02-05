@@ -505,6 +505,7 @@ export default {
             'knowledgeBaseConfig',
             'safetyConfig',
             'qaKnowledgeBaseConfig',
+            'visionConfig',
           ];
           const changed = props.some(prop => {
             return (
