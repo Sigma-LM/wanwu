@@ -58,8 +58,18 @@ func fixFrontMatterFormat(content string) string {
 	secondStart += firstEnd
 	secondEnd := secondStart + 3
 
+	// 处理字段，确保每个字段后面都有换行
+	lines := strings.Split(strings.TrimSpace(content[firstEnd:secondStart]), "\n")
+	var processedLines []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			processedLines = append(processedLines, line+"\n\n")
+		}
+	}
 	// 重新构建内容
-	result := "---\n" + content[firstEnd:secondStart] + "\n---" + content[secondEnd:]
+	result := "---\n\n" + strings.Join(processedLines, "") + "---" + content[secondEnd:]
 
 	return result
 }
