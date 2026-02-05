@@ -1420,6 +1420,9 @@ export default {
     fileTypeNotSupportedTips1: '部分文件类型不支持或超出数量限制，已自动忽略',
     fileTypeNotSupportedTips2: '部分文件类型不支持或体积过大，已自动忽略',
     answerOperationTip: '该内容由AI生成，内容仅供参考，请仔细甄别',
+    runCompleted: '运行完毕',
+    copy: '复制',
+    copySuccess: '复制成功',
     toolDetail: {
       modelLoadingText: '模型加载中...',
       selectRerank: '请选择rerank模型',
@@ -1464,6 +1467,8 @@ export default {
       modelSearchPlaceholder: '可输入模型名称搜索',
       visionModelTips:
         '*您选择的是图文问答类模型，此类模型暂时无法调用知识库、联网检索及工具',
+      visionModelTips_yuanJing:
+        '*您所选的模型暂时无法调用知识库、联网检索及工具',
       functionCallTips:
         '*您所选模型不支持Tool Call，这会在一定程度上影响智能体性能，请谨慎选择',
       prologue: '开场白',
