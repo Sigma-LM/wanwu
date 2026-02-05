@@ -503,34 +503,36 @@ def update_child_chunk(user_id, kb_name, file_name, chunk_id, chunk_current_num,
     try:
         # 从 aggregated_data 里提取多模态数据
         if child_content and is_multimodal:
-            content_response = get_content_by_ids(user_id, kb_name, [chunk_id])
-            logger.info(f"获取父分段 content_id: {chunk_id}, 结果: {content_response}")
-            if content_response['code'] != 0:
-                raise RuntimeError(f"获取父分段信息失败， user_id: {user_id},kb_name: {kb_name}, content_id: {chunk_id}")
-            else:
-                parent_chunk = content_response["data"]["contents"][0]["content"]
-                parent_content = parent_chunk["content"]
-                meta_data = parent_chunk["meta_data"]
+            batch_data=[]
+            # 需要提取图片链接并校验图片size是否符合emb模型input规格
+            image_urls = extract_minio_markdown_images(child_content)
+            if image_urls:
+                check_size_result = check_files_size(image_urls, emb_model_id)
+                logger.info(f"发现提取到了多模态文件信息:{image_urls},检验大小结果：{check_size_result}")
+                for idx, image_url in enumerate(image_urls):  # 遍历图片链接
+                    if not check_size_result[idx]:
+                        continue
+                    image_chunk = {"embedding_content": image_url, "content_type": "image"}
+                    batch_data.append(image_chunk)
+            if batch_data:
+                content_response = get_content_by_ids(user_id, kb_name, [chunk_id])
+                logger.info(f"获取父分段 content_id: {chunk_id}, 结果: {content_response}")
+                if content_response['code'] != 0:
+                    raise RuntimeError(
+                        f"获取父分段信息失败， user_id: {user_id},kb_name: {kb_name}, content_id: {chunk_id}")
+                else:
+                    parent_chunk = content_response["data"]["contents"][0]
+                    parent_content = parent_chunk["content"]
+                    meta_data = parent_chunk["meta_data"]
+                    for item in batch_data:
+                        item["content"] = parent_content
+                        item["meta_data"] = meta_data
 
-                batch_data=[]
-                # 需要提取图片链接并校验图片size是否符合emb模型input规格
-                image_urls = extract_minio_markdown_images(child_content)
-                if image_urls:
-                    check_size_result = check_files_size(image_urls, emb_model_id)
-                    logger.info(f"发现提取到了多模态文件信息:{image_urls},检验大小结果：{check_size_result}")
-                    for idx, image_url in enumerate(image_urls):  # 遍历图片链接
-                        if not check_size_result[idx]:
-                            continue
-                        image_chunk = {"embedding_content": image_url, "content_type": "image",
-                                       "content": parent_content, "meta_data": meta_data}
-                        batch_data.append(image_chunk)
-                if batch_data:
-                    insert_result = add_milvus(user_id, kb_name, batch_data, file_name, "",
-                                               kb_id=kb_id, extract_multimodal_file=False)
-                    logger.info(f"update_child_chunk添加image到milvus结果：{insert_result}")
-
-                    if insert_result['code'] != 0:
-                        raise RuntimeError(f"update_child_chunk添加image到milvus失败, insert_result: {insert_result}")
+                insert_result = add_milvus(user_id, kb_name, batch_data, file_name, "",
+                                           kb_id=kb_id, extract_multimodal_file=False)
+                logger.info(f"update_child_chunk添加image到milvus结果：{insert_result}")
+                if insert_result['code'] != 0:
+                    raise RuntimeError(f"update_child_chunk添加image到milvus失败, insert_result: {insert_result}")
     except Exception as e:
         # skip add image failure
         logger.error(str(e))

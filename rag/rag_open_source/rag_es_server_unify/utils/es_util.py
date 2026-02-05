@@ -1755,7 +1755,16 @@ def get_child_contents(index_name, kb_name, content_id):
                 ]
             }
         },
-        "size": 500  # 增加返回的条数
+        "size": 500,  # 增加返回的条数
+        "_source": {
+            "excludes": [
+                "content_vector",
+                "q_768_content_vector",
+                "q_1024_content_vector",
+                "q_1536_content_vector",
+                "q_2048_content_vector"
+            ]
+        }  # 查询索引时排除embedding数据
     }
     response = es.search(index=index_name, body=query)
     # 遍历搜索结果，填充列表
