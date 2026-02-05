@@ -6,7 +6,7 @@
     <span class="back" @click="back">
       {{
         $t('menu.back') +
-        (type === workflow ? $t('menu.templateSquare') : ' Skills')
+        (type === workflow ? $t('menu.templateSquare') : $t('menu.resource'))
       }}
     </span>
     <div class="tempSquare-title">
@@ -261,7 +261,7 @@ export default {
   color: #333;
 }
 .tempSquare-detail {
-  padding: 30px 40px;
+  padding: 20px;
   overflow: auto;
   .back {
     color: $color;
