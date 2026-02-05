@@ -203,7 +203,6 @@ export default {
               flex-wrap: wrap;
               margin: 6px -10px 0;
               align-content: flex-start;
-              padding-bottom: 20px;
               /*overflow: auto;*/
               .card {
                 position: relative;
