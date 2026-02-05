@@ -37,8 +37,8 @@ body.el-popup-parent--hidden {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background-color: rgba(255, 255, 255, 0);
 }
 ::-webkit-scrollbar-button {
@@ -49,8 +49,8 @@ body.el-popup-parent--hidden {
 }
 ::-webkit-scrollbar-thumb {
   background-color: #c1c1c1;
-  min-height: 50px;
-  /*min-width: 50px;*/
+  min-height: 40px;
+  min-width: 40px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   /*-webkit-transition: background-color 0.2s;
