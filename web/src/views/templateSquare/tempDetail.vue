@@ -4,7 +4,10 @@
     :style="isPublic ? `background: ${bgColor}; min-height: 100%` : ''"
   >
     <span class="back" @click="back">
-      {{ $t('menu.back') + $t('menu.templateSquare') }}
+      {{
+        $t('menu.back') +
+        (type === workflow ? $t('menu.templateSquare') : ' Skills')
+      }}
     </span>
     <div class="tempSquare-title">
       <div class="tempSquare-title-left">
@@ -32,7 +35,7 @@
           <p v-else class="desc">{{ detail.desc }}</p>
         </div>
       </div>
-      <div>
+      <div style="margin-left: 10px">
         <el-button
           v-if="type === workflow"
           type="primary"

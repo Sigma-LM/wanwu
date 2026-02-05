@@ -119,7 +119,7 @@ export default {
       const path = '/skill/detail';
       this.$router.push({
         path,
-        query: { templateSquareId: val.skillId, type: this.type },
+        query: { templateSquareId: val.skillId, type: 'skill' },
       });
     },
   },
