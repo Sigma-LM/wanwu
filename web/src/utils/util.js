@@ -208,6 +208,14 @@ export function parseSub(data, index, searchList) {
   });*/
 }
 
+// 子会话专用的 parseSub
+export function parseSubConversation(text, index, searchList, id) {
+  return text.replace(/\【([0-9]{0,2})\^\】/g, item => {
+    let result = item.match(/\【([0-9]{0,2})\^\】/)[1];
+    return `<sup class='citation' data-parents-index='${index}' data-pid='${id}'>${result}</sup>`;
+  });
+}
+
 /**
  *获取URL参数
  */

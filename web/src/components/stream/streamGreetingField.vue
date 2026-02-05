@@ -118,7 +118,8 @@ export default {
   overflow-y: auto;
   width: auto;
   .session-item {
-    width: 600px;
+    width: 100%;
+    max-width: 600px;
     min-height: 80px;
     display: flex;
     justify-content: center;

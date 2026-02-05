@@ -1538,6 +1538,9 @@ export default {
     answerOperationTip: '该内容由AI生成，内容仅供参考，请仔细甄别',
     addWorkFlowTips: '工作流添加成功，默认自动使用最新版本',
     source: '出处',
+    runCompleted: '运行完毕',
+    copy: '复制',
+    copySuccess: '复制成功',
     toolDetail: {
       modelLoadingText: '模型加载中...',
       selectRerank: '请选择rerank模型',
@@ -1594,7 +1597,9 @@ export default {
       modelSelectConfigTips: '模型参数配置',
       modelSearchPlaceholder: '可输入模型名称搜索',
       visionModelTips:
-        '*您选择的是图文问答类模型，此类模型暂时无法调用知识库、联网检索及工具',
+        '*您选择的是图文问答类模型，受模型能力限制，可能会导致工具调用效果欠佳',
+      visionModelTips_yuanJing:
+        '*您所选的模型暂时无法调用知识库、联网检索及工具',
       functionCallTips:
         '*您所选模型不支持Tool Call，这会在一定程度上影响智能体性能，请谨慎选择',
       maxHistory: '上下文记忆轮数',

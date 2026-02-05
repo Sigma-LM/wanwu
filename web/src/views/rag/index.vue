@@ -1,5 +1,9 @@
 <template>
-  <CommonLayout :isButton="false" :showAside="false">
+  <CommonLayout
+    :isButton="false"
+    :showAside="false"
+    class="right-page-content-body"
+  >
     <template #main-content>
       <div class="app-content">
         <Chat :editForm="editForm" :chatType="'chat'" />
