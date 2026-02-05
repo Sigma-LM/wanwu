@@ -91,18 +91,20 @@ func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentCh
 			toolCall := chatMessage.ToolCalls[0]
 			if len(toolCall.Function.Arguments) > 0 {
 				respContext.AgentTempMessage.WriteString(toolCall.Function.Arguments)
-				return contentList, nil, false
+				if !toolParamsEnd(chatMessage) {
+					return contentList, nil, false
+				}
+
 			}
 		}
-		if chatMessage.ResponseMeta != nil && chatMessage.ResponseMeta.FinishReason == "tool_calls" {
+		if toolParamsEnd(chatMessage) {
 			respContext.AgentStart = false
-			var tempMessage = respContext.AgentTempMessage.String()
+			agentName := buildAgentName(respContext.AgentTempMessage.String())
 			respContext.AgentTempMessage = strings.Builder{}
-			var agentInfo = &AgentInfo{}
-			_ = json.Unmarshal([]byte(tempMessage), agentInfo)
-			respContext.CurrentAgent = agentInfo.AgentName
+
+			respContext.CurrentAgent = agentName
 			respContext.CurrentAgentId = uuid.New().String()
-			respContext.CurrentAgentAvatar = buildAgentAvatar(agentInfo.AgentName, req)
+			respContext.CurrentAgentAvatar = buildAgentAvatar(agentName, req)
 			return contentList, BuildStartSubAgent(respContext), false
 		}
 	}
@@ -227,7 +229,13 @@ func exitToolStart(chatMessage *schema.Message, respContext *AgentChatRespContex
 // agentStart 子智能体开始
 func agentStart(chatMessage *schema.Message, respContext *AgentChatRespContext) (first bool, start bool) {
 	if respContext.AgentStart {
-		return false, true
+
+		if !subAgentParamsStart(chatMessage) {
+			return false, true
+
+		}
+		//如果在开始过程中，模型抽风又触发开始，先忽略之前得清空
+		respContext.AgentTempMessage.Reset()
 	}
 	if AgentStartLabel == chatMessage.ToolName {
 		return true, true
@@ -240,10 +248,35 @@ func agentStart(chatMessage *schema.Message, respContext *AgentChatRespContext) 
 		if toolCall.Function.Arguments != respContext.MainAgentName {
 			respContext.AgentStart = true
 			respContext.AgentStartTime = time.Now().UnixMilli()
+			agentName := buildAgentName(toolCall.Function.Arguments)
+			if len(agentName) > 0 {
+				return false, true
+			}
 		}
 		return true, true
 	}
 	return false, false
+}
+
+func buildAgentName(tempMessage string) string {
+	if len(tempMessage) == 0 {
+		return ""
+	}
+	if !json.Valid([]byte(tempMessage)) {
+		return ""
+	}
+	var agentInfo = &AgentInfo{}
+	_ = json.Unmarshal([]byte(tempMessage), agentInfo)
+	return agentInfo.AgentName
+}
+
+// 子智能体参数开始
+func subAgentParamsStart(chatMessage *schema.Message) bool {
+	if len(chatMessage.ToolCalls) == 0 {
+		return false
+	}
+	toolCall := chatMessage.ToolCalls[0]
+	return AgentStartLabel == toolCall.Function.Name
 }
 
 // buildEventType 事件类型构造
