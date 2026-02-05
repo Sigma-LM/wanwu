@@ -90,10 +90,9 @@
             <div class="overview-item">
               <!--<div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>-->
               <div class="item-desc">
-                <div
-                  class="readme-content markdown-body tempSquare-markdown"
-                  v-html="md.render(detail.skillMarkdown || '')"
-                ></div>
+                <div class="tempSquare-markdown">
+                  <MdRender :content="detail.skillMarkdown" />
+                </div>
               </div>
             </div>
           </div>
@@ -138,9 +137,10 @@ import {
 import { SKILL, WORKFLOW } from './constants';
 import { avatarSrc } from '@/utils/util';
 import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
+import MdRender from '@/components/mdRender.vue';
 
 export default {
-  components: { CreateWorkflow },
+  components: { CreateWorkflow, MdRender },
   data() {
     return {
       basePath: this.$basePath,
@@ -255,11 +255,6 @@ export default {
 };
 </script>
 <style lang="scss">
-@import '@/style/markdown.scss';
-.markdown-body {
-  font-family: 'Microsoft YaHei', Arial, sans-serif;
-  color: #333;
-}
 .tempSquare-detail {
   padding: 20px;
   overflow: auto;

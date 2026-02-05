@@ -225,6 +225,7 @@ export default {
     copy: {
       success: '内容已复制到粘贴板',
       copyText: '副本',
+      copySuccess: '复制成功',
     },
     required: '必填',
     noData: '暂无数据',
