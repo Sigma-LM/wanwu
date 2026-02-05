@@ -363,3 +363,7 @@ pre::-webkit-scrollbar {
     background: #eee;
   }
 }
+
+.right-page-content-body {
+  height: calc(100vh - 92px)!important;
+}

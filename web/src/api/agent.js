@@ -31,6 +31,13 @@ export const getAgentPublishedInfo = params => {
   });
 };
 
+export const getMultiAgentList = params => {
+  return service({
+    url: `${USER_API}/assistant/select`,
+    method: 'get',
+    params,
+  });
+};
 export const bindMultiAgent = data => {
   return service({
     url: `${USER_API}/assistant/multi-agent`,
