@@ -1,17 +1,14 @@
 import os
 import copy
+import logging
 
-from logging_config import setup_logging
 from utils.tools import generate_md5
 from utils import milvus_utils
 from utils import es_utils
 from utils import file_utils
 from utils import redis_utils
 
-logger_name = 'rag_chunk_utils'
-app_name = os.getenv("LOG_FILE")
-logger = setup_logging(app_name, logger_name)
-logger.info(logger_name + '---------LOG_FILE：' + repr(app_name))
+logger = logging.getLogger(__name__)
 
 chunk_label_redis_client = redis_utils.get_redis_connection(redis_db=5)
 
