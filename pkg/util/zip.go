@@ -44,6 +44,8 @@ func DirToBytes(dir string) ([]byte, error) {
 			return err
 		}
 		header.Name = zipPath
+		// 指明使用store只存储不使用压缩算法
+		header.Method = zip.Store
 
 		// 创建 ZIP 条目
 		writer, err := zipWriter.CreateHeader(header)
