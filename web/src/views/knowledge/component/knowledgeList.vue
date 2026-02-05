@@ -63,9 +63,14 @@
             </p>
           </div>
           <div class="info rl">
-            <p class="name" :title="n.name">
-              {{ n.name }}
-            </p>
+            <div style="display: flex">
+              <p class="name" :title="n.name">
+                {{ n.name }}
+              </p>
+              <label v-if="n.category === 2">
+                {{ $t('knowledgeManage.multiKnowledgeDatabase.label') }}
+              </label>
+            </div>
             <el-tooltip
               v-if="n.description"
               popper-class="instr-tooltip tooltip-cover-arrow"

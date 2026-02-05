@@ -1025,6 +1025,7 @@ export default {
       documentAnalysis: '文档解析服务',
       documentAnalysisDesc:
         '若需使用，请前往模型管理-联通元景-添加文档解析服务',
+      visionModal: '图文问答模型',
       read: '可读',
       edit: '可编辑',
       admin: '管理员',
@@ -1160,7 +1161,8 @@ export default {
         addFile: '新增文件',
         fileUpload: '文件上传',
         paramSetting: '参数设置',
-        file: '从文件上传',
+        file: '文本/表格文件上传',
+        fileMultiModal: '多模态文件上传',
         fileUrl: 'url文件上传',
         url: 'url单条上传',
         clickText: '将文件拖到此处，或',
@@ -1184,9 +1186,18 @@ export default {
     },
     multiKnowledgeDatabase: {
       title: '多模态知识库',
+      label: '多模态',
       desc: '实现多模态知识库内容解析，支持融合图像、音频、视频等多种模态的知识内容，为需要结合多类型信息的复杂场景提供多维度的知识支撑。',
       mixWarning:
         '您所选模型为Text Rerank模型，重排时会忽略掉多模态文件，请谨慎选择',
+      fileLimitError: '暂未获取到可上传的文件类型',
+      uploadTipsVideo: '支持视频{extList}，每个不超过{maxSize}MB',
+      uploadTipsAudio: '支持音频{extList}，每个文件大小限制由ASR模型决定',
+      uploadTipsImage: '支持图片{extList}，每个不超过{maxSize}MB',
+      videoSizeLimit: '上传视频不能超过{maxSize}MB',
+      audioSizeLimit:
+        '您所选模型支持解析的最大音频为{maxSize}MB，上传文件中有不满足限制的文件',
+      imageSizeLimit: '上传图片不能超过{maxSize}MB',
     },
     qaDatabase: {
       title: '问答库',
@@ -1320,7 +1331,7 @@ export default {
       '结合向量和关键词检索，融合语义理解与关键词匹配，兼顾相关性和准确性，提升检索效果。',
     weight: '权重设置',
     weightHint:
-      '权重设置功能用于调整不同检索方式的影响力。通过设置权重，可以控制语义相似度和关键词匹配在最终排序中的占比。',
+      '权重设置功能用于调整不同检索方式的影响力。通过设置权重，可以控制语义相似度和关键词匹配在最终排序中的占比。最终排序结果中只包含文本。',
   },
   explore: {
     hint: '提示',
@@ -1801,6 +1812,7 @@ export default {
     recommendedQuestion: '推荐问题:',
     qaUplodFileTips: '文件上传成功，请手动刷新问答库列表',
     imgLimit: '图片类型限制{num}个文件，其他类型限制1个文件',
+    imgLimitOnly: '图片类型限制{num}个文件',
     imgLimitTips: '非图片类型文件会替换已有文件',
     uploadModelTips:
       ' *若该智能体基于大语言模型创建，则上传图片暂时无法进行解析',

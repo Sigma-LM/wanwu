@@ -113,6 +113,14 @@ export const docReImport = data => {
   });
 };
 
+export const getDocLimit = params => {
+  return service({
+    url: `${USER_API}/knowledge/doc/upload/limit`,
+    method: 'get',
+    params,
+  });
+};
+
 export const getDocConfig = params => {
   return service({
     url: `${USER_API}/knowledge/doc/config`,

@@ -162,12 +162,6 @@ export default {
       link.click();
       window.URL.revokeObjectURL(link.href);
     },
-    handleUpload() {
-      this.$router.push({
-        path: '/knowledge/fileUpload',
-        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
-      });
-    },
     refreshData(data) {
       this.tableData = data;
     },

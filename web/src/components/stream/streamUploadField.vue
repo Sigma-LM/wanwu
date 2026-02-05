@@ -128,7 +128,14 @@
                   max="100"
                   style="width: 360px; margin: 0 auto"
                 ></el-progress>
-                <p>
+                <p
+                  v-if="
+                    fileTypeArr.length === 1 && fileTypeArr[0] === 'image/*'
+                  "
+                >
+                  {{ $t('app.imgLimitOnly', { num: maxPicNum }) }}
+                </p>
+                <p v-else>
                   {{ $t('app.imgLimit', { num: maxPicNum }) }}
                   <span style="color: var(--color)">
                     {{ $t('common.fileUpload.click') }}
@@ -151,7 +158,10 @@
                   <span>{{ tipsArr }}</span>
                   {{ $t('common.fileUpload.typeFileTip') }}
                 </p>
-                <p style="padding-top: 5px; color: #dc6803 !important">
+                <p
+                  v-if="type === 'agentChat'"
+                  style="padding-top: 5px; color: #dc6803 !important"
+                >
                   {{ $t('app.uploadModelTips') }}
                 </p>
               </div>
@@ -176,7 +186,7 @@
 import { mapGetters } from 'vuex';
 import uploadChunk from '@/mixins/uploadChunk';
 export default {
-  props: ['fileTypeArr', 'sessionId'],
+  props: ['fileTypeArr', 'type', 'sessionId'],
   mixins: [uploadChunk],
   data() {
     return {

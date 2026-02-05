@@ -252,6 +252,49 @@
             </span>
           </p>
         </div>
+        <div
+          class="block"
+          v-if="
+            editForm.visionsupport === 'support' &&
+            getCategory !== KNOWLEDGE &&
+            visionsupportRerank
+          "
+        >
+          <p class="block-title common-set">
+            <span class="common-set-label">
+              {{ $t('agent.form.vision') }}
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="$t('agent.form.visionTips1')"
+                placement="top"
+              >
+                <span class="el-icon-question question-tips"></span>
+              </el-tooltip>
+            </span>
+            <!--            <span class="common-add" @click="showVisualSet">-->
+            <!--              <el-tooltip-->
+            <!--                class="item"-->
+            <!--                effect="dark"-->
+            <!--                :content="$t('agent.form.visionTips')"-->
+            <!--                placement="top-start"-->
+            <!--              >-->
+            <!--                <span class="el-icon-s-operation operation">-->
+            <!--                  <span class="handleBtn">{{ $t('agent.form.config') }}</span>-->
+            <!--                </span>-->
+            <!--              </el-tooltip>-->
+            <!--            </span>-->
+            <el-switch
+              :value="editForm.visionConfig.picNum === 1"
+              @input="
+                val => {
+                  editForm.visionConfig.picNum = val ? 1 : 0;
+                  setMaxPicNum(editForm.visionConfig.picNum);
+                }
+              "
+            ></el-switch>
+          </p>
+        </div>
       </div>
       <div class="drawer-test block">
         <Chat
@@ -274,6 +317,8 @@
       ref="modelSetDialog"
       :modelConfig="editForm.modelConfig"
     />
+    <!-- 视图设置 -->
+    <visualSet ref="visualSet" @sendVisual="sendVisual" />
 
     <setSafety ref="setSafety" @sendSafety="sendSafety" />
   </div>
@@ -281,12 +326,17 @@
 
 <script>
 import { appPublish, getApiKeyRoot } from '@/api/appspace';
+import { mapActions } from 'vuex';
 import CreateTxtQues from '@/components/createApp/createRag.vue';
 import ModelSet from './modelSetDialog.vue';
 import metaSet from '@/components/metaSet';
 import setSafety from '@/components/setSafety';
 import VersionPopover from '@/components/versionPopover';
-import { getRerankList, selectModelList } from '@/api/modelAccess';
+import {
+  getModelDetail,
+  getRerankList,
+  selectModelList,
+} from '@/api/modelAccess';
 import { getRagInfo, getRagPublishedInfo, updateRagConfig } from '@/api/rag';
 import Chat from './chat';
 import chiChat from '@/components/app/chiChat.vue';
@@ -303,8 +353,10 @@ import {
 } from '@/views/knowledge/constants';
 import CopyIcon from '@/components/copyIcon.vue';
 import { avatarSrc } from '@/utils/util';
+import visualSet from '@/views/agent/components/visualSet.vue';
 export default {
   components: {
+    visualSet,
     CopyIcon,
     LinkIcon,
     Chat,
@@ -360,12 +412,18 @@ export default {
           },
         ],
       },
+      visionsupportRerank: '',
       editForm: {
         appId: '',
         avatar: {},
         name: '',
         desc: '',
         modelParams: '',
+        visionsupport: '',
+        visionConfig: {
+          //视觉配置
+          picNum: 0, //为0时不启用图搜功能
+        },
         modelConfig: {
           temperature: 0.14,
           topP: 0.85,
@@ -462,6 +520,22 @@ export default {
       },
       deep: true,
     },
+    'editForm.knowledgeBaseConfig.config.rerankModelId': {
+      handler(newVal) {
+        if (newVal)
+          getModelDetail({
+            modelId: this.editForm.knowledgeBaseConfig.config.rerankModelId,
+          }).then(res => {
+            if (res.code === 0) {
+              this.visionsupportRerank =
+                res.data.modelType === 'multimodal-rerank';
+            }
+          });
+        else this.visionsupportRerank = false;
+      },
+      deep: true,
+      immediate: true,
+    },
   },
   computed: {
     getCategory() {
@@ -497,6 +571,9 @@ export default {
       }, 500);
     }
   },
+  beforeDestroy() {
+    this.clearMaxPicNum();
+  },
   methods: {
     avatarSrc,
     reloadData() {
@@ -508,6 +585,7 @@ export default {
       this.version = item.version || '';
       this.getDetail();
     },
+    ...mapActions('app', ['setMaxPicNum', 'clearMaxPicNum']),
     //获取知识库或问答库选中数据
     getSelectKnowledge(data, type) {
       this.editForm[type]['knowledgebases'] = data;
@@ -567,6 +645,8 @@ export default {
             this.editForm.avatar = res.data.avatar;
             this.editForm.name = res.data.name;
             this.editForm.desc = res.data.desc;
+            this.editForm.visionConfig = res.data.visionConfig;
+            this.setMaxPicNum(this.editForm.visionConfig.picNum);
             this.setModelInfo(res.data.modelConfig.modelId);
 
             if (
@@ -617,6 +697,12 @@ export default {
           this.isSettingFromDetail = false;
         });
     },
+    showVisualSet() {
+      this.$refs.visualSet.showDialog(this.editForm.visionConfig);
+    },
+    sendVisual(data) {
+      this.editForm.visionConfig.picNum = data.picNum;
+    },
     setModelInfo(val) {
       if (!val) return;
       const selectedModel = this.modelOptions.find(
@@ -624,6 +710,7 @@ export default {
       );
       if (selectedModel) {
         this.editForm.modelParams = val;
+        this.editForm.visionsupport = selectedModel.config.visionSupport;
       } else {
         this.editForm.modelParams = '';
         if (val) this.$message.warning(this.$t('agent.form.modelNotSupport'));
@@ -803,6 +890,14 @@ export default {
             provider: qaRerankInfo ? qaRerankInfo.provider : '',
           },
           safetyConfig: this.editForm.safetyConfig,
+          visionConfig: {
+            picNum:
+              this.editForm.visionsupport === 'support' &&
+              this.getCategory !== KNOWLEDGE &&
+              this.visionsupportRerank
+                ? this.editForm.visionConfig.picNum
+                : 0,
+          },
         };
         const res = await updateRagConfig(fromParams);
 

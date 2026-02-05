@@ -852,6 +852,7 @@ export default {
           mode: 'config',
           title: this.$t('knowledgeManage.segmentConfig'),
           docIdList: docIdList,
+          category: this.category,
         },
       });
     },
@@ -976,7 +977,11 @@ export default {
     handleUpload() {
       this.$router.push({
         path: '/knowledge/fileUpload',
-        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
+        query: {
+          id: this.docQuery.knowledgeId,
+          name: this.knowledgeName,
+          category: this.category,
+        },
       });
     },
     refreshData(data, tableInfo) {

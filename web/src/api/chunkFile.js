@@ -51,3 +51,21 @@ export const continueChunks = data => {
     params: data,
   });
 };
+export const uploadFile = (data, config) => {
+  //上传文件
+  return request({
+    url: `${SERVICE_API}/file/upload/direct`,
+    method: 'post',
+    data,
+    config,
+  });
+};
+export const uploadFileMD = (data, config) => {
+  //上传文件 md返回
+  return request({
+    url: `${SERVICE_API}/rag/upload`,
+    method: 'post',
+    data,
+    config,
+  });
+};
