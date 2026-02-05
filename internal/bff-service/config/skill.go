@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/UnicomAI/wanwu/pkg/util"
 )
@@ -27,12 +28,38 @@ func (stf *SkillsConfig) AgentSkillZipToBytes(skillsId string) ([]byte, error) {
 }
 
 // --- internal ---
+
 func (stf *SkillsConfig) load() error {
 	markdownPath := filepath.Join(akConfigDir, stf.MdPath)
 	b, err := os.ReadFile(markdownPath)
 	if err != nil {
-		return fmt.Errorf("load skill %v makrdown path %v err: %v", stf.SkillId, markdownPath, err)
+		return fmt.Errorf("load skill %v markdown path %v err: %v", stf.SkillId, markdownPath, err)
 	}
-	stf.SkillMarkdown = b
+
+	// 处理 front matter 格式=
+	stf.SkillMarkdown = []byte(fixFrontMatterFormat(string(b)))
 	return nil
+}
+
+// fixFrontMatterFormat 确保 front matter 格式正确
+func fixFrontMatterFormat(content string) string {
+	// 如果内容不以 --- 开头，直接返回
+	if !strings.HasPrefix(content, "---") {
+		return content
+	}
+
+	// 找到第一个 --- 和第二个 ---(中间包裹的为name des license字段)
+	firstEnd := 3 // 第一个 --- 占3个字符
+	secondStart := strings.Index(content[firstEnd:], "---")
+	if secondStart == -1 {
+		return content // 没有结束标记
+	}
+
+	secondStart += firstEnd
+	secondEnd := secondStart + 3
+
+	// 重新构建内容
+	result := "---\n" + content[firstEnd:secondStart] + "\n---" + content[secondEnd:]
+
+	return result
 }
