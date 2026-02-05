@@ -221,7 +221,7 @@ def exact(video_path, parser_choices, multimodal_model_id):
         frame_interval = max(1, total_frames // 200)
     else:
         frame_interval = 5
-    frame_interval = 20
+
     logger.info("---->frame_interval=%s" % frame_interval)
     # file_extension = path_obj.suffix
     page_chunks = []
@@ -300,7 +300,7 @@ def exact_text(video_path, parser_choices, multimodal_model_id):
         frame_interval = max(1, total_frames // 200)
     else:
         frame_interval = 5
-    frame_interval = 20
+
     logger.info("---->frame_interval=%s" % frame_interval)
     keyframe_id_set = diff_exaction(video_path, frame_interval=frame_interval)  # 控制提取的关键帧间隔
     cap = cv2.VideoCapture(video_path)
