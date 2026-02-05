@@ -131,7 +131,7 @@ export default {
 .tempSquare-management {
   .card-search-cust {
     justify-content: flex-start;
-    margin-top: 15px;
+    margin-top: 10px;
   }
 }
 </style>
