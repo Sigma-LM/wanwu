@@ -143,24 +143,18 @@
                 </el-tooltip>
               </el-col>
               <el-col>
-                <el-select
-                  clearable
-                  filterable
+                <modelSelect
                   style="width: 100%"
-                  :loading-text="$t('searchConfig.loading')"
                   v-model="formInline.knowledgeMatchParams.rerankModelId"
+                  :options="rerankOptions"
+                  :placeholder="$t('common.input.placeholder')"
                   @visible-change="visibleChange($event)"
                   @change="handleRerankChange"
-                  :placeholder="$t('common.input.placeholder')"
+                  :loading-text="$t('searchConfig.loading')"
                   :loading="rerankLoading"
-                >
-                  <el-option
-                    v-for="item in rerankOptions"
-                    :key="item.modelId"
-                    :label="item.displayName"
-                    :value="item.modelId"
-                  ></el-option>
-                </el-select>
+                  clearable
+                  filterable
+                />
               </el-col>
             </el-row>
             <el-row>
@@ -232,7 +226,10 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
+      <el-form-item
+        class="searchType-list graph-switch"
+        v-if="showGraphSwitch === 'true'"
+      >
         <template #label>
           <span class="graph-switch-title">
             {{ $t('knowledgeManage.graph.useGraph') }}
@@ -248,7 +245,9 @@
 <script>
 import { getRerankList, getMultiRerankList } from '@/api/modelAccess';
 import { QA, MULTIMODAL, MIX_MULTIMODAL } from '@/views/knowledge/constants';
+import ModelSelect from '@/components/modelSelect.vue';
 export default {
+  components: { ModelSelect },
   props: [
     'setType',
     'config',
@@ -399,7 +398,10 @@ export default {
       return Object.prototype.hasOwnProperty.call(item, key);
     },
     filteredMixType(item) {
-      if (this.category && this.category === QA) {
+      if (
+        this.category &&
+        (this.category === QA || this.category === MULTIMODAL)
+      ) {
         return item.mixType.filter((_, idx) => idx !== 0);
       }
       return item.mixType;
@@ -451,10 +453,10 @@ export default {
     },
     getRerankData() {
       this.rerankLoading = true;
-      const request =
-        this.knowledgeCategory === MULTIMODAL
-          ? getMultiRerankList()
-          : getRerankList();
+      const request = getRerankList();
+      // this.knowledgeCategory === MULTIMODAL
+      //   ? getMultiRerankList()
+      //   : getRerankList();
       request
         .then(res => {
           if (res.code === 0) {
@@ -471,28 +473,30 @@ export default {
       }
     },
     handleRerankChange(value) {
-      // 直接触发事件，避免防抖延迟
-      if (this.setType === 'knowledge') {
-        const formData = JSON.parse(JSON.stringify(this.formInline));
-        delete formData.knowledgeMatchParams.maxHistory;
-        this.$emit('sendConfigInfo', formData);
-      } else {
-        const selectedRerankOption = this.rerankOptions.find(
-          item =>
-            item.modelId === this.formInline.knowledgeMatchParams.rerankModelId,
-        );
-        if (
-          this.knowledgeCategory === MIX_MULTIMODAL &&
-          selectedRerankOption &&
-          selectedRerankOption.modelType !== 'multimodal-rerank'
-        ) {
-          this.$message.warning(
-            this.$t('knowledgeManage.multiKnowledgeDatabase.mixWarning'),
+      this.$nextTick(() => {
+        if (this.setType === 'knowledge') {
+          const formData = JSON.parse(JSON.stringify(this.formInline));
+          delete formData.knowledgeMatchParams.maxHistory;
+          this.$emit('sendConfigInfo', formData);
+        } else {
+          const selectedRerankOption = this.rerankOptions.find(
+            item =>
+              item.modelId ===
+              this.formInline.knowledgeMatchParams.rerankModelId,
           );
+          if (
+            this.knowledgeCategory === MIX_MULTIMODAL &&
+            selectedRerankOption &&
+            selectedRerankOption.modelType !== 'multimodal-rerank'
+          ) {
+            this.$message.warning(
+              this.$t('knowledgeManage.multiKnowledgeDatabase.mixWarning'),
+            );
+          }
+          const payload = JSON.parse(JSON.stringify(this.formInline));
+          this.$emit('sendConfigInfo', payload);
         }
-        const payload = JSON.parse(JSON.stringify(this.formInline));
-        this.$emit('sendConfigInfo', payload);
-      }
+      });
     },
   },
 };

@@ -230,9 +230,11 @@
                   </el-dropdown>
                 </div>
               </div>
-              <div class="text item" @click="handleClick(item, index)">
-                {{ item.content }}
-              </div>
+              <div
+                class="text item"
+                v-html="md.render(item.content)"
+                @click="handleClick(item, index)"
+              ></div>
               <div
                 class="tagList"
                 v-if="
@@ -521,6 +523,7 @@ import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue';
 import { mapGetters } from 'vuex';
+import { md } from '@/mixins/markdown-it';
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -534,6 +537,7 @@ export default {
   components: { SearchInput, dataBaseDialog, tagDialog, createChunk },
   data() {
     return {
+      md,
       submitLoading: false,
       oldContent: '',
       title: '创建关键词',
@@ -1282,6 +1286,11 @@ export default {
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        img {
+          width: auto;
+          max-height: 115px;
+        }
       }
 
       .clearfix {
