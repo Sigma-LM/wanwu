@@ -35,7 +35,7 @@ def make_request(url: str, data: dict):
         response_info['message'] = str(e)
         return response_info
 
-def generate_chunks_bacth(user_id: str, kb_name: str, chunks: list, batch_size=1000):
+def generate_chunks_bacth(user_id: str, kb_name: str, chunks: list, batch_size=1000, extract_multimodal_file: bool = True):
     """ 将chunks 按chunk_current_num分组并生成批次数据，每个list的长度为batch_size"""
     batch_data = []
     # 使用defaultdict来聚合数据
@@ -58,7 +58,7 @@ def generate_chunks_bacth(user_id: str, kb_name: str, chunks: list, batch_size=1
     emb_model_id = kb_info.get("embedding_model_id")
     for key, value in aggregated_data.items():
         # 从 aggregated_data 里提取多模态数据
-        if value and is_multimodal:
+        if value and is_multimodal and extract_multimodal_file:
             # 需要提取图片链接并校验图片size是否符合emb模型input规格
             image_urls = extract_minio_markdown_images(value[0].get("content", ""))
             if image_urls:
@@ -289,7 +289,7 @@ def search_milvus(user_id, kb_names, top_k, question, threshold, search_field, e
 ADD_URL = MILVUS_BASE_URL + '/rag/kn/add'
 ADD_COMMUNItY_REPORT_URL = MILVUS_BASE_URL + '/rag/kn/add_community_reports'
 
-def add_milvus(user_id, kb_name, sub_chunk, add_file_name, add_file_path, kb_id="", milvus_url = ADD_URL):
+def add_milvus(user_id, kb_name, sub_chunk, add_file_name, add_file_path, kb_id="", milvus_url = ADD_URL, extract_multimodal_file: bool = True):
     batch_size = 200
     response_info = {'code': 0, "message": "成功"}
     batch_count = 0
@@ -297,7 +297,7 @@ def add_milvus(user_id, kb_name, sub_chunk, add_file_name, add_file_path, kb_id=
     fail_count = 0
     error_reason = []
     # sub_chunk 批次生成器,按 按chunk_current_num分组并生成批次数据
-    chunk_gen = generate_chunks_bacth(user_id, kb_name, sub_chunk, batch_size=batch_size)
+    chunk_gen = generate_chunks_bacth(user_id, kb_name, sub_chunk, batch_size=batch_size, extract_multimodal_file=extract_multimodal_file)
     for batch in chunk_gen:
         insert_data = {}
         insert_data['userId'] = user_id
@@ -487,11 +487,53 @@ def list_file_names_after_filtering(user_id, kb_name, filtering_conditions, kb_i
     return make_request(url, data)
 
 
-def update_child_chunk(user_id, kb_name, chunk_id, chunk_current_num, child_chunk, kb_id=""):
+def update_child_chunk(user_id, kb_name, file_name, chunk_id, chunk_current_num, child_chunk, kb_id=""):
     """
         更新知识库子段
     """
     url = MILVUS_BASE_URL + '/rag/kn/update_child_chunk'
+
+    is_multimodal = False
+    kb_info = get_kb_info(user_id, kb_name)
+    if kb_info and "is_multimodal" in kb_info and kb_info.get("is_multimodal"):
+        is_multimodal = True
+    emb_model_id = kb_info.get("embedding_model_id")
+
+    child_content = child_chunk["child_content"]
+    try:
+        # 从 aggregated_data 里提取多模态数据
+        if child_content and is_multimodal:
+            content_response = get_content_by_ids(user_id, kb_name, [chunk_id])
+            logger.info(f"获取父分段 content_id: {chunk_id}, 结果: {content_response}")
+            if content_response['code'] != 0:
+                raise RuntimeError(f"获取父分段信息失败， user_id: {user_id},kb_name: {kb_name}, content_id: {chunk_id}")
+            else:
+                parent_chunk = content_response["data"]["contents"][0]["content"]
+                parent_content = parent_chunk["content"]
+                meta_data = parent_chunk["meta_data"]
+
+                batch_data=[]
+                # 需要提取图片链接并校验图片size是否符合emb模型input规格
+                image_urls = extract_minio_markdown_images(child_content)
+                if image_urls:
+                    check_size_result = check_files_size(image_urls, emb_model_id)
+                    logger.info(f"发现提取到了多模态文件信息:{image_urls},检验大小结果：{check_size_result}")
+                    for idx, image_url in enumerate(image_urls):  # 遍历图片链接
+                        if not check_size_result[idx]:
+                            continue
+                        image_chunk = {"embedding_content": image_url, "content_type": "image",
+                                       "content": parent_content, "meta_data": meta_data}
+                        batch_data.append(image_chunk)
+                if batch_data:
+                    insert_result = add_milvus(user_id, kb_name, batch_data, file_name, "",
+                                               kb_id=kb_id, extract_multimodal_file=False)
+                    logger.info(f"update_child_chunk添加image到milvus结果：{insert_result}")
+
+                    if insert_result['code'] != 0:
+                        raise RuntimeError(f"update_child_chunk添加image到milvus失败, insert_result: {insert_result}")
+    except Exception as e:
+        # skip add image failure
+        logger.error(str(e))
 
     data = {
         'userId': user_id,

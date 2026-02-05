@@ -259,7 +259,7 @@ def update_child_chunk(user_id: str, kb_name: str, file_name: str, chunk_id: str
     """
     logger.info(f"========= update_child_chunk start：user_id: {user_id}, kb_name: {kb_name}, kb_id: {kb_id}, "
                 f"file_name: {file_name}, chunk_id: {chunk_id}, chunk_current_num: {chunk_current_num}, child_chunk: {child_chunk}")
-    response_info = milvus_utils.update_child_chunk(user_id, kb_name, chunk_id, chunk_current_num, child_chunk)
+    response_info = milvus_utils.update_child_chunk(user_id, kb_name, file_name, chunk_id, chunk_current_num, child_chunk)
     logger.info(f"========= update_child_chunk end：user_id: {user_id}, kb_name: {kb_name}, kb_id: {kb_id}, "
                 f"file_name: {file_name}, chunk_id: {chunk_id}")
 

@@ -19,6 +19,7 @@ import utils.mapping_util as es_mapping
 from utils import emb_util
 from utils.util import get_qa_index_name
 from utils.http_util import validate_request
+from model.model_manager import is_multimodal_model
 
 app = Flask(__name__)
 
@@ -117,7 +118,6 @@ def add_vector_data(request_json=None):
     kb_id = request_json.get("kb_id")
     embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(userId, kb_name)
     doc_list = request_json.get("data")
-    is_multimodal_kb = kb_info_ops.is_multimodal_kb(userId, kb_name)
     userId_kb_names = []
     cc_doc_list = []  # content主控表的数据
     cc_duplicate_list = []
@@ -173,7 +173,7 @@ def add_vector_data(request_json=None):
         mapping_properties = {}
         field_name = ""
         for batch_doc in batch_list(doc_list, batch_size=EMBEDDING_BATCH_SIZE):
-            if is_multimodal_kb: # 多模态知识库则按多模态去编码
+            if is_multimodal_model(embedding_model_id): # 多模态模型则按多模态去编码
                 inputs = []
                 for x in batch_doc:
                     if x.get("content_type", "text") == "image":
@@ -774,7 +774,12 @@ def update_child_chunk(request_json=None):
         logger.info(f"用户:{userId},display_kb_name: {display_kb_name},请求的kb_name为:{kb_name}, chunk_id: {chunk_id}, "
                     f"chunk_current_num: {chunk_current_num}, child_chunk: {child_chunk}")
 
-        res = emb_util.get_embs([child_content], embedding_model_id=embedding_model_id)
+        if is_multimodal_model(embedding_model_id):  # 多模态模型则按多模态去编码
+            inputs = [{"text": child_content}]
+            res = emb_util.get_multimodal_embs(inputs, embedding_model_id=embedding_model_id)
+        else:  # 非多模态知识库则按之前的文本去编码
+            res = emb_util.get_embs([child_content], embedding_model_id=embedding_model_id)
+
         dense_vector_dim = len(res["result"][0]["dense_vec"]) if res["result"] else 1024
         field_name = f"q_{dense_vector_dim}_content_vector"
         if dense_vector_dim == 1024:
@@ -1649,7 +1654,10 @@ def add_community_reports_data(request_json=None):
 
         # ========= 将 embedding_content 编码好向量 =============
         for batch_doc in batch_list(doc_list, batch_size=EMBEDDING_BATCH_SIZE):
-            res = emb_util.get_embs([x["embedding_content"] for x in batch_doc], embedding_model_id=embedding_model_id)
+            if is_multimodal_model(embedding_model_id):  # 多模态模型则按多模态去编码
+                res = emb_util.get_multimodal_embs([{"text": x["embedding_content"]} for x in batch_doc], embedding_model_id=embedding_model_id)
+            else:  # 非多模态知识库则按之前的文本去编码
+                res = emb_util.get_embs([x["embedding_content"] for x in batch_doc], embedding_model_id=embedding_model_id)
             dense_vector_dim = len(res["result"][0]["dense_vec"]) if res["result"] else 1024
             field_name = f"q_{dense_vector_dim}_content_vector"
 
@@ -1932,7 +1940,10 @@ def add_qa_data(request_json=None):
 
         # ========= 将 embedding_content 编码好向量 =============
         for batch_doc in batch_list(qa_list, batch_size=EMBEDDING_BATCH_SIZE):
-            res = emb_util.get_embs([x["question"] for x in batch_doc], embedding_model_id=embedding_model_id)
+            if is_multimodal_model(embedding_model_id):  # 多模态模型则按多模态去编码
+                res = emb_util.get_multimodal_embs([{"text": x["question"]} for x in batch_doc], embedding_model_id=embedding_model_id)
+            else:  # 非多模态知识库则按之前的文本去编码
+                res = emb_util.get_embs([x["question"] for x in batch_doc], embedding_model_id=embedding_model_id)
             dense_vector_dim = len(res["result"][0]["dense_vec"]) if res["result"] else 1024
             field_name = f"q_{dense_vector_dim}_content_vector"
 
@@ -2025,7 +2036,10 @@ def update_qa(request_json=None):
 
         if "question" in update_data:
             embedding_model_id = kb_info_ops.get_uk_kb_emb_model_id(user_id, qa_base_name)
-            res = emb_util.get_embs([update_data["question"]], embedding_model_id=embedding_model_id)
+            if is_multimodal_model(embedding_model_id):  # 多模态模型则按多模态去编码
+                res = emb_util.get_multimodal_embs([{"text": update_data["question"]}], embedding_model_id=embedding_model_id)
+            else:  # 非多模态知识库则按之前的文本去编码
+                res = emb_util.get_embs([update_data["question"]], embedding_model_id=embedding_model_id)
             if len(res["result"]) != 1:
                 raise RuntimeError(f"Error getting embeddings:{update_data}")
             dense_vector_dim = len(res["result"][0]["dense_vec"]) if res["result"] else 1024

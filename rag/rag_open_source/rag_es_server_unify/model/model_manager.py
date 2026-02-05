@@ -204,3 +204,10 @@ def get_model_configure(model_id: str) -> BaseModelConfig:
     except Exception as e:
         logger.error(f"Failed to fetch model config for ID {model_id}: {repr(e)}")
         raise RuntimeError(f"Failed to get model configuration: {e}")
+
+def is_multimodal_model(model_id: str) -> bool:
+    """
+    判断模型是否支持多模态
+    """
+    model_config = get_model_configure(model_id)
+    return model_config.is_multimodal
