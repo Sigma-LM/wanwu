@@ -5,16 +5,10 @@
         <div class="app-card-create" @click="showCreate">
           <div class="create-img-wrap">
             <img
-              class="create-type"
-              src="@/assets/imgs/safety_import.png"
-              alt=""
-            />
-            <img
               class="create-img"
-              src="@/assets/imgs/create_icon.png"
+              src="@/assets/imgs/card_create_icon_safety.svg"
               alt=""
             />
-            <div class="create-filter"></div>
           </div>
           <span>{{ $t('safety.safetyList.create') }}</span>
         </div>
@@ -26,42 +20,44 @@
           :key="`${i}sm`"
           @click.stop="toWordList(n)"
         >
-          <div class="info rl">
-            <div class="logo-wrap">
-              <img class="logo" :src="require('@/assets/imgs/safety.png')" />
-            </div>
-            <div>
-              <p class="name" :title="n.tableName">
-                {{ n.tableName }}
-              </p>
-              <el-tooltip
-                v-if="n.remark"
-                popper-class="instr-tooltip tooltip-cover-arrow"
-                effect="dark"
-                :content="n.remark"
-                placement="bottom-start"
-              >
-                <p class="desc">{{ n.remark }}</p>
-              </el-tooltip>
-            </div>
+          <div class="smart-card-header">
+            <img class="logo" :src="require('@/assets/imgs/safety.png')" />
+            <p class="name" :title="n.tableName">
+              {{ n.tableName }}
+            </p>
           </div>
-          <div class="tags">
-            <span :class="['smartDate', 'tagList']">{{ n.createdAt }}</span>
-          </div>
-          <div class="editor">
-            <el-dropdown @command="handleClick($event, n)" placement="top">
-              <span class="el-dropdown-link">
-                <i class="el-icon-more icon edit-icon" @click.stop></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="edit">
-                  {{ $t('common.button.edit') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="delete">
-                  {{ $t('common.button.delete') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+
+          <el-tooltip
+            v-if="n.remark"
+            popper-class="instr-tooltip tooltip-cover-arrow"
+            effect="dark"
+            :content="n.remark"
+            placement="bottom-start"
+          >
+            <p class="desc">{{ n.remark }}</p>
+          </el-tooltip>
+
+          <div class="smart-card-footer">
+            <div class="tags">
+              <span :class="['smartDate', 'tagList']">{{ n.createdAt }}</span>
+            </div>
+            <div class="smart-card-footer-right">
+              <div class="editor">
+                <el-dropdown @command="handleClick($event, n)" placement="top">
+                  <span class="el-dropdown-link">
+                    <i class="el-icon-more icon edit-icon" @click.stop></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="edit">
+                      {{ $t('common.button.edit') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="delete">
+                      {{ $t('common.button.delete') }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -161,7 +157,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/style/appCard.scss';
+@import '@/style/commonCard.scss';
 .app-card {
   .smart {
     height: 152px;
@@ -173,17 +169,6 @@ export default {
       padding-right: 0;
       display: flex;
       justify-content: flex-start;
-    }
-    .desc {
-      padding-top: 5px;
-    }
-    .logo {
-      border-radius: 50%;
-      background: #f1f4ff;
-      box-shadow: none;
-      padding: 0 5px !important;
-      width: 65px !important;
-      height: 65px !important;
     }
     .tagList {
       cursor: pointer;

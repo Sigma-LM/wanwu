@@ -6,52 +6,43 @@
           <div class="create-img-wrap">
             <img
               v-if="imgObj[type]"
-              class="create-type"
+              class="create-img"
               :src="imgObj[type]"
               alt=""
             />
-            <img
-              class="create-img"
-              src="@/assets/imgs/create_icon.png"
-              alt=""
-            />
-            <div class="create-filter"></div>
           </div>
           <span>{{ `${$t('common.button.add')}${apptype[type] || ''}` }}</span>
         </div>
       </div>
-      <div
-        v-if="listData && listData.length"
-        class="smart rl"
-        v-for="(n, i) in listData"
-        :key="`${i}sm`"
-        :style="`cursor: ${isCanClick(n) ? 'pointer' : 'default'} !important;`"
-        @click.stop="isCanClick(n) && toEdit(n)"
-      >
-        <el-image
-          v-if="n.avatar && n.avatar.path"
-          class="logo"
-          lazy
-          :src="avatarSrc(n.avatar.path)"
-          :key="`${i}-${n.appId}-avatar`"
-        ></el-image>
-        <span :class="['tag-app', `${n.appType}-tag`]">
-          {{ apptype[n.appType] || '' }}
-        </span>
-        <img
-          v-if="apptype[n.appType]"
-          class="tag-img"
-          src="@/assets/imgs/rectangle.png"
-          alt=""
-        />
-        <div class="info rl">
-          <p class="name-wrap" :title="n.name">
-            <span class="name">{{ n.name }}</span>
-            <i
-              v-if="isShowPublished && n.publishType"
-              class="el-icon-success published-icon"
-            />
-          </p>
+      <template v-if="listData && listData.length">
+        <div
+          class="smart rl"
+          v-for="(n, i) in listData"
+          :key="`${i}sm`"
+          :style="`cursor: ${isCanClick(n) ? 'pointer' : 'default'} !important;`"
+          @click.stop="isCanClick(n) && toEdit(n)"
+        >
+          <!-- 类型标签 -->
+          <span :class="['ribbon', conversionRibbon(n.appType, n.category)]">
+            <span>{{ conversionRibbonText(n.appType, n.category) }}</span>
+          </span>
+
+          <div class="smart-card-header">
+            <el-image
+              v-if="n.avatar && n.avatar.path"
+              class="logo"
+              lazy
+              :src="avatarSrc(n.avatar.path)"
+              :key="`${i}-${n.appId}-avatar`"
+            ></el-image>
+            <p class="name-wrap" :title="n.name">
+              <span class="name">{{ n.name }}</span>
+              <i
+                v-if="isShowPublished && n.publishType"
+                class="el-icon-success published-icon"
+              />
+            </p>
+          </div>
           <el-tooltip
             v-if="n.desc"
             popper-class="instr-tooltip tooltip-cover-arrow"
@@ -61,113 +52,126 @@
           >
             <p class="desc">{{ n.desc }}</p>
           </el-tooltip>
-        </div>
-        <div :class="['tags', { 'is-showTool-tags': isExploreShowTool(n) }]">
-          <span :class="['smartDate']">{{ n.createdAt }}</span>
-          <div v-if="!isShowTool" class="favorite-wrap">
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="n.user.userName"
-              placement="top-start"
-            >
-              <span class="user-name">
-                {{
-                  n.user
-                    ? n.user.userName.length > 6
-                      ? n.user.userName.substring(0, 6) + '...'
-                      : n.user.userName
-                    : ''
-                }}
-              </span>
-            </el-tooltip>
-            <img
-              v-if="!n.isFavorite"
-              class="favorite"
-              src="@/assets/imgs/like.png"
-              alt=""
-              @click="handelMark($event, n, i)"
-            />
-            <img
-              v-else
-              class="favorite"
-              src="@/assets/imgs/like_active.png"
-              alt=""
-              @click="handelMark($event, n, i)"
-            />
+
+          <div class="smart-card-footer">
+            <span :class="['smartDate']">{{ n.createdAt }}</span>
+            <div class="smart-card-footer-right">
+              <div
+                :class="['tags', { 'is-showTool-tags': isExploreShowTool(n) }]"
+              >
+                <div v-if="!isShowTool" class="favorite-wrap">
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="n.user.userName"
+                    placement="top-start"
+                  >
+                    <span class="user-name">
+                      {{
+                        n.user
+                          ? n.user.userName.length > 6
+                            ? n.user.userName.substring(0, 6) + '...'
+                            : n.user.userName
+                          : ''
+                      }}
+                    </span>
+                  </el-tooltip>
+                  <img
+                    v-if="!n.isFavorite"
+                    class="favorite"
+                    src="@/assets/imgs/like.png"
+                    alt=""
+                    @click="handelMark($event, n, i)"
+                  />
+                  <img
+                    v-else
+                    class="favorite"
+                    src="@/assets/imgs/like_active.png"
+                    alt=""
+                    @click="handelMark($event, n, i)"
+                  />
+                </div>
+              </div>
+
+              <div v-if="isShowPublished && n.publishType" class="publishType">
+                <span
+                  v-if="n.publishType === 'private'"
+                  class="publishType-tag"
+                >
+                  <span class="el-icon-lock"></span>
+                  {{ $t('appSpace.private') }}
+                </span>
+                <span v-else class="publishType-tag">
+                  <span class="el-icon-unlock"></span>
+                  {{ $t('appSpace.public') }}
+                </span>
+              </div>
+
+              <div class="editor" v-if="isShowTool">
+                <el-dropdown @command="handleClick($event, n)" placement="top">
+                  <span class="el-dropdown-link">
+                    <i class="el-icon-more icon edit-icon" @click.stop />
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="edit" v-if="isCanClick(n)">
+                      {{ $t('common.button.edit') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="delete">
+                      {{ $t('common.button.delete') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="copy">
+                      {{ $t('common.button.copy') }}
+                    </el-dropdown-item>
+                    <!--不在卡片进行发布-->
+                    <!--<el-dropdown-item
+                      command="publish"
+                      v-if="n.appType === workflow && !n.publishType"
+                    >
+                      {{$t('common.button.publish')}}
+                    </el-dropdown-item>-->
+                    <el-dropdown-item command="publishSet" v-if="n.publishType">
+                      {{ $t('appSpace.publishSet') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item
+                      command="export"
+                      v-if="[workflow, chat].includes(n.appType)"
+                    >
+                      {{ $t('common.button.export') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item
+                      command="transform"
+                      v-if="[workflow, chat].includes(n.appType)"
+                    >
+                      {{
+                        $t('common.button.transform') +
+                        (n.appType === workflow
+                          ? $t('appSpace.chat')
+                          : $t('appSpace.workflow'))
+                      }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </div>
+
+              <div class="editor editor-explore" v-if="isExploreShowTool(n)">
+                <el-dropdown @command="handleClick($event, n)" placement="top">
+                  <span class="el-dropdown-link">
+                    <i class="el-icon-more icon edit-icon" @click.stop />
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="copy">
+                      {{ $t('common.button.copy') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="export">
+                      {{ $t('common.button.export') }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </div>
+            </div>
           </div>
         </div>
-        <div v-if="isShowPublished && n.publishType" class="publishType">
-          <span v-if="n.publishType === 'private'" class="publishType-tag">
-            <span class="el-icon-lock"></span>
-            {{ $t('appSpace.private') }}
-          </span>
-          <span v-else class="publishType-tag">
-            <span class="el-icon-unlock"></span>
-            {{ $t('appSpace.public') }}
-          </span>
-        </div>
-        <div class="editor" v-if="isShowTool">
-          <el-dropdown @command="handleClick($event, n)" placement="top">
-            <span class="el-dropdown-link">
-              <i class="el-icon-more icon edit-icon" @click.stop />
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="edit" v-if="isCanClick(n)">
-                {{ $t('common.button.edit') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="delete">
-                {{ $t('common.button.delete') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="copy">
-                {{ $t('common.button.copy') }}
-              </el-dropdown-item>
-              <!--不在卡片进行发布-->
-              <!--<el-dropdown-item
-                command="publish"
-                v-if="n.appType === workflow && !n.publishType"
-              >
-                {{$t('common.button.publish')}}
-              </el-dropdown-item>-->
-              <el-dropdown-item command="publishSet" v-if="n.publishType">
-                {{ $t('appSpace.publishSet') }}
-              </el-dropdown-item>
-              <el-dropdown-item
-                command="export"
-                v-if="[workflow, chat].includes(n.appType)"
-              >
-                {{ $t('common.button.export') }}
-              </el-dropdown-item>
-              <el-dropdown-item
-                command="transform"
-                v-if="[workflow, chat].includes(n.appType)"
-              >
-                {{
-                  $t('common.button.transform') +
-                  (n.appType === workflow
-                    ? $t('appSpace.chat')
-                    : $t('appSpace.workflow'))
-                }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </div>
-        <div class="editor editor-explore" v-if="isExploreShowTool(n)">
-          <el-dropdown @command="handleClick($event, n)" placement="top">
-            <span class="el-dropdown-link">
-              <i class="el-icon-more icon edit-icon" @click.stop />
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="copy">
-                {{ $t('common.button.copy') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="export">
-                {{ $t('common.button.export') }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </div>
-      </div>
+      </template>
     </div>
     <el-empty
       class="noData"
@@ -262,10 +266,10 @@ export default {
         { key: 'public', value: this.$t('workflow.publicTotalText') },
       ],
       imgObj: {
-        [WORKFLOW]: require(`@/assets/imgs/create_workflow.png`),
-        [CHAT]: require(`@/assets/imgs/create_chatflow.svg`),
-        [AGENT]: require(`@/assets/imgs/create_agent.png`),
-        [RAG]: require(`@/assets/imgs/create_rag.png`),
+        [WORKFLOW]: require(`@/assets/imgs/card_create_icon_workflow.svg`),
+        [CHAT]: require(`@/assets/imgs/card_create_icon_chatflow.svg`),
+        [AGENT]: require(`@/assets/imgs/card_create_icon_agent.svg`),
+        [RAG]: require(`@/assets/imgs/card_create_icon_rag.svg`),
       },
     };
   },
@@ -640,12 +644,34 @@ export default {
         })
         .catch(() => {});
     },
+    // 转换飘带样式
+    conversionRibbon(_appType, category = -1) {
+      switch (_appType) {
+        case AGENT:
+          return category === 2 ? 'gold' : 'blue';
+        case RAG:
+          return 'cyan';
+        case WORKFLOW:
+          return 'blue';
+        case CHAT:
+          return 'purple';
+      }
+    },
+    // 转换飘带文字内容（为区分多智能体）
+    conversionRibbonText(_appType, category = -1) {
+      if (!this.apptype[_appType]) {
+        return '';
+      }
+      return _appType === AGENT && category === 2
+        ? this.$t('appSpace.multiAgent')
+        : AppType[_appType];
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import '@/style/appCard.scss';
+@import '@/style/commonCard.scss';
 .noData {
   padding: 30px 0;
 }

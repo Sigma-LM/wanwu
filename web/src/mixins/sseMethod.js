@@ -563,7 +563,7 @@ export default {
                     response: '',
                     stableChunks: [],
                     activeResponse: '',
-                    isOpen: true, // 默认展开
+                    isOpen: false, // 默认收起
                     searchList: data.search_list || [], // 初始化 searchList
                     citationsTagList: [], // 已引用的出处索引
                   };
