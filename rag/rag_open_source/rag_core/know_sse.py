@@ -150,6 +150,7 @@ def get_prompt(question: str,
 
     # 处理并截取 context
     valid_search_list = []
+    res_search_list = []  # 返回的 res_search_list
     current_context_tokens = 0
 
     for i, x in enumerate(search_list):
@@ -159,6 +160,7 @@ def get_prompt(question: str,
 
         if current_context_tokens + item_tokens <= available_tokens_for_context:
             valid_search_list.append(item_text)
+            res_search_list.append(x)
             current_context_tokens += item_tokens
         else:
             break
@@ -175,7 +177,7 @@ def get_prompt(question: str,
     if "{citation}" in template_to_use:
         render_kwargs.update({"citation": citation, "default_answer": default_answer_text})
 
-    return formatted_prompt.format(**render_kwargs), valid_search_list
+    return formatted_prompt.format(**render_kwargs), res_search_list
 
 
 def calculate_multimodal_tokens(content_list):
