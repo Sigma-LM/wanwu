@@ -585,7 +585,6 @@ export default {
   min-height: calc(100vh - 92px);
   box-sizing: border-box;
   overflow: hidden;
-  padding: 10px;
   .graph-map-content {
     width: 100%;
     height: 100%;

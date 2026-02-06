@@ -1,5 +1,5 @@
 <template>
-  <div class="section" v-loading="loading.itemStatus">
+  <div class="section page-wrapper" v-loading="loading.itemStatus">
     <div class="title">
       <i
         class="el-icon-arrow-left"
