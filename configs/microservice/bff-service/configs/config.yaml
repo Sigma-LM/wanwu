@@ -173,7 +173,7 @@ doc-center:
     - key: workflow-1059
       val: 6.工作流/组件/JSON反序列化节点.md
 
-models :
+models:
   - model_id: "Asr"
     model_type: "asr"
     provider: "YuanJing"
@@ -240,10 +240,14 @@ operate:
 rag-knowledge:
   endpoint: 'http://rag-wanwu:8681'
   chat-endpoint: 'http://rag-wanwu:10891'
+  upload-endpoint: 'http://rag-wanwu:15000'
   search-knowledge-base-uri: '/rag/search-knowledge-base'
   knowledge-chat-uri: '/rag/knowledge/stream/search'
   search-qa-base-uri: '/rag/search-QA-base'
   search-know-timeout: 300
+  upload-uri: '/upload'
+  upload-bucket: 'rag-public'
+  upload-timeout: 120
 
 dify-knowledge:
   search-knowledge-base-uri: '/datasets/{dataset_id}/retrieve'

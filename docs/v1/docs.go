@@ -4955,6 +4955,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/file/upload/direct": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "文件上传",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "common"
+                ],
+                "summary": "文件上传",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "原始文件名",
+                        "name": "fileName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.DirectUploadFilesResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/knowledge": {
             "put": {
                 "security": [
@@ -5958,6 +6014,54 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/knowledge/doc/upload/limit": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取可上传文件类型",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "knowledge.doc"
+                ],
+                "summary": "获取可上传文件类型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "knowledgeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.DocUploadLimitResp"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -11411,6 +11515,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/rag/upload": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rag"
+                ],
+                "summary": "文件直接上传到rag",
+                "parameters": [
+                    {
+                        "description": "RAG上传文档请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RagUploadParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.RagUploadResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/role": {
             "put": {
                 "security": [
@@ -16016,6 +16170,13 @@ const docTemplate = `{
                 "ragId"
             ],
             "properties": {
+                "fileInfo": {
+                    "description": "上传文档列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.ConversionStreamFile"
+                    }
+                },
                 "history": {
                     "type": "array",
                     "items": {
@@ -17021,7 +17182,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodal",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -17088,7 +17249,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodal",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -17153,15 +17314,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docSize": {
-                    "description": "文档类型",
+                    "description": "文档大小（可选）",
                     "type": "integer"
                 },
                 "docType": {
-                    "description": "文档类型",
+                    "description": "文档后缀",
                     "type": "string"
                 },
                 "docUrl": {
-                    "description": "文档url",
+                    "description": "文档url（可选）",
                     "type": "string"
                 }
             }
@@ -17508,10 +17669,16 @@ const docTemplate = `{
         "request.KnowledgeHitReq": {
             "type": "object",
             "required": [
-                "knowledgeMatchParams",
-                "question"
+                "knowledgeMatchParams"
             ],
             "properties": {
+                "docInfoList": {
+                    "description": "上传文档列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocInfo"
+                    }
+                },
                 "knowledgeList": {
                     "type": "array",
                     "items": {
@@ -18641,6 +18808,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppSafetyConfig"
                         }
                     ]
+                },
+                "visionConfig": {
+                    "description": "视觉开关配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.RagVisionConfig"
+                        }
+                    ]
                 }
             }
         },
@@ -18655,6 +18830,23 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "string"
+                }
+            }
+        },
+        "request.RagUploadParams": {
+            "type": "object",
+            "properties": {
+                "markdown": {
+                    "description": "是否返回markdown格式url",
+                    "type": "boolean"
+                }
+            }
+        },
+        "request.RagVisionConfig": {
+            "type": "object",
+            "properties": {
+                "enable": {
+                    "type": "boolean"
                 }
             }
         },
@@ -20269,6 +20461,15 @@ const docTemplate = `{
                 "knowledgeName": {
                     "type": "string"
                 },
+                "rerankInfo": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RerankInfo"
+                    }
+                },
+                "score": {
+                    "type": "number"
+                },
                 "snippet": {
                     "type": "string"
                 },
@@ -21129,6 +21330,38 @@ const docTemplate = `{
                 }
             }
         },
+        "response.DirectUploadFileInfo": {
+            "type": "object",
+            "properties": {
+                "fileId": {
+                    "description": "上传文件名",
+                    "type": "string"
+                },
+                "fileName": {
+                    "description": "原始文件名",
+                    "type": "string"
+                },
+                "filePath": {
+                    "description": "minio文件的完整路径",
+                    "type": "string"
+                },
+                "fileSize": {
+                    "description": "文件大小",
+                    "type": "integer"
+                }
+            }
+        },
+        "response.DirectUploadFilesResp": {
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DirectUploadFileInfo"
+                    }
+                }
+            }
+        },
         "response.DocChildSegmentResp": {
             "type": "object",
             "properties": {
@@ -21422,6 +21655,37 @@ const docTemplate = `{
                 "uploadTime": {
                     "description": "上传时间",
                     "type": "string"
+                }
+            }
+        },
+        "response.DocUploadLimit": {
+            "type": "object",
+            "properties": {
+                "extList": {
+                    "description": "文件后缀列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fileType": {
+                    "description": "文件类型 图片：image 视频：video",
+                    "type": "string"
+                },
+                "maxSize": {
+                    "description": "文件大小限制，单位MB",
+                    "type": "integer"
+                }
+            }
+        },
+        "response.DocUploadLimitResp": {
+            "type": "object",
+            "properties": {
+                "uploadLimitList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DocUploadLimit"
+                    }
                 }
             }
         },
@@ -23381,6 +23645,36 @@ const docTemplate = `{
                             "$ref": "#/definitions/request.AppSafetyConfig"
                         }
                     ]
+                },
+                "visionConfig": {
+                    "description": "视觉开关",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.RagVisionConfig"
+                        }
+                    ]
+                }
+            }
+        },
+        "response.RagUploadFile": {
+            "type": "object",
+            "properties": {
+                "fileIndex": {
+                    "type": "integer"
+                },
+                "fileUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.RagUploadResponse": {
+            "type": "object",
+            "properties": {
+                "fileList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RagUploadFile"
+                    }
                 }
             }
         },
@@ -23410,6 +23704,20 @@ const docTemplate = `{
                 "recommendEnable": {
                     "description": "追问配置开关",
                     "type": "boolean"
+                }
+            }
+        },
+        "response.RerankInfo": {
+            "type": "object",
+            "properties": {
+                "fileUrl": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },

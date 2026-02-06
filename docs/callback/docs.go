@@ -3203,9 +3203,27 @@ const docTemplate = `{
                 }
             }
         },
+        "request.RagKnowledgeAttachment": {
+            "type": "object",
+            "properties": {
+                "file_type": {
+                    "type": "string"
+                },
+                "file_url": {
+                    "type": "string"
+                }
+            }
+        },
         "request.RagKnowledgeChatReq": {
             "type": "object",
             "properties": {
+                "attachment_files": {
+                    "description": "上传的多模态文件",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.RagKnowledgeAttachment"
+                    }
+                },
                 "auto_citation": {
                     "description": "是否自动角标",
                     "type": "boolean"
@@ -3216,6 +3234,10 @@ const docTemplate = `{
                 },
                 "custom_model_info": {
                     "$ref": "#/definitions/request.CustomModelInfo"
+                },
+                "enable_vision": {
+                    "description": "召回结果是否包含多模态文件",
+                    "type": "boolean"
                 },
                 "history": {
                     "type": "array",
@@ -3343,12 +3365,22 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "knowledgeIdList",
-                "question",
                 "userId"
             ],
             "properties": {
+                "attachment_files": {
+                    "description": "上传的多模态文件",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.RagKnowledgeAttachment"
+                    }
+                },
                 "auto_citation": {
                     "description": "是否启动知识图谱查询",
+                    "type": "boolean"
+                },
+                "enable_vision": {
+                    "description": "召回结果是否包含多模态文件",
                     "type": "boolean"
                 },
                 "knowledgeIdList": {

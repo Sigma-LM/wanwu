@@ -113,3 +113,13 @@ type DocUrl struct {
 type DocChildSegmentResp struct {
 	SegmentContentList []*ChildSegmentInfo `json:"contentList"` //内容
 }
+
+type DocUploadLimitResp struct {
+	UploadLimitList []*DocUploadLimit `json:"uploadLimitList"`
+}
+
+type DocUploadLimit struct {
+	FileType string   `json:"fileType"` // 文件类型 图片：image 视频：video
+	MaxSize  int      `json:"maxSize"`  // 文件大小限制，单位MB
+	ExtList  []string `json:"extList"`  // 文件后缀列表
+}

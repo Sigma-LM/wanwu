@@ -1410,6 +1410,11 @@ definitions:
     type: object
   request.ChatRagRequest:
     properties:
+      fileInfo:
+        description: 上传文档列表
+        items:
+          $ref: '#/definitions/request.ConversionStreamFile'
+        type: array
       history:
         items:
           $ref: '#/definitions/request.History'
@@ -2083,7 +2088,7 @@ definitions:
         description: asr模型id
         type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
+        description: 文档解析类型 text / ocr  / model / asr / multimodal
         items:
           type: string
         type: array
@@ -2130,7 +2135,7 @@ definitions:
         description: asr模型id
         type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
+        description: 文档解析类型 text / ocr  / model / asr / multimodal
         items:
           type: string
         type: array
@@ -2180,13 +2185,13 @@ definitions:
         description: 文档名称
         type: string
       docSize:
-        description: 文档类型
+        description: 文档大小（可选）
         type: integer
       docType:
-        description: 文档类型
+        description: 文档后缀
         type: string
       docUrl:
-        description: 文档url
+        description: 文档url（可选）
         type: string
     type: object
   request.DocListReq:
@@ -2425,6 +2430,11 @@ definitions:
     type: object
   request.KnowledgeHitReq:
     properties:
+      docInfoList:
+        description: 上传文档列表
+        items:
+          $ref: '#/definitions/request.DocInfo'
+        type: array
       knowledgeList:
         items:
           $ref: '#/definitions/request.AppKnowledgeBase'
@@ -2435,7 +2445,6 @@ definitions:
         type: string
     required:
     - knowledgeMatchParams
-    - question
     type: object
   request.KnowledgeMatchParams:
     properties:
@@ -3198,6 +3207,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppSafetyConfig'
         description: 敏感词表配置
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/request.RagVisionConfig'
+        description: 视觉开关配置
     required:
     - knowledgeBaseConfig
     - modelConfig
@@ -3214,6 +3227,17 @@ definitions:
         type: string
     required:
     - ragId
+    type: object
+  request.RagUploadParams:
+    properties:
+      markdown:
+        description: 是否返回markdown格式url
+        type: boolean
+    type: object
+  request.RagVisionConfig:
+    properties:
+      enable:
+        type: boolean
     type: object
   request.RecommendConfig:
     properties:
@@ -4321,6 +4345,12 @@ definitions:
         type: string
       knowledgeName:
         type: string
+      rerankInfo:
+        items:
+          $ref: '#/definitions/response.RerankInfo'
+        type: array
+      score:
+        type: number
       snippet:
         type: string
       title:
@@ -4868,6 +4898,28 @@ definitions:
         description: 0:删除失败，1：已完成
         type: integer
     type: object
+  response.DirectUploadFileInfo:
+    properties:
+      fileId:
+        description: 上传文件名
+        type: string
+      fileName:
+        description: 原始文件名
+        type: string
+      filePath:
+        description: minio文件的完整路径
+        type: string
+      fileSize:
+        description: 文件大小
+        type: integer
+    type: object
+  response.DirectUploadFilesResp:
+    properties:
+      files:
+        items:
+          $ref: '#/definitions/response.DirectUploadFileInfo'
+        type: array
+    type: object
   response.DocChildSegmentResp:
     properties:
       contentList:
@@ -5073,6 +5125,27 @@ definitions:
       uploadTime:
         description: 上传时间
         type: string
+    type: object
+  response.DocUploadLimit:
+    properties:
+      extList:
+        description: 文件后缀列表
+        items:
+          type: string
+        type: array
+      fileType:
+        description: 文件类型 图片：image 视频：video
+        type: string
+      maxSize:
+        description: 文件大小限制，单位MB
+        type: integer
+    type: object
+  response.DocUploadLimitResp:
+    properties:
+      uploadLimitList:
+        items:
+          $ref: '#/definitions/response.DocUploadLimit'
+        type: array
     type: object
   response.DocUrl:
     properties:
@@ -6375,6 +6448,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/request.AppSafetyConfig'
         description: 敏感词表配置
+      visionConfig:
+        allOf:
+        - $ref: '#/definitions/request.RagVisionConfig'
+        description: 视觉开关
     required:
     - knowledgeBaseConfig
     - modelConfig
@@ -6383,6 +6460,20 @@ definitions:
     - qaRerankConfig
     - ragId
     - rerankConfig
+    type: object
+  response.RagUploadFile:
+    properties:
+      fileIndex:
+        type: integer
+      fileUrl:
+        type: string
+    type: object
+  response.RagUploadResponse:
+    properties:
+      fileList:
+        items:
+          $ref: '#/definitions/response.RagUploadFile'
+        type: array
     type: object
   response.RecommendConfig:
     properties:
@@ -6402,6 +6493,15 @@ definitions:
       recommendEnable:
         description: 追问配置开关
         type: boolean
+    type: object
+  response.RerankInfo:
+    properties:
+      fileUrl:
+        type: string
+      score:
+        type: number
+      type:
+        type: string
     type: object
   response.Response:
     properties:
@@ -9913,6 +10013,39 @@ paths:
       summary: 文件上传
       tags:
       - common.file
+  /file/upload/direct:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 文件上传
+      parameters:
+      - description: 原始文件名
+        in: formData
+        name: fileName
+        required: true
+        type: string
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DirectUploadFilesResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 文件上传
+      tags:
+      - common
   /knowledge:
     delete:
       consumes:
@@ -10520,6 +10653,33 @@ paths:
       security:
       - JWT: []
       summary: 更新文档配置
+      tags:
+      - knowledge.doc
+  /knowledge/doc/upload/limit:
+    get:
+      consumes:
+      - application/json
+      description: 获取可上传文件类型
+      parameters:
+      - in: query
+        name: knowledgeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.DocUploadLimitResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取可上传文件类型
       tags:
       - knowledge.doc
   /knowledge/doc/url/analysis:
@@ -13711,6 +13871,34 @@ paths:
       security:
       - JWT: []
       summary: 私域 草稿RAG 问答
+      tags:
+      - rag
+  /rag/upload:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: RAG上传文档请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RagUploadParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.RagUploadResponse'
+              type: object
+      security:
+      - JWT: []
+      summary: 文件直接上传到rag
       tags:
       - rag
   /role:

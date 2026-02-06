@@ -4,15 +4,19 @@ import (
 	"path/filepath"
 	"strings"
 
+	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
+	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/minio"
+	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
+	mp_jina "github.com/UnicomAI/wanwu/pkg/model-provider/mp-jina"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -24,9 +28,11 @@ const (
 )
 
 var docAnalyzerMap = map[string]string{
-	"text":  "文字提取",
-	"ocr":   "OCR解析",
-	"model": "模型解析",
+	"text":       "文字提取",
+	"ocr":        "OCR解析",
+	"model":      "模型解析",
+	"asr":        "ASR",
+	"multimodal": "图文问答模型",
 }
 
 // GetDocList 查询知识库所属文档列表
@@ -119,7 +125,7 @@ func GetDocDetail(ctx *gin.Context, userId, orgId, docId string) (*response.List
 // ImportDoc 导入文档
 func ImportDoc(ctx *gin.Context, userId, orgId string, req *request.DocImportReq) error {
 	segment := req.DocSegment
-	docInfoList, err := buildDocInfoList(ctx, req)
+	docInfoList, err := buildDocInfoList(ctx, req.DocInfo)
 	if err != nil {
 		log.Errorf("上传失败(构建文档信息列表失败(%v) ", err)
 		return err
@@ -629,6 +635,79 @@ func ExportKnowledgeDoc(ctx *gin.Context, userId, orgId string, req *request.Kno
 	return nil
 }
 
+func GetDocUploadLimit(ctx *gin.Context, userId, orgId string, req *request.QueryKnowledgeReq) (*response.DocUploadLimitResp, error) {
+	// 1.查询知识库获取emb模型id
+	knowledge, err := knowledgeBase.SelectKnowledgeDetailById(ctx.Request.Context(), &knowledgebase_service.KnowledgeDetailSelectReq{
+		KnowledgeId: req.KnowledgeId,
+	})
+	if err != nil {
+		log.Errorf("查询知识库失败(%v) ", err)
+		return nil, err
+	}
+	if knowledge == nil || knowledge.EmbeddingModelInfo == nil {
+		log.Errorf("查询知识库失败")
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "knowledge is nil")
+	}
+	embModelId := knowledge.EmbeddingModelInfo.ModelId
+	// 2.获取图片限制大小
+	imageSize, err := getEmbImageSize(ctx, userId, orgId, embModelId)
+	if err != nil {
+		return nil, err
+	}
+	// 3.获取文件上传后缀
+	docUploadLimitResp, err := knowledgeBaseDoc.GetDocUploadLimit(ctx.Request.Context(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return buildDocUploadLimitResp(imageSize, docUploadLimitResp), nil
+}
+
+func getEmbImageSize(ctx *gin.Context, userId, orgId, embModelId string) (int, error) {
+	modelInfo, err := GetModel(ctx, userId, orgId, &request.GetModelRequest{
+		BaseModelRequest: request.BaseModelRequest{ModelId: embModelId},
+	})
+	if err != nil {
+		log.Errorf("查询模型失败(%v) ", err)
+		return 0, err
+	}
+	// 校验模型类型
+	if modelInfo.ModelType != mp.ModelTypeMultiEmbedding {
+		return 0, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "modelType mismatch")
+	}
+	// 模型配置断言
+	modelConfig, ok := modelInfo.Config.(*mp_jina.MultiModalEmbedding)
+	if !ok {
+		return 0, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "embedding模型配置错误")
+	}
+	if modelConfig == nil || modelConfig.MaxImageSize == nil {
+		return 0, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "embedding模型配置错误")
+	}
+	return int(*(modelConfig.MaxImageSize)), nil
+}
+
+func buildDocUploadLimitResp(imageSize int, docUploadLimitResp *knowledgebase_doc_service.DocUploadLimitResp) *response.DocUploadLimitResp {
+	retList := make([]*response.DocUploadLimit, 0)
+	var maxSize int
+	for _, file := range docUploadLimitResp.List {
+		switch file.FileType {
+		case "image":
+			maxSize = imageSize
+		case "video":
+			maxSize = 100
+		default:
+			maxSize = 0
+		}
+		retList = append(retList, &response.DocUploadLimit{
+			ExtList:  file.ExtList,
+			FileType: file.FileType,
+			MaxSize:  maxSize,
+		})
+	}
+	return &response.DocUploadLimitResp{
+		UploadLimitList: retList,
+	}
+}
+
 func buildMetaInfoList(req *request.DocImportReq) []*knowledgebase_doc_service.DocMetaData {
 	var metaList []*knowledgebase_doc_service.DocMetaData
 	for _, meta := range req.DocMetaData {
@@ -642,9 +721,12 @@ func buildMetaInfoList(req *request.DocImportReq) []*knowledgebase_doc_service.D
 	return metaList
 }
 
-func buildDocInfoList(ctx *gin.Context, req *request.DocImportReq) ([]*knowledgebase_doc_service.DocFileInfo, error) {
+func buildDocInfoList(ctx *gin.Context, docList []*request.DocInfo) ([]*knowledgebase_doc_service.DocFileInfo, error) {
+	if len(docList) == 0 {
+		return make([]*knowledgebase_doc_service.DocFileInfo, 0), nil
+	}
 	var docInfoList []*knowledgebase_doc_service.DocFileInfo
-	for _, info := range req.DocInfo {
+	for _, info := range docList {
 		var docUrl = info.DocUrl
 		var docType = info.DocType
 		if len(docUrl) == 0 {
