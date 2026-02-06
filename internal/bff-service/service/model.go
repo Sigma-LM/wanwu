@@ -154,13 +154,13 @@ func CheckModelUserPermission(ctx *gin.Context, userId, orgId string, modelIds [
 		var hasPermission bool
 		switch model.GetScopeType() {
 		case config.ModelScopeTypePrivate: // 私有
-			hasPermission = (model.UserId == userId)
+			hasPermission = (model.UserId == userId) && (model.OrgId == orgId)
 		case config.ModelScopeTypePublic: // 公开
 			hasPermission = true // 公开模型，任何人都可以访问
 		case config.ModelScopeTypeOrg: // 指定组织可见
 			hasPermission = (model.OrgId == orgId)
 		default:
-			hasPermission = (model.UserId == userId)
+			hasPermission = (model.UserId == userId) && (model.OrgId == orgId)
 		}
 		if hasPermission {
 			authorizedModelIds = append(authorizedModelIds, modelId)

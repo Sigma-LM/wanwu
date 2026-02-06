@@ -101,7 +101,6 @@ func (c *Client) ListModelExperienceDialogRecords(ctx context.Context, userId, o
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithModelExperienceId(modelExperienceId),
 		sqlopt.WithSessionID(sessionId),
-		sqlopt.WithOrgID(orgId),
 		sqlopt.WithUserID(userId),
 	).Apply(c.db).WithContext(ctx).Find(&records).Error; err != nil {
 		return nil, toErrStatus("model_experience_dialog_record_list_err", err.Error())
