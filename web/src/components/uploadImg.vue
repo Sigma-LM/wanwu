@@ -4,7 +4,7 @@
     action=""
     :multiple="false"
     list-type="picture-card"
-    accept=".png,.jpg,.jpeg"
+    :accept="acceptType"
     :limit="1"
     :auto-upload="false"
     :on-change="uploadOnChange"
@@ -30,6 +30,10 @@ export default {
     acceptType: {
       type: String,
       default: '',
+    },
+    maxSize: {
+      type: Number,
+      default: 3,
     },
   },
   data() {
