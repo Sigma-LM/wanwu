@@ -125,7 +125,6 @@
   </div>
 </template>
 <script>
-import { md } from '@/mixins/markdown-it';
 import {
   downloadWorkflow,
   getWorkflowRecommendsList,
@@ -149,7 +148,6 @@ export default {
         'linear-gradient(1deg, rgb(247, 252, 255) 50%, rgb(233, 246, 254) 98%)',
       type: '',
       workflow: WORKFLOW,
-      md: md,
       isFromSquare: true,
       templateSquareId: '',
       detail: {},

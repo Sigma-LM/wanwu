@@ -15,15 +15,33 @@ export default {
       md: md,
     };
   },
+  watch: {
+    content: {
+      handler(val) {
+        if (val) this.addCopy();
+      },
+    },
+    deep: true,
+    immediate: true,
+  },
   mounted() {
-    this.addCopyClick();
+    this.addCopy();
   },
   beforeDestroy() {
-    if (this.timer) clearTimeout(this.timer);
+    this.clearTimer();
   },
   methods: {
+    addCopy() {
+      this.timer = setTimeout(() => {
+        this.addCopyClick();
+        this.clearTimer();
+      }, 1000);
+    },
+    clearTimer() {
+      if (this.timer) clearTimeout(this.timer);
+    },
     addCopyClick() {
-      let copyList = document.getElementsByClassName('copy-btn') || [];
+      let copyList = document.getElementsByClassName('mk-copy-btn') || [];
       for (let i = 0; i < copyList.length; i++) {
         copyList[i].addEventListener('click', e => {
           let innerText = e.target.parentNode.nextElementSibling.innerText;
@@ -31,6 +49,7 @@ export default {
           e.target.innerText = this.$t('common.copy.copySuccess');
           this.timer = setTimeout(() => {
             e.target.innerText = this.$t('common.button.copy');
+            this.clearTimer();
           }, 1500);
         });
       }

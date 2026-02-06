@@ -76,10 +76,9 @@
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>
               <div class="item-desc">
-                <div
-                  class="readme-content markdown-body mcp-markdown"
-                  v-html="md.render(detail.detail || '')"
-                ></div>
+                <div class="mcp-markdown">
+                  <MdRender :content="detail.detail" />
+                </div>
               </div>
             </div>
           </div>
@@ -227,7 +226,6 @@
 </template>
 <script>
 import sendDialog from './sendDialog';
-import { md } from '@/mixins/markdown-it';
 import {
   getRecommendsList,
   getPublicMcpInfo,
@@ -235,6 +233,7 @@ import {
   getTools,
 } from '@/api/mcp';
 import { avatarSrc, formatTools } from '@/utils/util';
+import MdRender from '@/components/mdRender.vue';
 
 export default {
   props: {
@@ -246,7 +245,6 @@ export default {
   data() {
     return {
       defaultAvatar: require('@/assets/imgs/mcp_active.svg'),
-      md: md,
       isFromSquare: true,
       mcpSquareId: '',
       mcpId: '',
@@ -350,14 +348,15 @@ export default {
   },
   components: {
     sendDialog,
+    MdRender,
   },
 };
 </script>
 <style lang="scss">
-@import '@/style/markdown.scss';
+/*@import '@/style/markdown.scss';
 .markdown-body {
   font-family: 'Microsoft YaHei', Arial, sans-serif;
-}
+}*/
 .mcp-detail {
   padding: 20px;
   overflow: auto;
