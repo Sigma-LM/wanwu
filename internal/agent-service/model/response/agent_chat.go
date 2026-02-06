@@ -98,6 +98,11 @@ type AgentChatUsage struct {
 }
 
 func NewAgentChatRespWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext, req *request.AgentChatContext) ([]string, error) {
+	//glm 模型在输出finish_reason = stop 还会token 统计消息导致finish= 1后又输出finish=0
+	//所以此处做过滤
+	if filterMessage(chatMessage) {
+		return make([]string, 0), nil
+	}
 	if respContext.MultiAgent { //多智能体单独处理
 		return MultiNewAgentChatRespWithTool(chatMessage, respContext, req)
 	}
@@ -137,6 +142,13 @@ func AgentChatFailResp() string {
 		return ""
 	}
 	return respString
+}
+
+func filterMessage(chatMessage *schema.Message) bool {
+	if string(chatMessage.Role) == "" && chatMessage.Content == "" {
+		return true
+	}
+	return false
 }
 
 func buildRespString(agentChatResp *AgentChatResp) (string, error) {
