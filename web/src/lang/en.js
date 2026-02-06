@@ -296,6 +296,7 @@ export default {
     publishSet: '发布配置',
     public: '公开',
     private: '私密',
+    multiAgent: '多智能体',
   },
   uploadDialog: {
     title: '文件上传',
@@ -809,6 +810,11 @@ export default {
     currentStatus: '当前状态',
     operate: '操作',
     view: '查看',
+    ribbon: {
+      internal: '内部',
+      external: '外部',
+      multimodal: '多模态',
+    },
     knowledgeName: '知识库名称',
     knowledgeNameRules: '请输入知识库名称',
     pidClassify: '上级分类',
