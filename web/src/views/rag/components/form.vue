@@ -140,7 +140,6 @@
                   class="required-label"
                 />
                 {{ $t('agent.form.modelSelect') }}
-                <span class="model-tips">[ {{ $t('app.modelTips') }} ]</span>
               </span>
               <span class="common-add" @click="showModelSet">
                 <el-tooltip
@@ -506,6 +505,7 @@ export default {
             'knowledgeBaseConfig',
             'safetyConfig',
             'qaKnowledgeBaseConfig',
+            'visionConfig',
           ];
           const changed = props.some(prop => {
             return (
@@ -807,9 +807,7 @@ export default {
       this.modelLoading = true;
       const res = await selectModelList();
       if (res.code === 0) {
-        this.modelOptions = (res.data.list || []).filter(item => {
-          return item.config && item.config.visionSupport !== 'support';
-        });
+        this.modelOptions = res.data.list || [];
 
         this.modelLoading = false;
       }

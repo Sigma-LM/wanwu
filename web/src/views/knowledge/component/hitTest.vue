@@ -23,7 +23,7 @@
             v-if="category === 2"
             style="transform: translate(7px, -45px); margin-bottom: -30px"
             v-model="file"
-            :md="false"
+            :acceptType="fileType"
           ></uploadImg>
           <div class="test_btn">
             <el-button type="primary" size="small" @click="startTest">
@@ -195,7 +195,7 @@
   </div>
 </template>
 <script>
-import { hitTest } from '@/api/knowledge';
+import { hitTest, getDocLimit } from '@/api/knowledge';
 import { qaHitTest } from '@/api/qaDatabase';
 import { md } from '@/mixins/markdown-it';
 import { formatScore } from '@/utils/util';
@@ -218,6 +218,7 @@ export default {
       md: md,
       question: '',
       file: null,
+      fileType: '.png,.jpg,.jpeg',
       resultLoading: false,
       knowledgeIdList: {},
       searchList: [],
@@ -246,6 +247,17 @@ export default {
     this.$nextTick(() => {
       const config = this.$refs.searchConfig.formInline;
       this.formInline = JSON.parse(JSON.stringify(config));
+      if (this.category === 2)
+        getDocLimit({ knowledgeId: this.knowledgeId }).then(res => {
+          if (res.code === 0) {
+            this.fileType =
+              '.' +
+              res.data.uploadLimitList
+                .find(item => item.fileType === 'image')
+                .flatMap(item => item.extList || [])
+                .join(',.');
+          }
+        });
     });
   },
   methods: {
