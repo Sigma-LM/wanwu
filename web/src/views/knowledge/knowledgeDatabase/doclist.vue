@@ -134,6 +134,7 @@
                 >
                   {{ knowledgeName }}
                   <i
+                    v-if="[POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
                     class="el-icon-edit-outline"
                     style="cursor: pointer"
                     @click="showEdit"
@@ -147,6 +148,7 @@
                     {{ description || $t('knowledgeManage.zeroData') }}
                   </span>
                   <i
+                    v-if="[POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
                     class="el-icon-edit-outline"
                     style="cursor: pointer"
                     @click="showEdit"
@@ -1004,6 +1006,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.read-only {
+  cursor: not-allowed;
+}
+
 .keyword-tags {
   align-items: center;
   display: flex;
