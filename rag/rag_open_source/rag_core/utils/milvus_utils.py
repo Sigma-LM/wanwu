@@ -7,10 +7,12 @@ from typing import List
 import re
 import logging
 import threading
+import copy
 from threading import Thread
 
 from settings import MILVUS_BASE_URL, TIME_OUT
 from utils.minio_utils import check_files_size
+from utils.es_utils import allocate_child_chunks
 
 logger = logging.getLogger(__name__)
 
@@ -515,18 +517,23 @@ def update_child_chunk(user_id, kb_name, file_name, chunk_id, chunk_current_num,
                     image_chunk = {"embedding_content": image_url, "content_type": "image"}
                     batch_data.append(image_chunk)
             if batch_data:
-                content_response = get_content_by_ids(user_id, kb_name, [chunk_id])
-                logger.info(f"获取父分段 content_id: {chunk_id}, 结果: {content_response}")
-                if content_response['code'] != 0:
-                    raise RuntimeError(
-                        f"获取父分段信息失败， user_id: {user_id},kb_name: {kb_name}, content_id: {chunk_id}")
-                else:
-                    parent_chunk = content_response["data"]["contents"][0]
-                    parent_content = parent_chunk["content"]
-                    meta_data = parent_chunk["meta_data"]
-                    for item in batch_data:
-                        item["content"] = parent_content
-                        item["meta_data"] = meta_data
+                allocate_child_chunk_result = allocate_child_chunks(user_id, kb_name, file_name, chunk_id,
+                                                                    len(batch_data), kb_id=kb_id)
+                logger.info(f"新增子分段分配chunk结果, result: {allocate_child_chunk_result}")
+                if allocate_child_chunk_result['code'] != 0:
+                    raise RuntimeError(f"update_child_chunk添加image分配child_chunk失败, "
+                                       f"user_id: {user_id},kb_name: {kb_name}, content_id: {chunk_id}")
+
+                child_chunk_total_num = allocate_child_chunk_result["data"]["child_chunk_total_num"]
+                parent_content = allocate_child_chunk_result["data"]["content"]
+                meta_data = allocate_child_chunk_result["data"]["meta_data"]
+                child_chunk_current_num = child_chunk_total_num - len(batch_data) + 1
+                for item in batch_data:
+                    item["content"] = parent_content
+                    item["meta_data"] = copy.deepcopy(meta_data)
+                    item["is_parent"] = False
+                    item["child_chunk_current_num"] = child_chunk_current_num
+                    item["child_chunk_total_num"] = child_chunk_total_num
 
                 insert_result = add_milvus(user_id, kb_name, batch_data, file_name, "",
                                            kb_id=kb_id, extract_multimodal_file=False)

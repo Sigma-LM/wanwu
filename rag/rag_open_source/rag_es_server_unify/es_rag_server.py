@@ -142,13 +142,8 @@ def add_vector_data(request_json=None):
     #     return jsonarr
     # # **************** 校验 kb_name 是否已经初始化过 ****************
     # ========= 将 content 主控表数据过滤好 =============
-    cc_files_urls_dict = {}
     for doc in copy.deepcopy(doc_list):
         cc_str = str(doc["content"]) + doc["file_name"] + str(doc["meta_data"]["chunk_current_num"])
-        if doc.get("content_type", "text") != "text":
-            temp_set = cc_files_urls_dict.get(cc_str, set())
-            temp_set.add(doc["embedding_content"])
-            cc_files_urls_dict[cc_str] = temp_set
         if cc_str not in cc_duplicate_list:
             doc.pop("embedding_content")  # 去掉不需要的字段
             doc["content_type"] = "text"  # 主控表都是 text
@@ -161,9 +156,6 @@ def add_vector_data(request_json=None):
             cc_doc_list.append(doc)
             cc_duplicate_list.append(cc_str)
     # ========= 将 content 主控表数据过滤好 =============
-    for doc in cc_doc_list:  # 将多模态数据放置在主控表 file_url_list 字段中
-        cc_str = str(doc["content"]) + doc["file_name"] + str(doc["meta_data"]["chunk_current_num"])
-        doc["meta_data"]["file_url_list"] = list(cc_files_urls_dict.get(cc_str, []))
     for doc in doc_list:
         doc.pop("labels", None)  # 去掉不需要的字段, labels 只写content 主控表
 

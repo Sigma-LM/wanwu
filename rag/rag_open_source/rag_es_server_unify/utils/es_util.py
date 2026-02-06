@@ -1775,6 +1775,8 @@ def get_child_contents(index_name, kb_name, content_id):
         embedding_content = cleaned_hit["embedding_content"]
         cleaned_hit["content"] = embedding_content
         cleaned_hit.pop("embedding_content")
+        if "content_type" in cleaned_hit and cleaned_hit["content_type"] == "image":
+            continue
         result.append(cleaned_hit)
 
     # 获取匹配总数
