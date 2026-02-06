@@ -222,9 +222,9 @@ export default {
     }
 
     .card-item-create {
-      background: $color_opacity;
-      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(56, 75, 247, 0.47);
+      background: #fff;
+      border: 1px solid $create_card_border_color;
+      box-shadow: 0px 8px 10px 0px rgba(80, 98, 161, 0.07);
 
       .app-card-create {
         width: 100%;
@@ -242,11 +242,8 @@ export default {
           position: relative;
 
           .create-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: $color;
-            padding: 10px;
+            width: 83px;
+            height: 84px;
           }
 
           .create-filter {
