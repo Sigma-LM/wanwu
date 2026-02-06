@@ -163,6 +163,19 @@ def get_prompt(question: str,
             res_search_list.append(x)
             current_context_tokens += item_tokens
         else:
+            # 计算剩余可用的空位
+            remaining_tokens = available_tokens_for_context - current_context_tokens
+
+            if remaining_tokens > 0:
+                # 将 item_text 编码，截取前 N 个 token，再解码回文本
+                tokens = encoding.encode(item_text)
+                truncated_tokens = tokens[:remaining_tokens]
+                truncated_text = encoding.decode(truncated_tokens) + "..."  # 添加省略号提示
+
+                valid_search_list.append(truncated_text)
+                res_search_list.append(x)
+                current_context_tokens += remaining_tokens
+
             break
 
     context = "\n".join(valid_search_list)
