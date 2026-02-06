@@ -68,6 +68,7 @@ def search_qa_base(question, top_k, threshold=0.0, return_meta=False, retrieve_m
                                                       top_k,
                                                       documents,
                                                       qa_result_list,
+                                                      rerank_model_id,
                                                       model_config=model_config) #type: ignore
         elif rerank_mod == "weighted_score":
             rerank_result = rerank_utils.qa_weighted_rerank(question, weights, top_k, search_list_infos)
