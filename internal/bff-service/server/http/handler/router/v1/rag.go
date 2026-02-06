@@ -18,4 +18,5 @@ func registerRag(apiV1 *gin.RouterGroup) {
 	mid.Sub("app.rag").Reg(apiV1, "/appspace/rag", http.MethodGet, v1.GetPublishedRag, "获取已发布rag详情")
 	mid.Sub("app.rag").Reg(apiV1, "/appspace/rag/copy", http.MethodPost, v1.CopyRag, "复制rag")
 	mid.Sub("app.rag").Reg(apiV1, "/rag/chat/draft", http.MethodPost, v1.ChatDraftRag, "草稿rag流式接口")
+	mid.Sub("app.rag").Reg(apiV1, "/rag/upload", http.MethodPost, v1.RagUpload, "文档上传直接传到rag")
 }

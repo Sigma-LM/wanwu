@@ -75,7 +75,8 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 			UserId: userId,
 			OrgId:  orgId,
 		},
-		Publish: util.IfElse(needLatestPublished, int32(1), int32(0)),
+		Publish:      util.IfElse(needLatestPublished, int32(1), int32(0)),
+		FileInfoList: buildRagFileInfoList(req.FileInfo),
 	})
 	if err != nil {
 		return nil, err
@@ -99,6 +100,20 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 	// 敏感词过滤
 	retCh := ProcessSensitiveWords(ctx, rawCh, matchDicts, &ragSensitiveService{})
 	return retCh, nil
+}
+
+func buildRagFileInfoList(fileInfoList []request.ConversionStreamFile) []*rag_service.FileInfo {
+	retList := make([]*rag_service.FileInfo, 0)
+	if len(fileInfoList) > 0 {
+		for _, fileInfo := range fileInfoList {
+			retList = append(retList, &rag_service.FileInfo{
+				FileName: fileInfo.FileName,
+				FileSize: fileInfo.FileSize,
+				FileUrl:  fileInfo.FileUrl,
+			})
+		}
+	}
+	return retList
 }
 
 // buildRagChatRespLineProcessor 构造rag对话结果行处理器

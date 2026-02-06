@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -42,6 +43,10 @@ func FileExt(filePath string) string {
 		}
 	}
 	return filepath.Ext(filePath)
+}
+
+func NewRandomFile(fileName string) string {
+	return uuid.New().String() + filepath.Ext(fileName)
 }
 
 // ToFileSizeStr fileSize单位是B，转换规则：小于1M为KB，大于等于1M，单位为M，保留两位小数

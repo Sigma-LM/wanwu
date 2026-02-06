@@ -14,6 +14,7 @@ import (
 	knowledgebase_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-service"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
+	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/config"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/service"
@@ -652,6 +653,29 @@ func (s *Service) AnalysisDocUrl(ctx context.Context, req *knowledgebase_doc_ser
 		})
 	}
 	return &knowledgebase_doc_service.AnalysisUrlDocResp{UrlList: retUrlList}, nil
+}
+
+func (s *Service) GetDocUploadLimit(ctx context.Context, empty *emptypb.Empty) (*knowledgebase_doc_service.DocUploadLimitResp, error) {
+	cfg := config.GetConfig().UsageLimit
+	retList := []*knowledgebase_doc_service.FileTypeLimit{
+		buildFileTypeLimit("video", cfg.VideoTypes),
+		buildFileTypeLimit("image", cfg.ImageTypes),
+		buildFileTypeLimit("audio", cfg.AudioTypes),
+	}
+	return &knowledgebase_doc_service.DocUploadLimitResp{
+		List: retList,
+	}, nil
+}
+
+func buildFileTypeLimit(fileType, extStr string) *knowledgebase_doc_service.FileTypeLimit {
+	var extList []string
+	if extStr != "" {
+		extList = strings.Split(extStr, ";")
+	}
+	return &knowledgebase_doc_service.FileTypeLimit{
+		FileType: fileType,
+		ExtList:  extList,
+	}
 }
 
 func checkDocStatus(docList []*model.KnowledgeDoc) ([]uint32, []*model.KnowledgeDoc, error) {

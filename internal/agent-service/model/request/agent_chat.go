@@ -64,29 +64,35 @@ type ModelParams struct {
 }
 
 type KnowledgeParams struct {
-	UserId               string                 `json:"userId"`          // 用户id
-	KnowledgeIdList      []string               `json:"knowledgeIdList"` // 知识库id列表
-	Question             string                 `json:"question"`
-	Threshold            float32                `json:"threshold"` // Score阈值
-	TopK                 int32                  `json:"topK"`
-	Stream               bool                   `json:"stream"`
-	Chichat              bool                   `json:"chichat"` // 当知识库召回结果为空时是否使用默认话术（兜底），默认为true
-	RerankModelId        string                 `json:"rerank_model_id"`
-	CustomModelInfo      *CustomModelInfo       `json:"custom_model_info"`
-	MaxHistory           int32                  `json:"max_history"`
-	RewriteQuery         bool                   `json:"rewrite_query"`   // 是否query改写
-	RerankMod            string                 `json:"rerank_mod"`      // rerank_model:重排序模式，weighted_score：权重搜索
-	RetrieveMethod       string                 `json:"retrieve_method"` // hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
-	Weight               *WeightParams          `json:"weights"`         // 权重搜索下的权重配置
-	Temperature          float32                `json:"temperature,omitempty"`
-	TopP                 float32                `json:"top_p,omitempty"`               // 多样性
-	RepetitionPenalty    float32                `json:"repetition_penalty,omitempty"`  // 重复惩罚/频率惩罚
-	ReturnMeta           bool                   `json:"return_meta,omitempty"`         // 是否返回元数据
-	AutoCitation         bool                   `json:"auto_citation"`                 // 是否自动角标
-	TermWeight           float32                `json:"term_weight_coefficient"`       // 关键词系数
-	MetaFilter           bool                   `json:"metadata_filtering"`            // 元数据过滤开关
-	MetaFilterConditions []*MetadataFilterParam `json:"metadata_filtering_conditions"` // 元数据过滤条件
-	UseGraph             bool                   `json:"use_graph"`                     // 是否启动知识图谱查询
+	UserId               string                    `json:"userId"`          // 用户id
+	KnowledgeIdList      []string                  `json:"knowledgeIdList"` // 知识库id列表
+	Question             string                    `json:"question"`
+	Threshold            float32                   `json:"threshold"` // Score阈值
+	TopK                 int32                     `json:"topK"`
+	Stream               bool                      `json:"stream"`
+	Chichat              bool                      `json:"chichat"` // 当知识库召回结果为空时是否使用默认话术（兜底），默认为true
+	RerankModelId        string                    `json:"rerank_model_id"`
+	CustomModelInfo      *CustomModelInfo          `json:"custom_model_info"`
+	MaxHistory           int32                     `json:"max_history"`
+	RewriteQuery         bool                      `json:"rewrite_query"`   // 是否query改写
+	RerankMod            string                    `json:"rerank_mod"`      // rerank_model:重排序模式，weighted_score：权重搜索
+	RetrieveMethod       string                    `json:"retrieve_method"` // hybrid_search:混合搜索， semantic_search:向量搜索， full_text_search：文本搜索
+	Weight               *WeightParams             `json:"weights"`         // 权重搜索下的权重配置
+	Temperature          float32                   `json:"temperature,omitempty"`
+	TopP                 float32                   `json:"top_p,omitempty"`               // 多样性
+	RepetitionPenalty    float32                   `json:"repetition_penalty,omitempty"`  // 重复惩罚/频率惩罚
+	ReturnMeta           bool                      `json:"return_meta,omitempty"`         // 是否返回元数据
+	AutoCitation         bool                      `json:"auto_citation"`                 // 是否自动角标
+	TermWeight           float32                   `json:"term_weight_coefficient"`       // 关键词系数
+	MetaFilter           bool                      `json:"metadata_filtering"`            // 元数据过滤开关
+	MetaFilterConditions []*MetadataFilterParam    `json:"metadata_filtering_conditions"` // 元数据过滤条件
+	UseGraph             bool                      `json:"use_graph"`                     // 是否启动知识图谱查询
+	AttachmentFiles      []*RagKnowledgeAttachment `json:"attachment_files"`              // 上传的多模态文件
+}
+
+type RagKnowledgeAttachment struct {
+	FileType string `json:"file_type"`
+	FileUrl  string `json:"file_url"`
 }
 
 type CustomModelInfo struct {

@@ -1452,8 +1452,20 @@ definitions:
       logical_operator:
         type: string
     type: object
+  request.RagKnowledgeAttachment:
+    properties:
+      file_type:
+        type: string
+      file_url:
+        type: string
+    type: object
   request.RagKnowledgeChatReq:
     properties:
+      attachment_files:
+        description: 上传的多模态文件
+        items:
+          $ref: '#/definitions/request.RagKnowledgeAttachment'
+        type: array
       auto_citation:
         description: 是否自动角标
         type: boolean
@@ -1462,6 +1474,9 @@ definitions:
         type: boolean
       custom_model_info:
         $ref: '#/definitions/request.CustomModelInfo'
+      enable_vision:
+        description: 召回结果是否包含多模态文件
+        type: boolean
       history:
         items:
           $ref: '#/definitions/request.HistoryItem'
@@ -1547,8 +1562,16 @@ definitions:
     type: object
   request.RagSearchKnowledgeBaseReq:
     properties:
+      attachment_files:
+        description: 上传的多模态文件
+        items:
+          $ref: '#/definitions/request.RagKnowledgeAttachment'
+        type: array
       auto_citation:
         description: 是否启动知识图谱查询
+        type: boolean
+      enable_vision:
+        description: 召回结果是否包含多模态文件
         type: boolean
       knowledge_base_info:
         additionalProperties:
@@ -1600,7 +1623,6 @@ definitions:
         description: 权重搜索下的权重配置
     required:
     - knowledgeIdList
-    - question
     - userId
     type: object
   request.RagSearchQABaseReq:

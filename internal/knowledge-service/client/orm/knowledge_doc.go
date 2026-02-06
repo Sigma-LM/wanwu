@@ -365,6 +365,8 @@ func ReImportKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTa
 
 		return err
 	}
+	embeddingModelInfo := &knowledgebase_service.EmbeddingModelInfo{}
+	_ = json.Unmarshal([]byte(knowledge.EmbeddingModel), embeddingModelInfo)
 	var preProcess = &model.DocPreProcess{}
 	if len(importTask.DocPreProcess) > 0 {
 		err = json.Unmarshal([]byte(importTask.DocPreProcess), preProcess)
@@ -399,6 +401,9 @@ func ReImportKnowledgeDoc(ctx context.Context, doc *model.KnowledgeDoc, importTa
 			SplitType:             service.RebuildSplitType(config.SegmentMethod),
 			Separators:            config.Splitter,
 			ParserChoices:         analyzer.AnalyzerList,
+			AsrModelId:            analyzer.AsrModelId,
+			MultimodalModelId:     analyzer.MultimodalModelId,
+			EmbeddingModelId:      embeddingModelInfo.ModelId,
 			ObjectName:            objectName,
 			OriginalName:          doc.Name,
 			IsEnhanced:            "false",

@@ -32,7 +32,7 @@ type DocListReq struct {
 type DocImportFileConfig struct {
 	DocImportType     int            `json:"docImportType"`                   //文档导入类型，0：文件上传，1：单条url上传，2.文件url上传
 	DocSegment        *DocSegment    `json:"docSegment" validate:"required"`  //文档分段配置
-	DocAnalyzer       []string       `json:"docAnalyzer" validate:"required"` //文档解析类型 text / ocr  / model / asr / multimodalModel
+	DocAnalyzer       []string       `json:"docAnalyzer" validate:"required"` //文档解析类型 text / ocr  / model / asr / multimodal
 	ParserModelId     string         `json:"parserModelId"`                   //模型解析或ocr模型id
 	AsrModelId        string         `json:"asrModelId"`                      //asr模型id
 	MultimodalModelId string         `json:"multimodalModelId"`               //模态模型id
@@ -74,9 +74,9 @@ type BatchDocMetaDataReq struct {
 type DocInfo struct {
 	DocId   string `json:"docId"`   // 文档id
 	DocName string `json:"docName"` // 文档名称
-	DocUrl  string `json:"docUrl"`  // 文档url
-	DocType string `json:"docType"` // 文档类型
-	DocSize int64  `json:"docSize"` // 文档类型
+	DocUrl  string `json:"docUrl"`  // 文档url（可选）
+	DocType string `json:"docType"` // 文档后缀
+	DocSize int64  `json:"docSize"` // 文档大小（可选）
 }
 
 type DocSegment struct {

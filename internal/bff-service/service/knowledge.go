@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
+	mp_jina "github.com/UnicomAI/wanwu/pkg/model-provider/mp-jina"
 	utils "github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/google/uuid"
 
@@ -26,6 +28,10 @@ import (
 	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	MultiModalKnowledge = 2
 )
 
 var knowHttp = http_client.CreateDefault()
@@ -86,8 +92,11 @@ func KnowledgeStreamSearch(ctx *gin.Context, req *request.RagKnowledgeChatReq) e
 		if len(list.KnowledgeList) == 0 {
 			return errors.New("no knowledge permit")
 		}
-		req.KnowledgeUser = buildUserKnowledgeList(list.KnowledgeList)
+		req.KnowledgeUser, req.EnableVision = buildUserKnowledgeList(list.KnowledgeList)
 		// 构建 rag 请求
+		if req.AttachmentFiles == nil || !req.EnableVision {
+			req.AttachmentFiles = []*request.RagKnowledgeAttachment{}
+		}
 		return requestRagKnowledgeStreamChat(ctx, req)
 	}
 	//新逻辑，只走rag的命中测试，不走ragChat接口
@@ -202,6 +211,10 @@ func DeleteKnowledge(ctx *gin.Context, userId, orgId string, r *request.DeleteKn
 // KnowledgeHit 知识库命中
 func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
 	matchParams := r.KnowledgeMatchParams
+	err := checkRerank(ctx, userId, orgId, r)
+	if err != nil {
+		return nil, err
+	}
 	resp, err := knowledgeBase.KnowledgeHit(ctx.Request.Context(), &knowledgebase_service.KnowledgeHitReq{
 		Question:      r.Question,
 		UserId:        userId,
@@ -219,11 +232,44 @@ func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHi
 			TermWeightEnable:  matchParams.TermWeightEnable,
 			UseGraph:          matchParams.UseGraph,
 		},
+		DocInfoList: buildKnowledgeHitDocInfoList(r.DocInfo),
 	})
 	if err != nil {
 		return nil, err
 	}
 	return buildKnowledgeHitResp(resp), nil
+}
+
+func checkRerank(ctx *gin.Context, userId string, orgId string, r *request.KnowledgeHitReq) error {
+	rerankModel := &response.ModelInfo{}
+	var err error
+	// 获取rerank模型信息
+	if r.KnowledgeMatchParams.RerankModelId != "" {
+		rerankModel, err = GetModel(ctx, userId, orgId, &request.GetModelRequest{
+			BaseModelRequest: request.BaseModelRequest{ModelId: r.KnowledgeMatchParams.RerankModelId}})
+		if err != nil {
+			return err
+		}
+	}
+	// 纯图片搜索必选多模态rerank
+	if r.Question == "" {
+		if rerankModel.ModelType != mp.ModelTypeMultiRerank {
+			return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "只输入图片必须选择多模态reranker")
+		}
+	}
+	// 包含图片搜索 - 若用户选了多模态rerank - 需查看模型是否支持图片搜索
+	if len(r.DocInfo) > 0 {
+		if rerankModel.Provider == mp.ModelTypeMultiRerank {
+			modelConfig, ok := rerankModel.Config.(*mp_jina.MultiModalRerank)
+			if !ok || modelConfig == nil {
+				return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "所选多模态reranker模型无法解析")
+			}
+			if !modelConfig.SupportImageInQuery {
+				return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "所选多模态reranker模型不支持输入图片")
+			}
+		}
+	}
+	return nil
 }
 
 func KnowledgeHitOpenapi(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
@@ -308,8 +354,9 @@ func GetKnowledgeGraph(ctx *gin.Context, userId, orgId string, req *request.Know
 	return graph, nil
 }
 
-func buildUserKnowledgeList(knowledgeList []*response.KnowledgeInfo) map[string][]*request.RagKnowledgeInfo {
+func buildUserKnowledgeList(knowledgeList []*response.KnowledgeInfo) (map[string][]*request.RagKnowledgeInfo, bool) {
 	retMap := make(map[string][]*request.RagKnowledgeInfo)
+	var enableVision bool
 	for _, knowledge := range knowledgeList {
 		knowledgeInfos, exist := retMap[knowledge.CreateUserId]
 		if !exist {
@@ -320,8 +367,11 @@ func buildUserKnowledgeList(knowledgeList []*response.KnowledgeInfo) map[string]
 			KnowledgeName: knowledge.RagName,
 		})
 		retMap[knowledge.CreateUserId] = knowledgeInfos
+		if knowledge.Category == MultiModalKnowledge {
+			enableVision = true
+		}
 	}
-	return retMap
+	return retMap, enableVision
 }
 
 func buildUserQAList(knowledgeList *response.KnowledgeListResp) map[string][]*request.RagQaInfo {
@@ -506,6 +556,8 @@ func buildKnowledgeHitResp(resp *knowledgebase_service.KnowledgeHitResp) *respon
 				ChildContentList: childContentList,
 				ChildScore:       childScore,
 				ContentType:      search.ContentType,
+				Score:            float64(search.Score),
+				RerankInfo:       buildRerankInfo(search.RerankInfo),
 			})
 		}
 	}
@@ -515,6 +567,20 @@ func buildKnowledgeHitResp(resp *knowledgebase_service.KnowledgeHitResp) *respon
 		SearchList: searchList,
 		UseGraph:   resp.UseGraph,
 	}
+}
+
+func buildRerankInfo(rerankInfo []*knowledgebase_service.RerankInfo) []*response.RerankInfo {
+	rerankInfoList := make([]*response.RerankInfo, 0)
+	if len(rerankInfo) > 0 {
+		for _, r := range rerankInfo {
+			rerankInfoList = append(rerankInfoList, &response.RerankInfo{
+				FileUrl: r.FileUrl,
+				Score:   float64(r.Score),
+				Type:    r.Type,
+			})
+		}
+	}
+	return rerankInfoList
 }
 
 func buildMetaFilterParams(meta []*request.MetaFilterParams) []*knowledgebase_service.MetaFilterParams {
@@ -669,6 +735,9 @@ func buildKnowledgeExternal(resp *knowledgebase_service.KnowledgeExternalSelectL
 
 // buildHitParams 构造命中测试参数
 func buildHitParams(req *request.RagKnowledgeChatReq) *request.RagSearchKnowledgeBaseReq {
+	if req.AttachmentFiles == nil {
+		req.AttachmentFiles = []*request.RagKnowledgeAttachment{}
+	}
 	return &request.RagSearchKnowledgeBaseReq{
 		KnowledgeUser:        req.KnowledgeUser,
 		UseGraph:             req.UseGraph,
@@ -686,6 +755,8 @@ func buildHitParams(req *request.RagKnowledgeChatReq) *request.RagSearchKnowledg
 		MetaFilterConditions: req.MetaFilterConditions,
 		AutoCitation:         req.AutoCitation,
 		RewriteQuery:         req.RewriteQuery,
+		EnableVision:         req.EnableVision,
+		AttachmentFiles:      req.AttachmentFiles,
 	}
 }
 
@@ -796,4 +867,20 @@ func buildIntValue(value int32) *int {
 func buildFloatValue(value float32) *float64 {
 	f := float64(value)
 	return &f
+}
+
+func buildKnowledgeHitDocInfoList(docInfoList []*request.DocInfo) []*knowledgebase_service.DocFileInfo {
+	retList := make([]*knowledgebase_service.DocFileInfo, 0)
+	if len(docInfoList) > 0 {
+		for _, docInfo := range docInfoList {
+			retList = append(retList, &knowledgebase_service.DocFileInfo{
+				DocId:   docInfo.DocId,
+				DocName: docInfo.DocName,
+				DocSize: docInfo.DocSize,
+				DocType: docInfo.DocType,
+				DocUrl:  docInfo.DocUrl,
+			})
+		}
+	}
+	return retList
 }

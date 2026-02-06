@@ -2230,7 +2230,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodal",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -2297,7 +2297,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docAnalyzer": {
-                    "description": "文档解析类型 text / ocr  / model / asr / multimodalModel",
+                    "description": "文档解析类型 text / ocr  / model / asr / multimodal",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -2362,15 +2362,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docSize": {
-                    "description": "文档类型",
+                    "description": "文档大小（可选）",
                     "type": "integer"
                 },
                 "docType": {
-                    "description": "文档类型",
+                    "description": "文档后缀",
                     "type": "string"
                 },
                 "docUrl": {
-                    "description": "文档url",
+                    "description": "文档url（可选）",
                     "type": "string"
                 }
             }
@@ -2548,10 +2548,16 @@ const docTemplate = `{
         "request.KnowledgeHitReq": {
             "type": "object",
             "required": [
-                "knowledgeMatchParams",
-                "question"
+                "knowledgeMatchParams"
             ],
             "properties": {
+                "docInfoList": {
+                    "description": "上传文档列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.DocInfo"
+                    }
+                },
                 "knowledgeList": {
                     "type": "array",
                     "items": {
@@ -2877,6 +2883,15 @@ const docTemplate = `{
                 },
                 "knowledgeName": {
                     "type": "string"
+                },
+                "rerankInfo": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RerankInfo"
+                    }
+                },
+                "score": {
+                    "type": "number"
                 },
                 "snippet": {
                     "type": "string"
@@ -3774,6 +3789,20 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.RerankInfo": {
+            "type": "object",
+            "properties": {
+                "fileUrl": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },

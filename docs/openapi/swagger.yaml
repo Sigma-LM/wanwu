@@ -595,7 +595,7 @@ definitions:
         description: asr模型id
         type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
+        description: 文档解析类型 text / ocr  / model / asr / multimodal
         items:
           type: string
         type: array
@@ -642,7 +642,7 @@ definitions:
         description: asr模型id
         type: string
       docAnalyzer:
-        description: 文档解析类型 text / ocr  / model / asr / multimodalModel
+        description: 文档解析类型 text / ocr  / model / asr / multimodal
         items:
           type: string
         type: array
@@ -692,13 +692,13 @@ definitions:
         description: 文档名称
         type: string
       docSize:
-        description: 文档类型
+        description: 文档大小（可选）
         type: integer
       docType:
-        description: 文档类型
+        description: 文档后缀
         type: string
       docUrl:
-        description: 文档url
+        description: 文档url（可选）
         type: string
     type: object
   request.DocListReq:
@@ -822,6 +822,11 @@ definitions:
     type: object
   request.KnowledgeHitReq:
     properties:
+      docInfoList:
+        description: 上传文档列表
+        items:
+          $ref: '#/definitions/request.DocInfo'
+        type: array
       knowledgeList:
         items:
           $ref: '#/definitions/request.AppKnowledgeBase'
@@ -832,7 +837,6 @@ definitions:
         type: string
     required:
     - knowledgeMatchParams
-    - question
     type: object
   request.KnowledgeMatchParams:
     properties:
@@ -1047,6 +1051,12 @@ definitions:
         type: string
       knowledgeName:
         type: string
+      rerankInfo:
+        items:
+          $ref: '#/definitions/response.RerankInfo'
+        type: array
+      score:
+        type: number
       snippet:
         type: string
       title:
@@ -1657,6 +1667,15 @@ definitions:
         type: string
       updated_at:
         type: integer
+    type: object
+  response.RerankInfo:
+    properties:
+      fileUrl:
+        type: string
+      score:
+        type: number
+      type:
+        type: string
     type: object
   response.Response:
     properties:

@@ -55,7 +55,7 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 	if err != nil {
 		return err
 	}
-	knowledgeIds, qaIds, knowledgeIDToName := splitKnowledgeIdList(knowledgeInfoList)
+	knowledgeIds, qaIds, knowledgeIDToName, enableVison := splitKnowledgeIdList(knowledgeInfoList)
 	//3.构造rag流式问答消息
 	return message_builder.BuildMessage(ctx, &message_builder.RagContext{
 		MessageId:         util.NewID(),
@@ -64,6 +64,7 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 		KnowledgeIDToName: knowledgeIDToName,
 		KnowledgeIds:      knowledgeIds,
 		QAIds:             qaIds,
+		EnableVision:      enableVison,
 	}, stream)
 }
 
@@ -236,6 +237,9 @@ func (s *Service) UpdateRagConfig(ctx context.Context, in *rag_service.UpdateRag
 			Enable:   in.SensitiveConfig.Enable,
 			TableIds: sensitiveIds,
 		},
+		VisionConfig: model.VisionConfig{
+			PicNum: in.VisionConfig.PicNum,
+		},
 	}); err != nil {
 		return nil, errStatus(errs.Code_RagUpdateErr, err)
 	}
@@ -304,6 +308,7 @@ func (s *Service) CopyRag(ctx context.Context, in *rag_service.CopyRagReq) (*rag
 		KnowledgeBaseConfig:   info.KnowledgeBaseConfig,
 		QAKnowledgebaseConfig: info.QAKnowledgebaseConfig,
 		SensitiveConfig:       info.SensitiveConfig,
+		VisionConfig:          info.VisionConfig,
 		PublicModel:           info.PublicModel,
 	})
 	if err != nil {
@@ -484,7 +489,7 @@ func buildKnowledgeIdList(rag *model.RagInfo) ([]string, error) {
 }
 
 // 拆分知识库列表
-func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSelectListResp) (knowledgeIds []string, qaIds []string, knowledgeIDToName map[string]string) {
+func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSelectListResp) (knowledgeIds []string, qaIds []string, knowledgeIDToName map[string]string, enableVision bool) {
 	knowledgeIDToName = make(map[string]string)
 	for _, info := range knowledgeList.List {
 		if info.Category == QACategory {
@@ -494,6 +499,9 @@ func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSe
 		}
 		if _, exists := knowledgeIDToName[info.KnowledgeId]; !exists {
 			knowledgeIDToName[info.KnowledgeId] = info.RagName
+		}
+		if info.Category == 2 {
+			enableVision = true
 		}
 	}
 	return

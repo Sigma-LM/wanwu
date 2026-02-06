@@ -111,10 +111,14 @@ type ServiceConfig struct {
 type RagKnowledgeConfig struct {
 	Endpoint               string `json:"endpoint" mapstructure:"endpoint"`
 	ChatEndpoint           string `json:"chat-endpoint" mapstructure:"chat-endpoint"`
+	UploadEndpoint         string `json:"upload-endpoint" mapstructure:"upload-endpoint"`
 	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
 	SearchKnowTimeout      int    `json:"search-know-timeout" mapstructure:"search-know-timeout"`
 	SearchQABaseUri        string `json:"search-qa-base-uri" mapstructure:"search-qa-base-uri"`
 	KnowledgeChatUri       string `json:"knowledge-chat-uri" mapstructure:"knowledge-chat-uri"`
+	UploadUri              string `json:"upload-uri" mapstructure:"upload-uri"`
+	UploadBucket           string `json:"upload-bucket" mapstructure:"upload-bucket"`
+	UploadTime             int64  `json:"upload-timeout" mapstructure:"upload-timeout"` //单位s
 }
 
 type DifyKnowledgeConfig struct {
