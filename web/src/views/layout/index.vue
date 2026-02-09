@@ -54,7 +54,10 @@
           </el-popover>
         </div>
         <!-- 菜单 -->
-        <el-aside v-if="menuList && menuList.length" class="full-menu-aside">
+        <el-aside
+          v-if="menuList && menuList.length"
+          :class="['full-menu-aside', { 'full-menu-isCollapse': isCollapse }]"
+        >
           <el-menu
             :default-openeds="defaultOpeneds"
             :default-active="activeIndex"
@@ -142,17 +145,11 @@
               </el-menu-item>
             </div>
           </el-menu>
-          <div class="menu-control-icon" @click="changeMenuCollapse">
-            <i class="el-icon-arrow-left" v-if="!isCollapse"></i>
-            <i class="el-icon-arrow-right" v-else></i>
-          </div>
         </el-aside>
-      </div>
-      <!-- 容器 -->
-      <el-container :class="['inner-container']">
-        <!-- 右侧头部 -->
-        <el-header class="header-info" v-if="isShowMenu">
-          <el-popover placement="bottom" width="220" trigger="hover">
+        <div
+          :class="['left-bottom-container', { 'menu-isCollapse': isCollapse }]"
+        >
+          <el-popover placement="top" width="220" trigger="click">
             <div
               :class="[
                 'menu--popover-wrap',
@@ -196,17 +193,39 @@
                 </span>
               </div>
             </div>
-            <div class="header-user-content" slot="reference">
+            <div
+              v-if="!isCollapse"
+              class="header-user-content"
+              slot="reference"
+            >
               <img
                 class="header-icon"
                 v-if="userAvatar"
                 :src="avatarSrc(userAvatar)"
               />
-              <div>{{ userInfo.userName }}</div>
+              <div class="header-user-name">{{ userInfo.userName }}</div>
               <i class="el-icon-more header-more"></i>
             </div>
+            <div class="user-content-isCollapse" v-else slot="reference">
+              <img
+                class="header-icon"
+                v-if="userAvatar"
+                :src="avatarSrc(userAvatar)"
+              />
+            </div>
           </el-popover>
-        </el-header>
+          <div class="left-bottom-menu-icon" @click="changeMenuCollapse">
+            <img
+              src="@/assets/imgs/left_menu_icon.svg"
+              alt=""
+              v-if="!isCollapse"
+            />
+            <img src="@/assets/imgs/right_menu_icon.svg" alt="" v-else />
+          </div>
+        </div>
+      </div>
+      <!-- 容器 -->
+      <el-container :class="['inner-container']">
         <!-- 右侧内容 -->
         <el-main :class="[{ 'no-header-main': !isShowMenu }]">
           <div class="page-container">
@@ -511,6 +530,75 @@ export default {
         width: 100%;
         z-index: 10;
       }
+      .left-bottom-container {
+        width: 100%;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 16px;
+        .left-bottom-menu-icon {
+          img {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-top: 5px;
+          }
+        }
+        .header-user-content {
+          display: flex;
+          align-items: center;
+          padding: 0 16px;
+          height: 40px;
+          width: 142px;
+          border-radius: 30px;
+          background: #fff;
+          color: #1f1f1f;
+          box-shadow: 0 2px 8px 0 rgba(16, 18, 25, 0.102);
+          font-size: 14px;
+          cursor: pointer;
+          margin-right: 16px;
+
+          .header-user-name {
+            width: 46px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .header-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            margin-right: 10px;
+          }
+
+          .header-more {
+            margin-left: 8px;
+            transform: rotate(90deg);
+            font-size: 16px;
+            color: #a2a7b4;
+          }
+        }
+      }
+      .left-bottom-container.menu-isCollapse {
+        display: block;
+        text-align: center;
+        height: 90px;
+        margin-top: 5px;
+        .user-content-isCollapse {
+          padding-bottom: 10px;
+          border-bottom: 1px solid #d8d8d8;
+          margin-bottom: 5px;
+          cursor: pointer;
+        }
+        .header-icon {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          margin: 0 auto;
+        }
+      }
       .menu-org-select-wrapper ::v-deep {
         display: flex;
         align-items: center;
@@ -530,38 +618,16 @@ export default {
 
     /*element ui 样式重写*/
     .el-aside.full-menu-aside {
-      height: calc(100vh - 110px);
+      height: calc(100vh - 178px);
       width: 100% !important;
       background: #fff;
       border-radius: 10px 0 0 10px;
       margin-top: 110px;
       position: relative;
 
-      .menu-control-icon {
-        position: absolute;
-        bottom: 20px;
-        right: 0;
-        width: 18px;
-        height: 40px;
-        line-height: 40px;
-        border-radius: 6px 0 0 6px;
-        background: linear-gradient(
-          164deg,
-          #57e4fd -12%,
-          #41c9ff 25%,
-          #4161fe 118%
-        );
-        text-align: center;
-        cursor: pointer;
-        i {
-          color: #fff;
-          font-size: 14px;
-        }
-      }
-
       .el-menu {
         height: 100%;
-        width: 200px;
+        width: 100%;
         overflow-x: auto;
         overflow-y: auto;
         border: none;
@@ -665,44 +731,14 @@ export default {
         }
       }
     }
+    .el-aside.full-menu-isCollapse.full-menu-aside {
+      height: calc(100vh - 200px);
+    }
     .inner-container {
       width: calc(100% - 80px);
       height: 100%;
       border-radius: 10px;
-      .header-info {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        .header-user-content {
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          padding: 0 16px;
-          height: 40px;
-          background: #f2f8ff;
-          color: #1f1f1f;
-          font-size: 14px;
-          cursor: pointer;
-
-          .header-icon {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            margin-right: 10px;
-          }
-
-          .header-more {
-            margin-left: 8px;
-            transform: rotate(90deg);
-            font-size: 16px;
-            color: #a2a7b4;
-          }
-        }
-      }
       .el-header {
-        background-color: #fff;
         line-height: 60px;
         height: 60px;
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
@@ -715,7 +751,7 @@ export default {
         margin: 0 !important;
         padding: 0 !important;
         width: 100%;
-        height: calc(100vh - 60px);
+        height: 100%;
         overflow: auto;
         .page-container {
           height: 100%;

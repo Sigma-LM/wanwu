@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding-bottom: 5px">
     <!--tab配置-->
     <el-card shadow="never" class="docPage-card">
       <div slot="header">

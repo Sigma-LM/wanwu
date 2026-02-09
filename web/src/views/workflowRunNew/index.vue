@@ -20,7 +20,7 @@ export default {
 
 <style lang="scss" scoped>
 .wp {
-  height: calc(100vh - 63px);
+  height: calc(100vh - 3px);
   background: #f4f5f6;
   iframe {
     width: 100%;
