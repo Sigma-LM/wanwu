@@ -761,7 +761,7 @@ export default {
       title: this.$route.query.title,
       docIdList: Array.isArray(this.$route.query.docIdList)
         ? this.$route.query.docIdList
-        : [this.$route.query.docIdList],
+        : [this.$route.query.docIdList].filter(id => id !== undefined),
       category: Number(this.$route.query.category),
       fileList: [],
       fileUrl: '',
@@ -852,26 +852,29 @@ export default {
       });
     }
     if (this.category === 2) {
-      getDocList({
-        docName: '',
-        graphStatus: [-1],
-        knowledgeId: this.knowledgeId,
-        docIdList: this.docIdList,
-        metaValue: '',
-        pageNo: 0,
-        pageSize: 10,
-        status: [-1],
-      }).then(res => {
-        if (res.code === 0) {
-          this.fileList = res.data.list.map(item => ({
-            name: item.docName,
-            size: item.fileSize,
-          }));
-          this.fileType = res.data.list[0].isMultimodal
-            ? 'fileMultiModal'
-            : 'file';
-        }
-      });
+      if (this.docIdList.length > 0)
+        getDocList({
+          docName: '',
+          graphStatus: [-1],
+          knowledgeId: this.knowledgeId,
+          docIdList: this.docIdList,
+          metaValue: '',
+          pageNo: 0,
+          pageSize: 10,
+          status: [-1],
+        }).then(res => {
+          if (res.code === 0) {
+            this.fileList = res.data.list.map(item => ({
+              name: item.docName,
+              size: item.fileSize,
+            }));
+            this.fileType = res.data.list[0].isMultimodal
+              ? 'fileMultiModal'
+              : 'file';
+            if (this.fileType === 'fileMultiModal')
+              this.ruleForm.docAnalyzer = ['text'];
+          }
+        });
       getDocLimit({ knowledgeId: this.knowledgeId })
         .then(res => {
           if (res.code === 0) {
@@ -1093,7 +1096,9 @@ export default {
       this.maxSizeAudio = this.asrOptions.find(
         option => option.modelId === value,
       ).config.maxAsrFileSize;
-      this.verifyASR();
+      this.$nextTick(() => {
+        this.verifyASR();
+      });
     },
     verifyASR() {
       if (
