@@ -20,11 +20,12 @@ type DocConfigReq struct {
 }
 
 type DocListReq struct {
-	KnowledgeId string  `json:"knowledgeId" form:"knowledgeId" validate:"required"`
-	DocName     string  `json:"docName" form:"docName"`
-	Status      []int32 `json:"status" form:"status"` // 文档状态：-1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败
-	MetaValue   string  `json:"metaValue" form:"metaValue"`
-	GraphStatus []int32 `json:"graphStatus" form:"graphStatus"` // 图谱状态：-1.全部 0.待处理 1.解析中 2.解析成功 3.解析失败
+	KnowledgeId string   `json:"knowledgeId" form:"knowledgeId" validate:"required"`
+	DocName     string   `json:"docName" form:"docName"`
+	Status      []int32  `json:"status" form:"status"` // 文档状态：-1-全部， 0-待处理， 1- 处理完成， 2-正在审核中，3-正在解析中，4-审核未通过，5-解析失败
+	MetaValue   string   `json:"metaValue" form:"metaValue"`
+	GraphStatus []int32  `json:"graphStatus" form:"graphStatus"` // 图谱状态：-1.全部 0.待处理 1.解析中 2.解析成功 3.解析失败
+	DocIdList   []string `json:"docIdList" form:"docIdList"`     // 文档id列表，只用于返回所选文档的集合，该值不为空时，其他筛选条件将被忽略
 	PageSearch
 	CommonCheck
 }
@@ -35,7 +36,7 @@ type DocImportFileConfig struct {
 	DocAnalyzer       []string       `json:"docAnalyzer" validate:"required"` //文档解析类型 text / ocr  / model / asr / multimodal
 	ParserModelId     string         `json:"parserModelId"`                   //模型解析或ocr模型id
 	AsrModelId        string         `json:"asrModelId"`                      //asr模型id
-	MultimodalModelId string         `json:"multimodalModelId"`               //模态模型id
+	MultimodalModelId string         `json:"multimodalModelId"`               //多模态模型id
 	DocPreprocess     []string       `json:"docPreprocess"`                   //文本预处理规则 replaceSymbols / deleteLinks
 	DocMetaData       []*DocMetaData `json:"docMetaData"`                     //元数据
 }
@@ -76,7 +77,7 @@ type DocInfo struct {
 	DocName string `json:"docName"` // 文档名称
 	DocUrl  string `json:"docUrl"`  // 文档url（可选）
 	DocType string `json:"docType"` // 文档后缀
-	DocSize int64  `json:"docSize"` // 文档大小（可选）
+	DocSize int64  `json:"docSize"` // 文档大小，单位字节(Byte)
 }
 
 type DocSegment struct {

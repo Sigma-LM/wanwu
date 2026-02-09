@@ -2185,7 +2185,7 @@ definitions:
         description: 文档名称
         type: string
       docSize:
-        description: 文档大小（可选）
+        description: 文档大小
         type: integer
       docType:
         description: 文档后缀
@@ -2196,6 +2196,11 @@ definitions:
     type: object
   request.DocListReq:
     properties:
+      docIdList:
+        description: 文档id列表，只用于返回所选文档的集合，该值不为空时，其他筛选条件将被忽略
+        items:
+          type: string
+        type: array
       docName:
         type: string
       graphStatus:
@@ -3209,7 +3214,7 @@ definitions:
         description: 敏感词表配置
       visionConfig:
         allOf:
-        - $ref: '#/definitions/request.RagVisionConfig'
+        - $ref: '#/definitions/request.VisionConfig'
         description: 视觉开关配置
     required:
     - knowledgeBaseConfig
@@ -3232,11 +3237,6 @@ definitions:
     properties:
       markdown:
         description: 是否返回markdown格式url
-        type: boolean
-    type: object
-  request.RagVisionConfig:
-    properties:
-      enable:
         type: boolean
     type: object
   request.RecommendConfig:
@@ -4930,6 +4930,9 @@ definitions:
     type: object
   response.DocConfigResult:
     properties:
+      asrModelId:
+        description: asr模型id
+        type: string
       docAnalyzer:
         description: 文档解析类型
         items:
@@ -4947,6 +4950,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.DocSegment'
         description: 分段信息配置
+      multimodalModelId:
+        description: 多模态模型id
+        type: string
       parserModelId:
         description: ocr模型id
         type: string
@@ -5751,6 +5757,9 @@ definitions:
       graphStatus:
         description: 图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -
         type: integer
+      isMultimodal:
+        description: 是否为多模态文件
+        type: boolean
       knowledgeId:
         description: 知识库id
         type: string
@@ -6450,7 +6459,7 @@ definitions:
         description: 敏感词表配置
       visionConfig:
         allOf:
-        - $ref: '#/definitions/request.RagVisionConfig'
+        - $ref: '#/definitions/request.VisionConfig'
         description: 视觉开关
     required:
     - knowledgeBaseConfig
@@ -12774,7 +12783,6 @@ paths:
       description: 获取模型体验对话记录列表
       parameters:
       - description: 模型体验对话ID
-        format: int32
         in: query
         name: modelExperienceId
         required: true

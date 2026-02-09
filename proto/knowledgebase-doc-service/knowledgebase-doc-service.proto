@@ -70,6 +70,7 @@ message GetDocListReq{
   string docTag = 8; //文档标签
   string metaValue = 9;
   repeated int32 graphStatus = 10; //图谱状态
+  repeated string docIdList = 11; // 文档id列表，只用于返回所选文档的集合，该值不为空时，其他筛选条件将被忽略
 }
 
 message GetDocDetailReq{
@@ -266,6 +267,7 @@ message DocInfo{
   int32 graphStatus = 11;//0:待处理，1.解析中，2.解析成功，3.解析失败
   string graphErrMsg = 12;//错误信息
   DocConfigInfo docConfigInfo = 13;//文档配置信息,只有detail接口参数needConfig为true才会返回
+  bool isMultimodal = 14; // 是否为多模态文件
 }
 
 message DocConfigInfo {
@@ -274,6 +276,8 @@ message DocConfigInfo {
   repeated string docAnalyzer = 3;//文档解析类型
   string ocrModelId = 4; //ocr模型id
   repeated string docPreprocess = 5;//文本预处理规则
+  string asrModelId = 6;
+  string multimodalModelId = 7;
 }
 
 message DocSegmentListReq{
