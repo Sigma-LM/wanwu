@@ -508,6 +508,7 @@ export default {
       loading: false,
       tableLoading: false,
       docQuery: {
+        docIdList: [],
         docName: '',
         metaValue: '',
         knowledgeId: this.$route.params.id,
@@ -883,8 +884,19 @@ export default {
       const allowedDocs = this.selectedTableData.filter(
         doc => doc.status === KNOWLEDGE_STATUS_FINISH,
       );
-
-      if (unprocessedDocs.length > 0) {
+      if (
+        this.selectedTableData.some(doc => doc.isMultimodal === true) &&
+        this.selectedTableData.some(doc => doc.isMultimodal === false)
+      ) {
+        this.$alert(
+          this.$t('knowledgeManage.multimodalMixTips'),
+          this.$t('knowledgeManage.tip'),
+          {
+            confirmButtonText: this.$t('common.button.confirm'),
+            type: 'warning',
+          },
+        );
+      } else if (unprocessedDocs.length > 0) {
         let message = this.$t('knowledgeManage.batchConfigTips', {
           total: this.selectedTableData.length,
           unprocessedNum: unprocessedDocs.length,

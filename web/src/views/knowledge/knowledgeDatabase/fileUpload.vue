@@ -490,6 +490,7 @@
                 <modelSelect
                   v-model="ruleForm.asrModelId"
                   :options="asrOptions"
+                  clearable
                   @change="handleASR"
                 />
               </div>
@@ -503,6 +504,7 @@
                 <modelSelect
                   v-model="ruleForm.multimodalModelId"
                   :options="visionOptions"
+                  clearable
                 />
               </div>
             </el-form-item>
@@ -704,6 +706,7 @@ import {
   parserSelect,
   updateDocConfig,
   getDocConfig,
+  getDocList,
   getDocLimit,
 } from '@/api/knowledge';
 import { delfile } from '@/api/chunkFile';
@@ -756,7 +759,9 @@ export default {
       knowledgeName: this.$route.query.name,
       mode: this.$route.query.mode,
       title: this.$route.query.title,
-      docIdList: this.$route.query.docIdList,
+      docIdList: Array.isArray(this.$route.query.docIdList)
+        ? this.$route.query.docIdList
+        : [this.$route.query.docIdList],
       category: Number(this.$route.query.category),
       fileList: [],
       fileUrl: '',
@@ -847,6 +852,26 @@ export default {
       });
     }
     if (this.category === 2) {
+      getDocList({
+        docName: '',
+        graphStatus: [-1],
+        knowledgeId: this.knowledgeId,
+        docIdList: this.docIdList,
+        metaValue: '',
+        pageNo: 0,
+        pageSize: 10,
+        status: [-1],
+      }).then(res => {
+        if (res.code === 0) {
+          this.fileList = res.data.list.map(item => ({
+            name: item.docName,
+            size: item.fileSize,
+          }));
+          this.fileType = res.data.list[0].isMultimodal
+            ? 'fileMultiModal'
+            : 'file';
+        }
+      });
       getDocLimit({ knowledgeId: this.knowledgeId })
         .then(res => {
           if (res.code === 0) {
@@ -1060,6 +1085,11 @@ export default {
       });
     },
     handleASR(value) {
+      if (!value) {
+        if (!this.fileFormatSet.has('audio')) this.confirmFlag = true;
+        this.maxSizeAudio = 9999;
+        return;
+      }
       this.maxSizeAudio = this.asrOptions.find(
         option => option.modelId === value,
       ).config.maxAsrFileSize;
@@ -1075,7 +1105,7 @@ export default {
           }),
         );
         this.confirmFlag = false;
-      } else {
+      } else if (this.ruleForm.asrModelId) {
         this.confirmFlag = true;
       }
       this.$forceUpdate();
@@ -1350,6 +1380,7 @@ export default {
       this.docInfoList.push({
         docId: fileName,
         docName: oldName,
+        docSize: this.fileList[this.fileIndex].size,
         docType,
       });
       this.fileIndex++;
@@ -1405,16 +1436,7 @@ export default {
       for (const uploadLimit of this.uploadLimitList) {
         const extList = uploadLimit.extList || [];
         if (extList.includes(fileType)) {
-          if (uploadLimit.fileType === 'audio') {
-            if (file.size / 1024 / 1024 >= this.maxSizeAudio) {
-              this.$message.warning(
-                this.$t(
-                  `knowledgeManage.multiKnowledgeDatabase.${uploadLimit.fileType}SizeLimit`,
-                  { maxSize: this.maxSizeAudio },
-                ),
-              );
-            }
-          } else {
+          if (uploadLimit.fileType !== 'audio') {
             if (file.size / 1024 / 1024 >= uploadLimit.maxSize) {
               this.$message.error(
                 this.$t(
@@ -1489,6 +1511,8 @@ export default {
         }
       }
       this.active = 2;
+      if (this.fileType === 'fileMultiModal')
+        this.ruleForm.docAnalyzer = ['text'];
       this.verifyASR();
     },
     preStep() {
