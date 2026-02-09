@@ -236,7 +236,7 @@ export default {
       },
       knowledgeId: this.$route.query.knowledgeId,
       name: this.$route.query.name,
-      graphSwitch: this.$route.query.graphSwitch || false,
+      graphSwitch: this.$route.query.graphSwitch === 'true',
       type: this.$route.query.type || '',
       category: Number(this.$route.query.category || 0),
       external: Number(this.$route.query.external || 0),

@@ -15,16 +15,10 @@
           <div class="app-card-create" @click="createPrompt">
             <div class="create-img-wrap">
               <img
-                class="create-type"
-                src="@/assets/imgs/create_prompt.svg"
-                alt=""
-              />
-              <img
                 class="create-img"
-                src="@/assets/imgs/create_icon.png"
+                src="@/assets/imgs/card_create_icon_prompt.svg"
                 alt=""
               />
-              <div class="create-filter"></div>
             </div>
             <span>{{ $t('tool.prompt.create') }}</span>
           </div>

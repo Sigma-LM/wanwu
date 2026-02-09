@@ -5,20 +5,14 @@
         <div class="app-card-create" @click="showCreate">
           <div class="create-img-wrap">
             <img
-              class="create-type"
+              class="create-img"
               :src="
                 category === 0
-                  ? require('@/assets/imgs/create_knowledge.svg')
-                  : require('@/assets/imgs/create_qa.png')
+                  ? require('@/assets/imgs/card_create_icon_knowledge.svg')
+                  : require('@/assets/imgs/card_create_icon_rag.svg')
               "
               alt=""
             />
-            <img
-              class="create-img"
-              src="@/assets/imgs/create_icon.png"
-              alt=""
-            />
-            <div class="create-filter"></div>
           </div>
           <span>
             {{

@@ -226,10 +226,7 @@
           </div>
         </div>
       </el-form-item>
-      <el-form-item
-        class="searchType-list graph-switch"
-        v-if="showGraphSwitch === 'true'"
-      >
+      <el-form-item class="searchType-list graph-switch" v-if="showGraphSwitch">
         <template #label>
           <span class="graph-switch-title">
             {{ $t('knowledgeManage.graph.useGraph') }}

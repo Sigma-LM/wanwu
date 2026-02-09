@@ -21,16 +21,10 @@
           <div class="app-card-create" @click="handleAddServer('')">
             <div class="create-img-wrap">
               <img
-                class="create-type"
-                src="@/assets/imgs/create_mcp.svg"
-                alt=""
-              />
-              <img
                 class="create-img"
-                src="@/assets/imgs/create_icon.png"
+                src="@/assets/imgs/card_create_icon_mcp.svg"
                 alt=""
               />
-              <div class="create-filter"></div>
             </div>
             <span>{{ $t('tool.server.create') }}</span>
           </div>
