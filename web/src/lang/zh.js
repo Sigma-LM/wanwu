@@ -54,7 +54,13 @@ export default {
   about: {
     version: '版本',
   },
+  aiAssistant: {
+    serviceUnavailable: '机器人助手服务暂不可用',
+    refreshMessage: '请开启服务后刷新界面',
+    connecting: '正在连接服务...',
+  },
   menu: {
+    aiAssistant: '机器人助手',
     modelService: '模型服务',
     resource: '资源库',
     square: '探索广场',

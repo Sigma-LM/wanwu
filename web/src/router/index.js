@@ -99,6 +99,10 @@ const constantRoutes = [
         component: resolve => require(['@/views/docCenter'], resolve),
       },
       {
+        path: '/aiAssistant',
+        component: resolve => require(['@/views/aiAssistant/index'], resolve),
+      },
+      {
         path: '/modelAccess',
         component: resolve => require(['@/views/modelAccess'], resolve),
         meta: { perm: [PERMS.MODEL_MANAGE] },
