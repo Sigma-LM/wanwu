@@ -140,7 +140,9 @@
                 @click="menuClick(n)"
                 :class="[{ 'is-active': activeIndex === n.index }]"
               >
-                <svg-icon class="menu-icon" :icon-class="n.icon" />
+                <div class="menu-svg">
+                  <svg-icon class="menu-icon" :icon-class="n.icon" />
+                </div>
                 <span class="menu-withIcon-title">{{ n.name }}</span>
               </el-menu-item>
             </div>
@@ -712,7 +714,8 @@ export default {
             margin-right: 0;
           }
         }
-        .el-submenu.is-active {
+        .el-submenu.is-active,
+        .el-menu-item.is-active {
           .menu-svg {
             background: linear-gradient(
               145deg,
@@ -728,6 +731,9 @@ export default {
         .el-submenu__title,
         .el-menu-item {
           margin: 12px 10px;
+        }
+        .el-menu-item {
+          padding: 0 !important;
         }
       }
     }
