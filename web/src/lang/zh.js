@@ -54,7 +54,13 @@ export default {
   about: {
     version: '版本',
   },
+  aiAssistant: {
+    serviceUnavailable: '机器人助手服务暂不可用',
+    refreshMessage: '请开启服务后刷新界面',
+    connecting: '正在连接服务...',
+  },
   menu: {
+    aiAssistant: '机器人助手',
     modelService: '模型服务',
     resource: '资源库',
     square: '探索广场',
@@ -830,6 +836,8 @@ export default {
     batchConfigTips:
       '本次共计选择{total}个文档，其中{unprocessedNum}个文件暂未解析成功，无法进行分段配置编辑，请在文档“当前状态”变为“处理完成”后再次尝试。',
     continueTips: '是否继续批量编辑其余“处理完成”的文档？',
+    multimodalMixTips:
+      '批量编辑分段设置，只支持相同文件类型的批量分段设置（多模态/文本表格）',
     tip: '提示',
     refreshTips:
       '您导入的文件正在异步处理中，请耐心等待，您可以尝试，刷新列表获取导入结果。',
