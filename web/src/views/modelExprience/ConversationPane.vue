@@ -1,5 +1,8 @@
 <template>
-  <div :class="[mode]" class="page-wrapper wrap-fullheight conversation-pane">
+  <div
+    :class="[mode]"
+    class="page-wrapper wrap-fullheight conversation-pane right-page-content-body"
+  >
     <div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/model.svg" alt="" />
       <span class="page-title-name">{{ title }}</span>
@@ -574,16 +577,15 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: calc(100vh - 92px);
 
   &.modelExprience {
     width: 100%;
   }
   &.modelComparison {
     position: absolute;
-    left: 20px;
-    right: 20px;
-    top: 20px;
+    left: 0;
+    right: 0;
+    top: 0;
     bottom: 0;
     z-index: 999;
   }

@@ -1,5 +1,7 @@
 <template>
-  <div class="page-wrapper wrap-fullheight modelExprience-wrapper">
+  <div
+    class="page-wrapper wrap-fullheight modelExprience-wrapper right-page-content-body"
+  >
     <ConversationPane
       ref="modelExprienceRef"
       mode="modelExprience"
@@ -141,7 +143,7 @@ export default {
   display: flex;
   flex-direction: row;
   padding: 0;
-  height: calc(100vh - 92px);
+  position: relative;
   .history-wrapper {
     flex-shrink: 0;
     display: flex;

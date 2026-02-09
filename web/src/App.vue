@@ -108,7 +108,7 @@ div[data-name] {
   padding: 0 10px;
   background: #fff;
   border-radius: 8px;
-  min-height: calc(100vh - 92px);
+  min-height: calc(100vh - 32px);
 }
 .page-title {
   font-size: 18px;
