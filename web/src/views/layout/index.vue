@@ -487,7 +487,7 @@ export default {
 
       // 更新 storage 用户信息中组织 id
       const info = JSON.parse(localStorage.getItem('access_cert'));
-      info.user.userInfo.orgId = orgId;
+      info.user.orgId = orgId;
       localStorage.setItem('access_cert', JSON.stringify(info));
 
       const { path } = fetchPermFirPath();

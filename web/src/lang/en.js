@@ -54,7 +54,13 @@ export default {
   about: {
     version: '版本',
   },
+  aiAssistant: {
+    serviceUnavailable: 'AI Assistant service is unavailable',
+    refreshMessage: 'Please start the service and refresh the page',
+    connecting: 'Connecting to service...',
+  },
   menu: {
+    aiAssistant: 'AI Assistant',
     modelService: '模型服务',
     resource: '资源库',
     square: '探索广场',
