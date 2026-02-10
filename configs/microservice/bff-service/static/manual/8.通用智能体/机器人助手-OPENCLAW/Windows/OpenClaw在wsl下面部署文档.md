@@ -4,17 +4,6 @@
 
 本文档详细介绍了如何在 Windows WSL (Windows Subsystem for Linux) 环境中安装、配置并验证 OpenClaw。
 
-## 目录
-
-1.  [前置条件](https://www.yuque.com/u43333226/gte02k/xpktgabowvc5tqgd#%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6)
-    
-2.  [安装步骤](https://www.yuque.com/u43333226/gte02k/xpktgabowvc5tqgd#%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4)
-    
-3.  [验证安装](https://www.yuque.com/u43333226/gte02k/xpktgabowvc5tqgd#%E9%AA%8C%E8%AF%81%E5%AE%89%E8%A3%85)
-    
-4.  [常见问题排查](https://www.yuque.com/u43333226/gte02k/xpktgabowvc5tqgd#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5)
-    
-
 ---
 
 ## 前置条件
@@ -207,7 +196,7 @@ pkill -f "openclaw gateway"
 
 ### Q4： 网页聊天/仪表盘界面无法连接到网关 websocket，出现错误： `unauthorized conn= “”   remote=127.0.0.1 client=openclaw-control-ui webchat vdev reason=token\_missing`
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/MAeqxebpk63oAO8j/img/b159c0ab-f666-4b53-8478-d550d979344d.png)
+![image.png](assets/b159c0ab-f666-4b53-8478-d550d979344d.png)
 
 解决：
 
@@ -218,8 +207,8 @@ pkill -f "openclaw gateway"
 3.  粘贴到  [http://127.0.0.1:18789/](http://127.0.0.1:18789/) \>overview > Gateway Access > Gateway Token
     
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/MAeqxebpk63oAO8j/img/b37e6e68-737c-4f78-a78d-10179f22986b.png?x-oss-process=image/crop,x_0,y_0,w_687,h_482/ignore-error,1)
+![image.png](assets/b37e6e68-737c-4f78-a78d-10179f22986b.png)
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/MAeqxebpk63oAO8j/img/c71e5535-fb41-43b1-8429-48a556b2ce54.png)
+![image.png](assets/c71e5535-fb41-43b1-8429-48a556b2ce54.png)
 
 参考链接：[https://github.com/openclaw/openclaw/issues/1690](https://github.com/openclaw/openclaw/issues/1690)

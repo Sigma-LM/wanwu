@@ -30,7 +30,7 @@ CanonicalGroupLimited.Ubuntu20...
 
 示例位置如下：
 
-![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/1X3lE5jyMAokXlJb/img/e34c7f2c-f311-46a1-bf99-9886bf41d388.png?x-oss-process=image/crop,x_0,y_0,w_757,h_211/ignore-error,1)
+![image](assets/e34c7f2c-f311-46a1-bf99-9886bf41d388.png)
 
 ## 三、wsl导出ubuntu系统镜像
 
@@ -62,7 +62,7 @@ CanonicalGroupLimited.Ubuntu20...
     
     示例：wsl --export Ubuntu-20.04 c:\ubuntu20.04.tar
     
-    ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/1X3lE5jyMAokXlJb/img/12de86af-c823-4b42-99ab-f90029702c3e.png)
+    ![image.png](assets/12de86af-c823-4b42-99ab-f90029702c3e.png)
     
     ubuntu20.04.tar就是最终导出的tar镜像文件
     
