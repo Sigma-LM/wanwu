@@ -1,5 +1,5 @@
 <template>
-  <div class="graph-map-container">
+  <div class="graph-map-container right-page-content-body">
     <div class="graph-map-content">
       <div class="graph-header" v-if="showHeader">
         <span class="el-icon-arrow-left back" @click="goBack"></span>
@@ -582,7 +582,6 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: calc(100vh - 32px);
   box-sizing: border-box;
   overflow: hidden;
   .graph-map-content {

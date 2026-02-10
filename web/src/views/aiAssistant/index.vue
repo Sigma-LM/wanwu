@@ -29,6 +29,12 @@
           {{ $t('aiAssistant.serviceUnavailable') }}
         </div>
         <div class="error-message">{{ $t('aiAssistant.refreshMessage') }}</div>
+        <div class="error-message">
+          {{ $t('aiAssistant.hintText') }}
+          <span style="cursor: pointer; font-weight: bold" @click="jumpDocUrl">
+            {{ $t('aiAssistant.helpDoc') }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -324,6 +330,11 @@ export default {
         return org ? org.name : '';
       }
       return '';
+    },
+
+    jumpDocUrl() {
+      const path = `/aibase/docCenter/pages/8.%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93%2F%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%8A%A9%E6%89%8B-OPENCLAW%2F%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%87%E6%82%9F%E4%B8%AD%E6%8E%A5%E5%85%A5OpenClaw%E6%9C%BA%E5%99%A8%E4%BA%BA.md`;
+      window.open(path);
     },
   },
 };
