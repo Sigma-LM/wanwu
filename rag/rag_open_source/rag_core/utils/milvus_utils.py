@@ -71,6 +71,9 @@ def generate_chunks_bacth(user_id: str, kb_name: str, chunks: list, batch_size=1
                         continue
                     image_chunk = {"embedding_content": image_url, "content_type": "image",
                                    "content": value[0]["content"], "meta_data": value[0]["meta_data"]}
+                    # 兼容父子分段
+                    if "is_parent" in  value[0]:
+                        image_chunk["is_parent"] = value[0]["is_parent"]
                     batch_data.append(image_chunk)
         batch_data.extend(value)
         if len(batch_data) >= batch_size:
