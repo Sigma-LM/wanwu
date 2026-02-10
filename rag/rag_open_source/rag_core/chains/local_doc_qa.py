@@ -130,7 +130,8 @@ def load_file(filepath,separators=['。'],sentence_size=SENTENCE_SIZE, chunk_typ
     elif filepath.lower().endswith((".jpg", ".jpeg", ".png")):
         # loader = UnstructuredPaddleImageLoader(filepath, mode="elements")
         loader = ImageLoader(file_path=filepath, parser_choices=parser_choices, ocr_model_id=ocr_model_id, multimodal_model_id=multimodal_model_id)
-        textsplitter = ChineseTextSplitter(chunk_type, sentence_size=sentence_size)
+        textsplitter = ChineseTextSplitter(chunk_type, sentence_size=sentence_size,
+                                           overlap_size=overlap_size, separators=separators)
         docs = loader.load_and_split(text_splitter=textsplitter)
     elif filepath.lower().endswith(".csv"):
         encoding = detect_file_encoding(filepath)
