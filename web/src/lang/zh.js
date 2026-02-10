@@ -56,7 +56,9 @@ export default {
   },
   aiAssistant: {
     serviceUnavailable: '机器人助手服务暂不可用',
-    refreshMessage: '请开启服务后刷新界面',
+    refreshMessage: '请部署OpenClaw客户端并开启服务后刷新界面',
+    hintText: '具体流程详见',
+    helpDoc: '“帮助文档”',
     connecting: '正在连接服务...',
   },
   menu: {

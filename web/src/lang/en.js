@@ -57,6 +57,8 @@ export default {
   aiAssistant: {
     serviceUnavailable: 'AI Assistant service is unavailable',
     refreshMessage: 'Please start the service and refresh the page',
+    hintText: '具体流程详见',
+    helpDoc: '“帮助文档”',
     connecting: 'Connecting to service...',
   },
   menu: {
