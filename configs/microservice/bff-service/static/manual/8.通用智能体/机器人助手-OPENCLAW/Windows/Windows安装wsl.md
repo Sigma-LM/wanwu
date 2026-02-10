@@ -11,7 +11,7 @@
 
 打开开始菜单，在开始菜单中输入 `启用或关闭 Windows 功能`，在弹出的窗口中勾选`Hyper-V`、`虚拟机平台（Virtual Machine Platform)` 和 `适用于 Linux 的 Windows 子系统`，确定之后重启系统。
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/QvjnA3jg1gdDgOXo/img/6d75c04d-75b8-4132-898d-4110a2ec70ee.png)
+![image.png](assets/6d75c04d-75b8-4132-898d-4110a2ec70ee.png)
 
 ## 二、快速安装WSL
 
@@ -36,7 +36,7 @@ wsl --install
 
 安装过程
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/QvjnA3jg1gdDgOXo/img/cfec2100-8fa7-4d5a-aab0-c29254462442.png)
+![image.png](assets/cfec2100-8fa7-4d5a-aab0-c29254462442.png)
 
 ### 更改安装的默认 Linux 发行版
 
@@ -53,9 +53,9 @@ wsl --install
 *   若要查看可通过在线商店下载的可用 Linux 发行版列表，请输入：
     
 
-```plaintext
-wsl --list --online
-```
+    ```plaintext
+    wsl --list --online
+    ```
 
 若要安装未列为可用的Linux发行版，可以使用 .tar文件[导入任何 Linux 发行版](https://learn.microsoft.com/zh-cn/windows/wsl/use-custom-distro) 。 
 
@@ -80,10 +80,10 @@ wsl --set-default-version 2
 
 打开 Microsoft Store 并选择你喜欢的 Linux 发行版。
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/QvjnA3jg1gdDgOXo/img/3b3aafe5-0ea9-4e42-abec-e43bcd46b504.png)
+![image.png](assets/3b3aafe5-0ea9-4e42-abec-e43bcd46b504.png)
 
 ## 四、启动WSL
 
 在搜索栏通过搜索对应的linux发行版名称可以直接启动
 
-![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/QvjnA3jg1gdDgOXo/img/754d10df-4a91-4080-961d-39cc98d0dfec.png)
+![image.png](assets/754d10df-4a91-4080-961d-39cc98d0dfec.png)
