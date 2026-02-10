@@ -1,5 +1,8 @@
 <template>
-  <div class="agent-from-content" :class="{ 'disable-clicks': disableClick }">
+  <div
+    class="agent-from-content page-wrapper"
+    :class="{ 'disable-clicks': disableClick }"
+  >
     <div class="form-header">
       <div class="header-left">
         <span class="el-icon-arrow-left btn" @click="goBack"></span>
@@ -253,7 +256,11 @@
                 class="model-select-tips"
                 v-if="editForm.visionsupport === 'support'"
               >
-                {{ $t('agent.form.visionModelTips') }}
+                {{
+                  modelSelectedInfo.provider === 'YuanJing'
+                    ? $t('agent.form.visionModelTips_yuanJing')
+                    : $t('agent.form.visionModelTips')
+                }}
               </div>
               <div
                 class="model-select-tips"
@@ -343,7 +350,7 @@
           </div>
         </div>
         <!-- 知识库库配置 -->
-        <div class="block">
+        <div class="block" v-if="category === SINGLE_AGENT">
           <knowledgeDataField
             :knowledgeConfig="editForm.knowledgeBaseConfig"
             :category="KNOWLEDGE"
@@ -358,7 +365,7 @@
           />
         </div>
 
-        <div class="block">
+        <div class="block" v-if="category === SINGLE_AGENT">
           <p class="block-title common-set">
             <span class="common-set-label">
               {{ $t('agent.form.tool') }}
@@ -437,6 +444,13 @@
             </div>
           </div>
         </div>
+        <div class="block" v-if="category === MULTIPLE_AGENT">
+          <multipleAgentField
+            :multiAgentInfos="multiAgentInfos"
+            :labelText="$t('agent.form.multiAgent')"
+            :appId="editForm.assistantId"
+          />
+        </div>
         <div class="block">
           <p class="block-title common-set">
             <span class="common-set-label">
@@ -469,7 +483,10 @@
           </p>
         </div>
         <!-- 追问配置 -->
-        <div class="block form-recommend-wrapper">
+        <div
+          v-if="category === SINGLE_AGENT"
+          class="block form-recommend-wrapper"
+        >
           <p class="block-title common-set">
             <span class="common-set-label">
               {{ $t('agent.form.recommendConfig.configEnable') }}
@@ -692,6 +709,7 @@ import promptTemplate from './prompt/index.vue';
 import createPrompt from '@/components/createApp/createPrompt.vue';
 import PromptOptimize from '@/components/promptOptimize.vue';
 import knowledgeDataField from '@/components/app/knowledgeDataField.vue';
+import multipleAgentField from '@/components/app/multipleAgentField.vue';
 import VersionPopover from '@/components/versionPopover.vue';
 import CopyIcon from '@/components/copyIcon.vue';
 import ModelSelector from './ModelSelector.vue';
@@ -717,6 +735,7 @@ export default {
     PromptOptimize,
     knowledgeDataField,
     ModelSelector,
+    multipleAgentField,
   },
   provide() {
     return {
@@ -798,6 +817,12 @@ export default {
         return KNOWLEDGE;
       }
     },
+    // 选择的模型信息
+    modelSelectedInfo() {
+      return this.modelOptions.find(
+        item => item.modelId === this.editForm.modelParams,
+      );
+    },
   },
   data() {
     return {
@@ -805,6 +830,7 @@ export default {
       SINGLE_AGENT,
       MULTIPLE_AGENT,
       KNOWLEDGE,
+      category: '',
       disableClick: false,
       version: '',
       promptType: 'create',
@@ -937,6 +963,7 @@ export default {
       hasPluginPermission: false,
       modelLoading: false,
       wfDialogVisible: false,
+      multiAgentInfos: [],
       workFlowInfos: [],
       actionInfos: [],
       mcpInfos: [],
@@ -1447,6 +1474,7 @@ export default {
       if (res.code === 0) {
         this.startLoading(100);
         let data = res.data;
+        this.category = data.category;
         this.publishType = data.publishType;
         //兼容后端知识库数据返回null
         if (data.knowledgeBaseConfig) {
@@ -1499,6 +1527,9 @@ export default {
           data.rerankConfig.modelId;
         //设置模型信息
         this.setModelInfo(data.modelConfig.modelId);
+
+        //多智能体
+        this.multiAgentInfos = data.multiAgentInfos || [];
 
         //回显自定义插件
         this.workFlowInfos = data.workFlowInfos || [];
@@ -1710,6 +1741,7 @@ $gap-scale: (
   .drawer-form {
     width: 30%;
     min-width: 350px;
+    height: auto;
 
     /*通用*/
     .block {
@@ -1840,7 +1872,8 @@ $gap-scale: (
   }
 
   .drawer-test {
-    min-width: 670px;
+    flex: 1;
+    overflow: hidden;
   }
 
   .form-recommend-wrapper {

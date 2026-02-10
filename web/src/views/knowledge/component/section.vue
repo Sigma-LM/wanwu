@@ -1,6 +1,6 @@
 <template>
   <div
-    class="section"
+    class="section page-wrapper"
     v-loading="loading.itemStatus"
     :class="{ 'disable-clicks': obj.disable === 'true' }"
   >
@@ -230,9 +230,11 @@
                   </el-dropdown>
                 </div>
               </div>
-              <div class="text item" @click="handleClick(item, index)">
-                {{ item.content }}
-              </div>
+              <div
+                class="text item"
+                v-html="parseImagesOnly(item.content)"
+                @click="handleClick(item, index)"
+              ></div>
               <div
                 class="tagList"
                 v-if="
@@ -521,6 +523,7 @@ import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue';
 import { mapGetters } from 'vuex';
+import { parseImagesOnly } from '@/utils/util';
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -612,6 +615,7 @@ export default {
     this.clearTimer();
   },
   methods: {
+    parseImagesOnly,
     handleSearch(val) {
       this.getList(val);
     },
@@ -1282,6 +1286,11 @@ export default {
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        img {
+          width: auto;
+          max-height: 115px;
+        }
       }
 
       .clearfix {

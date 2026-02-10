@@ -1,9 +1,9 @@
 <template>
   <div class="page-wrapper">
-    <div class="page-title">
+    <!--<div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/knowledge.svg" alt="" />
       <span class="page-title-name">{{ $t('knowledgeManage.knowledge') }}</span>
-    </div>
+    </div>-->
     <div style="padding: 20px">
       <div class="knowledge-tabs">
         <div

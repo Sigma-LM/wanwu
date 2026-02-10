@@ -54,17 +54,25 @@
                       }}
                     </div>
                     <div class="card-bottom-right">
-                      <i
+                      <el-tooltip
                         v-if="!isPublic"
-                        class="el-icon-copy-document"
-                        :title="$t('tempSquare.copy')"
-                        @click.stop="copyTemplate(item)"
-                      ></i>
-                      <i
-                        class="el-icon-download"
-                        :title="$t('tempSquare.download')"
-                        @click.stop="downloadTemplate(item)"
-                      ></i>
+                        :content="$t('tempSquare.copy')"
+                        placement="top"
+                      >
+                        <i
+                          class="el-icon-copy-document"
+                          @click.stop="copyTemplate(item)"
+                        ></i>
+                      </el-tooltip>
+                      <el-tooltip
+                        :content="$t('tempSquare.download')"
+                        placement="top"
+                      >
+                        <i
+                          class="el-icon-download"
+                          @click.stop="downloadTemplate(item)"
+                        ></i>
+                      </el-tooltip>
                     </div>
                   </div>
                 </div>

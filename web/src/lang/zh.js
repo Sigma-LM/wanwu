@@ -54,16 +54,29 @@ export default {
   about: {
     version: '版本',
   },
+  aiAssistant: {
+    serviceUnavailable: '机器人助手服务暂不可用',
+    refreshMessage: '请开启服务后刷新界面',
+    connecting: '正在连接服务...',
+  },
   menu: {
+    aiAssistant: '机器人助手',
+    modelService: '模型服务',
+    resource: '资源库',
+    square: '探索广场',
     explore: '应用广场',
     templateSquare: '模板广场',
     apiKey: 'API Key 管理',
-    workspace: '工作室',
-    tool: '资源库',
+    mcpService: 'MCP服务',
+    tool: '工具',
+    prompt: '提示词',
     mcp: 'MCP广场',
     safetyGuard: '安全护栏',
+    operationManage: '运营管理',
+    statistics: '统计分析',
+    oauth: 'OAuth密钥管理',
     app: {
-      index: '应用空间',
+      index: '应用开发',
       all: '全部',
       agent: '智能体',
       rag: '文本问答',
@@ -226,6 +239,7 @@ export default {
     copy: {
       success: '内容已复制到粘贴板',
       copyText: '副本',
+      copySuccess: '复制成功',
     },
     required: '必填',
     noData: '暂无数据',
@@ -302,6 +316,7 @@ export default {
     publishSet: '发布配置',
     public: '公开',
     private: '私密',
+    multiAgent: '多智能体',
   },
   uploadDialog: {
     title: '文件上传',
@@ -340,6 +355,7 @@ export default {
   },
   user: {
     title: '用户管理',
+    name: '用户',
     button: {
       create: '新增用户',
       invite: '邀请用户',
@@ -381,6 +397,7 @@ export default {
   },
   role: {
     title: '角色管理',
+    name: '角色',
     form: {
       role: '角色名搜索',
     },
@@ -411,6 +428,7 @@ export default {
   },
   org: {
     title: '组织管理',
+    name: '组织',
     form: {
       org: '组织名搜索',
     },
@@ -535,6 +553,15 @@ export default {
       on: '上架',
       off: '下架',
       vision: '图文问答',
+      supportFileType: '支持的文件类型',
+      maxTextSize: '最大文本长度',
+      maxVideoLimit: '最大视频片限制',
+      maxPicLimit: '最大图片限制',
+      maxAudioLimit: '最大音频限制',
+    },
+    supportFileType: {
+      pic: '图片',
+      video: '视频',
     },
     confirm: {
       delete: '若模型关联了已发布的应用，删除将导致应用不可用，是否确认删除？',
@@ -763,6 +790,7 @@ export default {
     ribbon: {
       internal: '内部',
       external: '外部',
+      multimodal: '多模态',
     },
     internal: '内部知识库',
     external: '外部知识库',
@@ -808,6 +836,8 @@ export default {
     batchConfigTips:
       '本次共计选择{total}个文档，其中{unprocessedNum}个文件暂未解析成功，无法进行分段配置编辑，请在文档“当前状态”变为“处理完成”后再次尝试。',
     continueTips: '是否继续批量编辑其余“处理完成”的文档？',
+    multimodalMixTips:
+      '批量编辑分段设置，只支持相同文件类型的批量分段设置（多模态/文本表格）',
     tip: '提示',
     refreshTips:
       '您导入的文件正在异步处理中，请耐心等待，您可以尝试，刷新列表获取导入结果。',
@@ -1006,6 +1036,7 @@ export default {
       documentAnalysis: '文档解析服务',
       documentAnalysisDesc:
         '若需使用，请前往模型管理-联通元景-添加文档解析服务',
+      visionModal: '图文问答模型',
       read: '可读',
       edit: '可编辑',
       admin: '管理员',
@@ -1141,7 +1172,8 @@ export default {
         addFile: '新增文件',
         fileUpload: '文件上传',
         paramSetting: '参数设置',
-        file: '从文件上传',
+        file: '文本/表格文件上传',
+        fileMultiModal: '多模态文件上传',
         fileUrl: 'url文件上传',
         url: 'url单条上传',
         clickText: '将文件拖到此处，或',
@@ -1165,9 +1197,18 @@ export default {
     },
     multiKnowledgeDatabase: {
       title: '多模态知识库',
+      label: '多模态',
       desc: '实现多模态知识库内容解析，支持融合图像、音频、视频等多种模态的知识内容，为需要结合多类型信息的复杂场景提供多维度的知识支撑。',
       mixWarning:
         '您所选模型为Text Rerank模型，重排时会忽略掉多模态文件，请谨慎选择',
+      fileLimitError: '暂未获取到可上传的文件类型',
+      uploadTipsVideo: '支持视频{extList}，每个不超过{maxSize}MB',
+      uploadTipsAudio: '支持音频{extList}，每个文件大小限制由ASR模型决定',
+      uploadTipsImage: '支持图片{extList}，每个不超过{maxSize}MB',
+      videoSizeLimit: '上传视频不能超过{maxSize}MB',
+      audioSizeLimit:
+        '您所选模型支持解析的最大音频为{maxSize}MB，上传文件中有不满足限制的文件',
+      imageSizeLimit: '上传图片不能超过{maxSize}MB',
     },
     qaDatabase: {
       title: '问答库',
@@ -1301,7 +1342,7 @@ export default {
       '结合向量和关键词检索，融合语义理解与关键词匹配，兼顾相关性和准确性，提升检索效果。',
     weight: '权重设置',
     weightHint:
-      '权重设置功能用于调整不同检索方式的影响力。通过设置权重，可以控制语义相似度和关键词匹配在最终排序中的占比。',
+      '权重设置功能用于调整不同检索方式的影响力。通过设置权重，可以控制语义相似度和关键词匹配在最终排序中的占比。最终排序结果中只包含文本。',
   },
   explore: {
     hint: '提示',
@@ -1519,6 +1560,9 @@ export default {
     answerOperationTip: '该内容由AI生成，内容仅供参考，请仔细甄别',
     addWorkFlowTips: '工作流添加成功，默认自动使用最新版本',
     source: '出处',
+    runCompleted: '运行完毕',
+    copy: '复制',
+    copySuccess: '复制成功',
     toolDetail: {
       modelLoadingText: '模型加载中...',
       selectRerank: '请选择rerank模型',
@@ -1575,7 +1619,9 @@ export default {
       modelSelectConfigTips: '模型参数配置',
       modelSearchPlaceholder: '可输入模型名称搜索',
       visionModelTips:
-        '*您选择的是图文问答类模型，此类模型暂时无法调用知识库、联网检索及工具',
+        '*您选择的是图文问答类模型，受模型能力限制，可能会导致工具调用效果欠佳',
+      visionModelTips_yuanJing:
+        '*您所选的模型暂时无法调用知识库、联网检索及工具',
       functionCallTips:
         '*您所选模型不支持Tool Call，这会在一定程度上影响智能体性能，请谨慎选择',
       maxHistory: '上下文记忆轮数',
@@ -1777,6 +1823,7 @@ export default {
     recommendedQuestion: '推荐问题:',
     qaUplodFileTips: '文件上传成功，请手动刷新问答库列表',
     imgLimit: '图片类型限制{num}个文件，其他类型限制1个文件',
+    imgLimitOnly: '图片类型限制{num}个文件',
     imgLimitTips: '非图片类型文件会替换已有文件',
     uploadModelTips:
       ' *若该智能体基于大语言模型创建，则上传图片暂时无法进行解析',

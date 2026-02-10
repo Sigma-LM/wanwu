@@ -28,6 +28,13 @@
         <div v-if="active === 1">
           <div class="fileBtn">
             <el-radio-group v-model="fileType" @change="fileTypeChange">
+              <el-radio-button label="fileMultiModal" v-if="category === 2">
+                {{
+                  $t(
+                    'knowledgeManage.knowledgeDatabase.fileUpload.fileMultiModal',
+                  )
+                }}
+              </el-radio-button>
               <el-radio-button label="file">
                 {{ $t('knowledgeManage.knowledgeDatabase.fileUpload.file') }}
               </el-radio-button>
@@ -52,7 +59,7 @@
                 :auto-upload="false"
                 :multiple="fileType !== 'fileUrl'"
                 :limit="fileType === 'fileUrl' ? 1 : undefined"
-                accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps"
+                :accept="acceptType"
                 :file-list="fileList"
                 :on-change="uploadOnChange"
               >
@@ -94,6 +101,44 @@
                         )
                       }}
                     </p>
+                    <template
+                      v-if="fileType === 'fileMultiModal'"
+                      v-for="uploadLimit in uploadLimitList"
+                    >
+                      <p v-if="uploadLimit.fileType === 'video'">
+                        <span class="red">*</span>
+                        {{
+                          $t(
+                            'knowledgeManage.multiKnowledgeDatabase.uploadTipsVideo',
+                            {
+                              extList: uploadLimit.extList.join('、'),
+                              maxSize: uploadLimit.maxSize,
+                            },
+                          )
+                        }}
+                      </p>
+                      <p v-if="uploadLimit.fileType === 'audio'">
+                        <span class="red">*</span>
+                        {{
+                          $t(
+                            'knowledgeManage.multiKnowledgeDatabase.uploadTipsAudio',
+                            { extList: uploadLimit.extList.join('、') },
+                          )
+                        }}
+                      </p>
+                      <p v-if="uploadLimit.fileType === 'image'">
+                        <span class="red">*</span>
+                        {{
+                          $t(
+                            'knowledgeManage.multiKnowledgeDatabase.uploadTipsImage',
+                            {
+                              extList: uploadLimit.extList.join('、'),
+                              maxSize: uploadLimit.maxSize,
+                            },
+                          )
+                        }}
+                      </p>
+                    </template>
                     <p v-if="fileType === 'fileUrl'">
                       <span class="red">*</span>
                       {{
@@ -432,7 +477,41 @@
             </el-form-item>
             <el-form-item
               :label="$t('knowledgeManage.parsingMethod')"
+              v-if="fileType === 'fileMultiModal'"
+            >
+              <div
+                class="segmentList"
+                v-if="fileFormatSet.has('video') || fileFormatSet.has('audio')"
+              >
+                <span style="display: inline-block; width: 100px">
+                  <span class="red" v-if="fileFormatSet.has('audio')">*</span>
+                  ASR
+                </span>
+                <modelSelect
+                  v-model="ruleForm.asrModelId"
+                  :options="asrOptions"
+                  clearable
+                  @change="handleASR"
+                />
+              </div>
+              <div
+                class="segmentList"
+                v-if="fileFormatSet.has('video') || fileFormatSet.has('image')"
+              >
+                <span style="display: inline-block; width: 100px">
+                  {{ $t('knowledgeManage.config.visionModal') }}
+                </span>
+                <modelSelect
+                  v-model="ruleForm.multimodalModelId"
+                  :options="visionOptions"
+                  clearable
+                />
+              </div>
+            </el-form-item>
+            <el-form-item
+              :label="$t('knowledgeManage.parsingMethod')"
               prop="docAnalyzer"
+              v-else
             >
               <el-checkbox-group
                 v-model="ruleForm.docAnalyzer"
@@ -591,6 +670,7 @@
             size="mini"
             @click="submitInfo"
             v-if="active === 2"
+            :disabled="!confirmFlag"
           >
             {{ $t('common.button.confirm') }}
           </el-button>
@@ -626,6 +706,8 @@ import {
   parserSelect,
   updateDocConfig,
   getDocConfig,
+  getDocList,
+  getDocLimit,
 } from '@/api/knowledge';
 import { delfile } from '@/api/chunkFile';
 import LinkIcon from '@/components/linkIcon.vue';
@@ -640,9 +722,11 @@ import {
   MODEL_TYPE_TIP,
 } from '../config';
 import { deepMerge } from '@/utils/util';
+import modelSelect from '@/components/modelSelect.vue';
+import { selectASRList, selectModelList } from '@/api/modelAccess';
 
 export default {
-  components: { LinkIcon, urlAnalysis, splitterDialog, mataData },
+  components: { modelSelect, LinkIcon, urlAnalysis, splitterDialog, mataData },
   mixins: [uploadChunk],
   data() {
     const validateSplitter = type => {
@@ -661,15 +745,24 @@ export default {
       splitterValue: '',
       tableData: [],
       modelOptions: [],
+      asrOptions: [],
+      visionOptions: [],
+      uploadLimitList: [],
+      maxSizeAudio: 9999,
+      confirmFlag: true,
       urlValidate: false,
       active: this.$route.query.mode === 'config' ? 2 : 1,
-      fileType: 'file',
+      fileType:
+        Number(this.$route.query.category) === 2 ? 'fileMultiModal' : 'file',
       withCompressed: false,
       knowledgeId: this.$route.query.id,
       knowledgeName: this.$route.query.name,
       mode: this.$route.query.mode,
       title: this.$route.query.title,
-      docIdList: this.$route.query.docIdList,
+      docIdList: Array.isArray(this.$route.query.docIdList)
+        ? this.$route.query.docIdList
+        : [this.$route.query.docIdList].filter(id => id !== undefined),
+      category: Number(this.$route.query.category),
       fileList: [],
       fileUrl: '',
       docInfoList: [],
@@ -693,6 +786,8 @@ export default {
         docImportType: 0,
         knowledgeId: this.$route.query.id,
         parserModelId: '',
+        asrModelId: '',
+        multimodalModelId: '',
       },
       ruleFormBackup: {},
       checkSplitter: {
@@ -708,6 +803,36 @@ export default {
       modelTypeTip: MODEL_TYPE_TIP,
     };
   },
+  computed: {
+    fileFormatSet() {
+      const fileFormatSet = new Set();
+      for (const file of this.fileList) {
+        const fileType = file.name.split('.').pop().toLowerCase();
+        for (const uploadLimit of this.uploadLimitList) {
+          const extList = uploadLimit.extList || [];
+          if (extList.includes(fileType)) {
+            fileFormatSet.add(uploadLimit.fileType);
+          }
+        }
+      }
+      return fileFormatSet;
+    },
+    acceptType() {
+      switch (this.fileType) {
+        case 'file':
+          return '.pdf,.docx,.doc,.txt,.xlsx,.xls,.zip,.tar.gz,.csv,.pptx,.html,.md,.ofd,.wps';
+        case 'fileMultiModal':
+          return (
+            '.' +
+            this.uploadLimitList.flatMap(item => item.extList || []).join(',.')
+          );
+        case 'fileUrl':
+          return '.xlsx';
+        default:
+          return '';
+      }
+    },
+  },
   async created() {
     const query = this.$route.query;
     this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
@@ -721,6 +846,60 @@ export default {
           this.ruleFormBackup = JSON.parse(JSON.stringify(this.ruleForm));
           this.ruleForm.docAnalyzer = [...this.ruleForm.docAnalyzer];
           this.getModelOptions();
+        }
+      });
+    }
+    if (this.category === 2) {
+      if (this.docIdList.length > 0)
+        getDocList({
+          docName: '',
+          graphStatus: [-1],
+          knowledgeId: this.knowledgeId,
+          docIdList: this.docIdList,
+          metaValue: '',
+          pageNo: 0,
+          pageSize: 10,
+          status: [-1],
+        }).then(res => {
+          if (res.code === 0) {
+            this.fileList = res.data.list.map(item => ({
+              name: item.docName,
+              size: item.fileSize,
+            }));
+            this.fileType = res.data.list[0].isMultimodal
+              ? 'fileMultiModal'
+              : 'file';
+            if (this.fileType === 'fileMultiModal')
+              this.ruleForm.docAnalyzer = ['text'];
+          }
+        });
+      getDocLimit({ knowledgeId: this.knowledgeId })
+        .then(res => {
+          if (res.code === 0) {
+            this.uploadLimitList = res.data.uploadLimitList;
+          } else {
+            this.$router.back();
+            this.$message.error(
+              this.$t('knowledgeManage.multiKnowledgeDatabase.fileLimitError'),
+            );
+          }
+        })
+        .catch(() => {
+          this.$router.back();
+          this.$message.error(
+            this.$t('knowledgeManage.multiKnowledgeDatabase.fileLimitError'),
+          );
+        });
+      selectASRList().then(res => {
+        if (res.code === 0) {
+          this.asrOptions = res.data.list || [];
+        }
+      });
+      selectModelList().then(res => {
+        if (res.code === 0) {
+          this.visionOptions = (res.data.list || []).filter(
+            item => item.config.visionSupport === 'support',
+          );
         }
       });
     }
@@ -906,6 +1085,34 @@ export default {
         }
       });
     },
+    handleASR(value) {
+      if (!value) {
+        if (!this.fileFormatSet.has('audio')) this.confirmFlag = true;
+        this.maxSizeAudio = 9999;
+        return;
+      }
+      this.maxSizeAudio = this.asrOptions.find(
+        option => option.modelId === value,
+      ).config.maxAsrFileSize;
+      this.$nextTick(() => {
+        this.verifyASR();
+      });
+    },
+    verifyASR() {
+      if (
+        this.fileList.some(file => file.size / 1024 / 1024 >= this.maxSizeAudio)
+      ) {
+        this.$message.warning(
+          this.$t('knowledgeManage.multiKnowledgeDatabase.audioSizeLimit', {
+            maxSize: this.maxSizeAudio,
+          }),
+        );
+        this.confirmFlag = false;
+      } else if (this.ruleForm.asrModelId) {
+        this.confirmFlag = true;
+      }
+      this.$forceUpdate();
+    },
     handleSetData(data) {
       this.docInfoList = [];
       data.map(item => {
@@ -1057,7 +1264,7 @@ export default {
           delete item.metadataType;
         });
 
-        if (this.fileType === 'file') {
+        if (this.fileType === 'file' || this.fileType === 'fileMultiModal') {
           this.ruleForm.docImportType = 0;
         } else if (this.fileType === 'fileUrl') {
           this.ruleForm.docImportType = 2;
@@ -1066,6 +1273,9 @@ export default {
         }
 
         this.ruleForm.docInfoList = this.docInfoList;
+        if (this.ruleForm.asrModelId) this.ruleForm.docAnalyzer.push('asr');
+        if (this.ruleForm.multimodalModelId)
+          this.ruleForm.docAnalyzer.push('multimodal');
         let data = null;
         if (
           this.ruleForm.docSegment.segmentType === '0' &&
@@ -1110,6 +1320,9 @@ export default {
         ...item,
         checked: false,
       }));
+      this.confirmFlag = !(
+        this.fileFormatSet.has('audio') && !this.ruleForm.asrModelId
+      );
       this.getModelOptions();
       this.$refs.ruleForm.clearValidate();
     },
@@ -1173,6 +1386,7 @@ export default {
       this.docInfoList.push({
         docId: fileName,
         docName: oldName,
+        docSize: this.fileList[this.fileIndex].size,
         docType,
       });
       this.fileIndex++;
@@ -1192,22 +1406,27 @@ export default {
     },
     //  验证文件格式
     verifyFormat(file) {
-      const nameType = [
-        'pdf',
-        'docx',
-        'doc',
-        'pptx',
-        'zip',
-        'tar.gz',
-        'xlsx',
-        'xls',
-        'csv',
-        'txt',
-        'html',
-        'md',
-        'ofd',
-        'wps',
-      ];
+      let nameType;
+      if (this.fileType === 'fileMultiModal') {
+        nameType = this.uploadLimitList.flatMap(item => item.extList || []);
+      } else {
+        nameType = [
+          'pdf',
+          'docx',
+          'doc',
+          'pptx',
+          'zip',
+          'tar.gz',
+          'xlsx',
+          'xls',
+          'csv',
+          'txt',
+          'html',
+          'md',
+          'ofd',
+          'wps',
+        ];
+      }
       const fileName = file.name;
       const isSupportedFormat = nameType.some(ext =>
         fileName.endsWith(`.${ext}`),
@@ -1220,6 +1439,23 @@ export default {
       }
 
       const fileType = file.name.split('.').pop();
+      for (const uploadLimit of this.uploadLimitList) {
+        const extList = uploadLimit.extList || [];
+        if (extList.includes(fileType)) {
+          if (uploadLimit.fileType !== 'audio') {
+            if (file.size / 1024 / 1024 >= uploadLimit.maxSize) {
+              this.$message.error(
+                this.$t(
+                  `knowledgeManage.multiKnowledgeDatabase.${uploadLimit.fileType}SizeLimit`,
+                  { maxSize: uploadLimit.maxSize },
+                ),
+              );
+              return false;
+            }
+          }
+          return true;
+        }
+      }
       const limit200 = [
         'pdf',
         'docx',
@@ -1259,7 +1495,11 @@ export default {
         return fileName.endsWith('.zip') || fileName.endsWith('.tar.gz');
       });
       //上传文件类型
-      if (this.fileType === 'file' || this.fileType === 'fileUrl') {
+      if (
+        this.fileType === 'file' ||
+        this.fileType === 'fileUrl' ||
+        this.fileType === 'fileMultiModal'
+      ) {
         if (this.fileIndex < this.fileList.length) {
           this.$message.warning('文件上传中...');
           return false;
@@ -1277,6 +1517,12 @@ export default {
         }
       }
       this.active = 2;
+      if (this.fileType === 'fileMultiModal')
+        this.ruleForm.docAnalyzer = ['text'];
+      this.confirmFlag = !(
+        this.fileFormatSet.has('audio') && !this.ruleForm.asrModelId
+      );
+      this.verifyASR();
     },
     preStep() {
       this.active = 1;

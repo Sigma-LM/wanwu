@@ -1,5 +1,5 @@
 <template>
-  <div class="section" v-loading="loading.itemStatus">
+  <div class="section page-wrapper" v-loading="loading.itemStatus">
     <div class="title">
       <i
         class="el-icon-arrow-left"
@@ -44,7 +44,7 @@
         </el-descriptions-item>
       </el-descriptions>
 
-      <div class="btn">
+      <div class="btnRow">
         <el-button
           type="primary"
           icon="el-icon-refresh"
@@ -599,7 +599,7 @@ export default {
       padding: 10px;
     }
 
-    .btn {
+    .btnRow {
       padding: 10px 0;
       text-align: right;
     }

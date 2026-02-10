@@ -1,8 +1,7 @@
 <template>
   <div
     :class="[mode]"
-    :style="`background: ${bgColor}`"
-    class="page-wrapper wrap-fullheight conversation-pane"
+    class="page-wrapper wrap-fullheight conversation-pane right-page-content-body"
   >
     <div class="page-title">
       <img class="page-title-img" src="@/assets/imgs/model.svg" alt="" />
@@ -89,7 +88,6 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex';
 import { generateChatConfig } from './helper';
 import StreamInputField from '@/components/stream/streamInputField.vue';
 import ModelChatPane from './components/ModelChatPane.vue';
@@ -129,7 +127,6 @@ export default {
   },
   data() {
     return {
-      bgColor: '#fff',
       loading: false,
       sessionRefs: {},
       modelChatList: [],
@@ -141,16 +138,6 @@ export default {
     };
   },
   watch: {
-    commonInfo: {
-      handler(val) {
-        const { home = {} } = val.data || {};
-        this.bgColor =
-          home.backgroundColor ||
-          'linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%)';
-      },
-      deep: true,
-      immediate: true,
-    },
     modelOptions: {
       handler() {
         if (this.isModelExprience && !this.modelChatList.length) {
@@ -162,7 +149,6 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('user', ['commonInfo']),
     title() {
       return this.mode === 'modelExprience'
         ? this.$t('modelExprience.title')
@@ -591,7 +577,10 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  width: 100%;
+
+  &.modelExprience {
+    width: 100%;
+  }
   &.modelComparison {
     position: absolute;
     left: 0;

@@ -1,5 +1,5 @@
 <template>
-  <div class="graph-page">
+  <div class="graph-page page-wrapper">
     <graphMap
       ref="graphMap"
       :data="graphData"

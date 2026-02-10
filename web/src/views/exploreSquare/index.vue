@@ -46,7 +46,7 @@
 import SearchInput from '@/components/searchInput.vue';
 import AppList from '@/components/appList.vue';
 import CreateTotalDialog from '@/components/createTotalDialog.vue';
-import { getExplorList } from '@/api/explore';
+import { getExplorationList } from '@/api/explore';
 import { AGENT, WORKFLOW, RAG, CHAT } from '@/utils/commonSet';
 
 export default {
@@ -106,20 +106,20 @@ export default {
   created() {
     const { type } = this.$route.query || {};
     this.activeName = [WORKFLOW, RAG, CHAT].includes(type) ? type : AGENT;
-    this.getExplorData(this.activeName, this.active);
+    this.getExplorationList(this.activeName, this.active);
   },
   mounted() {},
   methods: {
     handleSearch(value) {
       this.searchValue = value;
-      this.getExplorData(this.activeName, this.active);
+      this.getExplorationList(this.activeName, this.active);
     },
     historyClick(n) {
       if (!n.path) return;
       this.$router.push({ path: n.path });
     },
     handleClick() {
-      this.getExplorData(this.activeName, this.active);
+      this.getExplorationList(this.activeName, this.active);
       if (this.activeName === AGENT) {
         this.$router.replace({ query: {} });
       } else {
@@ -128,11 +128,11 @@ export default {
     },
     handleTagClick(item) {
       this.active = item.value;
-      this.getExplorData(this.activeName, this.active);
+      this.getExplorationList(this.activeName, this.active);
     },
-    getExplorData(appType, searchType) {
+    getExplorationList(appType, searchType) {
       const data = { name: this.searchValue, appType, searchType };
-      getExplorList(data)
+      getExplorationList(data)
         .then(res => {
           if (res.code === 0) {
             this.listData = res.data.list || [];
@@ -193,8 +193,7 @@ export default {
 }
 
 .page-wrapper {
-  margin: 20px;
-  padding-bottom: 20px;
+  padding: 10px 30px 20px;
   box-sizing: border-box;
 
   .header-top {
@@ -210,6 +209,7 @@ export default {
 
     .taglist_warp {
       display: flex;
+      margin-top: -20px;
 
       .tagList {
         margin: 10px;

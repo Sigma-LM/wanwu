@@ -52,6 +52,9 @@
               <span v-if="item.external === 1" class="meta-text">
                 {{ $t('knowledgeManage.ribbon.external') }}
               </span>
+              <span v-if="item.category === 2" class="meta-text">
+                {{ $t('knowledgeManage.ribbon.multimodal') }}
+              </span>
             </div>
             <span class="knowledge-createAt">
               {{ $t('knowledgeSelect.createTime') }} {{ item.createAt }}

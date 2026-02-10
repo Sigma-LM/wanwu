@@ -63,9 +63,13 @@ export default {
 .explore-container {
   width: 100%;
   height: 100%;
+  gap: 12px;
+
   .el-aside {
     background: #fff;
     border-radius: 10px 0 10px 10px;
+    display: flex;
+    flex-direction: column;
     .aside-title {
       height: 60px;
       padding: 12px 15px 0;
@@ -84,7 +88,8 @@ export default {
       }
     }
     .aside-content {
-      height: calc(100% - 60px);
+      flex: 1;
+      overflow-y: auto;
     }
   }
   .el-main {

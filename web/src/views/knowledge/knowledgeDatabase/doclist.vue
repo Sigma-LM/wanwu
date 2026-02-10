@@ -134,6 +134,7 @@
                 >
                   {{ knowledgeName }}
                   <i
+                    v-if="[POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
                     class="el-icon-edit-outline"
                     style="cursor: pointer"
                     @click="showEdit"
@@ -147,6 +148,7 @@
                     {{ description || $t('knowledgeManage.zeroData') }}
                   </span>
                   <i
+                    v-if="[POWER_TYPE_SYSTEM_ADMIN].includes(permissionType)"
                     class="el-icon-edit-outline"
                     style="cursor: pointer"
                     @click="showEdit"
@@ -506,6 +508,7 @@ export default {
       loading: false,
       tableLoading: false,
       docQuery: {
+        docIdList: [],
         docName: '',
         metaValue: '',
         knowledgeId: this.$route.params.id,
@@ -852,6 +855,7 @@ export default {
           mode: 'config',
           title: this.$t('knowledgeManage.segmentConfig'),
           docIdList: docIdList,
+          category: this.category,
         },
       });
     },
@@ -880,8 +884,19 @@ export default {
       const allowedDocs = this.selectedTableData.filter(
         doc => doc.status === KNOWLEDGE_STATUS_FINISH,
       );
-
-      if (unprocessedDocs.length > 0) {
+      if (
+        this.selectedTableData.some(doc => doc.isMultimodal === true) &&
+        this.selectedTableData.some(doc => doc.isMultimodal === false)
+      ) {
+        this.$alert(
+          this.$t('knowledgeManage.multimodalMixTips'),
+          this.$t('knowledgeManage.tip'),
+          {
+            confirmButtonText: this.$t('common.button.confirm'),
+            type: 'warning',
+          },
+        );
+      } else if (unprocessedDocs.length > 0) {
         let message = this.$t('knowledgeManage.batchConfigTips', {
           total: this.selectedTableData.length,
           unprocessedNum: unprocessedDocs.length,
@@ -976,7 +991,11 @@ export default {
     handleUpload() {
       this.$router.push({
         path: '/knowledge/fileUpload',
-        query: { id: this.docQuery.knowledgeId, name: this.knowledgeName },
+        query: {
+          id: this.docQuery.knowledgeId,
+          name: this.knowledgeName,
+          category: this.category,
+        },
       });
     },
     refreshData(data, tableInfo) {
@@ -999,6 +1018,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.read-only {
+  cursor: not-allowed;
+}
+
 .keyword-tags {
   align-items: center;
   display: flex;

@@ -221,7 +221,7 @@ export default {
     },
     goCreate() {
       if (this.activeValue === TOOL) {
-        this.$router.push({ path: '/tool?type=tool&mcp=custom' });
+        this.$router.push({ path: '/tool?tool=custom' });
       }
     },
     createText() {

@@ -93,3 +93,11 @@ export const selectModelList = () => {
     method: 'get',
   });
 };
+
+//获取ASR模型列表
+export const selectASRList = () => {
+  return service({
+    url: `${USER_API}/model/select/sync-asr`,
+    method: 'get',
+  });
+};

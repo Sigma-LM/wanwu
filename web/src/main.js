@@ -5,31 +5,23 @@ import router from './router';
 import { store } from './store';
 import { i18n } from './lang';
 import './router/permission';
+import './assets/icons';
 
 import ElementUi from 'element-ui';
 import moment from 'moment';
 import 'element-ui/lib/theme-chalk/index.css';
 import '@/style/index.scss';
 import { config, basePath } from './utils/config';
-import { guid } from '@/utils/util';
+import { guid, copy } from '@/utils/util';
 
 Vue.use(ElementUi, {
   i18n: (key, value) => i18n.t(key, value), // 根据选的语言切换 Element-ui 的语言
 });
 
-Vue.prototype.$config = config;
+Vue.prototype.$config = config || {};
 Vue.prototype.$basePath = basePath;
 Vue.prototype.$guid = guid;
-Vue.prototype.$copy = function copy(text) {
-  var textareaEl = document.createElement('textarea');
-  textareaEl.setAttribute('readonly', 'readonly'); // 防止手机上弹出软键盘
-  textareaEl.value = text;
-  document.body.appendChild(textareaEl);
-  textareaEl.select();
-  var res = document.execCommand('copy');
-  document.body.removeChild(textareaEl);
-  return res;
-};
+Vue.prototype.$copy = copy;
 
 Vue.config.productionTip = false;
 

@@ -15,7 +15,7 @@ export function guid() {
 
 export const getXClientId = () => localStorage.getItem('xClientId');
 
-// 用于登录切组织等找到有权限的第一个菜单路径 (除用模型：用模型为打开的新页面)
+// 用于登录切组织等找到有权限的第一个菜单路径
 export const fetchPermFirPath = (list = menuList) => {
   if (!list.length) return '';
 
@@ -23,7 +23,7 @@ export const fetchPermFirPath = (list = menuList) => {
   for (let i in list) {
     const item = list[i];
 
-    if (item.path && checkPerm(item.perm)) {
+    if (checkPerm(item.perm)) {
       if (item.children && item.children.length) {
         path = fetchPermFirPath(item.children).path;
         break;
@@ -206,6 +206,14 @@ export function parseSub(data, index, searchList) {
       </div>
     `;
   });*/
+}
+
+// 子会话专用的 parseSub
+export function parseSubConversation(text, index, searchList, id) {
+  return text.replace(/\【([0-9]{0,2})\^\】/g, item => {
+    let result = item.match(/\【([0-9]{0,2})\^\】/)[1];
+    return `<sup class='citation' data-parents-index='${index}' data-pid='${id}'>${result}</sup>`;
+  });
 }
 
 /**
@@ -433,4 +441,35 @@ export function formatFileSize(bytes, decimals = 2) {
   return (
     parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i]
   );
+}
+
+// 只解析md图片
+export function parseImagesOnly(markdownText) {
+  // 匹配 Markdown 图片语法的正则表达式
+  // ![](image.jpg) 或 ![alt](image.jpg) 或 ![alt](image.jpg "title")
+  const imageRegex = /!\[(.*?)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g;
+
+  let lastIndex = 0;
+  let result = '';
+
+  let match;
+  while ((match = imageRegex.exec(markdownText)) !== null) {
+    // 添加匹配前的文本内容
+    result += markdownText.substring(lastIndex, match.index);
+
+    // 构造图片HTML
+    const alt = match[1] || '';
+    const src = match[2];
+    const title = match[3] ? ` title="${match[3]}"` : '';
+
+    result += `<img src="${src}" alt="${alt}"${title}>`;
+
+    // 更新lastIndex到匹配结束位置
+    lastIndex = match.index + match[0].length;
+  }
+
+  // 添加剩余的文本内容
+  result += markdownText.substring(lastIndex);
+
+  return result;
 }

@@ -1,7 +1,9 @@
 <template>
-  <div class="mcp-detail" id="timeScroll">
+  <div class="mcp-detail page-wrapper" id="timeScroll">
     <span class="back" @click="back">
-      {{ $t('menu.back') + (isFromSquare ? $t('menu.mcp') : $t('menu.tool')) }}
+      {{
+        $t('menu.back') + (isFromSquare ? $t('menu.mcp') : $t('menu.resource'))
+      }}
     </span>
     <div class="mcp-title">
       <img
@@ -74,10 +76,9 @@
             <div class="overview-item">
               <div class="item-title">• &nbsp;{{ $t('square.detail') }}</div>
               <div class="item-desc">
-                <div
-                  class="readme-content markdown-body mcp-markdown"
-                  v-html="md.render(detail.detail || '')"
-                ></div>
+                <div class="mcp-markdown">
+                  <MdRender :content="detail.detail" />
+                </div>
               </div>
             </div>
           </div>
@@ -225,7 +226,6 @@
 </template>
 <script>
 import sendDialog from './sendDialog';
-import { md } from '@/mixins/markdown-it';
 import {
   getRecommendsList,
   getPublicMcpInfo,
@@ -233,6 +233,7 @@ import {
   getTools,
 } from '@/api/mcp';
 import { avatarSrc, formatTools } from '@/utils/util';
+import MdRender from '@/components/mdRender.vue';
 
 export default {
   props: {
@@ -244,7 +245,6 @@ export default {
   data() {
     return {
       defaultAvatar: require('@/assets/imgs/mcp_active.svg'),
-      md: md,
       isFromSquare: true,
       mcpSquareId: '',
       mcpId: '',
@@ -343,23 +343,23 @@ export default {
     },
     back() {
       if (this.isFromSquare) this.$router.push({ path: '/mcp' });
-      else this.$router.push({ path: '/tool?type=mcp&mcp=integrate' });
+      else this.$router.push({ path: '/mcpService?mcp=integrate' });
     },
   },
   components: {
     sendDialog,
+    MdRender,
   },
 };
 </script>
 <style lang="scss">
-@import '@/style/markdown.scss';
+/*@import '@/style/markdown.scss';
 .markdown-body {
   font-family: 'Microsoft YaHei', Arial, sans-serif;
-}
+}*/
 .mcp-detail {
   padding: 20px;
   overflow: auto;
-  margin: 20px;
   .back {
     color: $color;
     cursor: pointer;

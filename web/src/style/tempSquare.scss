@@ -1,5 +1,4 @@
 .tempSquare-management {
-  height: calc(100% - 50px);
   .tempSquare-content-box {
     height: calc(100% - 145px);
   }
@@ -10,7 +9,6 @@
   }
 
   .tempSquare-third {
-    min-height: 600px;
     .tab-span {
       display: inline-block;
       vertical-align: middle;
@@ -62,8 +60,6 @@
               flex-wrap: wrap;
               margin: 6px -10px 0;
               align-content: flex-start;
-              padding-bottom: 20px;
-              /*overflow: auto;*/
               .card {
                 position: relative;
                 padding: 20px 16px;

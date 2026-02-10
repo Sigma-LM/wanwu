@@ -32,6 +32,50 @@
             {{ $t('knowledgeManage.external') }}
           </div>
         </div>
+        <div
+          class="card"
+          v-if="!isEdit && category === KNOWLEDGE && tabActive === INTERNAL"
+        >
+          <div
+            :class="['card-item', { 'is-active': localCategory === KNOWLEDGE }]"
+            @click="localCategory = KNOWLEDGE"
+          >
+            <img
+              class="card-img"
+              src="@/assets/imgs/textKnowledge.svg"
+              alt=""
+            />
+            <div>
+              <div class="card-name">
+                {{ $t('knowledgeManage.textKnowledgeDatabase.title') }}
+              </div>
+              <div class="card-detail">
+                {{ $t('knowledgeManage.textKnowledgeDatabase.desc') }}
+              </div>
+            </div>
+          </div>
+          <div
+            :class="[
+              'card-item',
+              { 'is-active': localCategory === MULTIMODAL },
+            ]"
+            @click="localCategory = MULTIMODAL"
+          >
+            <img
+              class="card-img"
+              src="@/assets/imgs/multiKnowledge.svg"
+              alt=""
+            />
+            <div>
+              <div class="card-name">
+                {{ $t('knowledgeManage.multiKnowledgeDatabase.title') }}
+              </div>
+              <div class="card-detail">
+                {{ $t('knowledgeManage.multiKnowledgeDatabase.desc') }}
+              </div>
+            </div>
+          </div>
+        </div>
         <el-form-item
           :label="
             category === KNOWLEDGE

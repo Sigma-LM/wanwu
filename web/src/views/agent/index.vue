@@ -1,5 +1,5 @@
 <template>
-  <div class="agent-mobile-wrapper">
+  <div class="agent-mobile-wrapper right-page-content-body">
     <!-- 移动端菜单按钮 -->
     <div class="mobile-menu-btn" @click="toggleMobileMenu" v-if="!showAside">
       <img src="@/assets/imgs/historyList.png" class="mobile-menu-img" />
@@ -290,7 +290,7 @@ export default {
     historyClick(n) {
       //切换对话
       n.hover = true;
-      this.$refs['agentChat'].conversionClick(n);
+      this.$refs['agentChat'].conversationClick(n);
       if (this.isMobile) {
         this.showMobileMenu = false;
         this.showAside = false;

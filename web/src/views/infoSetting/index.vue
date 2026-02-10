@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding-bottom: 5px">
     <!--tab配置-->
     <el-card shadow="never" class="docPage-card">
       <div slot="header">
@@ -405,9 +405,7 @@ export default {
 
         this.form.homeName = home.title;
         this.form.homeLogo = home.logo || {};
-        const color =
-          home.backgroundColor ||
-          'linear-gradient(1deg, #FFFFFF 42%, #FFFFFF 42%, #EBEDFE 98%, #EEF0FF 98%)';
+        const color = home.backgroundColor || this.$config.backgroundColor;
         this.radio = color.includes('linear-gradient') ? '1' : '0';
         this.form.homeBgColor = color;
 

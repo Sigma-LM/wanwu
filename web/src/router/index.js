@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { PERMS } from './constants';
 import { basePath } from '@/utils/config';
+import { PROMPT, MCP, TOOL } from '@/views/tool/constants';
 
 const routerPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function (location) {
@@ -83,25 +84,53 @@ const constantRoutes = [
         meta: { perm: [PERMS.PERMISSION] },
       },
       {
+        path: '/statistics',
+        component: resolve =>
+          require(['@/views/permission/statistics'], resolve),
+        meta: { perm: [PERMS.STATISTIC] },
+      },
+      {
+        path: '/oauth',
+        component: resolve => require(['@/views/permission/oauth'], resolve),
+        meta: { perm: [PERMS.OAUTH] },
+      },
+      {
         path: '/docCenter/pages/:id(.*)*',
         component: resolve => require(['@/views/docCenter'], resolve),
-        // meta:{perm: [PERMS.DOC_CENTER]}
+      },
+      {
+        path: '/aiAssistant',
+        component: resolve => require(['@/views/aiAssistant/index'], resolve),
       },
       {
         path: '/modelAccess',
         component: resolve => require(['@/views/modelAccess'], resolve),
-        meta: { perm: [PERMS.MODEL] },
+        meta: { perm: [PERMS.MODEL_MANAGE] },
       },
       {
         path: '/modelAccess/modelExprience',
         component: resolve =>
           require(['@/views/modelExprience/index'], resolve),
-        meta: { perm: [PERMS.MODEL] },
+        meta: { perm: [PERMS.MODEL_MANAGE] },
+      },
+      {
+        path: '/skill',
+        component: resolve =>
+          require([
+            '@/views/templateSquare/skills/skillTempSquare.vue',
+          ], resolve),
+        meta: { perm: [PERMS.SKILL] },
+      },
+      {
+        path: '/skill/detail',
+        component: resolve =>
+          require(['@/views/templateSquare/tempDetail.vue'], resolve),
+        meta: { perm: [PERMS.SKILL] },
       },
       {
         path: '/tool',
         component: resolve => require(['@/views/tool'], resolve),
-        meta: { perm: [PERMS.TOOL] },
+        meta: { perm: [PERMS.TOOL], routeType: TOOL },
       },
       {
         path: '/tool/detail/builtIn',
@@ -110,17 +139,27 @@ const constantRoutes = [
         meta: { perm: [PERMS.TOOL] },
       },
       {
-        path: '/tool/detail/custom',
+        path: '/prompt',
+        component: resolve => require(['@/views/tool'], resolve),
+        meta: { perm: [PERMS.PROMPT], routeType: PROMPT },
+      },
+      {
+        path: '/mcpService',
+        component: resolve => require(['@/views/tool'], resolve),
+        meta: { perm: [PERMS.MCP_SERVICE], routeType: MCP },
+      },
+      {
+        path: '/mcpService/detail/custom',
         component: resolve =>
           require(['@/views/mcpManagementPublic/detail'], resolve),
-        meta: { perm: [PERMS.TOOL] },
+        meta: { perm: [PERMS.MCP_SERVICE] },
         props: { type: 'custom' },
       },
       {
-        path: '/tool/detail/server',
+        path: '/mcpService/detail/server',
         component: resolve =>
           require(['@/views/tool/mcp/server/detail'], resolve),
-        meta: { perm: [PERMS.TOOL] },
+        meta: { perm: [PERMS.MCP_SERVICE] },
       },
       {
         path: '/mcp',
@@ -271,7 +310,7 @@ const constantRoutes = [
       {
         path: '/openApiKey',
         component: resolve => require(['@/views/apiKeyManagement'], resolve),
-        meta: { perm: [PERMS.API_KEY] },
+        meta: { perm: [PERMS.API_KEY_MANAGE] },
       },
       {
         path: '/templateSquare',

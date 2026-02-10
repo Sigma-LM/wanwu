@@ -1,7 +1,7 @@
 <template>
-  <div class="mcp-detail" id="timeScroll">
+  <div class="mcp-detail page-wrapper" id="timeScroll">
     <span class="back" @click="back">
-      {{ $t('menu.back') + $t('menu.tool') }}
+      {{ $t('menu.back') + $t('menu.resource') }}
     </span>
     <div class="mcp-title">
       <img
@@ -225,7 +225,7 @@ export default {
       });
     },
     back() {
-      this.$router.push({ path: '/tool?type=tool&mcp=builtIn' });
+      this.$router.push({ path: '/tool?tool=builtIn' });
     },
   },
 };
@@ -238,7 +238,6 @@ export default {
 .mcp-detail {
   padding: 20px;
   overflow: auto;
-  margin: 20px;
   .back {
     color: $color;
     cursor: pointer;

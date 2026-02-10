@@ -7,6 +7,28 @@
       append-to-body
       :close-on-click-modal="false"
     >
+      <div class="agentCategoryList" v-if="type === 'create'">
+        <div
+          v-for="agentCategoryItem in agentCategoryList"
+          :key="agentCategoryItem.category"
+          :class="[
+            'agentCategoryItem',
+            form.category === agentCategoryItem.category ? 'active' : '',
+          ]"
+          @click="form.category = agentCategoryItem.category"
+        >
+          <div class="itemImg">
+            <img
+              :src="require(`@/assets/imgs/${agentCategoryItem.img}`)"
+              alt="agentCategoryItem.text"
+            />
+          </div>
+          <div>
+            <p class="agentCategoryItem_text">{{ agentCategoryItem.text }}</p>
+            <h3 class="agentCategoryItem_desc">{{ agentCategoryItem.desc }}</h3>
+          </div>
+        </div>
+      </div>
       <el-form ref="form" :model="form" label-width="120px" :rules="rules">
         <el-form-item
           :label="$t('agentDialog.agentLogo') + ':'"

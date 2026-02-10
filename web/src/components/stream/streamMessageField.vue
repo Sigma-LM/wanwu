@@ -18,6 +18,7 @@
       :id="scrollContainerId"
       v-loading="loading"
       ref="timeScroll"
+      @click="handleGlobalClick"
     >
       <div v-for="(n, i) in session_data.history" :key="`${i}sdhs`">
         <!--问题-->
@@ -129,7 +130,12 @@
 
         <!--回答 文字+图片-->
         <div
-          v-if="!n.error && (n.response || n.msg_type)"
+          v-if="
+            !n.error &&
+            (n.response ||
+              n.msg_type ||
+              (n.subConversions && n.subConversions.length))
+          "
           class="session-answer"
           :id="'message-container' + i"
         >
@@ -137,6 +143,20 @@
           <div class="session-answer-wrapper">
             <img class="logo" :src="modelIconUrl || avatarSrc(defaultUrl)" />
             <div class="session-wrap" style="width: calc(100% - 30px)">
+              <!-- 子会话渲染区域 -->
+              <div
+                v-if="n.subConversions && n.subConversions.length"
+                class="sub-conversion-box"
+              >
+                <sub-conversion
+                  v-for="(conversion, idx) in n.subConversions"
+                  :key="idx"
+                  :conversion="conversion"
+                  :parents-index="i"
+                  @toggle-conversion="toggleSubConversion"
+                  @collapse-click="collapseClick"
+                ></sub-conversion>
+              </div>
               <!-- <div
                 v-if="showDSBtn(n.response)"
                 class="deepseek"
@@ -214,8 +234,33 @@
                 </div>
               </template>
               <!-- </div> -->
+              <template
+                v-if="
+                  (n.stableChunks && n.stableChunks.length) || n.activeResponse
+                "
+              >
+                <div class="answer-content">
+                  <div
+                    v-for="(chunk, idx) in n.stableChunks"
+                    :key="idx"
+                    class="chunk_stable"
+                    v-bind:class="{ 'ds-res': showDSBtn(chunk) }"
+                    v-html="showDSBtn(chunk) ? replaceHTML(chunk, n) : chunk"
+                  ></div>
+                  <div
+                    v-if="n.activeResponse"
+                    class="chunk_active"
+                    v-bind:class="{ 'ds-res': showDSBtn(n.activeResponse) }"
+                    v-html="
+                      showDSBtn(n.activeResponse)
+                        ? replaceHTML(n.activeResponse, n)
+                        : n.activeResponse
+                    "
+                  ></div>
+                </div>
+              </template>
               <div
-                v-if="n.response"
+                v-else-if="n.response"
                 class="answer-content"
                 v-bind:class="{
                   'ds-res': showDSBtn(n.response),
@@ -457,6 +502,7 @@ import 'highlight.js/styles/atom-one-dark.css';
 import commonMixin from '@/mixins/common';
 import { mapGetters, mapState } from 'vuex';
 import { avatarSrc } from '@/utils/util';
+import SubConversion from './subConversion.vue';
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -499,6 +545,9 @@ export default {
       default: true,
     },
   },
+  components: {
+    SubConversion,
+  },
   data() {
     return {
       md: md,
@@ -530,6 +579,8 @@ export default {
       fileScrollStateMap: {},
       resizeTimer: null,
       scrollContainerId: `timeScroll-${this._uid}`,
+      // 复制提示计时器map
+      copyTimerMap: new Map(),
     };
   },
   computed: {
@@ -591,6 +642,11 @@ export default {
     if (this.imageErrorHandler) {
       document.body.removeEventListener('error', this.imageErrorHandler, true);
     }
+    // 清除复制提示计时器
+    this.copyTimerMap.forEach(timerId => {
+      clearTimeout(timerId);
+    });
+    this.copyTimerMap.clear();
   },
   methods: {
     avatarSrc,
@@ -697,6 +753,53 @@ export default {
       return this.imgConfig.map(t => t.toLowerCase()).includes(type);
     },
     handleCitationClick(e) {
+      const target = e.target.closest('.citation');
+      const subConversionItem = target
+        ? target.closest('.sub-conversion-item')
+        : null;
+
+      if (subConversionItem && target.dataset.pid) {
+        // 子会话引用点击处理
+        const pid = target.dataset.pid;
+        // 父会话在 history 中的索引
+        const parentsIndex = Number(target.dataset.parentsIndex);
+        // 引用tag
+        const citationIndex = Number(target.textContent);
+        const historyItem = this.session_data.history[parentsIndex];
+
+        if (historyItem && historyItem.subConversions) {
+          // 在对应的 history 项中找到该子会话实例
+          const subConversion = historyItem.subConversions.find(
+            a => a.id === pid,
+          );
+
+          if (
+            subConversion &&
+            subConversion.searchList &&
+            subConversion.searchList[citationIndex - 1]
+          ) {
+            const searchItem = subConversion.searchList[citationIndex - 1];
+            this.collapseClick(subConversion, searchItem, citationIndex - 1);
+
+            // 视图滚动：在当前子会话容器范围内寻找对应的引用详情项
+            this.$nextTick(() => {
+              const targetSearchItem = subConversionItem.querySelector(
+                `.search-list-item[data-citation-index="${citationIndex}"]`,
+              );
+              if (targetSearchItem) {
+                targetSearchItem.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center',
+                });
+              }
+            });
+
+            e.stopPropagation();
+            return;
+          }
+        }
+      }
+
       this.$handleCitationClick(e, {
         sessionStatus: this.sessionStatus,
         sessionData: this.session_data,
@@ -706,6 +809,10 @@ export default {
           this.$set(item, 'collapse', collapse);
         },
       });
+    },
+    // 子会话展开收起
+    toggleSubConversion(conversion) {
+      this.$set(conversion, 'isOpen', !conversion.isOpen);
     },
     showSearchList(j, citations) {
       return (citations || []).includes(j + 1);
@@ -862,12 +969,17 @@ export default {
     copycb() {
       this.$message.success(this.$t('agent.copyTips'));
     },
-    collapseClick(n, m, j) {
-      if (!m.collapse) {
-        this.$set(n.searchList, j, { ...m, collapse: true });
-      } else {
-        this.$set(n.searchList, j, { ...m, collapse: false });
-      }
+    /**
+     * 处理出处列表的展开/折叠点击事件
+     * @param {Object} sourceContainer - 包含出处列表的容器对象（如主历史项或子会话对象）
+     * @param {Object} searchItem - 当前点击的出处条目对象
+     * @param {number} index - 当前条目在 searchList 中的索引
+     */
+    collapseClick(sourceContainer, searchItem, index) {
+      this.$set(sourceContainer.searchList, index, {
+        ...searchItem,
+        collapse: !searchItem.collapse,
+      });
     },
     doLoading() {
       this.loading = true;
@@ -1103,6 +1215,24 @@ export default {
         this.updateAllFileScrollStates();
       });
     },
+    handleGlobalClick(e) {
+      // 复制
+      if (e.target.classList.contains('copy-btn')) {
+        const btn = e.target;
+        if (this.copyTimerMap.has(btn)) {
+          clearTimeout(this.copyTimerMap.get(btn));
+        }
+        let innerText = btn.parentNode.nextElementSibling.innerText;
+        this.copy(innerText);
+        this.$message.success(this.$t('agent.copyTips'));
+        btn.innerText = this.$t('agent.copySuccess');
+        const timerId = setTimeout(() => {
+          btn.innerText = this.$t('agent.copy');
+          this.copyTimerMap.delete(btn);
+        }, 1500);
+        this.copyTimerMap.set(btn, timerId);
+      }
+    },
   },
 };
 </script>
@@ -1134,6 +1264,7 @@ export default {
     white-space: nowrap;
     margin-bottom: 2px;
     transform: scale(0.8);
+    font-style: normal;
   }
 }
 
@@ -1533,8 +1664,16 @@ export default {
     cursor: pointer;
     display: inline-block;
   }
-}
 
+  .sub-conversion-box {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
 /* 仅通过样式调整位置：
    问题在右侧（内容在右、头像在最右），答案在左侧（默认） */
 .session-question {

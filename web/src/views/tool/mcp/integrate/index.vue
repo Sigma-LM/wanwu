@@ -15,7 +15,7 @@
             @handleSearch="fetchList"
           />
           <el-button size="mini" type="primary" @click="handleAddMCP">
-            导入
+            {{ $t('common.button.import') }}
           </el-button>
         </div>
       </div>
@@ -25,16 +25,10 @@
           <div class="app-card-create" @click="handleAddMCP">
             <div class="create-img-wrap">
               <img
-                class="create-type"
-                src="@/assets/imgs/create_mcp.svg"
-                alt=""
-              />
-              <img
                 class="create-img"
-                src="@/assets/imgs/create_icon.png"
+                src="@/assets/imgs/card_create_icon_mcp.svg"
                 alt=""
               />
-              <div class="create-filter"></div>
             </div>
             <span>{{ $t('tool.integrate.create') }}</span>
           </div>
@@ -142,7 +136,7 @@ export default {
     handleClick(val) {
       // mcpSquareId 有值 MCP广场, 否则自定义
       this.$router.push({
-        path: `/tool/detail/custom?mcpId=${val.mcpId}&mcpSquareId=${val.mcpSquareId}`,
+        path: `/mcpService/detail/custom?mcpId=${val.mcpId}&mcpSquareId=${val.mcpSquareId}`,
       });
     },
     handleAddMCP() {

@@ -1,5 +1,9 @@
 <template>
-  <CommonLayout :isButton="false" :showAside="false">
+  <CommonLayout
+    :isButton="false"
+    :showAside="false"
+    class="right-page-content-body"
+  >
     <template #main-content>
       <div class="app-content">
         <Chat :editForm="editForm" :chatType="'chat'" />
@@ -8,6 +12,7 @@
   </CommonLayout>
 </template>
 <script>
+import { mapActions } from 'vuex';
 import CommonLayout from '@/components/exploreContainer.vue';
 import Chat from './components/chat.vue';
 import { getRagPublishedInfo } from '@/api/rag';
@@ -29,13 +34,18 @@ export default {
       this.getDetail();
     }
   },
+  beforeDestroy() {
+    this.clearMaxPicNum();
+  },
   methods: {
+    ...mapActions('app', ['setMaxPicNum', 'clearMaxPicNum']),
     getDetail() {
       getRagPublishedInfo({ ragId: this.editForm.appId }).then(res => {
         if (res.code === 0) {
           this.editForm.avatar = res.data.avatar;
           this.editForm.name = res.data.name;
           this.editForm.desc = res.data.desc;
+          this.setMaxPicNum(res.data.visionConfig.picNum);
         }
       });
     },

@@ -19,6 +19,12 @@
             v-model="question"
             class="test_ipt"
           />
+          <!--          <uploadImg-->
+          <!--            v-if="category === 2"-->
+          <!--            style="transform: translate(7px, -45px); margin-bottom: -30px"-->
+          <!--            v-model="file"-->
+          <!--            :acceptType="fileType"-->
+          <!--          ></uploadImg>-->
           <div class="test_btn">
             <el-button type="primary" size="small" @click="startTest">
               {{ $t('knowledgeManage.startTest') }}
@@ -103,7 +109,7 @@
               <div>
                 <div class="resultContent">
                   <template v-if="item.contentType !== 'qa'">
-                    {{ item.snippet.slice(0, 100) }}...
+                    <div v-html="md.render(item.snippet)"></div>
                   </template>
                   <template v-else>
                     <div>
@@ -189,21 +195,30 @@
   </div>
 </template>
 <script>
-import { hitTest } from '@/api/knowledge';
+import { hitTest, getDocLimit } from '@/api/knowledge';
 import { qaHitTest } from '@/api/qaDatabase';
 import { md } from '@/mixins/markdown-it';
 import { formatScore } from '@/utils/util';
 import searchConfig from '@/components/searchConfig.vue';
 import LinkIcon from '@/components/linkIcon.vue';
+import uploadImg from '@/components/uploadImg.vue';
 import metaSet from '@/components/metaSet';
 import sectionShow from './sectionShow.vue';
 
 export default {
-  components: { LinkIcon, searchConfig, metaSet, sectionShow },
+  components: {
+    LinkIcon,
+    uploadImg,
+    searchConfig,
+    metaSet,
+    sectionShow,
+  },
   data() {
     return {
       md: md,
       question: '',
+      file: null,
+      fileType: '.png,.jpg,.jpeg',
       resultLoading: false,
       knowledgeIdList: {},
       searchList: [],
@@ -221,7 +236,7 @@ export default {
       },
       knowledgeId: this.$route.query.knowledgeId,
       name: this.$route.query.name,
-      graphSwitch: this.$route.query.graphSwitch || false,
+      graphSwitch: this.$route.query.graphSwitch === 'true',
       type: this.$route.query.type || '',
       category: Number(this.$route.query.category || 0),
       external: Number(this.$route.query.external || 0),
@@ -232,6 +247,17 @@ export default {
     this.$nextTick(() => {
       const config = this.$refs.searchConfig.formInline;
       this.formInline = JSON.parse(JSON.stringify(config));
+      if (this.category === 2)
+        getDocLimit({ knowledgeId: this.knowledgeId }).then(res => {
+          if (res.code === 0) {
+            this.fileType =
+              '.' +
+              res.data.uploadLimitList
+                .find(item => item.fileType === 'image')
+                .flatMap(item => item.extList || [])
+                .join(',.');
+          }
+        });
     });
   },
   methods: {
@@ -259,7 +285,7 @@ export default {
         name: this.name,
       };
 
-      if (this.question === '') {
+      if (this.question === '' && this.file === null) {
         this.$message.warning(this.$t('knowledgeManage.inputTestContent'));
         return;
       }
@@ -313,6 +339,17 @@ export default {
       if (this.type === 'qa') {
         this.qaHitTest(data);
       } else {
+        data.docInfoList = this.file
+          ? [
+              {
+                docId: this.file.fileId,
+                docName: this.file.fileName,
+                docSize: this.file.fileSize,
+                docType: this.file.fileName.split('.').pop(),
+                docUrl: this.file.filePath,
+              },
+            ]
+          : [];
         this.knowledgeHitTest(data);
       }
     },
@@ -447,8 +484,9 @@ export default {
       }
 
       .resultContent {
-        img {
-          width: 100%;
+        ::v-deep img {
+          max-width: 25%;
+          max-height: 25%;
         }
       }
 

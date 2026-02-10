@@ -1,31 +1,14 @@
 <template>
   <div class="page-wrapper mcp-management">
     <div class="common_bg">
-      <div class="page-title">
+      <!--<div class="page-title">
         <img class="page-title-img" src="@/assets/imgs/tool.svg" alt="" />
-        <span class="page-title-name">{{ $t('menu.tool') }}</span>
-      </div>
-      <!-- tabs -->
-      <div class="mcp-tabs">
-        <div
-          :class="['mcp-tab', { active: ![tool, prompt].includes(tabActive) }]"
-          @click="tabClick(mcp)"
-        >
-          {{ $t('tool.mcp') }}
-        </div>
-        <div
-          :class="['mcp-tab', { active: tabActive === tool }]"
-          @click="tabClick(tool)"
-        >
-          {{ $t('tool.tool') }}
-        </div>
-        <div
-          :class="['mcp-tab', { active: tabActive === prompt }]"
-          @click="tabClick(prompt)"
-        >
-          {{ $t('tool.prompt.title') }}
-        </div>
-      </div>
+        <span class="page-title-name">
+          {{
+            menuObj[tabActive] ? menuObj[tabActive].name : $t('menu.resource')
+          }}
+        </span>
+      </div>-->
 
       <mcp ref="mcp" v-if="![tool, prompt].includes(tabActive)" />
       <tool ref="tool" v-if="tabActive === tool" />
@@ -46,25 +29,29 @@ export default {
       mcp: MCP,
       tool: TOOL,
       prompt: PROMPT,
+      menuObj: {
+        [MCP]: { name: this.$t('menu.mcpService') },
+        [TOOL]: { name: this.$t('menu.tool') },
+        [PROMPT]: { name: this.$t('menu.prompt') },
+      },
     };
   },
   watch: {
     $route: {
       handler() {
-        const { type } = this.$route.query || {};
-        this.tabActive = type;
+        this.changeRoute();
       },
       // 深度观察监听
       deep: true,
     },
   },
   mounted() {
-    const { type } = this.$route.query || {};
-    this.tabActive = type;
+    this.changeRoute();
   },
   methods: {
-    tabClick(type) {
-      this.tabActive = type;
+    changeRoute() {
+      const { routeType } = this.$route.meta || {};
+      this.tabActive = routeType;
     },
   },
   components: {
@@ -97,7 +84,8 @@ export default {
   }
 
   .mcp-tabs {
-    margin: 20px;
+    margin: 0 20px;
+    padding-top: 20px;
 
     .mcp-tab {
       display: inline-block;
@@ -234,9 +222,9 @@ export default {
     }
 
     .card-item-create {
-      background: $color_opacity;
-      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(56, 75, 247, 0.47);
+      background: #fff;
+      border: 1px solid $create_card_border_color;
+      box-shadow: 0px 8px 10px 0px rgba(80, 98, 161, 0.07);
 
       .app-card-create {
         width: 100%;
@@ -254,11 +242,8 @@ export default {
           position: relative;
 
           .create-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: $color;
-            padding: 10px;
+            width: 83px;
+            height: 84px;
           }
 
           .create-filter {

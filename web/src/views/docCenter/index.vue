@@ -336,37 +336,42 @@ export default {
         background: rgba(255, 255, 255, 0);
         border-radius: 8px;
       }
+      ::v-deep .el-menu-item {
+        color: $color_title;
+      }
       ::v-deep .el-submenu__title,
-      ::v-deep .el-menu-item span,
-      ::v-deep .el-submenu__title span {
-        font-size: 14px !important;
+      ::v-deep .el-menu-item span {
+        font-size: 15px !important;
       }
-      ::v-deep .el-menu-item.is-active {
-        background-color: rgba(230, 0, 1, 0.03) !important;
-      }
+      ::v-deep .el-menu-item.is-active,
       ::v-deep .el-menu-item:focus {
-        background-color: rgba(230, 0, 1, 0.03) !important;
+        background-color: $color_opacity !important;
       }
-      ::v-deep .el-menu-item:hover,
-      ::v-deep .el-submenu__title:hover {
-        background-color: #f6f6f6 !important;
+      ::v-deep .el-menu-item.is-active,
+      ::v-deep .el-submenu.is-active {
+        .el-submenu__title:hover {
+          background-color: $color_opacity !important;
+        }
       }
       ::v-deep .el-submenu__title {
         span {
-          font-size: 14px !important;
+          font-size: 15px !important;
         }
       }
       ::v-deep .el-submenu.is-active .el-submenu__title {
         border-bottom-color: $color !important;
       }
-    }
-  }
-  .doc-outer-container ::v-deep {
-    .el-submenu.is-active,
-    .el-submenu.is-active > .el-submenu__title,
-    .el-submenu.is-active > .el-submenu__title i:first-child,
-    .el-submenu.is-active > .el-submenu__title .el-submenu__icon-arrow {
-      color: $color !important;
+      ::v-deep .el-menu .el-submenu__title,
+      ::v-deep .el-menu .el-menu-item {
+        height: 40px;
+        line-height: 40px;
+        border-radius: 6px;
+        margin: 10px;
+        min-width: auto;
+      }
+      ::v-deep .el-menu {
+        border: none;
+      }
     }
   }
 }
@@ -380,7 +385,7 @@ export default {
     justify-content: center;
     width: 30%;
     span {
-      font-size: 22px;
+      font-size: 18px;
       margin-left: 18px;
       font-weight: bold;
       color: $color_title;

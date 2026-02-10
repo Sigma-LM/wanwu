@@ -14,7 +14,7 @@ export const setFavorite = data => {
     data,
   });
 };
-export const getExplorList = params => {
+export const getExplorationList = params => {
   return service({
     url: `${USER_API}/exploration/app/list`,
     method: 'get',

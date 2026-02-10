@@ -2,7 +2,7 @@
   <div class="mcp-content-box customize">
     <div class="mcp-content">
       <div class="card-search card-search-cust">
-        <div style="width: 100%; text-align: right">
+        <div style="width: 100%">
           <search-input
             :placeholder="$t('tool.prompt.search')"
             ref="searchInput"
@@ -15,16 +15,10 @@
           <div class="app-card-create" @click="createPrompt">
             <div class="create-img-wrap">
               <img
-                class="create-type"
-                src="@/assets/imgs/create_prompt.svg"
-                alt=""
-              />
-              <img
                 class="create-img"
-                src="@/assets/imgs/create_icon.png"
+                src="@/assets/imgs/card_create_icon_prompt.svg"
                 alt=""
               />
-              <div class="create-filter"></div>
             </div>
             <span>{{ $t('tool.prompt.create') }}</span>
           </div>
@@ -89,7 +83,6 @@ import {
   getCustomPromptList,
   deleteCustomPrompt,
   copyCustomPrompt,
-  copyPromptTemplate,
 } from '@/api/templateSquare';
 import { avatarSrc } from '@/utils/util';
 export default {
@@ -169,6 +162,9 @@ export default {
   width: 50px;
   height: 50px;
   object-fit: cover;
+}
+.mcp-content-box {
+  padding-top: 10px;
 }
 .mcp-content-box .noData {
   width: 100%;
