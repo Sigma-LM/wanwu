@@ -815,8 +815,6 @@ export default {
           }
         }
       }
-      if (fileFormatSet.has('audio') && !this.ruleForm.asrModelId)
-        this.confirmFlag = false;
       return fileFormatSet;
     },
     acceptType() {
@@ -1322,6 +1320,9 @@ export default {
         ...item,
         checked: false,
       }));
+      this.confirmFlag = !(
+        this.fileFormatSet.has('audio') && !this.ruleForm.asrModelId
+      );
       this.getModelOptions();
       this.$refs.ruleForm.clearValidate();
     },
@@ -1518,6 +1519,9 @@ export default {
       this.active = 2;
       if (this.fileType === 'fileMultiModal')
         this.ruleForm.docAnalyzer = ['text'];
+      this.confirmFlag = !(
+        this.fileFormatSet.has('audio') && !this.ruleForm.asrModelId
+      );
       this.verifyASR();
     },
     preStep() {
