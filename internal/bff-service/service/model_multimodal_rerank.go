@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"net/http"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
@@ -11,6 +10,7 @@ import (
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
+	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 )
 

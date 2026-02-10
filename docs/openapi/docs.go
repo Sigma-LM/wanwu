@@ -2274,7 +2274,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "multimodalModelId": {
-                    "description": "模态模型id",
+                    "description": "多模态模型id",
                     "type": "string"
                 },
                 "parserModelId": {
@@ -2341,7 +2341,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "multimodalModelId": {
-                    "description": "模态模型id",
+                    "description": "多模态模型id",
                     "type": "string"
                 },
                 "parserModelId": {
@@ -2362,7 +2362,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docSize": {
-                    "description": "文档大小",
+                    "description": "文档大小，单位字节(Byte)",
                     "type": "integer"
                 },
                 "docType": {
@@ -3307,8 +3307,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "fileSize": {
-                    "description": "文件大小，预留",
-                    "type": "string"
+                    "description": "文件大小，单位字节(Byte)",
+                    "type": "integer"
                 },
                 "graphErrMsg": {
                     "description": "图谱错误信息",

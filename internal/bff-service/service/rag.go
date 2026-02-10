@@ -249,7 +249,7 @@ func buildRagUploadFile(markdown bool, fileName string, result []byte, err error
 	}
 	var uploadUrl = uploadResult.DownloadLink
 	if markdown {
-		uploadUrl = util.MarkdownUrl(uploadResult.DownloadLink, fileName)
+		uploadUrl = util.MdImageUrl(fileName, uploadResult.DownloadLink)
 	}
 	return &response.RagUploadFile{FileUrl: uploadUrl}, nil
 }
