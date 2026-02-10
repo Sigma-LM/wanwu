@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/pkg/grpc-consumer/consumer/assistant"

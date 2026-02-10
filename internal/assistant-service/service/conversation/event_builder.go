@@ -3,8 +3,9 @@ package conversation
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 	"strings"
+
+	"github.com/UnicomAI/wanwu/internal/assistant-service/client/model"
 )
 
 type SubEventStatus int

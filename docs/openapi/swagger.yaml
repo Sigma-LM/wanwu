@@ -625,7 +625,7 @@ definitions:
         description: 知识库id
         type: string
       multimodalModelId:
-        description: 模态模型id
+        description: 多模态模型id
         type: string
       parserModelId:
         description: 模型解析或ocr模型id
@@ -672,7 +672,7 @@ definitions:
         description: 知识库id
         type: string
       multimodalModelId:
-        description: 模态模型id
+        description: 多模态模型id
         type: string
       parserModelId:
         description: 模型解析或ocr模型id
@@ -692,7 +692,7 @@ definitions:
         description: 文档名称
         type: string
       docSize:
-        description: 文档大小
+        description: 文档大小，单位字节(Byte)
         type: integer
       docType:
         description: 文档后缀
@@ -1340,8 +1340,8 @@ definitions:
         description: 解析错误信息，预留
         type: string
       fileSize:
-        description: 文件大小，预留
-        type: string
+        description: 文件大小，单位字节(Byte)
+        type: integer
       graphErrMsg:
         description: 图谱错误信息
         type: string

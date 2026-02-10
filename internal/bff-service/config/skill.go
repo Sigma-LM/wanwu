@@ -36,19 +36,19 @@ func (stf *SkillsConfig) load() error {
 		return fmt.Errorf("load skill %v markdown path %v err: %v", stf.SkillId, markdownPath, err)
 	}
 
-	// 处理 front matter 格式=
+	// 处理 front matter 格式
 	stf.SkillMarkdown = []byte(fixFrontMatterFormat(string(b)))
 	return nil
 }
 
-// fixFrontMatterFormat 确保 front matter 格式正确
+// fixFrontMatterFormat 确保 front matter 格式正确（配合前端正确渲染）
 func fixFrontMatterFormat(content string) string {
 	// 如果内容不以 --- 开头，直接返回
 	if !strings.HasPrefix(content, "---") {
 		return content
 	}
 
-	// 找到第一个 --- 和第二个 ---(中间包裹的为name des license字段)
+	// 找到第一个 --- 和第二个 ---(中间包裹的为name、description等字段)
 	firstEnd := 3 // 第一个 --- 占3个字符
 	secondStart := strings.Index(content[firstEnd:], "---")
 	if secondStart == -1 {
