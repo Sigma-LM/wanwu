@@ -442,3 +442,34 @@ export function formatFileSize(bytes, decimals = 2) {
     parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i]
   );
 }
+
+// 只解析md图片
+export function parseImagesOnly(markdownText) {
+  // 匹配 Markdown 图片语法的正则表达式
+  // ![](image.jpg) 或 ![alt](image.jpg) 或 ![alt](image.jpg "title")
+  const imageRegex = /!\[(.*?)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g;
+
+  let lastIndex = 0;
+  let result = '';
+
+  let match;
+  while ((match = imageRegex.exec(markdownText)) !== null) {
+    // 添加匹配前的文本内容
+    result += markdownText.substring(lastIndex, match.index);
+
+    // 构造图片HTML
+    const alt = match[1] || '';
+    const src = match[2];
+    const title = match[3] ? ` title="${match[3]}"` : '';
+
+    result += `<img src="${src}" alt="${alt}"${title}>`;
+
+    // 更新lastIndex到匹配结束位置
+    lastIndex = match.index + match[0].length;
+  }
+
+  // 添加剩余的文本内容
+  result += markdownText.substring(lastIndex);
+
+  return result;
+}

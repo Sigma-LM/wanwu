@@ -232,7 +232,7 @@
               </div>
               <div
                 class="text item"
-                v-html="md.render(item.content)"
+                v-html="parseImagesOnly(item.content)"
                 @click="handleClick(item, index)"
               ></div>
               <div
@@ -523,7 +523,7 @@ import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue';
 import { mapGetters } from 'vuex';
-import { md } from '@/mixins/markdown-it';
+import { parseImagesOnly } from '@/utils/util';
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -537,7 +537,6 @@ export default {
   components: { SearchInput, dataBaseDialog, tagDialog, createChunk },
   data() {
     return {
-      md,
       submitLoading: false,
       oldContent: '',
       title: '创建关键词',
@@ -616,6 +615,7 @@ export default {
     this.clearTimer();
   },
   methods: {
+    parseImagesOnly,
     handleSearch(val) {
       this.getList(val);
     },
