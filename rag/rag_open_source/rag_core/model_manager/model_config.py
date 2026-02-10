@@ -1,13 +1,13 @@
 import requests
 import os
-
-from typing import Optional, Dict, Any, Type
+import logging
 
 from enum import Enum
+from typing import Optional, Dict, Any, Type
 from settings import MODEL_PROVIDER_URL
-from log.logger import logger
 
 TIMEOUT_SECONDS = 50
+logger = logging.getLogger(__name__)
 
 class ModelType(Enum):
     """模型类型枚举"""
@@ -58,22 +58,32 @@ class BaseModelConfig:
         return False
 
     @property
-    def context_window(self) -> Optional[int]:
+    def context_size(self) -> Optional[int]:
         """模型最大上下文长度"""
-        return self.original_args.get("context_window", 8000)
+        default_content_size = 8000
+        content_size = self.original_args.get("contextSize", 8000)
+        if not content_size or content_size <= 0:
+            return default_content_size
+
+        return content_size
 
     @property
     def max_tokens(self) -> Optional[int]:
         """模型 max_token"""
-        return self.original_args.get("max_token", 8000)
+        default_max_tokens = 4096
+        max_tokens = self.original_args.get("maxTokens", 4096)
+        if not max_tokens or max_tokens <= 0:
+            return default_max_tokens
+
+        return max_tokens
 
     @property
     def max_image_size(self) -> Optional[int]:
         """模型输入图片最大 size"""
-        return self.original_args.get("max_image_size", 3 * 1024 * 1024)
+        return self.original_args.get("max_image_size", 3*1024*1024)
 
     def __str__(self):
-        return (f"<{self.__class__.__name__} type={self.model_type}, id={self.model_id}, "
+        return (f"<{self.__class__.__name__} type={self.model_type.value}, id={self.model_id}, "
                 f"name={self.model_name}, provider={self.provider}>, config={self.original_args}")
 
     @staticmethod
@@ -139,8 +149,6 @@ class RerankModelConfig(BaseModelConfig):
     def from_api_response(cls, data: Dict[str, Any]):
         model_type = data.get("modelType")
         common_data = cls._parse_common_data(data)
-        # Rerank 强制覆盖 provider 为 OpenAI-API-compatible
-        common_data["provider"] = "OpenAI-API-compatible"
         if model_type == ModelType.MULTIMODAL_RERANK.value:
             return cls(ModelType.MULTIMODAL_RERANK, **common_data)
         return cls(**common_data)
@@ -190,7 +198,7 @@ def get_model_configure(model_id: str) -> BaseModelConfig:
         model_type = data.get("modelType")
         if model_type == ModelType.LLM.value:
             return LlmModelConfig.from_api_response(data)
-        elif model_type in [ModelType.TEXT_EMBEDDING.value, ModelType.MULTIMODAL_EMBEDDING.value]:
+        elif model_type in[ModelType.TEXT_EMBEDDING.value, ModelType.MULTIMODAL_EMBEDDING.value]:
             return EmbeddingModelConfig.from_api_response(data)
         elif model_type in [ModelType.RERANK.value, ModelType.MULTIMODAL_RERANK.value]:
             return RerankModelConfig.from_api_response(data)
@@ -204,10 +212,3 @@ def get_model_configure(model_id: str) -> BaseModelConfig:
     except Exception as e:
         logger.error(f"Failed to fetch model config for ID {model_id}: {repr(e)}")
         raise RuntimeError(f"Failed to get model configuration: {e}")
-
-def is_multimodal_model(model_id: str) -> bool:
-    """
-    判断模型是否支持多模态
-    """
-    model_config = get_model_configure(model_id)
-    return model_config.is_multimodal
