@@ -17,7 +17,6 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/minio"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	mp_jina "github.com/UnicomAI/wanwu/pkg/model-provider/mp-jina"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 )
@@ -47,6 +46,7 @@ func GetDocList(ctx *gin.Context, userId, orgId string, r *request.DocListReq) (
 		OrgId:       orgId,
 		MetaValue:   strings.TrimSpace(r.MetaValue),
 		GraphStatus: r.GraphStatus,
+		DocIdList:   r.DocIdList,
 	})
 	if err != nil {
 		return nil, err
@@ -91,11 +91,13 @@ func GetDocConfig(ctx *gin.Context, userId, orgId string, r *request.DocConfigRe
 	docSegment := configInfo.DocSegment
 
 	return &response.DocConfigResult{
-		DocSegment:    buildDocSegment(docSegment),
-		DocPreprocess: configInfo.DocPreprocess,
-		DocAnalyzer:   configInfo.DocAnalyzer,
-		DocImportType: configInfo.DocImportType,
-		ParserModelId: configInfo.OcrModelId,
+		DocSegment:        buildDocSegment(docSegment),
+		DocPreprocess:     configInfo.DocPreprocess,
+		DocAnalyzer:       configInfo.DocAnalyzer,
+		DocImportType:     configInfo.DocImportType,
+		ParserModelId:     configInfo.OcrModelId,
+		AsrModelId:        configInfo.AsrModelId,
+		MultimodalModelId: configInfo.MultimodalModelId,
 	}, nil
 }
 
@@ -116,7 +118,7 @@ func GetDocDetail(ctx *gin.Context, userId, orgId, docId string) (*response.List
 		UploadTime:    data.UploadTime,
 		Status:        int(data.Status),
 		ErrorMsg:      gin_util.I18nKey(ctx, data.ErrorMsg),
-		FileSize:      util.ToFileSizeStr(data.DocSize),
+		FileSize:      data.DocSize,
 		KnowledgeId:   data.KnowledgeId,
 		SegmentMethod: data.SegmentMethod,
 	}, nil
@@ -191,9 +193,11 @@ func UpdateDocConfig(ctx *gin.Context, userId, orgId string, req *request.DocCon
 				SubMaxSplitter: int32(segment.SubMaxSplitter),
 				SubSplitter:    segment.SubSplitter,
 			},
-			DocAnalyzer:   req.DocAnalyzer,
-			OcrModelId:    req.ParserModelId,
-			DocPreprocess: req.DocPreprocess,
+			DocAnalyzer:       req.DocAnalyzer,
+			OcrModelId:        req.ParserModelId,
+			DocPreprocess:     req.DocPreprocess,
+			AsrModelId:        req.AsrModelId,
+			MultimodalModelId: req.MultimodalModelId,
 		},
 	})
 	if err != nil {
@@ -362,12 +366,13 @@ func buildDocRespList(ctx *gin.Context, dataList []*knowledgebase_doc_service.Do
 			UploadTime:    data.UploadTime,
 			Status:        int(data.Status),
 			ErrorMsg:      gin_util.I18nKey(ctx, data.ErrorMsg),
-			FileSize:      util.ToFileSizeStr(data.DocSize),
+			FileSize:      data.DocSize,
 			KnowledgeId:   knowledgeId,
 			SegmentMethod: data.SegmentMethod,
 			Author:        authorMap[data.UserId],
 			GraphStatus:   data.GraphStatus,
 			GraphErrMsg:   data.GraphErrMsg,
+			IsMultimodal:  data.IsMultimodal,
 		})
 	}
 	return retList

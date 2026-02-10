@@ -9,11 +9,13 @@ type DocPageResult struct {
 }
 
 type DocConfigResult struct {
-	DocImportType int32       `json:"docImportType"` //文档导入类型，0：文件上传，1：url上传，2.批量url上传
-	DocSegment    *DocSegment `json:"docSegment"`    //分段信息配置
-	DocAnalyzer   []string    `json:"docAnalyzer"`   //文档解析类型
-	ParserModelId string      `json:"parserModelId"` //ocr模型id
-	DocPreprocess []string    `json:"docPreprocess"` //文本预处理规则
+	DocImportType     int32       `json:"docImportType"`     //文档导入类型，0：文件上传，1：url上传，2.批量url上传
+	DocSegment        *DocSegment `json:"docSegment"`        //分段信息配置
+	DocAnalyzer       []string    `json:"docAnalyzer"`       //文档解析类型
+	ParserModelId     string      `json:"parserModelId"`     //ocr模型id
+	AsrModelId        string      `json:"asrModelId"`        //asr模型id
+	MultimodalModelId string      `json:"multimodalModelId"` //多模态模型id
+	DocPreprocess     []string    `json:"docPreprocess"`     //文本预处理规则
 }
 
 type DocSegment struct {
@@ -46,11 +48,12 @@ type ListDocResp struct {
 	UploadTime    string `json:"uploadTime"`    //上传时间
 	Status        int    `json:"status"`        //处理状态
 	ErrorMsg      string `json:"errorMsg"`      //解析错误信息，预留
-	FileSize      string `json:"fileSize"`      //文件大小，预留
+	FileSize      int64  `json:"fileSize"`      //文件大小，单位字节(Byte)
 	SegmentMethod string `json:"segmentMethod"` //分段模式 0:通用分段，1：父子分段
 	Author        string `json:"author"`        //上传文档 作者
 	GraphStatus   int32  `json:"graphStatus"`   //图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -
 	GraphErrMsg   string `json:"graphErrMsg"`   //图谱错误信息
+	IsMultimodal  bool   `json:"isMultimodal"`  // 是否为多模态文件
 }
 
 type DocImportTipResp struct {

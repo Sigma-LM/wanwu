@@ -2362,7 +2362,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "docSize": {
-                    "description": "文档大小（可选）",
+                    "description": "文档大小",
                     "type": "integer"
                 },
                 "docType": {
@@ -2382,6 +2382,13 @@ const docTemplate = `{
                 "pageSize"
             ],
             "properties": {
+                "docIdList": {
+                    "description": "文档id列表，只用于返回所选文档的集合，该值不为空时，其他筛选条件将被忽略",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "docName": {
                     "type": "string"
                 },
@@ -2912,6 +2919,10 @@ const docTemplate = `{
         "response.DocConfigResult": {
             "type": "object",
             "properties": {
+                "asrModelId": {
+                    "description": "asr模型id",
+                    "type": "string"
+                },
                 "docAnalyzer": {
                     "description": "文档解析类型",
                     "type": "array",
@@ -2937,6 +2948,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.DocSegment"
                         }
                     ]
+                },
+                "multimodalModelId": {
+                    "description": "多模态模型id",
+                    "type": "string"
                 },
                 "parserModelId": {
                     "description": "ocr模型id",
@@ -3302,6 +3317,10 @@ const docTemplate = `{
                 "graphStatus": {
                     "description": "图谱状态 0:待处理，1.解析中，2.解析成功，3.解析失败 -1. 当文档状态为解析失败时，显示 -",
                     "type": "integer"
+                },
+                "isMultimodal": {
+                    "description": "是否为多模态文件",
+                    "type": "boolean"
                 },
                 "knowledgeId": {
                     "description": "知识库id",
