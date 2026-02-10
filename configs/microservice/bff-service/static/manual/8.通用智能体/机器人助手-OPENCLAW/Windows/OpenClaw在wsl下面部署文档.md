@@ -3,7 +3,6 @@
 ---
 
 本文档详细介绍了如何在 Windows WSL (Windows Subsystem for Linux) 环境中安装、配置并验证 OpenClaw。
-    
 
 ---
 

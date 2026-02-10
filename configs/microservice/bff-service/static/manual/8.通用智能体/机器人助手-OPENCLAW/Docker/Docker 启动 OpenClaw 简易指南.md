@@ -12,21 +12,21 @@
 
 ### 文件清单
 
-镜像：`openclaw_arm64_v2026.2.3.tar.gz`或`openclaw_amd_v2026.2.3.tar.gz`（根据架构选择对应镜像）
+镜像：`openclaw_arm64_v2026.2.3.tar.gz`或`openclaw_amd64_v2026.2.3.tar.gz`（根据架构选择对应镜像）
 
 部署：`openclawpkg.zip` 
 
-### 解压(amd架构为例)
+### 解压(amd64架构为例)
 
 ```shell
-tar -zxvf openclaw_amd_v2026.2.3.tar.gz
+tar -zxvf openclaw_amd64_v2026.2.3.tar.gz
 uzip openclawpkg.zip
 ```
 
 ### load image
 
 ```shell
-docker load -i openclaw_amd_v2026.2.3.tar
+docker load -i openclaw_amd64_v2026.2.3.tar
 ```
 
 ![image.png](assets/c02e807e-67e5-46d9-8dbf-c4c755ca0245.png)
