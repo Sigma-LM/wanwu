@@ -77,7 +77,7 @@ type APIAuth struct {
 
 type AgentPrepareParams struct {
 	KnowledgeList        []*knowledgebase_service.KnowledgeInfo
-	AssistantToolMap     map[string]*model.AssistantTool
+	AssistantToolMap     map[string][]string
 	CustomToolList       []*mcp_service.GetCustomToolInfoResp
 	SquareToolList       []*mcp_service.SquareToolDetail
 	WorkflowList         []map[string]interface{}
