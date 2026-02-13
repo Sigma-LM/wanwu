@@ -80,6 +80,9 @@ func buildSubAgentEventInfo(respContext *request.AgentChatContext, chatMessage *
 }
 
 func buildMultiContentWithTool(chatMessage *schema.Message, respContext *AgentChatRespContext, req *request.AgentChatContext) ([]string, *SubEventData, bool) {
+	if filterMultiMessage(chatMessage) {
+		return make([]string, 0), nil, false
+	}
 	first, start := agentStart(chatMessage, respContext)
 	var contentList = make([]string, 0)
 	//子智能体开始
@@ -285,4 +288,14 @@ func buildEventType(subEvent *SubEventData) AgentEventType {
 		return MainAgentEventType
 	}
 	return SubAgentEventType
+}
+
+func filterMultiMessage(chatMessage *schema.Message) bool {
+	if !toolParamsEnd(chatMessage) && !toolEnd(chatMessage) && len(chatMessage.Content) == 0 && len(chatMessage.ToolCalls) > 0 {
+		tool := chatMessage.ToolCalls[0]
+		if len(tool.Function.Name) == 0 && len(tool.Function.Arguments) == 0 {
+			return true
+		}
+	}
+	return false
 }
